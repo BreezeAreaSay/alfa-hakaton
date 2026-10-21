@@ -8,9 +8,13 @@
 
 ## ER-диаграмма
 
-Все 20 таблиц и связи между ними, кроме ссылок на пользователя, который выполнил действие, — они на второй
-схеме. Типы — типы PostgreSQL без размерностей: деньги — `NUMERIC(15,2)`, ставки — `NUMERIC(5,2)`, длины строк — в
-миграции. PK — первичный ключ, FK — внешний ключ, UK — уникальное поле.
+Все 20 таблиц и связи между ними. Сначала общая схема без столбцов, затем те же таблицы по группам — с
+ключевыми столбцами; таблицы соседних групп показаны на схемах групп без столбцов. Ссылки на пользователя,
+который выполнил действие, — на отдельной схеме. Типы — типы PostgreSQL без размерностей: деньги —
+`NUMERIC(15,2)`, ставки — `NUMERIC(5,2)`, длины строк — в миграции. PK — первичный ключ, FK — внешний ключ,
+UK — уникальное поле.
+
+### Общая схема
 
 ```mermaid
 erDiagram
@@ -38,7 +42,17 @@ erDiagram
     applications ||--o{ messages : "чат"
     applications |o--o{ events : "события"
     companies |o--o{ events : "лента клиента"
+```
 
+### Компании, пользователи, продукты и заявка
+
+```mermaid
+erDiagram
+    companies |o--o{ users : "пользователи клиента"
+    companies ||--o{ applications : "заявки"
+    products ||--o{ applications : "продукт"
+    applications ||--o{ status_history : "история статусов"
+    applications ||--o{ consents : "согласия"
     companies {
         uuid id PK
         varchar inn UK "ИНН"
@@ -115,6 +129,17 @@ erDiagram
         uuid given_by FK "users"
         varchar text_version
     }
+```
+
+### Конвейер и решение
+
+```mermaid
+erDiagram
+    applications ||--o{ pipeline_steps : "шаги прогонов"
+    applications |o--o{ jobs : "задания"
+    applications ||--o{ scoring_results : "скоринг"
+    applications ||--o{ decisions : "решения"
+    decisions ||--o{ offers : "варианты условий"
     pipeline_steps {
         bigint id PK
         uuid application_id FK "UK вместе с run_no и step"
@@ -166,6 +191,24 @@ erDiagram
         jsonb trace
         uuid decided_by FK "users"
     }
+```
+
+### Предложение, документы, выдача
+
+```mermaid
+erDiagram
+    decisions ||--o{ offers : "варианты условий"
+    applications ||--o{ offers : "предложения"
+    products ||--o{ offers : "продукт"
+    applications ||--o{ info_requests : "запросы информации"
+    info_requests |o--o{ documents : "файлы ответа"
+    applications ||--o{ documents : "документы"
+    documents ||--o{ signatures : "подписи"
+    applications ||--o{ signatures : "подписи"
+    applications ||--o| loans : "кредит"
+    offers ||--o| loans : "принятое предложение"
+    products ||--o{ loans : "продукт"
+    loans ||--|{ schedule_items : "график платежей"
     offers {
         uuid id PK
         uuid application_id FK
@@ -235,6 +278,15 @@ erDiagram
         numeric interest
         numeric balance
     }
+```
+
+### Общение, уведомления и служебные таблицы
+
+```mermaid
+erDiagram
+    applications ||--o{ messages : "чат"
+    applications |o--o{ events : "события"
+    companies |o--o{ events : "лента клиента"
     messages {
         bigint id PK
         uuid application_id FK

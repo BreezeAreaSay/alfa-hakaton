@@ -1,0 +1,614 @@
+/* Печатная вёрстка документации: A4, Onest, палитра дизайн-системы (bluetint). */
+
+:root {
+  --text: #212124;
+  --text-secondary: #75757d;
+  --text-tertiary: #a0a1a9;
+  --accent: #ef3124;
+  --link: #2a77ef;
+  --bg-secondary: #f2f3f5;
+  --bg-zebra: #f8f8fa;
+  --border: #d5d6dc;
+  --border-light: #e7e8ec;
+  --sans: 'Onest', 'Inter', 'DejaVu Sans', Arial, sans-serif;
+  --mono: 'JetBrains Mono', 'DejaVu Sans Mono', Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace;
+}
+
+@page {
+  size: A4;
+  margin: 20mm 18mm 17mm 18mm;
+  font-family: var(--sans);
+  font-size: 7.5pt;
+  color: var(--text-secondary);
+
+  /* Верхний колонтитул: название документа и файл задаются для каждого документа в build.mjs. */
+  @top-left {
+    vertical-align: bottom;
+    padding-bottom: 5.5mm;
+  }
+  @top-right {
+    vertical-align: bottom;
+    padding-bottom: 5.5mm;
+  }
+  @bottom-left {
+    content: 'Умный кредитный кабинет предпринимателя · Документация проекта';
+    vertical-align: top;
+    padding-top: 6mm;
+  }
+  @bottom-right {
+    content: counter(page) ' / ' counter(pages);
+    vertical-align: top;
+    padding-top: 6mm;
+  }
+}
+
+@page cover {
+  margin: 22mm 22mm 20mm 22mm;
+  @bottom-left { content: none; }
+  @bottom-right { content: none; }
+}
+
+@page toc {
+  @top-left { content: 'Содержание'; }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: var(--sans);
+  font-size: 10pt;
+  line-height: 1.5;
+  color: var(--text);
+  background: #fff;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+body {
+  margin: 0;
+}
+
+/* ---------- Обложка ---------- */
+
+.cover {
+  page: cover;
+  height: 254mm;
+  display: flex;
+  flex-direction: column;
+  break-after: page;
+}
+
+.cover-case {
+  font-size: 10pt;
+  font-weight: 500;
+  color: var(--text-secondary);
+  letter-spacing: 0.01em;
+}
+
+.cover-main {
+  margin-top: 62mm;
+}
+
+.cover-rule {
+  width: 34mm;
+  height: 2.2pt;
+  background: var(--accent);
+  margin-bottom: 9mm;
+}
+
+.cover-title {
+  font-size: 32pt;
+  line-height: 1.12;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  max-width: 150mm;
+}
+
+.cover-subtitle {
+  margin-top: 7mm;
+  font-size: 17pt;
+  line-height: 1.3;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.cover-meta {
+  margin: auto 0 0;
+  padding-top: 5mm;
+  border-top: 0.75pt solid var(--border);
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  justify-content: start;
+  column-gap: 16mm;
+  font-size: 9pt;
+}
+
+.cover-meta dt {
+  color: var(--text-secondary);
+  margin-bottom: 1mm;
+}
+
+.cover-meta dd {
+  margin: 0;
+  font-weight: 500;
+}
+
+.cover-meta a {
+  color: var(--text);
+}
+
+/* ---------- Содержание ---------- */
+
+.toc {
+  page: toc;
+  break-after: page;
+}
+
+.toc h1 {
+  margin-bottom: 8mm;
+}
+
+.toc ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.toc li {
+  margin: 0;
+}
+
+.toc-doc {
+  margin: 0 0 3mm;
+}
+
+/* Название документа не отрывается от первых пунктов, последний пункт — от предыдущего. */
+.toc-doc > a,
+.toc-sub > li:first-child {
+  break-after: avoid;
+}
+
+.toc-sub > li:last-child {
+  break-before: avoid;
+}
+
+.toc-docs a {
+  display: flex;
+  align-items: baseline;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.toc-doc > a {
+  font-size: 10.5pt;
+  font-weight: 700;
+  padding: 0.6mm 0;
+}
+
+.toc-num {
+  flex: none;
+  width: 8mm;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.toc-title {
+  flex: 0 1 auto;
+}
+
+/* Без transform: Chromium рисует трансформированные элементы на каждой странице PDF. */
+.toc-leader {
+  flex: 1 1 auto;
+  min-width: 6mm;
+  margin: 0 1.5mm;
+  border-bottom: 0.6pt dotted var(--text-tertiary);
+  position: relative;
+  top: -0.9mm;
+}
+
+.toc-page {
+  flex: none;
+  min-width: 7mm;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.toc .toc-sub {
+  padding-left: 8mm;
+}
+
+.toc-sub a {
+  font-size: 9pt;
+  line-height: 1.38;
+  padding: 0.25mm 0;
+  color: var(--text);
+}
+
+.toc-sub .toc-page {
+  color: var(--text-secondary);
+}
+
+.toc-note {
+  margin-top: 7mm;
+  padding-top: 3.5mm;
+  border-top: 0.75pt solid var(--border-light);
+  font-size: 8.5pt;
+  color: var(--text-secondary);
+  break-inside: avoid;
+}
+
+.toc-note p {
+  margin: 0 0 1.2mm;
+}
+
+.toc-note ul {
+  margin: 0;
+  padding-left: 4.5mm;
+}
+
+.toc-note li {
+  margin: 0.6mm 0;
+}
+
+.toc-note a {
+  color: var(--link);
+}
+
+/* ---------- Документы ---------- */
+
+section.doc {
+  break-before: page;
+}
+
+.doc-head {
+  margin-bottom: 7mm;
+  break-after: avoid;
+}
+
+.doc-head::before {
+  content: '';
+  display: block;
+  width: 22mm;
+  height: 2pt;
+  background: var(--accent);
+  margin-bottom: 4.5mm;
+}
+
+.doc-kicker {
+  font-size: 8.5pt;
+  color: var(--text-secondary);
+  margin-bottom: 1.5mm;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--text);
+  break-after: avoid;
+  break-inside: avoid;
+}
+
+h1 {
+  font-size: 22pt;
+  letter-spacing: -0.005em;
+  margin: 0;
+}
+
+h2 {
+  font-size: 14pt;
+  margin: 8mm 0 3mm;
+}
+
+h3 {
+  font-size: 11.5pt;
+  margin: 6mm 0 2.2mm;
+}
+
+h4,
+h5,
+h6 {
+  font-size: 10.5pt;
+  margin: 5mm 0 1.8mm;
+}
+
+.doc-head + * {
+  margin-top: 0;
+}
+
+p {
+  margin: 0 0 2.6mm;
+  orphans: 3;
+  widows: 3;
+}
+
+/* Абзац, который заканчивается двоеточием, не отрывается от списка, таблицы или кода после него. */
+p.lead-in {
+  break-after: avoid;
+}
+
+strong {
+  font-weight: 700;
+}
+
+a {
+  color: var(--link);
+  text-decoration: none;
+}
+
+.link--broken {
+  color: inherit;
+}
+
+ul,
+ol {
+  margin: 0 0 3mm;
+  padding-left: 6mm;
+}
+
+li {
+  margin: 0.8mm 0;
+  orphans: 2;
+  widows: 2;
+}
+
+/* Последний пункт списка не переносится на новую страницу в одиночку. */
+li:last-child:not(:first-child) {
+  break-before: avoid;
+}
+
+li.keep-together {
+  break-inside: avoid;
+}
+
+li > p {
+  margin: 0 0 1.2mm;
+}
+
+li > ul,
+li > ol {
+  margin: 0.8mm 0 1mm;
+}
+
+ul > li::marker {
+  color: var(--text-secondary);
+}
+
+.task-item {
+  list-style: none;
+}
+
+.task-box {
+  display: inline-block;
+  width: 0.85em;
+  height: 0.85em;
+  margin: 0 0.45em 0 -1.25em;
+  border: 0.75pt solid var(--text-secondary);
+  border-radius: 2px;
+  vertical-align: -0.08em;
+}
+
+.task-box--done {
+  background: var(--text);
+  border-color: var(--text);
+}
+
+hr {
+  border: 0;
+  border-top: 0.75pt solid var(--border-light);
+  margin: 5mm 0;
+}
+
+blockquote {
+  margin: 3mm 0 4mm;
+  padding: 3mm 4.5mm;
+  background: var(--bg-secondary);
+  border-left: 2.5pt solid var(--border);
+  border-radius: 0 4px 4px 0;
+  break-inside: avoid;
+}
+
+blockquote > :last-child {
+  margin-bottom: 0;
+}
+
+/* ---------- Код ---------- */
+
+code {
+  font-family: var(--mono);
+  font-size: 0.86em;
+  font-variant-ligatures: none;
+  background: var(--bg-secondary);
+  border-radius: 3px;
+  padding: 0.08em 0.3em;
+  overflow-wrap: break-word;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+a code {
+  color: inherit;
+}
+
+pre.code {
+  margin: 2mm 0 3.5mm;
+  padding: 2.6mm 3.2mm;
+  background: var(--bg-secondary);
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 7.6pt;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  orphans: 2;
+  widows: 2;
+}
+
+pre.code--short {
+  break-inside: avoid;
+}
+
+pre.code code {
+  font-size: inherit;
+  background: none;
+  padding: 0;
+  border-radius: 0;
+}
+
+pre.code .ln {
+  display: block;
+  padding-left: var(--hang);
+  text-indent: calc(-1 * var(--hang));
+}
+
+/* Длинный блок может разорваться между страницами, но не оставляя одну-две строки. */
+pre.code .ln:nth-child(-n + 2) {
+  break-after: avoid;
+}
+
+pre.code .ln:nth-last-child(-n + 2) {
+  break-before: avoid;
+}
+
+.code-lang {
+  float: right;
+  margin: -1.2mm -1.4mm 0 3mm;
+  font-family: var(--sans);
+  font-size: 6.5pt;
+  line-height: 1.6;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+/* ---------- Таблицы ---------- */
+
+.table-wrap {
+  margin: 2.5mm 0 4.5mm;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 8.8pt;
+  line-height: 1.4;
+}
+
+thead {
+  display: table-header-group;
+}
+
+tr {
+  break-inside: avoid;
+}
+
+th,
+td {
+  padding: 1.3mm 2mm;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 0.5pt solid var(--border-light);
+  overflow-wrap: break-word;
+}
+
+th {
+  font-weight: 700;
+  background: var(--bg-secondary);
+  border-bottom: 0.75pt solid var(--border);
+}
+
+tbody tr:nth-child(even) td {
+  background: var(--bg-zebra);
+}
+
+td code,
+th code {
+  font-size: 0.9em;
+  padding: 0.05em 0.25em;
+}
+
+table.table--wide {
+  font-size: 8.2pt;
+}
+
+table.table--xwide {
+  font-size: 7.6pt;
+}
+
+table.table--wide th,
+table.table--wide td,
+table.table--xwide th,
+table.table--xwide td {
+  padding: 1.1mm 1.5mm;
+}
+
+/* Подгонка таблиц, которые не помещаются по ширине (классы ставит browser.js). */
+table.table--fit1 {
+  font-size: 7.4pt;
+}
+
+table.table--fit2 th,
+table.table--fit2 td,
+table.table--fit2 code {
+  overflow-wrap: anywhere;
+}
+
+table.table--fit3 {
+  font-size: 6.8pt;
+}
+
+/* ---------- Диаграммы ---------- */
+
+figure.diagram {
+  margin: 3mm 0 5mm;
+  text-align: center;
+  break-inside: avoid;
+}
+
+figure.diagram svg {
+  display: inline-block;
+}
+
+/* Тени узлов из стилей Mermaid в PDF превращаются в растр — отключаем. */
+figure.diagram svg,
+figure.diagram svg * {
+  filter: none !important;
+}
+
+/* Номера сообщений в диаграммах последовательности Mermaid задаёт шрифтом sans-serif. */
+figure.diagram svg text.sequenceNumber {
+  font-family: var(--sans) !important;
+}
+
+figure.diagram--landscape {
+  margin: 2mm 0 0;
+}
+
+.landscape > h2,
+.landscape > h3,
+.landscape > h4 {
+  margin-top: 0;
+}
+
+.diagram-note {
+  margin-top: 2mm;
+  font-size: 8pt;
+  color: var(--text-secondary);
+}
+
+.diagram--error .diagram-body {
+  padding: 3mm;
+  border: 0.75pt solid var(--accent);
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 7.6pt;
+  text-align: left;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
