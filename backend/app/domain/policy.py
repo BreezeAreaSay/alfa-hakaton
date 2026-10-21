@@ -141,7 +141,8 @@ def eligibility_issues(
     issues: list[Issue] = []
     if business_months is not None:
         if business_months < product.min_business_months:
-            issues.append(Issue("BUSINESS_AGE", f"Доступен бизнесу от {months_text(product.min_business_months)}"))
+            age = months_text(product.min_business_months, genitive=True)
+            issues.append(Issue("BUSINESS_AGE", f"Доступен бизнесу от {age}"))
         if product.max_business_months is not None and business_months >= product.max_business_months:
             issues.append(Issue("BUSINESS_AGE", "Только для бизнеса младше года"))
     required = product.requires_bank_account_months

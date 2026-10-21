@@ -12,11 +12,13 @@ def plural(n: int, one: str, few: str, many: str) -> str:
     return many
 
 
-def months_text(months: int) -> str:
+def months_text(months: int, *, genitive: bool = False) -> str:
+    """«2 года 3 мес.»; genitive — после предлогов «от» и «до»: «от 1 года»."""
     years, rest = divmod(months, 12)
     parts = []
     if years:
-        parts.append(f"{years} {plural(years, 'год', 'года', 'лет')}")
+        forms = ("года", "лет", "лет") if genitive else ("год", "года", "лет")
+        parts.append(f"{years} {plural(years, *forms)}")
     if rest or not years:
         parts.append(f"{rest} мес.")
     return " ".join(parts)
