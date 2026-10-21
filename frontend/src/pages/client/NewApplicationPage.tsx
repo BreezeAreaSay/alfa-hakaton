@@ -408,7 +408,7 @@ function QuoteCard({ item, onChoose, busy }: { item: QuoteItem; onChoose: () => 
         <article className={`offer-card stack-16${item.eligible ? '' : ' offer-card--disabled'}`}>
             <div className='row row--between' style={{ alignItems: 'flex-start' }}>
                 <div className='stack-8' style={{ flex: 1 }}>
-                    <Typography.Title tag='h3' view='xsmall' font='system' weight='bold'>
+                    <Typography.Title tag='h3' view='small' font='system' weight='bold'>
                         {product.name}
                     </Typography.Title>
                     <Typography.Text view='primary-small' color='secondary' tag='p'>
