@@ -20,9 +20,9 @@ export function SigningSection({ application }: { application: Application }) {
     const agreement = application.documents.find((d) => d.kind === 'AGREEMENT');
     const offer = application.offers.find((o) => o.status === 'ACCEPTED');
 
-    const submit = async () => {
-        await sign.mutateAsync({ id: application.id, password });
-        setOpen(false);
+    // Ошибку (например, неверный пароль) показывает плашка в окне, поэтому окно закрываем только при успехе
+    const submit = () => {
+        sign.mutate({ id: application.id, password }, { onSuccess: () => setOpen(false) });
     };
 
     return (
