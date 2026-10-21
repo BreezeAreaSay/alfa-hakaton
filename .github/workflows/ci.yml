@@ -37,6 +37,10 @@ jobs:
       - run: uv run pytest tests/unit -q
       - name: Качество разбора потребности на эталонном наборе
         run: uv run python -m app.ai_eval
+      - name: Спецификация OpenAPI в docs/api совпадает с кодом
+        run: |
+          uv run python -m app.export_openapi ../docs/api/openapi.json
+          git diff --exit-code -- ../docs/api/openapi.json
 
   simulator:
     name: Симулятор — линтер и тесты

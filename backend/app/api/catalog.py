@@ -24,6 +24,7 @@ from app.security import require_roles
 from app.services.views import company_out, payment_label
 
 router = APIRouter(prefix="/api", tags=["Каталог и справочники"])
+service = APIRouter(prefix="/api", tags=["Служебное"])
 
 
 @router.get("/meta", summary="Справочники: статусы, цели, документы, коды причин")
@@ -116,12 +117,12 @@ def my_company(
     return company_out(company)
 
 
-@router.get("/health", tags=["Служебное"], summary="Проверка, что сервис жив")
+@service.get("/health", summary="Проверка, что сервис жив")
 def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
-@router.get("/ready", tags=["Служебное"], summary="Проверка готовности: база данных доступна")
+@service.get("/ready", summary="Проверка готовности: база данных доступна")
 def ready(db: Session = Depends(get_db)) -> dict[str, str]:
     db.execute(select(1))
     return {"status": "ready"}

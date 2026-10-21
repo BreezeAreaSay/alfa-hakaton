@@ -79,3 +79,4 @@ async def stale_data(_: Request, __: StaleDataError) -> JSONResponse:
 
 for module in (auth, catalog, applications, notifications, bank, admin, ai):
     app.include_router(module.router)
+app.include_router(catalog.service)
