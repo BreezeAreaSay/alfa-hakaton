@@ -1,0 +1,360 @@
+# Умный кредитный кабинет: ключевой сценарий клиента и решение аналитика
+#
+# Где запускать:
+#   IntelliJ IDEA, PyCharm, WebStorm — встроенный HTTP Client;
+#   VS Code — расширение httpYac (расширение REST Client не выполняет обработчики ответов `> {% %}`);
+#   командная строка — из корня репозитория (в Docker Desktop вместо --network host укажите флаг -D):
+#     docker run --rm --network host -v "$PWD:/workdir" jetbrains/intellij-http-client:262.10968.63 docs/api/requests.http
+#
+# Запросы выполняются по порядку: токены и идентификаторы сохраняются в глобальные переменные (client.global).
+# Конвейер обрабатывает заявку асинхронно, поэтому запросы «Статус заявки» перед отправкой выжидают
+# несколько секунд с момента предыдущего действия. Если заявка всё ещё в обработке, повторите запрос.
+#
+# Описание API — docs/api.md, те же шаги с проверками в Postman — docs/api/postman_collection.json.
+
+@baseUrl = http://localhost:8080/api
+@password = demo
+
+### 0.1. Вход администратора
+# Шаги 0.1–0.2 возвращают стенд в исходное состояние. Они нужны для части 2:
+# демо-заявка ООО «Гранд Девелопмент» ждёт аналитика только после сброса.
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{"login": "admin", "password": "{{password}}"}
+
+> {%
+    client.test("Вход администратора", () => {
+        client.assert(response.status === 200, "HTTP " + response.status);
+        client.assert(response.body.user.role === "ADMIN", "роль " + response.body.user.role);
+    });
+    client.global.set("adminToken", response.body.token);
+%}
+
+### 0.2. Сброс демо-данных
+POST {{baseUrl}}/admin/demo/reset
+Authorization: Bearer {{adminToken}}
+
+> {%
+    client.test("Демо-данные сброшены", () => {
+        client.assert(response.status === 200, "HTTP " + response.status);
+        client.assert(response.body.preseeded === 2, "создано демо-заявок: " + response.body.preseeded);
+    });
+%}
+
+### 1.1. Вход клиента: ООО «Северный ветер»
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{"login": "veter", "password": "{{password}}"}
+
+> {%
+    client.test("Вход клиента", () => {
+        client.assert(response.status === 200, "HTTP " + response.status);
+        client.assert(response.body.user.role === "CLIENT", "роль " + response.body.user.role);
+    });
+    client.global.set("clientToken", response.body.token);
+%}
+
+### 1.2. Профиль компании (ЕГРЮЛ / ЕГРИП, счёт в банке)
+GET {{baseUrl}}/company
+Authorization: Bearer {{clientToken}}
+
+> {%
+    client.test("Профиль компании", () => {
+        client.assert(response.status === 200, "HTTP " + response.status);
+        client.assert(response.body.inn === "0010000017", "ИНН " + response.body.inn);
+    });
+    client.global.set("businessMonths", String(response.body.business_months));
+    client.global.set("accountMonths", String(response.body.account_months || 0));
+    client.global.set("isBankClient", String(response.body.is_bank_client));
+%}
+
+### 1.3. Подбор продукта и расчёт платежа (публичный метод)
+POST {{baseUrl}}/calculator/quote
+Content-Type: application/json
+
+{
+  "purpose": "WORKING_CAPITAL",
+  "amount": 3000000,
+  "term_months": 24,
+  "business_months": {{businessMonths}},
+  "is_bank_client": {{isBankClient}},
+  "account_months": {{accountMonths}}
+}
+
+> {%
+    const growth = response.body.find((item) => item.product.code === "GROWTH");
+    client.test("Кредит на развитие бизнеса доступен", () => {
+        client.assert(response.status === 200, "HTTP " + response.status);
+        client.assert(growth !== undefined && growth.eligible === true, "GROWTH недоступен");
+    });
+%}
+
+### 1.4. Черновик заявки: кредит на развитие бизнеса, 3 000 000 ₽ на 24 месяца
+POST {{baseUrl}}/applications
+Authorization: Bearer {{clientToken}}
+Content-Type: application/json
+
+{
+  "product_code": "GROWTH",
+  "purpose": "WORKING_CAPITAL",
+  "purpose_text": "Закупка товара к сезону",
+  "amount": 3000000,
+  "term_months": 24
+}
+
+> {%
+    client.test("Черновик создан", () => {
+        client.assert(response.status === 201, "HTTP " + response.status);
+        client.assert(response.body.status === "DRAFT", "статус " + response.body.status);
+    });
+    client.global.set("applicationId", response.body.id);
+%}
+
+### 1.5. Отправить заявку с согласиями и ключом идемпотентности
+< {%
+    // Ключ — любая уникальная строка до 128 символов; повтор с тем же ключом не создаёт дубликат (шаг 1.6)
+    client.global.set("submitKey", "submit-" + Date.now() + "-" + Math.floor(Math.random() * 1000000));
+%}
+POST {{baseUrl}}/applications/{{applicationId}}/submit
+Authorization: Bearer {{clientToken}}
+Content-Type: application/json
+Idempotency-Key: {{submitKey}}
+
+{"consent_bki": true, "consent_pd": true}
+
+> {%
+    client.test("Заявка отправлена", () => {
+        client.assert(response.status === 200, "HTTP " + response.status);
+        client.assert(response.body.run_no === 1, "прогон конвейера " + response.body.run_no);
+    });
+    client.global.set("submittedAt", String(Date.now()));
+%}
+
+### 1.6. Повтор отправки с тем же ключом: 200, повторных действий нет
+POST {{baseUrl}}/applications/{{applicationId}}/submit
+Authorization: Bearer {{clientToken}}
+Content-Type: application/json
+Idempotency-Key: {{submitKey}}
+
+{"consent_bki": true, "consent_pd": true}
+
+> {%
+    client.test("Повтор идемпотентен", () => {
+        client.assert(response.status === 200, "HTTP " + response.status);
+        client.assert(response.body.run_no === 1, "прогон конвейера " + response.body.run_no);
+    });
+%}
+
+### 1.7. Статус заявки: ждём предложение (OFFER)
+< {%
+    // Конвейер проверяет заявку несколько секунд; ждём до 12 с с момента отправки
+    const until = Number(client.global.get("submittedAt") || 0) + 12000;
+    while (Date.now() < until) {}
+%}
+GET {{baseUrl}}/applications/{{applicationId}}
+Authorization: Bearer {{clientToken}}
+
+> {%
+    client.test("Предложение готово", () => {
+        client.assert(response.status === 200, "HTTP " + response.status);
+        client.assert(response.body.status === "OFFER", "статус " + response.body.status + ", повторите запрос");
+    });
+    if (response.body.status === "OFFER") {
+        client.global.set("offerId", response.body.offers[0].id);
+    }
+%}
+
+### 1.8. Принять первое предложение
+POST {{baseUrl}}/offers/{{offerId}}/accept
+Authorization: Bearer {{clientToken}}
+
+> {%
+    client.test("Условия приняты", () => {
+        client.assert(response.status === 200, "HTTP " + response.status);
+        client.assert(response.body.status === "ACCEPTED", "статус " + response.body.status);
+    });
+    client.global.set("acceptedAt", String(Date.now()));
+%}
+
+### 1.9. Статус заявки: договор сформирован (SIGNING)
+< {%
+    const until = Number(client.global.get("acceptedAt") || 0) + 4000;
+    while (Date.now() < until) {}
+%}
+GET {{baseUrl}}/applications/{{applicationId}}
+Authorization: Bearer {{clientToken}}
+
+> {%
+    client.test("Договор готов к подписанию", () => {
+        client.assert(response.status === 200, "HTTP " + response.status);
+        client.assert(response.body.status === "SIGNING", "статус " + response.body.status + ", повторите запрос");
+    });
+    const agreement = (response.body.documents || []).find((d) => d.kind === "AGREEMENT");
+    if (agreement) {
+        client.global.set("agreementId", agreement.id);
+    }
+%}
+
+### 1.10. Скачать договор с графиком платежей (PDF)
+GET {{baseUrl}}/documents/{{agreementId}}/download
+Authorization: Bearer {{clientToken}}
+
+> {%
+    client.test("Договор в PDF", () => {
+        client.assert(response.status === 200, "HTTP " + response.status);
+        client.assert(response.headers.valueOf("Content-Type").indexOf("application/pdf") === 0, "не PDF");
+    });
+%}
+
+### 1.11. Подписать договор: простая электронная подпись паролем
+POST {{baseUrl}}/applications/{{applicationId}}/sign
+Authorization: Bearer {{clientToken}}
+Content-Type: application/json
+Idempotency-Key: {{$random.uuid}}
+
+{"password": "{{password}}"}
+
+> {%
+    client.test("Договор подписан", () => {
+        client.assert(response.status === 200, "HTTP " + response.status);
+        client.assert(response.body.status === "SIGNED", "статус " + response.body.status);
+    });
+    client.global.set("signedAt", String(Date.now()));
+%}
+
+### 1.12. Статус заявки: кредит выдан (ISSUED)
+< {%
+    const until = Number(client.global.get("signedAt") || 0) + 4000;
+    while (Date.now() < until) {}
+%}
+GET {{baseUrl}}/applications/{{applicationId}}
+Authorization: Bearer {{clientToken}}
+
+> {%
+    client.test("Кредит выдан", () => {
+        client.assert(response.status === 200, "HTTP " + response.status);
+        client.assert(response.body.status === "ISSUED", "статус " + response.body.status + ", повторите запрос");
+    });
+%}
+
+### 1.13. Кредит и график платежей
+GET {{baseUrl}}/applications/{{applicationId}}/loan
+Authorization: Bearer {{clientToken}}
+
+> {%
+    client.test("График на 24 платежа, долг погашается полностью", () => {
+        client.assert(response.status === 200, "HTTP " + response.status);
+        client.assert(response.body.schedule.length === 24, "платежей " + response.body.schedule.length);
+        client.assert(response.body.schedule[23].balance === "0.00", "остаток " + response.body.schedule[23].balance);
+    });
+%}
+
+### 2.1. Вход аналитика
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{"login": "analyst", "password": "{{password}}"}
+
+> {%
+    client.test("Вход аналитика", () => {
+        client.assert(response.status === 200, "HTTP " + response.status);
+        client.assert(response.body.user.role === "UNDERWRITER", "роль " + response.body.user.role);
+    });
+    client.global.set("analystToken", response.body.token);
+%}
+
+### 2.2. Очередь: заявки на ручном рассмотрении
+# Фильтры: status (можно несколько), product, risk_class, mine=true, q (название, ИНН или номер), include_closed=true
+GET {{baseUrl}}/bank/applications?status=MANUAL_REVIEW
+Authorization: Bearer {{analystToken}}
+
+> {%
+    const grand = response.body.find((item) => item.inn === "0010000063");
+    client.test("В очереди демо-заявка ООО «Гранд Девелопмент»", () => {
+        client.assert(response.status === 200, "HTTP " + response.status);
+        client.assert(grand !== undefined, "заявки нет: выполните сброс демо-данных (0.1–0.2)");
+    });
+    if (grand) {
+        client.global.set("grandApplicationId", grand.id);
+    }
+%}
+
+### 2.3. Досье: источники, скоринг, автоматическое решение, расчётный лимит, журнал
+GET {{baseUrl}}/bank/applications/{{grandApplicationId}}/dossier
+Authorization: Bearer {{analystToken}}
+
+> {%
+    client.test("Досье заявки", () => {
+        client.assert(response.status === 200, "HTTP " + response.status);
+        client.assert(response.body.auto_decision.outcome === "MANUAL_REVIEW", "исход " + response.body.auto_decision.outcome);
+        client.assert(response.body.limit.limit > 0, "нет расчётного лимита");
+    });
+%}
+
+### 2.4. Взять заявку в работу
+POST {{baseUrl}}/bank/applications/{{grandApplicationId}}/assign
+Authorization: Bearer {{analystToken}}
+
+> {%
+    client.test("Заявка назначена", () => client.assert(response.status === 200, "HTTP " + response.status));
+%}
+
+### 2.5. Предварительный расчёт условий
+# Нарушения полномочий (ставка ниже расчётной, сумма выше лимита больше чем на 20%) приходят в errors
+POST {{baseUrl}}/bank/applications/{{grandApplicationId}}/terms-preview
+Authorization: Bearer {{analystToken}}
+Content-Type: application/json
+
+{"product_code": "SECURED", "amount": 60000000, "term_months": 84}
+
+> {%
+    client.test("Условия в пределах полномочий", () => {
+        client.assert(response.status === 200, "HTTP " + response.status);
+        client.assert(response.body.errors.length === 0, "ошибки: " + response.body.errors.join("; "));
+    });
+%}
+
+### 2.6. Решение аналитика: одобрить как запрошено
+# Другие решения (тело запроса):
+#   контрпредложение — {"action": "COUNTER", "amount": 50000000, "term_months": 84, "comment": "Обоснование"}
+#   отказ            — {"action": "REJECT", "reason_code": "R01", "comment": "Обоснование отказа"}
+# Запрос информации у клиента — POST {{baseUrl}}/bank/applications/{id}/info-requests
+#   {"items": ["COLLATERAL_DOCS"], "comment": "Приложите оценку залога", "due_hours": 72}
+POST {{baseUrl}}/bank/applications/{{grandApplicationId}}/decision
+Authorization: Bearer {{analystToken}}
+Content-Type: application/json
+
+{"action": "APPROVE", "comment": "Залог покрывает сумму, класс риска A"}
+
+> {%
+    client.test("Клиенту выдано предложение", () => {
+        client.assert(response.status === 200, "HTTP " + response.status);
+        client.assert(response.body.status === "OFFER", "статус " + response.body.status);
+        client.assert(response.body.offers[0].kind === "AS_REQUESTED", "вид " + response.body.offers[0].kind);
+    });
+%}
+
+### 2.7. Клиент ООО «Гранд Девелопмент» видит предложение
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{"login": "grand", "password": "{{password}}"}
+
+> {%
+    client.global.set("grandToken", response.body.token);
+%}
+
+### 2.8. Заявки компании клиента
+GET {{baseUrl}}/applications
+Authorization: Bearer {{grandToken}}
+
+> {%
+    const item = response.body.find((a) => a.id === client.global.get("grandApplicationId"));
+    client.test("Предложение готово", () => {
+        client.assert(response.status === 200, "HTTP " + response.status);
+        client.assert(item !== undefined && item.status === "OFFER", "заявка не в статусе OFFER");
+        client.assert(item.needs_action === true, "клиенту не нужно действовать");
+    });
+%}

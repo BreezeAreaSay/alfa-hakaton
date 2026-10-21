@@ -1,0 +1,2380 @@
+{
+  "info": {
+    "_postman_id": "9ff51097-dd03-5833-814d-9492165858a4",
+    "name": "Умный кредитный кабинет — API",
+    "description": "Запросы к API «Умного кредитного кабинета предпринимателя» на демо-стенде.\n\n**Как запустить.** Поднимите стенд (`docker compose up -d --build --wait`) и запустите коллекцию целиком: в Postman — Run collection, из командной строки — из корня репозитория:\n\n```\nnpx newman@6.2.2 run docs/api/postman_collection.json\n```\n\nПапки выполняются по порядку и передают друг другу токены и идентификаторы через переменные коллекции. Папка «0. Подготовка» сбрасывает демо-данные, поэтому коллекцию можно запускать повторно. Статус заявки меняется асинхронно (конвейер работает в отдельном обработчике), поэтому запросы «Опрос …» повторяются, пока заявка не перейдёт в нужный статус.\n\n**Авторизация.** `POST /api/auth/login` → заголовок `Authorization: Bearer <token>`. Токен задан на уровне папки, запросы входа идут без авторизации. Пароль всех демо-пользователей — `demo`.\n\nОписание API — `docs/api.md`, спецификация — `docs/api/openapi.json` и Swagger UI на `{{baseUrl}}/api/docs`.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "id": "798b09c6-e115-5803-8acb-7614e32895dd",
+      "name": "0. Подготовка",
+      "description": "Проверка стенда, вход администратора и сброс демо-данных. Сброс удаляет все заявки, снимает сбои внешних систем и заново создаёт две демо-заявки на ручное рассмотрение (ООО «Вектор Логистик» и ООО «Гранд Девелопмент»), поэтому коллекцию можно запускать повторно.",
+      "item": [
+        {
+          "id": "dc8dc50f-1c00-5e62-a1e3-fcafe4e0ae37",
+          "name": "Проверка готовности стенда",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "9b67bc9e-dd86-528e-9bf4-5b95e1811d9e",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('База данных доступна', () => pm.expect(pm.response.json().status).to.eql('ready'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/ready",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ready"
+              ]
+            },
+            "description": "Сервис жив и база данных доступна. Без авторизации.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "ca21fab4-244c-5248-894f-3eadace73bb5",
+          "name": "Вход администратора",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "9d72fcf3-9f8d-5532-a578-c365bb345beb",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('Выдан токен администратора', () => {",
+                  "    pm.expect(body.token).to.be.a('string').and.not.empty;",
+                  "    pm.expect(body.user.login).to.eql('admin');",
+                  "    pm.expect(body.user.role).to.eql('ADMIN');",
+                  "    pm.expect(body.user.company).to.eql(null);",
+                  "});",
+                  "pm.collectionVariables.set('adminToken', body.token);",
+                  "pm.collectionVariables.set('pollAttempt', 0);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Вход по логину и паролю. Токен сохраняется в переменную коллекции `adminToken`.",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"admin\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "53a6f334-b5b6-54ed-b081-909976988ad1",
+          "name": "Сброс демо-данных",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "0ac2ed06-981d-50e5-96b0-9da55e41b2af",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('Данные сброшены, создано две демо-заявки', () => {",
+                  "    pm.expect(body.status).to.eql('ok');",
+                  "    pm.expect(body.preseeded).to.eql(2);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/demo/reset",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "demo",
+                "reset"
+              ]
+            },
+            "description": "Удаляет заявки, документы, журнал и ключи идемпотентности, снимает сбои симулятора и создаёт две демо-заявки, которые сразу уходят в конвейер и через несколько секунд попадают к аналитику. Только роль `ADMIN`.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "id": "44c2ccb2-d4e5-5096-9223-477d1871e5a7",
+      "name": "1. Ключевой сценарий клиента",
+      "description": "ООО «Северный ветер» (`veter`): подбор продукта, заявка на кредит на развитие бизнеса 3 000 000 ₽ на 24 месяца, автоматическое одобрение, принятие предложения, подписание и выдача. Авторизация папки — `Bearer {{clientToken}}`.\n\nЗапрос опрашивает заявку: пока статус промежуточный, тест вызывает `pm.execution.setNextRequest` и запрос повторяется с паузой `pollDelayMs` (до `pollMaxAttempts` раз). Повтор работает в Collection Runner и newman; при ручной отправке просто нажмите Send ещё раз.",
+      "item": [
+        {
+          "id": "ed2feafa-e307-5d49-974f-4b9ee891a3a6",
+          "name": "Вход клиента veter",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "4eeced36-5f9d-5594-ab55-b4bf737534ef",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('Клиент с правом подписи, компания по ИНН 0010000017', () => {",
+                  "    pm.expect(body.token).to.be.a('string').and.not.empty;",
+                  "    pm.expect(body.user.role).to.eql('CLIENT');",
+                  "    pm.expect(body.user.can_sign).to.eql(true);",
+                  "    pm.expect(body.user.company.inn).to.eql('0010000017');",
+                  "});",
+                  "pm.collectionVariables.set('clientToken', body.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Вход клиента. Токен сохраняется в `clientToken`.",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"veter\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "eeebbfdf-04ee-5567-ad41-1157b7917fc4",
+          "name": "Текущий пользователь",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "a3676677-1d7b-51a4-b106-840455ececcf",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const me = pm.response.json();",
+                  "pm.test('Это veter из ООО «Северный ветер»', () => {",
+                  "    pm.expect(me.login).to.eql('veter');",
+                  "    pm.expect(me.role).to.eql('CLIENT');",
+                  "    pm.expect(me.company.name).to.include('Северный ветер');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "me"
+              ]
+            },
+            "description": "Профиль пользователя по токену: роль, право подписи, компания."
+          },
+          "response": []
+        },
+        {
+          "id": "bb2fcd95-fe63-526a-a85f-07da28b38a64",
+          "name": "Профиль компании",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "f895f789-421d-5092-a82b-67da92d6fdca",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const company = pm.response.json();",
+                  "pm.test('Действующее ООО, клиент банка', () => {",
+                  "    pm.expect(company.inn).to.eql('0010000017');",
+                  "    pm.expect(company.legal_form).to.eql('OOO');",
+                  "    pm.expect(company.status).to.eql('ACTIVE');",
+                  "    pm.expect(company.is_bank_client).to.eql(true);",
+                  "    pm.expect(company.business_months).to.be.a('number').and.at.least(12);",
+                  "});",
+                  "pm.collectionVariables.set('businessMonths', company.business_months);",
+                  "pm.collectionVariables.set('accountMonths', company.account_months || 0);",
+                  "pm.collectionVariables.set('isBankClient', company.is_bank_client);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/company",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "company"
+              ]
+            },
+            "description": "Данные компании из ЕГРЮЛ / ЕГРИП и сведения о счёте в банке. Если профиль старше суток (или передан `?refresh=true`), API обновляет его из симулятора. Срок ведения бизнеса и счёта сохраняются для подбора продукта."
+          },
+          "response": []
+        },
+        {
+          "id": "3408ad6a-7fb8-56eb-9f11-8e9863ba6da1",
+          "name": "Подбор продукта",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "a355d615-5283-5b4e-96fe-c1975d5d9331",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const items = pm.response.json();",
+                  "const growth = items.find((i) => i.product.code === 'GROWTH');",
+                  "pm.test('Кредит на развитие бизнеса доступен', () => {",
+                  "    pm.expect(items).to.be.an('array').that.is.not.empty;",
+                  "    pm.expect(growth, 'GROWTH в подборе').to.be.an('object');",
+                  "    pm.expect(growth.eligible).to.eql(true);",
+                  "    pm.expect(growth.issues).to.eql([]);",
+                  "    pm.expect(Number(growth.monthly_payment)).to.be.above(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/calculator/quote",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "calculator",
+                "quote"
+              ]
+            },
+            "description": "Продукты под цель с предварительным платежом и переплатой по базовой ставке. Публичный метод, токен не нужен.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"purpose\": \"WORKING_CAPITAL\",\n  \"amount\": 3000000,\n  \"term_months\": 24,\n  \"legal_form\": \"OOO\",\n  \"business_months\": {{businessMonths}},\n  \"is_bank_client\": {{isBankClient}},\n  \"account_months\": {{accountMonths}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "1a344411-4b15-5d89-8dc3-4a8c83ec1b97",
+          "name": "Создать черновик заявки",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "434d4f83-3ab3-5e65-946e-c583af864416",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "const app = pm.response.json();",
+                  "pm.test('Черновик создан', () => {",
+                  "    pm.expect(app.status).to.eql('DRAFT');",
+                  "    pm.expect(app.product.code).to.eql('GROWTH');",
+                  "    pm.expect(app.amount).to.eql('3000000.00');",
+                  "    pm.expect(app.term_months).to.eql(24);",
+                  "    pm.expect(app.number).to.match(/^\\d{4}-\\d{5}$/);",
+                  "});",
+                  "pm.collectionVariables.set('applicationId', app.id);",
+                  "pm.collectionVariables.set('applicationNumber', app.number);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/applications",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "applications"
+              ]
+            },
+            "description": "Черновик: продукт, цель, сумма и срок. Ответ 201 и карточка заявки; `id` сохраняется в `applicationId`. Границы продукта проверяются при отправке.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_code\": \"GROWTH\",\n  \"purpose\": \"WORKING_CAPITAL\",\n  \"purpose_text\": \"Закупка товара к сезону\",\n  \"amount\": 3000000,\n  \"term_months\": 24\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "a04530fa-e619-5a04-bd33-b8fedd5c2e78",
+          "name": "Отправить заявку",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "id": "f6ddb873-171a-5268-b91c-27464b71100d",
+                "type": "text/javascript",
+                "exec": [
+                  "// Ключ идемпотентности — новый GUID; запоминаем его, чтобы следующий запрос повторил отправку с тем же ключом",
+                  "const key = pm.variables.replaceIn('{{$guid}}');",
+                  "pm.request.headers.upsert({ key: 'Idempotency-Key', value: key });",
+                  "pm.collectionVariables.set('submitIdempotencyKey', key);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "id": "7e117b8e-98e6-5361-8940-c677ab0e147e",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const app = pm.response.json();",
+                  "pm.test('Заявка отправлена, запущен первый прогон конвейера', () => {",
+                  "    pm.expect(app.id).to.eql(pm.collectionVariables.get('applicationId'));",
+                  "    pm.expect(app.status).to.be.oneOf(['SUBMITTED', 'IN_PROCESSING']);",
+                  "    pm.expect(app.submitted_at).to.be.a('string');",
+                  "    pm.expect(app.run_no).to.eql(1);",
+                  "});",
+                  "pm.test('Отправлен сохранённый ключ идемпотентности', () => {",
+                  "    pm.expect(pm.request.headers.get('Idempotency-Key')).to.eql(pm.collectionVariables.get('submitIdempotencyKey'));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "description": "Новый ключ на каждую попытку действия"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/applications/{{applicationId}}/submit",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "applications",
+                "{{applicationId}}",
+                "submit"
+              ]
+            },
+            "description": "Согласия на запрос в БКИ и обработку персональных данных обязательны. Заявка переходит в `SUBMITTED`, конвейер начинает проверку. Ключ `Idempotency-Key` сохраняется в `submitIdempotencyKey` для следующего запроса.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"consent_bki\": true,\n  \"consent_pd\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "e2d45331-d5a6-5638-969d-7ed1582aca13",
+          "name": "Повтор отправки с тем же ключом",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "dcc32aad-ca52-5ef3-9be2-0fb7cc494de8",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const app = pm.response.json();",
+                  "pm.test('Дубликата нет: та же заявка, тот же прогон конвейера', () => {",
+                  "    pm.expect(app.id).to.eql(pm.collectionVariables.get('applicationId'));",
+                  "    pm.expect(app.status).to.not.eql('DRAFT');",
+                  "    pm.expect(app.run_no).to.eql(1);",
+                  "    pm.expect(app.history.filter((h) => h.to_status === 'SUBMITTED')).to.have.lengthOf(1);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "{{submitIdempotencyKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/applications/{{applicationId}}/submit",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "applications",
+                "{{applicationId}}",
+                "submit"
+              ]
+            },
+            "description": "Повтор с тем же `Idempotency-Key` (например, после обрыва связи) возвращает 200 и текущую карточку заявки, повторных действий нет. Без ключа или с новым ключом был бы ответ 409 «Заявка уже отправлена».",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"consent_bki\": true,\n  \"consent_pd\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "97befb10-d152-5c0d-8e3c-2060b4a5bf28",
+          "name": "Опрос заявки до OFFER",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "id": "2e5d5468-6e9e-53dc-9d54-d9fa89f30c70",
+                "type": "text/javascript",
+                "exec": [
+                  "// Пауза перед повторным опросом (первый запрос уходит сразу)",
+                  "const attempt = Number(pm.collectionVariables.get('pollAttempt')) || 0;",
+                  "if (attempt > 0) {",
+                  "    setTimeout(() => {}, Number(pm.collectionVariables.get('pollDelayMs')) || 1000);",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "id": "eb41ef43-16d2-51f3-a061-d17f705881c3",
+                "type": "text/javascript",
+                "exec": [
+                  "const target = 'OFFER';",
+                  "const pending = [\"SUBMITTED\", \"IN_PROCESSING\"];",
+                  "const attempt = Number(pm.collectionVariables.get('pollAttempt')) || 0;",
+                  "const maxAttempts = Number(pm.collectionVariables.get('pollMaxAttempts')) || 60;",
+                  "",
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const app = pm.response.json();",
+                  "",
+                  "if (pending.includes(app.status) && attempt < maxAttempts) {",
+                  "    pm.test(`Заявка ещё в статусе ${app.status}, повтор ${attempt + 1} из ${maxAttempts}`, () => {",
+                  "        pm.expect(pending).to.include(app.status);",
+                  "    });",
+                  "    pm.collectionVariables.set('pollAttempt', attempt + 1);",
+                  "    if (pm.execution && typeof pm.execution.setNextRequest === 'function') {",
+                  "        pm.execution.setNextRequest(pm.info.requestName);",
+                  "    } else {",
+                  "        postman.setNextRequest(pm.info.requestName);",
+                  "    }",
+                  "} else {",
+                  "    pm.collectionVariables.set('pollAttempt', 0);",
+                  "    pm.test(`Заявка перешла в статус ${target}`, () => pm.expect(app.status).to.eql(target));",
+                  "    pm.test('Одобрено как запрошено, шаги конвейера пройдены', () => {",
+                  "        pm.expect(app.offers).to.have.lengthOf.at.least(1);",
+                  "        const offer = app.offers[0];",
+                  "        pm.expect(offer.kind).to.eql('AS_REQUESTED');",
+                  "        pm.expect(offer.status).to.eql('ACTIVE');",
+                  "        pm.expect(offer.amount).to.eql('3000000.00');",
+                  "        pm.expect(offer.term_months).to.eql(24);",
+                  "        pm.expect(app.explanation.positive).to.be.an('array').that.is.not.empty;",
+                  "        app.steps.forEach((s) => pm.expect(s.status, s.step).to.be.oneOf(['DONE', 'SKIPPED']));",
+                  "    });",
+                  "    if (app.offers && app.offers.length) {",
+                  "        pm.collectionVariables.set('offerId', app.offers[0].id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/applications/{{applicationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "applications",
+                "{{applicationId}}"
+              ]
+            },
+            "description": "Карточка заявки: статус, шаги конвейера, предложения, объяснение решения. Ждём статус `OFFER` и сохраняем первое предложение в `offerId`.\n\nЗапрос опрашивает заявку: пока статус промежуточный, тест вызывает `pm.execution.setNextRequest` и запрос повторяется с паузой `pollDelayMs` (до `pollMaxAttempts` раз). Повтор работает в Collection Runner и newman; при ручной отправке просто нажмите Send ещё раз."
+          },
+          "response": []
+        },
+        {
+          "id": "738a44a6-41f5-54bf-af10-c54e72baca9f",
+          "name": "Принять первое предложение",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "109fd75b-00dc-5ccb-b836-7cd3814ead4f",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const app = pm.response.json();",
+                  "pm.test('Условия приняты', () => {",
+                  "    pm.expect(app.status).to.eql('ACCEPTED');",
+                  "    pm.expect(app.offers[0].id).to.eql(pm.collectionVariables.get('offerId'));",
+                  "    pm.expect(app.offers[0].status).to.eql('ACCEPTED');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/offers/{{offerId}}/accept",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "offers",
+                "{{offerId}}",
+                "accept"
+              ]
+            },
+            "description": "Клиент выбирает вариант. Остальные варианты аннулируются, заявка переходит в `ACCEPTED`, обработчик формирует договор с графиком платежей."
+          },
+          "response": []
+        },
+        {
+          "id": "7fb31d15-1e93-5f2b-a7d4-a3b6e5fe9b48",
+          "name": "Опрос заявки до SIGNING",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "id": "06b5b06e-23b9-57e1-8428-44b348b3a292",
+                "type": "text/javascript",
+                "exec": [
+                  "// Пауза перед повторным опросом (первый запрос уходит сразу)",
+                  "const attempt = Number(pm.collectionVariables.get('pollAttempt')) || 0;",
+                  "if (attempt > 0) {",
+                  "    setTimeout(() => {}, Number(pm.collectionVariables.get('pollDelayMs')) || 1000);",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "id": "d7440308-0b92-5e02-902b-f48cbc8d998e",
+                "type": "text/javascript",
+                "exec": [
+                  "const target = 'SIGNING';",
+                  "const pending = [\"ACCEPTED\"];",
+                  "const attempt = Number(pm.collectionVariables.get('pollAttempt')) || 0;",
+                  "const maxAttempts = Number(pm.collectionVariables.get('pollMaxAttempts')) || 60;",
+                  "",
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const app = pm.response.json();",
+                  "",
+                  "if (pending.includes(app.status) && attempt < maxAttempts) {",
+                  "    pm.test(`Заявка ещё в статусе ${app.status}, повтор ${attempt + 1} из ${maxAttempts}`, () => {",
+                  "        pm.expect(pending).to.include(app.status);",
+                  "    });",
+                  "    pm.collectionVariables.set('pollAttempt', attempt + 1);",
+                  "    if (pm.execution && typeof pm.execution.setNextRequest === 'function') {",
+                  "        pm.execution.setNextRequest(pm.info.requestName);",
+                  "    } else {",
+                  "        postman.setNextRequest(pm.info.requestName);",
+                  "    }",
+                  "} else {",
+                  "    pm.collectionVariables.set('pollAttempt', 0);",
+                  "    pm.test(`Заявка перешла в статус ${target}`, () => pm.expect(app.status).to.eql(target));",
+                  "    const agreement = (app.documents || []).find((d) => d.kind === 'AGREEMENT');",
+                  "    pm.test('Договор сформирован и ещё не подписан', () => {",
+                  "        pm.expect(agreement, 'документ AGREEMENT').to.be.an('object');",
+                  "        pm.expect(agreement.source).to.eql('GENERATED');",
+                  "        pm.expect(agreement.content_type).to.eql('application/pdf');",
+                  "        pm.expect(agreement.signed_by_client).to.eql(false);",
+                  "    });",
+                  "    if (agreement) {",
+                  "        pm.collectionVariables.set('agreementId', agreement.id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/applications/{{applicationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "applications",
+                "{{applicationId}}"
+              ]
+            },
+            "description": "Ждём, пока сформируется договор (статус `SIGNING`), и сохраняем его идентификатор в `agreementId`.\n\nЗапрос опрашивает заявку: пока статус промежуточный, тест вызывает `pm.execution.setNextRequest` и запрос повторяется с паузой `pollDelayMs` (до `pollMaxAttempts` раз). Повтор работает в Collection Runner и newman; при ручной отправке просто нажмите Send ещё раз."
+          },
+          "response": []
+        },
+        {
+          "id": "fde36f88-b97b-5732-a3dd-fbad9a13b05b",
+          "name": "Скачать договор (PDF)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "8d82e34a-d92c-5761-b49b-ea78886052f9",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Это PDF', () => {",
+                  "    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/pdf');",
+                  "    pm.expect(pm.response.text().startsWith('%PDF')).to.eql(true);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/{{agreementId}}/download",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "documents",
+                "{{agreementId}}",
+                "download"
+              ]
+            },
+            "description": "Файл документа с проверкой прав доступа. Договор и график платежей — в одном PDF."
+          },
+          "response": []
+        },
+        {
+          "id": "509326f9-d5a2-515e-a0ac-0e3d2e2f5cd6",
+          "name": "Подписать договор",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "f37e98d8-3a7b-5950-847d-81b13cac0097",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const app = pm.response.json();",
+                  "const agreement = app.documents.find((d) => d.kind === 'AGREEMENT');",
+                  "pm.test('Договор подписан клиентом и банком', () => {",
+                  "    pm.expect(app.status).to.eql('SIGNED');",
+                  "    pm.expect(agreement.signed_by_client).to.eql(true);",
+                  "    pm.expect(agreement.signed_by_bank).to.eql(true);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/applications/{{applicationId}}/sign",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "applications",
+                "{{applicationId}}",
+                "sign"
+              ]
+            },
+            "description": "Простая электронная подпись: повторный ввод пароля. Банк подписывает автоматически, заявка переходит в `SIGNED`, ставится задание на выдачу. Неверный пароль — 422.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "cfe277b1-03ea-546a-8e45-41358747f653",
+          "name": "Опрос заявки до ISSUED",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "id": "c8f8c74b-fff1-51a5-819b-d0383bdf4a6e",
+                "type": "text/javascript",
+                "exec": [
+                  "// Пауза перед повторным опросом (первый запрос уходит сразу)",
+                  "const attempt = Number(pm.collectionVariables.get('pollAttempt')) || 0;",
+                  "if (attempt > 0) {",
+                  "    setTimeout(() => {}, Number(pm.collectionVariables.get('pollDelayMs')) || 1000);",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "id": "706752d2-0177-56e4-b221-78569eb65e06",
+                "type": "text/javascript",
+                "exec": [
+                  "const target = 'ISSUED';",
+                  "const pending = [\"SIGNED\"];",
+                  "const attempt = Number(pm.collectionVariables.get('pollAttempt')) || 0;",
+                  "const maxAttempts = Number(pm.collectionVariables.get('pollMaxAttempts')) || 60;",
+                  "",
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const app = pm.response.json();",
+                  "",
+                  "if (pending.includes(app.status) && attempt < maxAttempts) {",
+                  "    pm.test(`Заявка ещё в статусе ${app.status}, повтор ${attempt + 1} из ${maxAttempts}`, () => {",
+                  "        pm.expect(pending).to.include(app.status);",
+                  "    });",
+                  "    pm.collectionVariables.set('pollAttempt', attempt + 1);",
+                  "    if (pm.execution && typeof pm.execution.setNextRequest === 'function') {",
+                  "        pm.execution.setNextRequest(pm.info.requestName);",
+                  "    } else {",
+                  "        postman.setNextRequest(pm.info.requestName);",
+                  "    }",
+                  "} else {",
+                  "    pm.collectionVariables.set('pollAttempt', 0);",
+                  "    pm.test(`Заявка перешла в статус ${target}`, () => pm.expect(app.status).to.eql(target));",
+                  "    pm.test('Кредит выдан, заявка закрыта', () => {",
+                  "        pm.expect(app.loan).to.be.an('object');",
+                  "        pm.expect(app.closed_at).to.be.a('string');",
+                  "        pm.expect(app.needs_action).to.eql(false);",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/applications/{{applicationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "applications",
+                "{{applicationId}}"
+              ]
+            },
+            "description": "Ждём подтверждения выдачи от АБС (статус `ISSUED`).\n\nЗапрос опрашивает заявку: пока статус промежуточный, тест вызывает `pm.execution.setNextRequest` и запрос повторяется с паузой `pollDelayMs` (до `pollMaxAttempts` раз). Повтор работает в Collection Runner и newman; при ручной отправке просто нажмите Send ещё раз."
+          },
+          "response": []
+        },
+        {
+          "id": "8ccf1571-01bd-517d-9b30-18ece0807355",
+          "name": "Кредит и график платежей",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "43bc2f98-efd7-5edd-9cac-8402d099cdf9",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const loan = pm.response.json();",
+                  "pm.test('Кредит 3 000 000 ₽ на 24 месяца, график гасит долг полностью', () => {",
+                  "    pm.expect(loan.product_code).to.eql('GROWTH');",
+                  "    pm.expect(loan.amount).to.eql('3000000.00');",
+                  "    pm.expect(loan.term_months).to.eql(24);",
+                  "    pm.expect(loan.account_number).to.match(/^45207810\\d{12}$/);",
+                  "    pm.expect(loan.schedule).to.have.lengthOf(24);",
+                  "    pm.expect(loan.schedule[loan.schedule.length - 1].balance).to.eql('0.00');",
+                  "});",
+                  "pm.collectionVariables.set('loanId', loan.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/applications/{{applicationId}}/loan",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "applications",
+                "{{applicationId}}",
+                "loan"
+              ]
+            },
+            "description": "Выданный кредит: номер ссудного счёта, условия и аннуитетный график. До выдачи ответ — `null`."
+          },
+          "response": []
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{clientToken}}",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "id": "1eb91b6c-8afa-5735-a896-12fa828ad4f6",
+      "name": "2. Запрос информации",
+      "description": "ИП Орлов (`orlov`) не обслуживается в банке и не сдаёт отчётность, поэтому конвейер запрашивает выписку по счёту. Клиент загружает выписку в формате 1С к запросу, отвечает — и заявка автоматически одобряется. Авторизация папки — `Bearer {{orlovToken}}`.\n\nФайл выписки берётся из репозитория: `frontend/public/demo-files/vypiska_orlov_1c.txt`. Путь относительный — запускайте newman из корня репозитория (или с `--working-dir <корень>`), в Postman укажите корень репозитория в Settings → General → Working directory.\n\nЗапрос опрашивает заявку: пока статус промежуточный, тест вызывает `pm.execution.setNextRequest` и запрос повторяется с паузой `pollDelayMs` (до `pollMaxAttempts` раз). Повтор работает в Collection Runner и newman; при ручной отправке просто нажмите Send ещё раз.",
+      "item": [
+        {
+          "id": "ef303588-b448-56f6-a784-e8e839522ec0",
+          "name": "Вход клиента orlov",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "119b06da-6fd3-58d4-86ef-28e1782435f5",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('Клиент — ИП', () => {",
+                  "    pm.expect(body.user.role).to.eql('CLIENT');",
+                  "    pm.expect(body.user.company.legal_form).to.eql('IP');",
+                  "});",
+                  "pm.collectionVariables.set('orlovToken', body.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Вход индивидуального предпринимателя. Токен сохраняется в `orlovToken`.",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"orlov\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "2ddd97b8-313a-52a6-9e6b-347e1424f6c5",
+          "name": "Черновик: экспресс-кредит 1 500 000 ₽",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "ef81455d-aaa0-52c9-9739-bb1c7ab80811",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "const app = pm.response.json();",
+                  "pm.test('Черновик создан', () => {",
+                  "    pm.expect(app.status).to.eql('DRAFT');",
+                  "    pm.expect(app.product.code).to.eql('EXPRESS');",
+                  "    pm.expect(app.amount).to.eql('1500000.00');",
+                  "});",
+                  "pm.collectionVariables.set('orlovApplicationId', app.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/applications",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "applications"
+              ]
+            },
+            "description": "Экспресс-кредит без залога на 24 месяца.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_code\": \"EXPRESS\",\n  \"purpose\": \"WORKING_CAPITAL\",\n  \"amount\": 1500000,\n  \"term_months\": 24\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "0e19168c-8832-506e-b607-5b22651c29a0",
+          "name": "Отправить заявку Орлова",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "326b0823-e98b-5c31-b6f1-32cf758d1db2",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const app = pm.response.json();",
+                  "pm.test('Заявка отправлена', () => {",
+                  "    pm.expect(app.status).to.be.oneOf(['SUBMITTED', 'IN_PROCESSING']);",
+                  "    pm.expect(app.run_no).to.eql(1);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/applications/{{orlovApplicationId}}/submit",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "applications",
+                "{{orlovApplicationId}}",
+                "submit"
+              ]
+            },
+            "description": "Отправка с согласиями и ключом идемпотентности.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"consent_bki\": true,\n  \"consent_pd\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "63a93a6c-f879-578b-94f5-591ec5c35873",
+          "name": "Опрос заявки до NEED_INFO",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "id": "41350a2b-656d-5a41-839e-4bb7aaa9675b",
+                "type": "text/javascript",
+                "exec": [
+                  "// Пауза перед повторным опросом (первый запрос уходит сразу)",
+                  "const attempt = Number(pm.collectionVariables.get('pollAttempt')) || 0;",
+                  "if (attempt > 0) {",
+                  "    setTimeout(() => {}, Number(pm.collectionVariables.get('pollDelayMs')) || 1000);",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "id": "abe7303e-5b19-5b50-95d6-c5785a779509",
+                "type": "text/javascript",
+                "exec": [
+                  "const target = 'NEED_INFO';",
+                  "const pending = [\"SUBMITTED\", \"IN_PROCESSING\"];",
+                  "const attempt = Number(pm.collectionVariables.get('pollAttempt')) || 0;",
+                  "const maxAttempts = Number(pm.collectionVariables.get('pollMaxAttempts')) || 60;",
+                  "",
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const app = pm.response.json();",
+                  "",
+                  "if (pending.includes(app.status) && attempt < maxAttempts) {",
+                  "    pm.test(`Заявка ещё в статусе ${app.status}, повтор ${attempt + 1} из ${maxAttempts}`, () => {",
+                  "        pm.expect(pending).to.include(app.status);",
+                  "    });",
+                  "    pm.collectionVariables.set('pollAttempt', attempt + 1);",
+                  "    if (pm.execution && typeof pm.execution.setNextRequest === 'function') {",
+                  "        pm.execution.setNextRequest(pm.info.requestName);",
+                  "    } else {",
+                  "        postman.setNextRequest(pm.info.requestName);",
+                  "    }",
+                  "} else {",
+                  "    pm.collectionVariables.set('pollAttempt', 0);",
+                  "    pm.test(`Заявка перешла в статус ${target}`, () => pm.expect(app.status).to.eql(target));",
+                  "    const infoRequest = (app.info_requests || []).find((r) => r.status === 'OPEN');",
+                  "    pm.test('Конвейер запросил выписку по счёту', () => {",
+                  "        pm.expect(infoRequest, 'открытый запрос').to.be.an('object');",
+                  "        pm.expect(infoRequest.origin).to.eql('SYSTEM');",
+                  "        pm.expect(infoRequest.items.map((i) => i.code)).to.include('BANK_STATEMENT');",
+                  "        pm.expect(infoRequest.due_at).to.be.a('string');",
+                  "        pm.expect(app.steps.find((s) => s.step === 'GIRBO').status).to.eql('SKIPPED');",
+                  "        pm.expect(app.steps.find((s) => s.step === 'BANK').status).to.eql('SKIPPED');",
+                  "    });",
+                  "    if (infoRequest) {",
+                  "        pm.collectionVariables.set('infoRequestId', infoRequest.id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/applications/{{orlovApplicationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "applications",
+                "{{orlovApplicationId}}"
+              ]
+            },
+            "description": "Ждём статус `NEED_INFO` и сохраняем открытый запрос банка в `infoRequestId`.\n\nЗапрос опрашивает заявку: пока статус промежуточный, тест вызывает `pm.execution.setNextRequest` и запрос повторяется с паузой `pollDelayMs` (до `pollMaxAttempts` раз). Повтор работает в Collection Runner и newman; при ручной отправке просто нажмите Send ещё раз."
+          },
+          "response": []
+        },
+        {
+          "id": "cc58c2a4-edfa-55e8-bc25-a8dcbd281316",
+          "name": "Загрузить выписку к запросу",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "8130be04-d64b-5ac0-8d3f-6c590f081cfb",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "const doc = pm.response.json();",
+                  "pm.test('Выписка 1С разобрана: 12 месяцев, в среднем около 700 000 ₽ в месяц', () => {",
+                  "    pm.expect(doc.kind).to.eql('BANK_STATEMENT');",
+                  "    pm.expect(doc.source).to.eql('CLIENT');",
+                  "    pm.expect(doc.info_request_id).to.eql(pm.collectionVariables.get('infoRequestId'));",
+                  "    pm.expect(doc.sha256).to.match(/^[0-9a-f]{64}$/);",
+                  "    pm.expect(doc.parsed.source).to.eql('1C');",
+                  "    pm.expect(doc.parsed.months).to.have.lengthOf(12);",
+                  "    pm.expect(doc.parsed.avg_monthly_inflow).to.be.within(693000, 707000);",
+                  "});",
+                  "pm.collectionVariables.set('statementDocumentId', doc.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/applications/{{orlovApplicationId}}/documents",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "applications",
+                "{{orlovApplicationId}}",
+                "documents"
+              ]
+            },
+            "description": "`multipart/form-data`: поля `file`, `kind` и `info_request_id`. Выписка разбирается сразу: в ответе помесячные поступления и средний оборот. Ответ 201.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "frontend/public/demo-files/vypiska_orlov_1c.txt",
+                  "contentType": "text/plain",
+                  "description": "Выписка в формате обмена 1С (1CClientBankExchange) или CSV"
+                },
+                {
+                  "key": "kind",
+                  "value": "BANK_STATEMENT",
+                  "type": "text",
+                  "description": "Тип документа"
+                },
+                {
+                  "key": "info_request_id",
+                  "value": "{{infoRequestId}}",
+                  "type": "text",
+                  "description": "Запрос банка, к которому относится документ"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "56f1d41a-8e14-5abc-9ae5-e89f713551e4",
+          "name": "Ответить на запрос банка",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "727e14e9-eac2-5180-b184-cc13fd664e57",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const app = pm.response.json();",
+                  "const infoRequest = app.info_requests.find((r) => r.id === pm.collectionVariables.get('infoRequestId'));",
+                  "pm.test('Запрос закрыт, конвейер запущен повторно', () => {",
+                  "    pm.expect(infoRequest.status).to.eql('ANSWERED');",
+                  "    pm.expect(infoRequest.answered_at).to.be.a('string');",
+                  "    pm.expect(app.status).to.eql('IN_PROCESSING');",
+                  "    pm.expect(app.run_no).to.eql(2);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/info-requests/{{infoRequestId}}/answer",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "info-requests",
+                "{{infoRequestId}}",
+                "answer"
+              ]
+            },
+            "description": "Ответ на запрос конвейера возвращает заявку в автоматическую проверку (новый прогон, `run_no` = 2). Если в запросе есть пункт `BANK_STATEMENT`, без разобранной выписки ответ отклоняется (422).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Выписка по расчётному счёту за 12 месяцев во вложении\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "b3bfe9d6-8fde-5e0d-b426-8f4f7fa23107",
+          "name": "Опрос заявки Орлова до OFFER",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "id": "8d8313d9-ad13-57f2-b4b6-b0a1ee4c490c",
+                "type": "text/javascript",
+                "exec": [
+                  "// Пауза перед повторным опросом (первый запрос уходит сразу)",
+                  "const attempt = Number(pm.collectionVariables.get('pollAttempt')) || 0;",
+                  "if (attempt > 0) {",
+                  "    setTimeout(() => {}, Number(pm.collectionVariables.get('pollDelayMs')) || 1000);",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "id": "dd2bb033-daca-5259-a2d8-1ff022ee9181",
+                "type": "text/javascript",
+                "exec": [
+                  "const target = 'OFFER';",
+                  "const pending = [\"SUBMITTED\", \"IN_PROCESSING\"];",
+                  "const attempt = Number(pm.collectionVariables.get('pollAttempt')) || 0;",
+                  "const maxAttempts = Number(pm.collectionVariables.get('pollMaxAttempts')) || 60;",
+                  "",
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const app = pm.response.json();",
+                  "",
+                  "if (pending.includes(app.status) && attempt < maxAttempts) {",
+                  "    pm.test(`Заявка ещё в статусе ${app.status}, повтор ${attempt + 1} из ${maxAttempts}`, () => {",
+                  "        pm.expect(pending).to.include(app.status);",
+                  "    });",
+                  "    pm.collectionVariables.set('pollAttempt', attempt + 1);",
+                  "    if (pm.execution && typeof pm.execution.setNextRequest === 'function') {",
+                  "        pm.execution.setNextRequest(pm.info.requestName);",
+                  "    } else {",
+                  "        postman.setNextRequest(pm.info.requestName);",
+                  "    }",
+                  "} else {",
+                  "    pm.collectionVariables.set('pollAttempt', 0);",
+                  "    pm.test(`Заявка перешла в статус ${target}`, () => pm.expect(app.status).to.eql(target));",
+                  "    pm.test('Предложение как запрошено', () => {",
+                  "        pm.expect(app.offers).to.have.lengthOf.at.least(1);",
+                  "        pm.expect(app.offers[0].kind).to.eql('AS_REQUESTED');",
+                  "        pm.expect(app.offers[0].amount).to.eql('1500000.00');",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/applications/{{orlovApplicationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "applications",
+                "{{orlovApplicationId}}"
+              ]
+            },
+            "description": "Выручка оценена по выписке, заявка одобрена автоматически.\n\nЗапрос опрашивает заявку: пока статус промежуточный, тест вызывает `pm.execution.setNextRequest` и запрос повторяется с паузой `pollDelayMs` (до `pollMaxAttempts` раз). Повтор работает в Collection Runner и newman; при ручной отправке просто нажмите Send ещё раз."
+          },
+          "response": []
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{orlovToken}}",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "id": "11bc38a3-8ab0-5561-ace0-3ecbc6de83ac",
+      "name": "3. Рабочее место аналитика",
+      "description": "Аналитик (`analyst`) находит в очереди демо-заявку ООО «Гранд Девелопмент» (кредит под залог 60 млн ₽ на 84 месяца — такие заявки всегда решает аналитик), изучает досье, пересчитывает условия и одобряет. Авторизация папки — `Bearer {{analystToken}}`.",
+      "item": [
+        {
+          "id": "c7e3348c-3bb7-55d9-8d55-af0f03dbc041",
+          "name": "Вход аналитика",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "9cd8e6b4-fc8f-5166-b849-69b029f5f0d6",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('Роль UNDERWRITER', () => {",
+                  "    pm.expect(body.user.role).to.eql('UNDERWRITER');",
+                  "    pm.expect(body.user.company).to.eql(null);",
+                  "});",
+                  "pm.collectionVariables.set('analystToken', body.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Вход сотрудника банка. Токен сохраняется в `analystToken`.",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"analyst\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "a7e3b1c5-e478-5a49-8a51-3163b30ef5e4",
+          "name": "Счётчики рабочего места",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "9819aedc-bd55-5613-baf2-7b7f9aa7b733",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const summary = pm.response.json();",
+                  "pm.test('Все счётчики — числа', () => {",
+                  "    ['manual_review', 'mine', 'overdue', 'need_info', 'in_processing', 'waiting_sources', 'offers', 'issued_today']",
+                  "        .forEach((key) => pm.expect(summary[key], key).to.be.a('number'));",
+                  "    pm.expect(summary.issued_today).to.be.at.least(1);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/bank/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bank",
+                "summary"
+              ]
+            },
+            "description": "Счётчики для шапки: ручное рассмотрение, мои, просроченные, ожидают клиента, в обработке, ждут внешние источники, предложения, выдано сегодня."
+          },
+          "response": []
+        },
+        {
+          "id": "373f4dfd-1f28-541d-9e28-5fa1e52cc208",
+          "name": "Очередь: заявки на ручном рассмотрении",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "id": "a6a2764b-06c4-5529-881c-1936886c7ea3",
+                "type": "text/javascript",
+                "exec": [
+                  "// Пауза перед повторным опросом (первый запрос уходит сразу)",
+                  "const attempt = Number(pm.collectionVariables.get('pollAttempt')) || 0;",
+                  "if (attempt > 0) {",
+                  "    setTimeout(() => {}, Number(pm.collectionVariables.get('pollDelayMs')) || 1000);",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "id": "88b3e051-0009-5046-a567-3509cf1af843",
+                "type": "text/javascript",
+                "exec": [
+                  "const attempt = Number(pm.collectionVariables.get('pollAttempt')) || 0;",
+                  "const maxAttempts = Number(pm.collectionVariables.get('pollMaxAttempts')) || 60;",
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const queue = pm.response.json();",
+                  "const grand = queue.find((item) => item.inn === '0010000063');",
+                  "",
+                  "if (!grand && attempt < maxAttempts) {",
+                  "    pm.test(`Заявка ещё в конвейере, повтор ${attempt + 1} из ${maxAttempts}`, () => {",
+                  "        pm.expect(queue).to.be.an('array');",
+                  "    });",
+                  "    pm.collectionVariables.set('pollAttempt', attempt + 1);",
+                  "    if (pm.execution && typeof pm.execution.setNextRequest === 'function') {",
+                  "        pm.execution.setNextRequest(pm.info.requestName);",
+                  "    } else {",
+                  "        postman.setNextRequest(pm.info.requestName);",
+                  "    }",
+                  "} else {",
+                  "    pm.collectionVariables.set('pollAttempt', 0);",
+                  "    pm.test('В очереди заявка «Гранд Девелопмент» под залог', () => {",
+                  "        pm.expect(grand, 'заявка ИНН 0010000063').to.be.an('object');",
+                  "        pm.expect(grand.status).to.eql('MANUAL_REVIEW');",
+                  "        pm.expect(grand.product_code).to.eql('SECURED');",
+                  "        pm.expect(grand.amount).to.eql('60000000.00');",
+                  "        pm.expect(grand.risk_class).to.be.oneOf(['A', 'B', 'C', 'D', 'E']);",
+                  "        pm.expect(grand.score).to.be.a('number');",
+                  "        pm.expect(grand.sla_due_at).to.be.a('string');",
+                  "        queue.forEach((item) => pm.expect(item.status, item.number).to.eql('MANUAL_REVIEW'));",
+                  "    });",
+                  "    if (grand) {",
+                  "        pm.collectionVariables.set('grandApplicationId', grand.id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/bank/applications?status=MANUAL_REVIEW",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bank",
+                "applications"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "MANUAL_REVIEW"
+                }
+              ]
+            },
+            "description": "Очередь с фильтрами `status` (можно несколько), `product`, `risk_class`, `mine`, `q` (название, ИНН или номер), `include_closed`. Находим демо-заявку ООО «Гранд Девелопмент» (ИНН 0010000063) и сохраняем её в `grandApplicationId`; если конвейер ещё не закончил, запрос повторяется."
+          },
+          "response": []
+        },
+        {
+          "id": "683777fb-7a6f-5253-8d66-748d3e4eb454",
+          "name": "Досье заявки",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "9b6c4893-ef1f-58ce-b50f-b4bf85086597",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const dossier = pm.response.json();",
+                  "pm.test('Источники, скоринг и автоматическое решение на месте', () => {",
+                  "    pm.expect(dossier.application.status).to.eql('MANUAL_REVIEW');",
+                  "    pm.expect(Object.keys(dossier.sources)).to.include.members(['EGRUL', 'FNS', 'GIRBO', 'BKI', 'BANK', 'SCORING', 'POLICY']);",
+                  "    pm.expect(dossier.scoring.risk_class).to.be.oneOf(['A', 'B', 'C', 'D', 'E']);",
+                  "    pm.expect(dossier.scoring.factors).to.be.an('array').that.is.not.empty;",
+                  "    pm.expect(dossier.auto_decision.kind).to.eql('AUTO');",
+                  "    pm.expect(dossier.auto_decision.outcome).to.eql('MANUAL_REVIEW');",
+                  "    pm.expect(dossier.limit.limit).to.be.above(60000000);",
+                  "    pm.expect(dossier.info_item_presets.map((p) => p.code)).to.include('BANK_STATEMENT');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/bank/applications/{{grandApplicationId}}/dossier",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bank",
+                "applications",
+                "{{grandApplicationId}}",
+                "dossier"
+              ]
+            },
+            "description": "Всё для решения: карточка заявки, ответы источников по шагам, скоринг с факторами, автоматическое решение с трассировкой правил, расчётный лимит, журнал действий, пункты для запроса информации."
+          },
+          "response": []
+        },
+        {
+          "id": "1e25aae6-ed2f-5b56-b232-e5596bfee27c",
+          "name": "Взять заявку в работу",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "11ac40e9-8696-5f2d-8f9e-69c45b69b865",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Заявка остаётся на ручном рассмотрении', () => {",
+                  "    pm.expect(pm.response.json().status).to.eql('MANUAL_REVIEW');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/bank/applications/{{grandApplicationId}}/assign",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bank",
+                "applications",
+                "{{grandApplicationId}}",
+                "assign"
+              ]
+            },
+            "description": "Назначает заявку на текущего сотрудника (можно для `MANUAL_REVIEW` и `NEED_INFO`)."
+          },
+          "response": []
+        },
+        {
+          "id": "58367a8b-acc8-513f-b741-2e898d6d6f7c",
+          "name": "Предварительный расчёт условий",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "6e389409-318e-51fe-8806-d26850f39cc5",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const preview = pm.response.json();",
+                  "pm.test('Условия в пределах полномочий', () => {",
+                  "    pm.expect(preview.errors).to.eql([]);",
+                  "    pm.expect(Number(preview.rate)).to.eql(Number(preview.min_rate));",
+                  "    pm.expect(Number(preview.limit)).to.be.above(60000000);",
+                  "    pm.expect(Number(preview.monthly_payment)).to.be.above(0);",
+                  "    pm.expect(preview.payment_label).to.eql('Ежемесячный платёж');",
+                  "});",
+                  "pm.collectionVariables.set('previewRate', preview.rate);",
+                  "pm.collectionVariables.set('previewMonthlyPayment', preview.monthly_payment);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/bank/applications/{{grandApplicationId}}/terms-preview",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bank",
+                "applications",
+                "{{grandApplicationId}}",
+                "terms-preview"
+              ]
+            },
+            "description": "Пересчёт лимита, минимальной ставки, платежа и переплаты для выбранных условий и проверка полномочий аналитика. Нарушения возвращаются в `errors` (ответ всё равно 200). Ставку можно передать в `rate`, иначе берётся расчётная.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_code\": \"SECURED\",\n  \"amount\": 60000000,\n  \"term_months\": 84\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "83a26ab7-3a6c-5655-b339-b7116f8ac5db",
+          "name": "Решение: одобрить",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "8cde1307-dbc8-573a-95b3-fdebf08410fc",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const app = pm.response.json();",
+                  "const offer = app.offers[0];",
+                  "pm.test('Клиенту выдано предложение на запрошенных условиях', () => {",
+                  "    pm.expect(app.status).to.eql('OFFER');",
+                  "    pm.expect(offer.kind).to.eql('AS_REQUESTED');",
+                  "    pm.expect(offer.amount).to.eql('60000000.00');",
+                  "    pm.expect(offer.term_months).to.eql(84);",
+                  "    pm.expect(Number(offer.rate)).to.eql(Number(pm.collectionVariables.get('previewRate')));",
+                  "    pm.expect(Number(offer.monthly_payment)).to.eql(Number(pm.collectionVariables.get('previewMonthlyPayment')));",
+                  "    const last = app.history[app.history.length - 1];",
+                  "    pm.expect(last.to_status).to.eql('OFFER');",
+                  "    pm.expect(last.actor).to.eql('UNDERWRITER');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/bank/applications/{{grandApplicationId}}/decision",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bank",
+                "applications",
+                "{{grandApplicationId}}",
+                "decision"
+              ]
+            },
+            "description": "`APPROVE` — одобрить как запрошено; `COUNTER` — контрпредложение (`product_code`, `amount`, `term_months`, `rate`); `REJECT` — отказ (`reason_code` R01–R07 и `comment` обязательны). Выход за полномочия — 422 с текстом нарушения.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"APPROVE\",\n  \"comment\": \"Залог покрывает сумму, класс риска A\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{analystToken}}",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "id": "7db7c8b8-2da6-5799-88df-7f1ed6d9e9c2",
+      "name": "4. Администрирование демо",
+      "description": "Управление сбоями внешних систем симулятора и журнал действий. Источники: `egrul`, `fns`, `girbo`, `bki`, `bank`, `core`; режимы: `ok`, `error` (ответ 503), `timeout` (ответ через 30 с), `slow` (+`latency_ms`). Читать состояние и журнал могут сотрудники банка, менять — только `ADMIN`. В конце папки все сбои снимаются. Авторизация папки — `Bearer {{adminToken}}`.",
+      "item": [
+        {
+          "id": "80fd1151-ec1f-540d-84c2-1cff3a001230",
+          "name": "Состояние внешних систем",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "44d607c8-4e35-5200-b528-4346ad945b78",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const faults = pm.response.json();",
+                  "pm.test('Шесть источников, все работают', () => {",
+                  "    pm.expect(faults.map((f) => f.source)).to.eql([\"egrul\", \"fns\", \"girbo\", \"bki\", \"bank\", \"core\"]);",
+                  "    faults.forEach((f) => {",
+                  "        pm.expect(f.mode, f.source).to.eql('ok');",
+                  "        pm.expect(f.title).to.be.a('string').and.not.empty;",
+                  "    });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/simulator/faults",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "simulator",
+                "faults"
+              ]
+            },
+            "description": "Текущий режим каждого источника."
+          },
+          "response": []
+        },
+        {
+          "id": "dd8732b7-77f8-535a-97a1-4e89b9227ff0",
+          "name": "Включить сбой: БКИ недоступно",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "06572806-4ce8-511c-ae96-c3003eedc4b5",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const bki = pm.response.json().find((f) => f.source === 'bki');",
+                  "pm.test('БКИ в режиме error', () => pm.expect(bki.mode).to.eql('error'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/simulator/faults/bki",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "simulator",
+                "faults",
+                "bki"
+              ]
+            },
+            "description": "БКИ отвечает 503. Новые заявки ждут источник в статусе `IN_PROCESSING` («Ждём ответа бюро кредитных историй»), шаг повторяется с растущей паузой.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mode\": \"error\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "fd32b7fd-76e5-5342-9ad7-5cb00ee0b6e5",
+          "name": "Включить сбой: ЕГРЮЛ отвечает медленно",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "4f2de6ae-6757-5fff-a00d-9354bee5badd",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const egrul = pm.response.json().find((f) => f.source === 'egrul');",
+                  "pm.test('ЕГРЮЛ в режиме slow, +1500 мс', () => {",
+                  "    pm.expect(egrul.mode).to.eql('slow');",
+                  "    pm.expect(egrul.latency_ms).to.eql(1500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/simulator/faults/egrul",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "simulator",
+                "faults",
+                "egrul"
+              ]
+            },
+            "description": "К обычной задержке ЕГРЮЛ добавляется 1,5 с. При задержке больше 3 с вызов прерывается по таймауту и повторяется.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mode\": \"slow\",\n  \"latency_ms\": 1500\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "ec83338e-cf1e-578a-95cc-bf56e05be3f5",
+          "name": "Снять все сбои",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "d088e665-2ad9-514f-bcd1-a33a7e72147f",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Все источники работают', () => {",
+                  "    pm.response.json().forEach((f) => {",
+                  "        pm.expect(f.mode, f.source).to.eql('ok');",
+                  "        pm.expect(f.latency_ms, f.source).to.eql(0);",
+                  "    });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/simulator/faults/reset",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "simulator",
+                "faults",
+                "reset"
+              ]
+            },
+            "description": "Все источники снова в режиме `ok`. Ожидающие шаги конвейера продолжатся при следующем повторе; повторить сразу — `POST /api/bank/applications/{id}/pipeline/retry`."
+          },
+          "response": []
+        },
+        {
+          "id": "2685303f-170f-5c94-8ec2-03d41f3a8dae",
+          "name": "Журнал действий",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "e8ead257-da96-5867-8324-8c015812ca9b",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const rows = pm.response.json();",
+                  "pm.test('В журнале сброс демо, сбой БКИ и решение аналитика', () => {",
+                  "    const actions = rows.map((r) => r.action);",
+                  "    pm.expect(actions).to.include.members(['DEMO_RESET', 'FAULT_SET', 'STATUS_CHANGED', 'AGREEMENT_SIGNED']);",
+                  "    const fault = rows.find((r) => r.action === 'FAULT_SET' && r.entity_id === 'bki');",
+                  "    pm.expect(fault.actor).to.eql('ADMIN');",
+                  "    pm.expect(fault.details.mode).to.eql('error');",
+                  "    pm.expect(rows[0].id).to.be.above(rows[rows.length - 1].id);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/audit",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "audit"
+              ]
+            },
+            "description": "Последние 200 записей журнала: кто, что и с каким объектом сделал. Новые сверху."
+          },
+          "response": []
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{adminToken}}",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6c6650af-e88e-55fc-b3fc-1e16aebf410e",
+      "name": "5. ИИ-помощник",
+      "description": "Разбор описания задачи клиента. Без модели (`AI_ENABLED=false`, по умолчанию) работает на правилах, с моделью — через LLM с проверкой ответа. Авторизация папки — `Bearer {{clientToken}}`.",
+      "item": [
+        {
+          "id": "d1904f98-d8a5-5a49-858a-2216d4111751",
+          "name": "Статус ИИ-функций",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "c3cc8aa9-b32b-5512-8d44-f06a12ccdcd7",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const status = pm.response.json();",
+                  "pm.test('Режим rules или llm', () => {",
+                  "    pm.expect(status.enabled).to.be.a('boolean');",
+                  "    pm.expect(status.mode).to.eql(status.enabled ? 'llm' : 'rules');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/ai/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ai",
+                "status"
+              ]
+            },
+            "description": "Включены ли ИИ-функции и какая модель используется."
+          },
+          "response": []
+        },
+        {
+          "id": "3eb50d98-5bf0-594d-8945-308729a3acef",
+          "name": "Разбор описания задачи",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "61fc51f8-3187-5df8-a442-d762be0a92f8",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const need = pm.response.json();",
+                  "pm.test('Цель, сумма и срок распознаны', () => {",
+                  "    pm.expect(need.purpose).to.eql('WORKING_CAPITAL');",
+                  "    pm.expect(need.amount).to.eql(3000000);",
+                  "    pm.expect(need.term_months).to.eql(6);",
+                  "    pm.expect(need.source).to.be.oneOf(['rules', 'llm']);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ai/parse-need",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ai",
+                "parse-need"
+              ]
+            },
+            "description": "Возвращает цель, сумму и срок из текста клиента; `source` — `rules` или `llm`. Если параметра в тексте нет, он `null`.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Нужно закупить товар к сезону на 3 млн, верну за полгода\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{clientToken}}",
+            "type": "string"
+          }
+        ]
+      }
+    }
+  ],
+  "event": [
+    {
+      "listen": "test",
+      "script": {
+        "id": "87d438e8-c9fb-5c09-ab75-381a60e1277f",
+        "type": "text/javascript",
+        "exec": [
+          "// Общая проверка для всех ответов: идентификатор запроса для поиска в логах и журнале",
+          "pm.test('Ответ содержит X-Request-ID', () => {",
+          "    pm.expect(pm.response.headers.get('X-Request-ID')).to.be.a('string').and.not.empty;",
+          "});"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "id": "8927483d-019f-55d1-8227-9d638e3a080d",
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string",
+      "description": "Адрес стенда (nginx). API — по пути /api"
+    },
+    {
+      "id": "ec3313e3-5696-514d-8a62-37e9c8f8f833",
+      "key": "password",
+      "value": "demo",
+      "type": "string",
+      "description": "Пароль всех демо-пользователей"
+    },
+    {
+      "id": "7585a60c-e54b-5d5c-8129-67231bdafad1",
+      "key": "adminToken",
+      "value": "",
+      "type": "string",
+      "description": "Токен администратора (заполняется при входе)"
+    },
+    {
+      "id": "ba12371c-fec9-5b3c-8947-439f6eedcfa7",
+      "key": "clientToken",
+      "value": "",
+      "type": "string",
+      "description": "Токен клиента veter"
+    },
+    {
+      "id": "c28a1c2a-a06d-5514-b94d-fd6a8e19e96f",
+      "key": "orlovToken",
+      "value": "",
+      "type": "string",
+      "description": "Токен клиента orlov"
+    },
+    {
+      "id": "2b886bfd-2bb0-5440-9b92-27eed09cbd85",
+      "key": "analystToken",
+      "value": "",
+      "type": "string",
+      "description": "Токен аналитика"
+    },
+    {
+      "id": "d767d0e0-fde2-5de3-a9d8-9dee2703e72d",
+      "key": "businessMonths",
+      "value": "74",
+      "type": "string",
+      "description": "Срок ведения бизнеса, мес. (из профиля компании)"
+    },
+    {
+      "id": "9eb4d55c-17bb-50e0-8081-32ce984bbd94",
+      "key": "accountMonths",
+      "value": "60",
+      "type": "string",
+      "description": "Срок обслуживания счёта, мес. (из профиля компании)"
+    },
+    {
+      "id": "48821524-15d5-5713-b0e0-1f2c22e8ca2b",
+      "key": "isBankClient",
+      "value": "true",
+      "type": "string",
+      "description": "Компания — клиент банка (из профиля компании)"
+    },
+    {
+      "id": "6c79e279-4f55-5237-8cec-f9dcf9f91671",
+      "key": "applicationId",
+      "value": "",
+      "type": "string",
+      "description": "Заявка veter"
+    },
+    {
+      "id": "09f44ffe-7c99-5fb0-aa3e-2f3892a110f2",
+      "key": "applicationNumber",
+      "value": "",
+      "type": "string",
+      "description": "Номер заявки veter"
+    },
+    {
+      "id": "7b860492-ea96-55bd-b8e2-4c7829e85951",
+      "key": "submitIdempotencyKey",
+      "value": "",
+      "type": "string",
+      "description": "Ключ идемпотентности, с которым отправлена заявка"
+    },
+    {
+      "id": "453ec6e8-cdf1-55b6-a7ab-dccfdaa0a393",
+      "key": "offerId",
+      "value": "",
+      "type": "string",
+      "description": "Принятое предложение"
+    },
+    {
+      "id": "11e18065-10c8-5d60-92d7-e04612e344bf",
+      "key": "agreementId",
+      "value": "",
+      "type": "string",
+      "description": "Кредитный договор (PDF)"
+    },
+    {
+      "id": "632e6121-25ae-5595-866c-988ace1cc773",
+      "key": "loanId",
+      "value": "",
+      "type": "string",
+      "description": "Выданный кредит"
+    },
+    {
+      "id": "c1846c35-757b-5dd8-bf75-5e2c88ed1124",
+      "key": "orlovApplicationId",
+      "value": "",
+      "type": "string",
+      "description": "Заявка orlov"
+    },
+    {
+      "id": "ecfa33a9-58ee-5cac-b48c-cbf001363a0d",
+      "key": "infoRequestId",
+      "value": "",
+      "type": "string",
+      "description": "Запрос информации по заявке orlov"
+    },
+    {
+      "id": "26f4e46c-4a96-5516-a4d2-4cee58a8b682",
+      "key": "statementDocumentId",
+      "value": "",
+      "type": "string",
+      "description": "Загруженная выписка"
+    },
+    {
+      "id": "6bdfcc34-d845-594a-8d39-a2232b329e3a",
+      "key": "grandApplicationId",
+      "value": "",
+      "type": "string",
+      "description": "Демо-заявка ООО «Гранд Девелопмент»"
+    },
+    {
+      "id": "9eeb4281-a236-5835-aafc-d4d0cd555cb8",
+      "key": "previewRate",
+      "value": "",
+      "type": "string",
+      "description": "Ставка из предварительного расчёта"
+    },
+    {
+      "id": "66be3ba2-7581-510c-ac33-d5b50d67e202",
+      "key": "previewMonthlyPayment",
+      "value": "",
+      "type": "string",
+      "description": "Платёж из предварительного расчёта"
+    },
+    {
+      "id": "72a3586c-d8c1-59ce-b3e1-8112b7e4f174",
+      "key": "pollAttempt",
+      "value": "0",
+      "type": "string",
+      "description": "Счётчик повторов опроса (служебная)"
+    },
+    {
+      "id": "13e4cab2-6417-5027-a823-34e938d8114c",
+      "key": "pollMaxAttempts",
+      "value": "60",
+      "type": "string",
+      "description": "Сколько раз повторять опрос"
+    },
+    {
+      "id": "a945f20c-18a8-52c1-a216-6dc93cb4d115",
+      "key": "pollDelayMs",
+      "value": "1000",
+      "type": "string",
+      "description": "Пауза между повторами опроса, мс"
+    }
+  ]
+}
