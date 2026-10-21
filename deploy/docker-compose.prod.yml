@@ -1,0 +1,24 @@
+# Публикация на внешнем сервере с HTTPS (docs/deploy.md):
+#   docker compose -f docker-compose.yml -f deploy/docker-compose.prod.yml up -d --build --wait
+# В .env на сервере: DOMAIN, APP_PORT=127.0.0.1:8080, свои JWT_SECRET и POSTGRES_PASSWORD.
+services:
+  caddy:
+    image: caddy:2.8.4-alpine
+    environment:
+      DOMAIN: ${DOMAIN:?Укажите DOMAIN в .env}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      frontend:
+        condition: service_started
+    restart: unless-stopped
+
+volumes:
+  caddy_data:
+  caddy_config:

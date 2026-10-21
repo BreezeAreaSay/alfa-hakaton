@@ -1,0 +1,8 @@
+# HTTPS для демо-стенда: сертификат Let's Encrypt выпускается автоматически для домена из DOMAIN.
+{$DOMAIN} {
+	encode zstd gzip
+	# поток событий (SSE) отдаётся без буферизации
+	reverse_proxy frontend:80 {
+		flush_interval -1
+	}
+}
