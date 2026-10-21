@@ -29,17 +29,37 @@ import {
     useUpload,
 } from '../../api/hooks';
 import type { Application, Company, ParsedNeed, Purpose, QuoteItem } from '../../api/types';
-import { ErrorPlate, KeyValue, Loader, PageHead, SectionTitle } from '../../components/ui';
+import { ErrorPlate, KeyValue, Loader, PageHead } from '../../components/ui';
 import { months, num, percent, rub, shortAmount } from '../../utils/format';
 import { CompanyCard } from './components/CompanyCard';
 import { DocumentList } from './components/DocumentList';
 import { UploadButton } from './components/UploadButton';
 
 const PURPOSES: { code: Purpose; title: string; text: string; icon: ReactNode }[] = [
-    { code: 'WORKING_CAPITAL', title: 'Пополнить оборотку', text: 'Закупить товар, сырьё, подготовиться к сезону', icon: <BanknoteStackMIcon /> },
-    { code: 'CASH_GAP', title: 'Закрыть кассовый разрыв', text: 'Оплатить поставщикам, пока не пришли деньги от покупателей', icon: <ClockCoinMIcon /> },
-    { code: 'EQUIPMENT', title: 'Купить оборудование', text: 'Станки, транспорт, технику', icon: <BriefcaseGearMIcon /> },
-    { code: 'EXPANSION', title: 'Расширить бизнес', text: 'Открыть новую точку, склад или цех', icon: <ChartLineAscMIcon /> },
+    {
+        code: 'WORKING_CAPITAL',
+        title: 'Пополнить оборотку',
+        text: 'Закупить товар, сырьё, подготовиться к сезону',
+        icon: <BanknoteStackMIcon />,
+    },
+    {
+        code: 'CASH_GAP',
+        title: 'Закрыть кассовый разрыв',
+        text: 'Оплатить поставщикам, пока не пришли деньги от покупателей',
+        icon: <ClockCoinMIcon />,
+    },
+    {
+        code: 'EQUIPMENT',
+        title: 'Купить оборудование',
+        text: 'Станки, транспорт, технику',
+        icon: <BriefcaseGearMIcon />,
+    },
+    {
+        code: 'EXPANSION',
+        title: 'Расширить бизнес',
+        text: 'Открыть новую точку, склад или цех',
+        icon: <ChartLineAscMIcon />,
+    },
 ];
 
 const COLLATERAL_TYPES = ['Коммерческая недвижимость', 'Жилая недвижимость', 'Транспорт', 'Оборудование'].map((v) => ({
@@ -131,11 +151,14 @@ export function NewApplicationPage() {
                 />
             )}
             {step === 1 && draft.data && company.data && (
-                <DetailsStep application={draft.data} company={company.data} onBack={() => setStep(0)} onNext={() => setStep(2)} />
+                <DetailsStep
+                    application={draft.data}
+                    company={company.data}
+                    onBack={() => setStep(0)}
+                    onNext={() => setStep(2)}
+                />
             )}
-            {step === 2 && draft.data && (
-                <ReviewStep application={draft.data} onBack={() => setStep(1)} />
-            )}
+            {step === 2 && draft.data && <ReviewStep application={draft.data} onBack={() => setStep(1)} />}
             {step > 0 && !draft.data && productCode && <Loader />}
         </main>
     );
@@ -227,144 +250,155 @@ function SelectionStep({
         : [];
 
     return (
-        <div className='grid-2' style={{ gridTemplateColumns: 'minmax(0, 520px) minmax(0, 1fr)' }}>
-            <section className='card stack'>
-                <Typography.Title tag='h2' view='small' font='system' weight='bold'>
-                    Рассчитаем кредит под вашу задачу
-                </Typography.Title>
+        // Как калькулятор на alfabank.ru: одна серая панель, слева параметры, справа белые карточки продуктов
+        <section className='card stack'>
+            <Typography.Title tag='h2' view='medium' font='system' weight='bold'>
+                Рассчитаем кредит под вашу задачу
+            </Typography.Title>
+            <div className='grid-2' style={{ gridTemplateColumns: 'minmax(0, 440px) minmax(0, 1fr)' }}>
+                <div className='stack'>
+                    <div className='tile stack-16'>
+                        <Typography.Text view='primary-medium' weight='medium' tag='div'>
+                            Опишите задачу своими словами
+                        </Typography.Text>
+                        <Textarea
+                            label='Ваша задача'
+                            labelView='inner'
+                            size={56}
+                            block={true}
+                            minRows={2}
+                            maxLength={500}
+                            value={need}
+                            onChange={(e) => setNeed(e.target.value)}
+                            hint='Например: нужно закупить товар к сезону на 3 млн, верну за полгода'
+                        />
+                        <div className='row'>
+                            <Button
+                                view='secondary'
+                                size={40}
+                                leftAddons={<MagicWandMIcon />}
+                                onClick={runParse}
+                                loading={parse.isPending}
+                                disabled={need.trim().length < 3}
+                            >
+                                Подобрать по описанию
+                            </Button>
+                            {aiParsed && (
+                                <Typography.Text view='primary-small' color='secondary'>
+                                    Распознали:{' '}
+                                    {[
+                                        aiParsed.purpose &&
+                                            PURPOSES.find((p) => p.code === aiParsed.purpose)?.title.toLowerCase(),
+                                        aiParsed.amount && rub(aiParsed.amount),
+                                        aiParsed.term_months && months(aiParsed.term_months),
+                                    ]
+                                        .filter(Boolean)
+                                        .join(' · ') || 'параметры не найдены'}
+                                    . Проверьте ниже.
+                                </Typography.Text>
+                            )}
+                        </div>
+                        <ErrorPlate error={parse.error} />
+                    </div>
 
-                <div className='tile stack-16'>
-                    <Typography.Text view='primary-medium' weight='medium' tag='div'>
-                        Опишите задачу своими словами
-                    </Typography.Text>
-                    <Textarea
-                        label='Ваша задача'
+                    <div className='stack-8'>
+                        <Typography.Text view='primary-medium' color='secondary'>
+                            На что нужны деньги
+                        </Typography.Text>
+                        <div className='purpose-grid purpose-grid--list'>
+                            {PURPOSES.map((p) => (
+                                <button
+                                    key={p.code}
+                                    type='button'
+                                    className={`purpose${purpose === p.code ? ' purpose--active' : ''}`}
+                                    onClick={() => onPurpose(p.code)}
+                                    aria-pressed={purpose === p.code}
+                                >
+                                    <span className='purpose__icon'>{p.icon}</span>
+                                    <span>
+                                        <Typography.Text view='primary-small' weight='bold' tag='div'>
+                                            {p.title}
+                                        </Typography.Text>
+                                        <Typography.Text view='primary-small' color='secondary' tag='div'>
+                                            {p.text}
+                                        </Typography.Text>
+                                    </span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <SliderInput
+                        label='Сумма кредита'
                         labelView='inner'
                         size={56}
                         block={true}
-                        minRows={2}
-                        maxLength={500}
-                        value={need}
-                        onChange={(e) => setNeed(e.target.value)}
-                        hint='Например: нужно закупить товар к сезону на 3 млн, верну за полгода'
-                    />
-                    <div className='row'>
-                        <Button
-                            view='secondary'
-                            size={40}
-                            leftAddons={<MagicWandMIcon />}
-                            onClick={runParse}
-                            loading={parse.isPending}
-                            disabled={need.trim().length < 3}
-                        >
-                            Подобрать по описанию
-                        </Button>
-                        {aiParsed && (
-                            <Typography.Text view='primary-small' color='secondary'>
-                                Распознали:{' '}
-                                {[
-                                    aiParsed.purpose && PURPOSES.find((p) => p.code === aiParsed.purpose)?.title.toLowerCase(),
-                                    aiParsed.amount && rub(aiParsed.amount),
-                                    aiParsed.term_months && months(aiParsed.term_months),
-                                ]
-                                    .filter(Boolean)
-                                    .join(' · ') || 'параметры не найдены'}
-                                . Проверьте ниже.
+                        value={formatDigits(amount)}
+                        sliderValue={Math.min(Math.max(amount, MIN_AMOUNT), MAX_AMOUNT)}
+                        min={MIN_AMOUNT}
+                        max={MAX_AMOUNT}
+                        step={50_000}
+                        rightAddons={
+                            <Typography.Text view='primary-medium' color='secondary'>
+                                ₽
                             </Typography.Text>
-                        )}
-                    </div>
-                    <ErrorPlate error={parse.error} />
-                </div>
-
-                <div className='stack-8'>
-                    <Typography.Text view='primary-medium' color='secondary'>
-                        На что нужны деньги
-                    </Typography.Text>
-                    <div className='purpose-grid purpose-grid--list'>
-                        {PURPOSES.map((p) => (
-                            <button
-                                key={p.code}
-                                type='button'
-                                className={`purpose${purpose === p.code ? ' purpose--active' : ''}`}
-                                onClick={() => onPurpose(p.code)}
-                                aria-pressed={purpose === p.code}
-                            >
-                                <span className='purpose__icon'>{p.icon}</span>
-                                <span>
-                                    <Typography.Text view='primary-small' weight='bold' tag='div'>
-                                        {p.title}
-                                    </Typography.Text>
-                                    <Typography.Text view='primary-small' color='secondary' tag='div'>
-                                        {p.text}
-                                    </Typography.Text>
-                                </span>
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                <SliderInput
-                    label='Сумма кредита'
-                    labelView='inner'
-                    size={56}
-                    block={true}
-                    value={formatDigits(amount)}
-                    sliderValue={Math.min(Math.max(amount, MIN_AMOUNT), MAX_AMOUNT)}
-                    min={MIN_AMOUNT}
-                    max={MAX_AMOUNT}
-                    step={50_000}
-                    rightAddons={<Typography.Text view='primary-medium' color='secondary'>₽</Typography.Text>}
-                    pips={{ mode: 'values', values: [MIN_AMOUNT, 15_000_000, MAX_AMOUNT], format: { to: shortAmount } }}
-                    onChange={(_, payload) => {
-                        const value = typeof payload.value === 'number' ? payload.value : toNumber(String(payload.value));
-                        onAmount(value ?? 0);
-                    }}
-                />
-                <SliderInput
-                    label='Срок'
-                    labelView='inner'
-                    size={56}
-                    block={true}
-                    value={months(term)}
-                    sliderValue={term}
-                    min={6}
-                    max={120}
-                    step={6}
-                    pips={{ mode: 'values', values: [6, 60, 120], format: { to: (v: number) => months(v) } }}
-                    onChange={(_, payload) => {
-                        if (typeof payload.value === 'number') onTerm(payload.value);
-                    }}
-                />
-                {company && (
-                    <Plate
-                        view='common'
-                        rounded={true}
-                        leftAddons={<InformationCircleMIcon color='var(--color-light-status-info)' />}
-                        limitContentWidth={false}
-                        title={facts.join(' · ')}
-                    >
-                        Подставили из ЕГРЮЛ и данных банка — от этого зависят доступные продукты.
-                    </Plate>
-                )}
-            </section>
-
-            <section className='stack-16' aria-label='Подходящие продукты'>
-                <SectionTitle>Подходящие предложения</SectionTitle>
-                {quote.isLoading && <Loader text='Подбираем продукты…' />}
-                <ErrorPlate error={quote.error ?? create.error ?? update.error} />
-                {quote.data?.map((item) => (
-                    <QuoteCard
-                        key={item.product.code}
-                        item={item}
-                        onChoose={() => void choose(item)}
-                        busy={create.isPending || update.isPending}
+                        }
+                        pips={{
+                            mode: 'values',
+                            values: [MIN_AMOUNT, 15_000_000, MAX_AMOUNT],
+                            format: { to: shortAmount },
+                        }}
+                        onChange={(_, payload) => {
+                            const value =
+                                typeof payload.value === 'number' ? payload.value : toNumber(String(payload.value));
+                            onAmount(value ?? 0);
+                        }}
                     />
-                ))}
-                <Typography.Text view='primary-small' color='tertiary' tag='p'>
-                    Расчёт предварительный, по базовой ставке. Точные условия — после проверки заявки.
-                </Typography.Text>
-            </section>
-        </div>
+                    <SliderInput
+                        label='Срок'
+                        labelView='inner'
+                        size={56}
+                        block={true}
+                        value={months(term)}
+                        sliderValue={term}
+                        min={6}
+                        max={120}
+                        step={6}
+                        pips={{ mode: 'values', values: [6, 60, 120], format: { to: (v: number) => months(v) } }}
+                        onChange={(_, payload) => {
+                            if (typeof payload.value === 'number') onTerm(payload.value);
+                        }}
+                    />
+                    {company && (
+                        <Plate
+                            view='common'
+                            rounded={true}
+                            leftAddons={<InformationCircleMIcon color='var(--color-light-status-info)' />}
+                            limitContentWidth={false}
+                            title={facts.join(' · ')}
+                        >
+                            Подставили из ЕГРЮЛ и данных банка — от этого зависят доступные продукты.
+                        </Plate>
+                    )}
+                </div>
+
+                <section className='stack-16' aria-label='Подходящие продукты'>
+                    {quote.isLoading && <Loader text='Подбираем продукты…' />}
+                    <ErrorPlate error={quote.error ?? create.error ?? update.error} />
+                    {quote.data?.map((item) => (
+                        <QuoteCard
+                            key={item.product.code}
+                            item={item}
+                            onChoose={() => void choose(item)}
+                            busy={create.isPending || update.isPending}
+                        />
+                    ))}
+                    <Typography.Text view='primary-small' color='tertiary' tag='p'>
+                        Расчёт предварительный, по базовой ставке. Точные условия — после проверки заявки.
+                    </Typography.Text>
+                </section>
+            </div>
+        </section>
     );
 }
 
@@ -398,7 +432,9 @@ function QuoteCard({ item, onChoose, busy }: { item: QuoteItem; onChoose: () => 
             </div>
             <Typography.Text view='primary-small' color='secondary' tag='div'>
                 {rub(product.min_amount)} – {rub(product.max_amount)} ·{' '}
-                {product.min_term === product.max_term ? months(product.min_term) : `${months(product.min_term)} – ${months(product.max_term)}`}
+                {product.min_term === product.max_term
+                    ? months(product.min_term)
+                    : `${months(product.min_term)} – ${months(product.max_term)}`}
                 {product.collateral_required ? ' · нужен залог' : ' · без залога'}
             </Typography.Text>
             {!item.eligible && (
@@ -432,7 +468,9 @@ function DetailsStep({
     const upload = useUpload();
     const deleteDocument = useDeleteDocument();
     const [purposeText, setPurposeText] = useState(application.purpose_text ?? '');
-    const [revenue, setRevenue] = useState<number | null>(application.declared_revenue ? num(application.declared_revenue) : null);
+    const [revenue, setRevenue] = useState<number | null>(
+        application.declared_revenue ? num(application.declared_revenue) : null,
+    );
     const [collateralType, setCollateralType] = useState<string | null>(application.collateral_type);
     const [collateralValue, setCollateralValue] = useState<number | null>(
         application.collateral_value ? num(application.collateral_value) : null,
@@ -442,7 +480,8 @@ function DetailsStep({
     const needsCollateral = application.product.collateral_required;
     const errors = {
         purpose: purposeText.trim().length < 5 ? 'Опишите цель хотя бы в нескольких словах' : undefined,
-        collateral: needsCollateral && (!collateralType || !collateralValue) ? 'Укажите залог и его стоимость' : undefined,
+        collateral:
+            needsCollateral && (!collateralType || !collateralValue) ? 'Укажите залог и его стоимость' : undefined,
     };
 
     const save = async () => {
@@ -493,7 +532,11 @@ function DetailsStep({
                         block={true}
                         value={formatDigits(revenue)}
                         onChange={(e) => setRevenue(toNumber(e.target.value))}
-                        rightAddons={<Typography.Text view='primary-medium' color='secondary'>₽</Typography.Text>}
+                        rightAddons={
+                            <Typography.Text view='primary-medium' color='secondary'>
+                                ₽
+                            </Typography.Text>
+                        }
                         hint='Необязательно. Сверим с данными ФНС и оборотами по счёту'
                         inputMode='numeric'
                     />
@@ -516,7 +559,11 @@ function DetailsStep({
                                 block={true}
                                 value={formatDigits(collateralValue)}
                                 onChange={(e) => setCollateralValue(toNumber(e.target.value))}
-                                rightAddons={<Typography.Text view='primary-medium' color='secondary'>₽</Typography.Text>}
+                                rightAddons={
+                                    <Typography.Text view='primary-medium' color='secondary'>
+                                        ₽
+                                    </Typography.Text>
+                                }
                                 error={showErrors && !collateralValue ? errors.collateral : undefined}
                                 hint='Сумма кредита — до 80% стоимости залога'
                                 inputMode='numeric'
@@ -534,7 +581,12 @@ function DetailsStep({
                             У вас есть счёт в банке — обороты возьмём сами, выписку прикладывать не нужно.
                         </Typography.Text>
                     ) : (
-                        <Plate view='common' rounded={true} limitContentWidth={false} title='Приложите выписку по счёту за 12 месяцев'>
+                        <Plate
+                            view='common'
+                            rounded={true}
+                            limitContentWidth={false}
+                            title='Приложите выписку по счёту за 12 месяцев'
+                        >
                             Из другого банка, в формате 1С (.txt) или CSV — по ней оценим выручку. Без выписки банк
                             запросит её после проверки.{' '}
                             <a href='/demo-files/vypiska_orlov_1c.txt' download={true}>
@@ -594,7 +646,7 @@ function Summary({ application }: { application: Application }) {
                     ['Срок', months(application.term_months)],
                     ['Ставка', `от ${percent(product.base_rate)} годовых`],
                     ['Цель', application.purpose_label],
-                    ['Залог', product.collateral_required ? application.collateral_type ?? 'нужен' : 'не нужен'],
+                    ['Залог', product.collateral_required ? (application.collateral_type ?? 'нужен') : 'не нужен'],
                 ]}
             />
         </div>
@@ -631,9 +683,15 @@ function ReviewStep({ application, onBack }: { application: Application; onBack:
                         ['Сумма', rub(application.amount)],
                         ['Срок', months(application.term_months)],
                         ['Цель', application.purpose_text || application.purpose_label],
-                        ['Выручка по вашим данным', application.declared_revenue ? rub(application.declared_revenue) : 'не указана'],
+                        [
+                            'Выручка по вашим данным',
+                            application.declared_revenue ? rub(application.declared_revenue) : 'не указана',
+                        ],
                         ...(application.product.collateral_required
-                            ? ([['Залог', `${application.collateral_type}, ${rub(application.collateral_value)}`]] as [string, string][])
+                            ? ([['Залог', `${application.collateral_type}, ${rub(application.collateral_value)}`]] as [
+                                  string,
+                                  string,
+                              ][])
                             : []),
                         ['Документы', application.documents.length ? `${application.documents.length} шт.` : 'нет'],
                     ]}

@@ -8,7 +8,15 @@ import type { Role } from '../../../api/types';
 import { ErrorPlate } from '../../../components/ui';
 import { dateTime } from '../../../utils/format';
 
-export function ChatCard({ applicationId, viewerRole, title = 'Вопросы по заявке' }: { applicationId: string; viewerRole: Role; title?: string }) {
+export function ChatCard({
+    applicationId,
+    viewerRole,
+    title = 'Вопросы по заявке',
+}: {
+    applicationId: string;
+    viewerRole: Role;
+    title?: string;
+}) {
     const messages = useMessages(applicationId);
     const send = useSendMessage(applicationId);
     const [text, setText] = useState('');
@@ -42,7 +50,8 @@ export function ChatCard({ applicationId, viewerRole, title = 'Вопросы п
                 {messages.data?.map((m) => (
                     <div key={m.id} className={`bubble${mine(m.author_role) ? ' bubble--mine' : ''}`}>
                         <div style={{ fontSize: 12, opacity: 0.7, marginBottom: 4 }}>
-                            {m.author_role === 'CLIENT' ? m.author_name : `${m.author_name}, банк`} · {dateTime(m.created_at)}
+                            {m.author_role === 'CLIENT' ? m.author_name : `${m.author_name}, банк`} ·{' '}
+                            {dateTime(m.created_at)}
                         </div>
                         {m.text}
                     </div>

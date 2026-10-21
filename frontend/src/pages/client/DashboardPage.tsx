@@ -35,35 +35,29 @@ export function DashboardPage() {
     return (
         <main className='page'>
             <div className='page-head'>
-                <div className='stack-8'>
-                    <Typography.TitleResponsive tag='h1' view='large' font='system' weight='bold'>
-                        Добрый день, {greeting(user?.full_name)}
-                    </Typography.TitleResponsive>
-                    <Typography.Text view='primary-medium' color='secondary'>
-                        {user?.position} · {user?.company?.name}
-                    </Typography.Text>
+                <div className='stack'>
+                    <div className='stack-8'>
+                        <Typography.Text view='primary-medium' color='secondary'>
+                            {user?.position} · {user?.company?.name}
+                        </Typography.Text>
+                        <Typography.TitleResponsive tag='h1' view='xlarge' font='system' weight='bold'>
+                            Добрый день, {greeting(user?.full_name)}
+                        </Typography.TitleResponsive>
+                        <Typography.Text view='primary-large' color='secondary' tag='p'>
+                            Деньги на развитие бизнеса: подберём кредит, овердрафт или кредитную линию и сразу покажем
+                            платёж
+                        </Typography.Text>
+                    </div>
+                    <div>
+                        <Button view='primary' size={56} onClick={() => navigate('/client/new')}>
+                            Подобрать кредит
+                        </Button>
+                    </div>
                 </div>
             </div>
 
             <div className='grid-2'>
                 <div className='stack'>
-                    <section
-                        className='card'
-                        style={{ background: '#121212', color: '#fff', display: 'flex', flexDirection: 'column', gap: 16 }}
-                    >
-                        <Typography.Title tag='h2' view='medium' font='system' weight='bold' color='primary-inverted'>
-                            Деньги на развитие бизнеса
-                        </Typography.Title>
-                        <Typography.Text view='primary-large' color='secondary-inverted' tag='p'>
-                            Расскажите о задаче — подберём кредит, овердрафт или кредитную линию и сразу покажем платёж.
-                        </Typography.Text>
-                        <div>
-                            <Button view='primary' size={56} onClick={() => navigate('/client/new')}>
-                                Подобрать кредит
-                            </Button>
-                        </div>
-                    </section>
-
                     {active.length > 0 && (
                         <section className='card card--tight stack-16'>
                             <SectionTitle>Нужно ваше действие</SectionTitle>
@@ -155,10 +149,20 @@ export function DashboardPage() {
                             Как получить кредит
                         </Typography.Text>
                         {HOW_IT_WORKS.map((step, index) => (
-                            <div key={step.title} className='row' style={{ alignItems: 'flex-start', flexWrap: 'nowrap' }}>
+                            <div
+                                key={step.title}
+                                className='row'
+                                style={{ alignItems: 'flex-start', flexWrap: 'nowrap' }}
+                            >
                                 <span
                                     className='timeline__dot'
-                                    style={{ background: '#fff', color: '#EF3124', border: '2px solid #EF3124', width: 28, height: 28 }}
+                                    style={{
+                                        background: '#fff',
+                                        color: '#EF3124',
+                                        border: '2px solid #EF3124',
+                                        width: 28,
+                                        height: 28,
+                                    }}
                                 >
                                     <Typography.Text view='primary-small' weight='bold'>
                                         {index + 1}

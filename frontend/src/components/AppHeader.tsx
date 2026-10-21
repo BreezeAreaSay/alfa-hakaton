@@ -56,6 +56,7 @@ export function AppHeader({ nav, home, bank = false }: { nav: NavItem[]; home: s
                     </div>
                     <IconButton
                         icon={PowerButtonMIcon}
+                        colors='inverted'
                         aria-label='Выйти'
                         title='Выйти'
                         onClick={() => {
@@ -95,12 +96,19 @@ function NotificationsBell() {
     const base = user?.role === 'CLIENT' ? '/client/applications' : '/bank/applications';
     return (
         <div className='bell' ref={ref}>
-            <IconButton icon={BellMIcon} aria-label='Уведомления' title='Уведомления' onClick={toggle} />
+            <IconButton
+                icon={BellMIcon}
+                colors='inverted'
+                aria-label='Уведомления'
+                title='Уведомления'
+                onClick={toggle}
+            />
             {Boolean(data?.unread) && <span className='bell__count'>{data?.unread}</span>}
             {open && (
                 <div
                     role='dialog'
                     aria-label='Уведомления'
+                    className='notifications'
                     style={{
                         position: 'absolute',
                         right: 0,
@@ -128,7 +136,11 @@ function NotificationsBell() {
                             key={item.id}
                             type='button'
                             className='demo-account'
-                            style={{ width: '100%', marginBottom: 4, background: item.unread ? 'var(--color-light-base-bg-secondary)' : 'transparent' }}
+                            style={{
+                                width: '100%',
+                                marginBottom: 4,
+                                background: item.unread ? 'var(--color-light-base-bg-secondary)' : 'transparent',
+                            }}
                             onClick={() => {
                                 setOpen(false);
                                 if (item.application_id) navigate(`${base}/${item.application_id}`);

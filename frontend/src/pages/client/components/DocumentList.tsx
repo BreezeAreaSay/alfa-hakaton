@@ -24,7 +24,12 @@ export function DocumentList({
                 <div key={doc.id} className='tile row' style={{ flexWrap: 'nowrap', padding: '12px 16px' }}>
                     {doc.content_type === 'application/pdf' ? <DocumentPdfMIcon /> : <DocumentTxtMIcon />}
                     <div style={{ flex: 1, minWidth: 0 }}>
-                        <Typography.Text view='primary-small' weight='medium' tag='div' style={{ overflowWrap: 'anywhere' }}>
+                        <Typography.Text
+                            view='primary-small'
+                            weight='medium'
+                            tag='div'
+                            style={{ overflowWrap: 'anywhere' }}
+                        >
                             {doc.file_name}
                         </Typography.Text>
                         <Typography.Text view='primary-small' color='secondary' tag='div'>
@@ -50,7 +55,12 @@ export function DocumentList({
                         onClick={() => void openInNewTab(`/api/documents/${doc.id}/download`)}
                     />
                     {onDelete && doc.source === 'CLIENT' && (
-                        <IconButton icon={TrashCanLineMIcon} aria-label='Удалить' title='Удалить' onClick={() => onDelete(doc)} />
+                        <IconButton
+                            icon={TrashCanLineMIcon}
+                            aria-label='Удалить'
+                            title='Удалить'
+                            onClick={() => onDelete(doc)}
+                        />
                     )}
                 </div>
             ))}

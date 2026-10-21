@@ -1,12 +1,19 @@
 /*
  * Каркас страниц. Цвета, отступы и радиусы — токены дизайн-системы Альфа-Банка (core-components),
- * сверенные с замерами alfabank.ru: красный #EF3124 только у главного действия, серые карточки без теней.
+ * сверенные с замерами alfabank.ru: чёрная шапка, белый «лист» со скруглением, серые панели #F2F3F5
+ * с белыми карточками внутри, красный #EF3124 только у главного действия, без теней.
  */
 :root {
-    --font-family-system: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
-        sans-serif;
+    --font-family-system: 'Onest', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     --page-max-width: 1232px;
-    --header-height: 64px;
+    --header-height: 72px;
+    --sheet-radius: 40px;
+    --brand-black: #000;
+}
+
+/* Полосы во всю ширину окна не должны давать горизонтальную прокрутку; clip не ломает position: sticky */
+#root {
+    overflow-x: clip;
 }
 
 html,
@@ -18,7 +25,7 @@ body {
 body {
     font-family: var(--font-family-system);
     color: var(--color-light-text-primary);
-    background: var(--color-light-base-bg-secondary);
+    background: #fff;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -38,11 +45,14 @@ a {
 /* ---------------------------------------------------------------- шапка */
 
 .header {
+    --color-light-text-primary: #fff;
+    --color-light-text-secondary: rgba(255, 255, 255, 0.64);
+
     position: sticky;
     top: 0;
     z-index: 50;
-    background: var(--color-light-base-bg-primary);
-    border-bottom: 1px solid var(--color-light-neutral-translucent-200);
+    background: var(--brand-black);
+    color: #fff;
 }
 
 .header__inner {
@@ -64,7 +74,7 @@ a {
     align-items: center;
     gap: var(--gap-12);
     text-decoration: none;
-    color: var(--color-light-text-primary);
+    color: #fff;
     white-space: nowrap;
 }
 
@@ -85,23 +95,22 @@ a {
 }
 
 .nav__link {
-    padding: var(--gap-8) var(--gap-12);
+    padding: 10px var(--gap-16);
     border-radius: 12px;
     text-decoration: none;
-    color: var(--color-light-text-secondary);
-    font-size: 15px;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 16px;
     line-height: 20px;
     font-weight: 500;
 }
 
 .nav__link:hover {
-    color: var(--color-light-text-primary);
-    background: var(--color-light-neutral-translucent-100);
+    color: #fff;
 }
 
 .nav__link--active {
-    color: var(--color-light-text-primary);
-    background: var(--color-light-neutral-translucent-200);
+    color: #fff;
+    background: #1d1d1f;
 }
 
 .header__right {
@@ -120,10 +129,19 @@ a {
     position: relative;
 }
 
+/* выпадающий список уведомлений светлый, хотя лежит внутри тёмной шапки */
+.notifications {
+    --color-light-text-primary: rgba(3, 3, 6, 0.88);
+    --color-light-text-secondary: rgba(4, 4, 19, 0.55);
+
+    color: var(--color-light-text-primary);
+}
+
 .bell__count {
     position: absolute;
     top: 2px;
     right: 2px;
+    box-shadow: 0 0 0 2px var(--brand-black);
     min-width: 18px;
     height: 18px;
     padding: 0 5px;
@@ -139,33 +157,104 @@ a {
 
 /* ---------------------------------------------------------------- страница */
 
+/*
+ * Контент лежит на белом «листе» со скруглёнными верхними углами поверх чёрной шапки — как на alfabank.ru.
+ * Поверхности тоже как на сайте: белая страница → серые панели → белые карточки в панелях.
+ * Стили карточек описаны парами «основной / второстепенный фон», поэтому внутри контента эти два токена
+ * меняются местами — каждый уровень вложенности остаётся контрастным. Модальные окна и выпадающие
+ * списки рисуются вне .page и остаются белыми.
+ */
 .page {
+    --color-light-base-bg-primary: #f2f3f5;
+    --color-light-base-bg-secondary: #fff;
+
+    position: relative;
+    z-index: 0;
     max-width: var(--page-max-width);
     margin: 0 auto;
-    padding: var(--gap-32) var(--gap-24) var(--gap-64);
+    padding: var(--gap-40) var(--gap-24) var(--gap-64);
+}
+
+.page::before,
+.page::after,
+.page-head::before,
+.page-head::after {
+    content: '';
+    position: absolute;
+    left: calc(50% - 50vw);
+    width: 100vw;
+}
+
+/* чёрная подложка под скруглёнными углами листа */
+.page::before {
+    z-index: -2;
+    top: 0;
+    height: var(--sheet-radius);
+    background: var(--brand-black);
+}
+
+/* верх белого листа */
+.page::after {
+    z-index: -1;
+    top: 0;
+    height: calc(var(--sheet-radius) * 2);
+    background: #fff;
+    border-radius: var(--sheet-radius) var(--sheet-radius) 0 0;
 }
 
 .page--wide {
     max-width: 1440px;
 }
 
+/* Если у страницы есть заголовок, он стоит на чёрной полосе, а лист начинается под ним */
+.page:has(> .page-head) {
+    padding-top: 0;
+}
+
+.page:has(> .page-head)::before,
+.page:has(> .page-head)::after {
+    display: none;
+}
+
 .page-head {
+    --color-light-text-primary: #fff;
+    --color-light-text-secondary: rgba(255, 255, 255, 0.64);
+
+    position: relative;
     display: flex;
-    align-items: flex-start;
+    align-items: flex-end;
     justify-content: space-between;
     gap: var(--gap-24);
-    margin-bottom: var(--gap-24);
+    margin-bottom: var(--gap-32);
+    padding: var(--gap-32) 0 calc(var(--sheet-radius) + var(--gap-24));
+    color: #fff;
+}
+
+.page-head::before {
+    z-index: -1;
+    top: 0;
+    bottom: 0;
+    background: var(--brand-black);
+}
+
+.page-head::after {
+    z-index: -1;
+    bottom: 0;
+    height: var(--sheet-radius);
+    background: #fff;
+    border-radius: var(--sheet-radius) var(--sheet-radius) 0 0;
 }
 
 .card {
     background: var(--color-light-base-bg-primary);
-    border-radius: var(--border-radius-24, 24px);
+    border-radius: 32px;
     padding: var(--gap-32);
     min-width: 0;
 }
 
 .card--tight {
     padding: var(--gap-24);
+    border-radius: 28px;
 }
 
 .card--flat {
@@ -174,7 +263,7 @@ a {
 
 .tile {
     background: var(--color-light-base-bg-secondary);
-    border-radius: var(--border-radius-16, 16px);
+    border-radius: 20px;
     padding: var(--gap-20);
 }
 
@@ -345,7 +434,7 @@ a {
 }
 
 .offer-card {
-    background: var(--color-light-base-bg-primary);
+    background: var(--color-light-base-bg-secondary);
     border-radius: 20px;
     padding: var(--gap-24);
     border: 2px solid transparent;
@@ -498,6 +587,22 @@ table.simple th.num {
     white-space: nowrap;
 }
 
+/* суммы в столбцах выравниваются по разрядам */
+table.simple td.num {
+    font-variant-numeric: tabular-nums;
+}
+
+.back-link {
+    gap: var(--gap-4);
+    margin-bottom: var(--gap-8);
+    text-decoration: none;
+    color: var(--color-light-text-secondary);
+}
+
+.back-link:hover {
+    color: var(--color-light-text-primary);
+}
+
 .login {
     min-height: 100vh;
     display: grid;
@@ -505,7 +610,7 @@ table.simple th.num {
 }
 
 .login__brand {
-    background: #121212;
+    background: var(--brand-black);
     color: #fff;
     padding: var(--gap-64) var(--gap-48);
     display: flex;

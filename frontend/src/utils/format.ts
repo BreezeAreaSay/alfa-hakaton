@@ -3,7 +3,8 @@ import type { AppStatus, Money } from '../api/types';
 const rubFormat = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 0 });
 const numberFormat = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 2 });
 
-export const num = (value: Money | null | undefined): number => (value === null || value === undefined ? 0 : Number(value));
+export const num = (value: Money | null | undefined): number =>
+    value === null || value === undefined ? 0 : Number(value);
 
 export const rub = (value: Money | null | undefined): string => `${rubFormat.format(Math.round(num(value)))} ₽`;
 
@@ -56,7 +57,12 @@ export function timeLeft(iso: string | null | undefined): string {
     const abs = Math.abs(diff);
     const hours = Math.floor(abs / 3_600_000);
     const minutes = Math.floor((abs % 3_600_000) / 60_000);
-    const text = hours >= 24 ? `${Math.floor(hours / 24)} дн. ${hours % 24} ч` : hours ? `${hours} ч ${minutes} мин` : `${minutes} мин`;
+    const text =
+        hours >= 24
+            ? `${Math.floor(hours / 24)} дн. ${hours % 24} ч`
+            : hours
+              ? `${hours} ч ${minutes} мин`
+              : `${minutes} мин`;
     return diff >= 0 ? `осталось ${text}` : `просрочено на ${text}`;
 }
 
@@ -85,4 +91,8 @@ export const STATUS_COLORS: Record<AppStatus, StatusColor> = {
 export const RISK_COLORS: Record<string, StatusColor> = { A: 'green', B: 'teal', C: 'orange', D: 'red', E: 'red' };
 
 export const legalFormLabel = (form: string | null | undefined): string =>
-    form === 'IP' ? 'Индивидуальный предприниматель' : form === 'OOO' ? 'Общество с ограниченной ответственностью' : '—';
+    form === 'IP'
+        ? 'Индивидуальный предприниматель'
+        : form === 'OOO'
+          ? 'Общество с ограниченной ответственностью'
+          : '—';

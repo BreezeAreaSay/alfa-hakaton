@@ -61,14 +61,23 @@ export function InfoRequestSection({ application, request }: { application: Appl
                         accept='.txt,.csv'
                         view='primary'
                         loading={upload.isPending && upload.variables?.kind === 'BANK_STATEMENT'}
-                        onFile={(file) => upload.mutate({ id: application.id, file, kind: 'BANK_STATEMENT', infoRequestId: request.id })}
+                        onFile={(file) =>
+                            upload.mutate({
+                                id: application.id,
+                                file,
+                                kind: 'BANK_STATEMENT',
+                                infoRequestId: request.id,
+                            })
+                        }
                     >
                         Прикрепить выписку
                     </UploadButton>
                 )}
                 <UploadButton
                     loading={upload.isPending && upload.variables?.kind === 'OTHER'}
-                    onFile={(file) => upload.mutate({ id: application.id, file, kind: 'OTHER', infoRequestId: request.id })}
+                    onFile={(file) =>
+                        upload.mutate({ id: application.id, file, kind: 'OTHER', infoRequestId: request.id })
+                    }
                 >
                     Прикрепить документ
                 </UploadButton>

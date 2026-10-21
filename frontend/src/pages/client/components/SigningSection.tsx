@@ -32,8 +32,8 @@ export function SigningSection({ application }: { application: Application }) {
                     Подпишите договор
                 </Typography.Title>
                 <Typography.Text view='primary-medium' color='secondary' tag='p'>
-                    Проверьте договор и график платежей. Подписание — простой электронной подписью: подтвердите
-                    паролем от кабинета. Ехать в банк не нужно.
+                    Проверьте договор и график платежей. Подписание — простой электронной подписью: подтвердите паролем
+                    от кабинета. Ехать в банк не нужно.
                 </Typography.Text>
             </div>
             {offer && (
@@ -58,13 +58,20 @@ export function SigningSection({ application }: { application: Application }) {
                             Договор и график платежей
                         </Typography.Text>
                     </div>
-                    <Button view='secondary' size={40} onClick={() => void openInNewTab(`/api/documents/${agreement.id}/download`)}>
+                    <Button
+                        view='secondary'
+                        size={40}
+                        onClick={() => void openInNewTab(`/api/documents/${agreement.id}/download`)}
+                    >
                         Открыть
                     </Button>
                 </div>
             )}
             {!user?.can_sign && (
-                <ErrorPlate error='У вашей учётной записи нет права подписи от имени компании' title='Подписать не получится' />
+                <ErrorPlate
+                    error='У вашей учётной записи нет права подписи от имени компании'
+                    title='Подписать не получится'
+                />
             )}
             <div>
                 <Button view='primary' size={56} disabled={!user?.can_sign || !agreement} onClick={() => setOpen(true)}>

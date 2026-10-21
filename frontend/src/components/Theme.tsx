@@ -5,7 +5,10 @@ import intranetTheme from '@alfalab/core-components/themes/intranet.css?inline';
 
 // Тема дизайн-системы задаётся переменными на :root, поэтому подключаем её стилем после компонентов:
 // corp — для клиентов-юрлиц и ИП (красная главная кнопка), intranet — для сотрудников банка.
-const FONT_OVERRIDE = `:root { --font-family-system: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; }`;
+// Фирменные шрифты банка (Styrene UI, Alfa Interface Sans) распространяются по закрытой лицензии,
+// поэтому все шрифтовые токены указывают на Onest (OFL 1.1) — ближайший по рисунку свободный шрифт с кириллицей.
+const ONEST = `'Onest', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif`;
+const FONT_OVERRIDE = `:root { --font-family: ${ONEST}; --font-family-system: ${ONEST}; --font-family-styrene: ${ONEST}; --font-family-alfasans: ${ONEST}; }`;
 
 const THEMES = {
     corp: corpVars + corpTheme + FONT_OVERRIDE,

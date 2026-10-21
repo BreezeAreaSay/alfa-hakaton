@@ -32,14 +32,14 @@ export function ApplicationPage() {
 
     return (
         <main className='page'>
-            <Link to='/client' className='row' style={{ textDecoration: 'none', marginBottom: 16, gap: 4 }}>
-                <ArrowLeftMIcon />
-                <Typography.Text view='primary-medium' color='secondary'>
-                    Все заявки
-                </Typography.Text>
-            </Link>
             <div className='page-head'>
                 <div className='stack-8'>
+                    <Link to='/client' className='row back-link'>
+                        <ArrowLeftMIcon />
+                        <Typography.Text view='primary-medium' color='secondary'>
+                            Все заявки
+                        </Typography.Text>
+                    </Link>
                     <div className='row'>
                         <Typography.TitleResponsive tag='h1' view='large' font='system' weight='bold'>
                             Заявка № {application.number}
@@ -89,7 +89,11 @@ function CurrentStage({ application }: { application: Application }) {
                         Заявка ещё не отправлена в банк.
                     </Typography.Text>
                     <div>
-                        <Button view='primary' size={56} onClick={() => navigate(`/client/new?draft=${application.id}`)}>
+                        <Button
+                            view='primary'
+                            size={56}
+                            onClick={() => navigate(`/client/new?draft=${application.id}`)}
+                        >
                             Продолжить заполнение
                         </Button>
                     </div>
@@ -107,12 +111,18 @@ function CurrentStage({ application }: { application: Application }) {
                         </Typography.Title>
                     </div>
                     <Typography.Text view='primary-medium' color='secondary' tag='p'>
-                        Сверяем данные с ЕГРЮЛ, ФНС и бюро кредитных историй и оцениваем риск. Обычно это занимает
-                        пару минут — страницу можно закрыть, результат придёт в уведомления кабинета.
+                        Сверяем данные с ЕГРЮЛ, ФНС и бюро кредитных историй и оцениваем риск. Обычно это занимает пару
+                        минут — страницу можно закрыть, результат придёт в уведомления кабинета.
                     </Typography.Text>
                     {waiting && (
-                        <Plate view='attention' rounded={true} limitContentWidth={false} title={waiting.waiting_text ?? 'Ждём ответ'}>
-                            Внешний сервис отвечает с задержкой. Заявка не потеряется — мы повторяем запрос автоматически.
+                        <Plate
+                            view='attention'
+                            rounded={true}
+                            limitContentWidth={false}
+                            title={waiting.waiting_text ?? 'Ждём ответ'}
+                        >
+                            Внешний сервис отвечает с задержкой. Заявка не потеряется — мы повторяем запрос
+                            автоматически.
                         </Plate>
                     )}
                     <StepList steps={application.steps} />
@@ -129,7 +139,8 @@ function CurrentStage({ application }: { application: Application }) {
                     </Typography.Title>
                     <Typography.Text view='primary-medium' color='secondary' tag='p'>
                         Автоматическая проверка пройдена, по вашей заявке нужно решение специалиста — ответим в течение
-                        рабочего дня. Если понадобятся документы, запрос появится здесь. Вопрос можно задать в чате ниже.
+                        рабочего дня. Если понадобятся документы, запрос появится здесь. Вопрос можно задать в чате
+                        ниже.
                     </Typography.Text>
                     <StepList steps={application.steps} />
                 </section>
@@ -232,7 +243,12 @@ function ParametersCard({ application }: { application: Application }) {
             {application.can_cancel &&
                 (confirm ? (
                     <div className='row'>
-                        <Button view='secondary' size={40} loading={cancel.isPending} onClick={() => cancel.mutate(application.id)}>
+                        <Button
+                            view='secondary'
+                            size={40}
+                            loading={cancel.isPending}
+                            onClick={() => cancel.mutate(application.id)}
+                        >
                             Да, отозвать
                         </Button>
                         <Button view='transparent' size={40} onClick={() => setConfirm(false)}>
@@ -258,7 +274,9 @@ function HistoryCard({ application }: { application: Application }) {
             <ol className='timeline'>
                 {[...application.history].reverse().map((item, index) => (
                     <li key={`${item.created_at}-${index}`} className='timeline__item'>
-                        <span className={`timeline__dot ${index === 0 ? 'timeline__dot--active' : 'timeline__dot--done'}`} />
+                        <span
+                            className={`timeline__dot ${index === 0 ? 'timeline__dot--active' : 'timeline__dot--done'}`}
+                        />
                         <div>
                             <Typography.Text view='primary-medium' weight='medium' tag='div'>
                                 {item.to_label}

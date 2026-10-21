@@ -56,12 +56,14 @@ export function OfferSection({ application }: { application: Application }) {
                             <Typography.Text view='primary-small'>{text}</Typography.Text>
                         </div>
                     ))}
-                    {[...explanation.negative, ...(explanation.limit_phrase ? [explanation.limit_phrase] : [])].map((text) => (
-                        <div key={text} className='row' style={{ flexWrap: 'nowrap' }}>
-                            <ExclamationCircleMIcon color='#f7a600' />
-                            <Typography.Text view='primary-small'>{text}</Typography.Text>
-                        </div>
-                    ))}
+                    {[...explanation.negative, ...(explanation.limit_phrase ? [explanation.limit_phrase] : [])].map(
+                        (text) => (
+                            <div key={text} className='row' style={{ flexWrap: 'nowrap' }}>
+                                <ExclamationCircleMIcon color='#f7a600' />
+                                <Typography.Text view='primary-small'>{text}</Typography.Text>
+                            </div>
+                        ),
+                    )}
                 </div>
             )}
 
@@ -90,7 +92,12 @@ export function OfferSection({ application }: { application: Application }) {
                         <Typography.Text view='primary-small' color='secondary'>
                             Точно отказаться?
                         </Typography.Text>
-                        <Button view='secondary' size={48} loading={decline.isPending} onClick={() => decline.mutate(application.id)}>
+                        <Button
+                            view='secondary'
+                            size={48}
+                            loading={decline.isPending}
+                            onClick={() => decline.mutate(application.id)}
+                        >
                             Да, отказаться
                         </Button>
                         <Button view='transparent' size={48} onClick={() => setConfirmDecline(false)}>
@@ -131,7 +138,7 @@ function OfferOption({
                     {offer.product_name}
                 </Typography.Text>
                 <Badge color={offer.kind === 'AS_REQUESTED' ? 'green' : 'blue'}>
-                    {offer.kind === 'AS_REQUESTED' ? 'Как вы запросили' : offer.note ?? `Вариант ${offer.option_no}`}
+                    {offer.kind === 'AS_REQUESTED' ? 'Как вы запросили' : (offer.note ?? `Вариант ${offer.option_no}`)}
                 </Badge>
             </div>
             <div className='metrics'>

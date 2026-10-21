@@ -1,10 +1,10 @@
 import '@alfalab/core-components/vars/index.css';
-import '@fontsource/inter/cyrillic-400.css';
-import '@fontsource/inter/cyrillic-500.css';
-import '@fontsource/inter/cyrillic-700.css';
-import '@fontsource/inter/latin-400.css';
-import '@fontsource/inter/latin-500.css';
-import '@fontsource/inter/latin-700.css';
+import '@fontsource/onest/cyrillic-400.css';
+import '@fontsource/onest/cyrillic-500.css';
+import '@fontsource/onest/cyrillic-700.css';
+import '@fontsource/onest/latin-400.css';
+import '@fontsource/onest/latin-500.css';
+import '@fontsource/onest/latin-700.css';
 import './styles/global.css';
 
 import { CoreConfigContext } from '@alfalab/core-components-config';

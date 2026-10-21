@@ -67,7 +67,13 @@ export function LoginPage() {
                     </Typography.Text>
                 </div>
                 <div className='stack-16'>
-                    <Typography.TitleResponsive tag='h1' view='xlarge' font='system' weight='bold' color='primary-inverted'>
+                    <Typography.TitleResponsive
+                        tag='h1'
+                        view='xlarge'
+                        font='system'
+                        weight='bold'
+                        color='primary-inverted'
+                    >
                         Кредит для бизнеса — от задачи до денег на счёте
                     </Typography.TitleResponsive>
                     <Typography.Text view='primary-large' color='secondary-inverted' tag='p'>
@@ -124,7 +130,12 @@ export function LoginPage() {
                         </Typography.Text>
                         <div className='demo-accounts'>
                             {CLIENTS.map((account) => (
-                                <button key={account.login} type='button' className='demo-account' onClick={() => quick(account.login)}>
+                                <button
+                                    key={account.login}
+                                    type='button'
+                                    className='demo-account'
+                                    onClick={() => quick(account.login)}
+                                >
                                     <Typography.Text view='primary-small' weight='medium' tag='div'>
                                         {account.company}
                                     </Typography.Text>
@@ -139,7 +150,12 @@ export function LoginPage() {
                         </Typography.Text>
                         <div className='demo-accounts'>
                             {STAFF.map((account) => (
-                                <button key={account.login} type='button' className='demo-account' onClick={() => quick(account.login)}>
+                                <button
+                                    key={account.login}
+                                    type='button'
+                                    className='demo-account'
+                                    onClick={() => quick(account.login)}
+                                >
                                     <Typography.Text view='primary-small' weight='medium' tag='div'>
                                         {account.company}
                                     </Typography.Text>

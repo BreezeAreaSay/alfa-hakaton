@@ -13,7 +13,15 @@ import { ApiError } from '../api/client';
 import type { AppStatus, Step } from '../api/types';
 import { STATUS_COLORS, type StatusColor } from '../utils/format';
 
-export function PageHead({ title, subtitle, actions }: { title: ReactNode; subtitle?: ReactNode; actions?: ReactNode }) {
+export function PageHead({
+    title,
+    subtitle,
+    actions,
+}: {
+    title: ReactNode;
+    subtitle?: ReactNode;
+    actions?: ReactNode;
+}) {
     return (
         <div className='page-head'>
             <div className='stack-8'>
@@ -113,7 +121,11 @@ export function Metric({ label, value, hint }: { label: ReactNode; value: ReactN
         <div>
             <div className='metric__label'>{label}</div>
             <div className='metric__value'>{value}</div>
-            {hint && <div className='metric__label' style={{ marginTop: 4 }}>{hint}</div>}
+            {hint && (
+                <div className='metric__label' style={{ marginTop: 4 }}>
+                    {hint}
+                </div>
+            )}
         </div>
     );
 }
@@ -143,7 +155,11 @@ export function StepList({ steps, showErrors = false }: { steps: Step[]; showErr
                 <li key={step.step} className='timeline__item'>
                     <span className={`timeline__dot ${STEP_DOT[step.status]}`}>{STEP_ICON[step.status]}</span>
                     <div>
-                        <Typography.Text view='primary-medium' weight={step.status === 'PENDING' ? 'regular' : 'medium'} tag='div'>
+                        <Typography.Text
+                            view='primary-medium'
+                            weight={step.status === 'PENDING' ? 'regular' : 'medium'}
+                            tag='div'
+                        >
                             {step.title}
                         </Typography.Text>
                         <Typography.Text view='primary-small' color='secondary' tag='div'>
