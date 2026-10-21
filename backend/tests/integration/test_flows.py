@@ -311,6 +311,9 @@ def test_invalid_requests_are_rejected_with_clear_errors():
     )
     assert foreign_request.status_code == 422
     assert analyst.http.get(f"/api/applications/{draft['id']}").status_code == 404, "черновик видит только клиент"
+    assert client.http.patch(f"/api/applications/{draft['id']}", json={"amount": None}).status_code == 422
+    cleared = client.http.patch(f"/api/applications/{draft['id']}", json={"purpose_text": None})
+    assert cleared.status_code == 200 and cleared.json()["purpose_text"] is None
 
 
 def test_demo_reset_keeps_event_ids_growing():

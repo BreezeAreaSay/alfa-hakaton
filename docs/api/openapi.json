@@ -2492,25 +2492,11 @@
       "ApplicationUpdate": {
         "properties": {
           "product_code": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
+            "type": "string",
             "title": "Product Code"
           },
           "purpose": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/Purpose"
-              },
-              {
-                "type": "null"
-              }
-            ]
+            "$ref": "#/components/schemas/Purpose"
           },
           "purpose_text": {
             "anyOf": [
@@ -2532,24 +2518,14 @@
               },
               {
                 "type": "string"
-              },
-              {
-                "type": "null"
               }
             ],
             "title": "Amount"
           },
           "term_months": {
-            "anyOf": [
-              {
-                "type": "integer",
-                "maximum": 240.0,
-                "exclusiveMinimum": 0.0
-              },
-              {
-                "type": "null"
-              }
-            ],
+            "type": "integer",
+            "maximum": 240.0,
+            "exclusiveMinimum": 0.0,
             "title": "Term Months"
           },
           "declared_revenue": {
@@ -2596,7 +2572,8 @@
           }
         },
         "type": "object",
-        "title": "ApplicationUpdate"
+        "title": "ApplicationUpdate",
+        "description": "Изменение черновика: передаются только меняемые поля. Обязательные поля нельзя очистить — null даёт 422."
       },
       "BankSummary": {
         "properties": {

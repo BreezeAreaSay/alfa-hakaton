@@ -113,11 +113,13 @@ class ApplicationCreate(BaseModel):
 
 
 class ApplicationUpdate(BaseModel):
-    product_code: str | None = None
-    purpose: Purpose | None = None
+    """Изменение черновика: передаются только меняемые поля. Обязательные поля нельзя очистить — null даёт 422."""
+
+    product_code: str = None
+    purpose: Purpose = None
     purpose_text: str | None = Field(default=None, max_length=500)
-    amount: Decimal | None = Field(default=None, gt=0)
-    term_months: int | None = Field(default=None, gt=0, le=240)
+    amount: Decimal = Field(default=None, gt=0)
+    term_months: int = Field(default=None, gt=0, le=240)
     declared_revenue: Decimal | None = Field(default=None, ge=0)
     collateral_type: str | None = Field(default=None, max_length=64)
     collateral_value: Decimal | None = Field(default=None, ge=0)
