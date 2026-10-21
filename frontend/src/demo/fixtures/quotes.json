@@ -1,0 +1,1498 @@
+[
+  {
+    "login": "veter",
+    "request": {
+      "purpose": "WORKING_CAPITAL",
+      "amount": 3000000,
+      "term_months": 24,
+      "legal_form": "OOO",
+      "business_months": 74,
+      "is_bank_client": true,
+      "account_months": 60
+    },
+    "response": [
+      {
+        "code": "GROWTH",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "19.00",
+        "monthly_payment": "151225.85",
+        "overpayment": "629420.40",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "EXPRESS",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "21.00",
+        "monthly_payment": "154156.95",
+        "overpayment": "699766.80",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "CREDIT_LINE",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "14.50",
+        "monthly_payment": "36250.00",
+        "overpayment": "870000.00",
+        "payment_label": "Проценты в месяц при полном использовании лимита"
+      }
+    ]
+  },
+  {
+    "login": "veter",
+    "request": {
+      "purpose": "CASH_GAP",
+      "amount": 1000000,
+      "term_months": 12,
+      "legal_form": "OOO",
+      "business_months": 74,
+      "is_bank_client": true,
+      "account_months": 60
+    },
+    "response": [
+      {
+        "code": "OVERDRAFT",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "13.00",
+        "monthly_payment": "10833.33",
+        "overpayment": "129999.96",
+        "payment_label": "Проценты в месяц при полном использовании лимита"
+      },
+      {
+        "code": "CREDIT_LINE",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "14.50",
+        "monthly_payment": "12083.33",
+        "overpayment": "144999.96",
+        "payment_label": "Проценты в месяц при полном использовании лимита"
+      },
+      {
+        "code": "EXPRESS",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "21.00",
+        "monthly_payment": "93113.77",
+        "overpayment": "117365.24",
+        "payment_label": "Ежемесячный платёж"
+      }
+    ]
+  },
+  {
+    "login": "veter",
+    "request": {
+      "purpose": "EQUIPMENT",
+      "amount": 8000000,
+      "term_months": 48,
+      "legal_form": "OOO",
+      "business_months": 74,
+      "is_bank_client": true,
+      "account_months": 60
+    },
+    "response": [
+      {
+        "code": "SECURED",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "15.50",
+        "monthly_payment": "224678.87",
+        "overpayment": "2784585.76",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "GROWTH",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "19.00",
+        "monthly_payment": "239200.95",
+        "overpayment": "3481645.60",
+        "payment_label": "Ежемесячный платёж"
+      }
+    ]
+  },
+  {
+    "login": "veter",
+    "request": {
+      "purpose": "EXPANSION",
+      "amount": 40000000,
+      "term_months": 84,
+      "legal_form": "OOO",
+      "business_months": 74,
+      "is_bank_client": true,
+      "account_months": 60
+    },
+    "response": [
+      {
+        "code": "GROWTH",
+        "eligible": false,
+        "issues": ["Сумма от 1 000 000 ₽ до 30 000 000 ₽","Срок от 12 до 60 мес."],
+        "rate_from": "19.00",
+        "monthly_payment": "778216.53",
+        "overpayment": "16692991.80",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "SECURED",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "15.50",
+        "monthly_payment": "783133.87",
+        "overpayment": "25783245.08",
+        "payment_label": "Ежемесячный платёж"
+      }
+    ]
+  },
+  {
+    "login": "smirnova",
+    "request": {
+      "purpose": "WORKING_CAPITAL",
+      "amount": 3000000,
+      "term_months": 24,
+      "legal_form": "IP",
+      "business_months": 26,
+      "is_bank_client": true,
+      "account_months": 25
+    },
+    "response": [
+      {
+        "code": "GROWTH",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "19.00",
+        "monthly_payment": "151225.85",
+        "overpayment": "629420.40",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "EXPRESS",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "21.00",
+        "monthly_payment": "154156.95",
+        "overpayment": "699766.80",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "CREDIT_LINE",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "14.50",
+        "monthly_payment": "36250.00",
+        "overpayment": "870000.00",
+        "payment_label": "Проценты в месяц при полном использовании лимита"
+      }
+    ]
+  },
+  {
+    "login": "smirnova",
+    "request": {
+      "purpose": "CASH_GAP",
+      "amount": 1000000,
+      "term_months": 12,
+      "legal_form": "IP",
+      "business_months": 26,
+      "is_bank_client": true,
+      "account_months": 25
+    },
+    "response": [
+      {
+        "code": "OVERDRAFT",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "13.00",
+        "monthly_payment": "10833.33",
+        "overpayment": "129999.96",
+        "payment_label": "Проценты в месяц при полном использовании лимита"
+      },
+      {
+        "code": "CREDIT_LINE",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "14.50",
+        "monthly_payment": "12083.33",
+        "overpayment": "144999.96",
+        "payment_label": "Проценты в месяц при полном использовании лимита"
+      },
+      {
+        "code": "EXPRESS",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "21.00",
+        "monthly_payment": "93113.77",
+        "overpayment": "117365.24",
+        "payment_label": "Ежемесячный платёж"
+      }
+    ]
+  },
+  {
+    "login": "smirnova",
+    "request": {
+      "purpose": "EQUIPMENT",
+      "amount": 8000000,
+      "term_months": 48,
+      "legal_form": "IP",
+      "business_months": 26,
+      "is_bank_client": true,
+      "account_months": 25
+    },
+    "response": [
+      {
+        "code": "SECURED",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "15.50",
+        "monthly_payment": "224678.87",
+        "overpayment": "2784585.76",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "GROWTH",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "19.00",
+        "monthly_payment": "239200.95",
+        "overpayment": "3481645.60",
+        "payment_label": "Ежемесячный платёж"
+      }
+    ]
+  },
+  {
+    "login": "smirnova",
+    "request": {
+      "purpose": "EXPANSION",
+      "amount": 40000000,
+      "term_months": 84,
+      "legal_form": "IP",
+      "business_months": 26,
+      "is_bank_client": true,
+      "account_months": 25
+    },
+    "response": [
+      {
+        "code": "GROWTH",
+        "eligible": false,
+        "issues": ["Сумма от 1 000 000 ₽ до 30 000 000 ₽","Срок от 12 до 60 мес."],
+        "rate_from": "19.00",
+        "monthly_payment": "778216.53",
+        "overpayment": "16692991.80",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "SECURED",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "15.50",
+        "monthly_payment": "783133.87",
+        "overpayment": "25783245.08",
+        "payment_label": "Ежемесячный платёж"
+      }
+    ]
+  },
+  {
+    "login": "tehnomaster",
+    "request": {
+      "purpose": "WORKING_CAPITAL",
+      "amount": 3000000,
+      "term_months": 24,
+      "legal_form": "OOO",
+      "business_months": 52,
+      "is_bank_client": false,
+      "account_months": 0
+    },
+    "response": [
+      {
+        "code": "GROWTH",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "19.00",
+        "monthly_payment": "151225.85",
+        "overpayment": "629420.40",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "EXPRESS",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "21.00",
+        "monthly_payment": "154156.95",
+        "overpayment": "699766.80",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "CREDIT_LINE",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "14.50",
+        "monthly_payment": "36250.00",
+        "overpayment": "870000.00",
+        "payment_label": "Проценты в месяц при полном использовании лимита"
+      }
+    ]
+  },
+  {
+    "login": "tehnomaster",
+    "request": {
+      "purpose": "CASH_GAP",
+      "amount": 1000000,
+      "term_months": 12,
+      "legal_form": "OOO",
+      "business_months": 52,
+      "is_bank_client": false,
+      "account_months": 0
+    },
+    "response": [
+      {
+        "code": "OVERDRAFT",
+        "eligible": false,
+        "issues": ["Доступен клиентам банка с поступлениями на счёт от 6 мес."],
+        "rate_from": "13.00",
+        "monthly_payment": "10833.33",
+        "overpayment": "129999.96",
+        "payment_label": "Проценты в месяц при полном использовании лимита"
+      },
+      {
+        "code": "CREDIT_LINE",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "14.50",
+        "monthly_payment": "12083.33",
+        "overpayment": "144999.96",
+        "payment_label": "Проценты в месяц при полном использовании лимита"
+      },
+      {
+        "code": "EXPRESS",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "21.00",
+        "monthly_payment": "93113.77",
+        "overpayment": "117365.24",
+        "payment_label": "Ежемесячный платёж"
+      }
+    ]
+  },
+  {
+    "login": "tehnomaster",
+    "request": {
+      "purpose": "EQUIPMENT",
+      "amount": 8000000,
+      "term_months": 48,
+      "legal_form": "OOO",
+      "business_months": 52,
+      "is_bank_client": false,
+      "account_months": 0
+    },
+    "response": [
+      {
+        "code": "SECURED",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "15.50",
+        "monthly_payment": "224678.87",
+        "overpayment": "2784585.76",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "GROWTH",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "19.00",
+        "monthly_payment": "239200.95",
+        "overpayment": "3481645.60",
+        "payment_label": "Ежемесячный платёж"
+      }
+    ]
+  },
+  {
+    "login": "tehnomaster",
+    "request": {
+      "purpose": "EXPANSION",
+      "amount": 40000000,
+      "term_months": 84,
+      "legal_form": "OOO",
+      "business_months": 52,
+      "is_bank_client": false,
+      "account_months": 0
+    },
+    "response": [
+      {
+        "code": "GROWTH",
+        "eligible": false,
+        "issues": ["Сумма от 1 000 000 ₽ до 30 000 000 ₽","Срок от 12 до 60 мес."],
+        "rate_from": "19.00",
+        "monthly_payment": "778216.53",
+        "overpayment": "16692991.80",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "SECURED",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "15.50",
+        "monthly_payment": "783133.87",
+        "overpayment": "25783245.08",
+        "payment_label": "Ежемесячный платёж"
+      }
+    ]
+  },
+  {
+    "login": "orlov",
+    "request": {
+      "purpose": "WORKING_CAPITAL",
+      "amount": 3000000,
+      "term_months": 24,
+      "legal_form": "IP",
+      "business_months": 38,
+      "is_bank_client": false,
+      "account_months": 0
+    },
+    "response": [
+      {
+        "code": "GROWTH",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "19.00",
+        "monthly_payment": "151225.85",
+        "overpayment": "629420.40",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "EXPRESS",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "21.00",
+        "monthly_payment": "154156.95",
+        "overpayment": "699766.80",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "CREDIT_LINE",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "14.50",
+        "monthly_payment": "36250.00",
+        "overpayment": "870000.00",
+        "payment_label": "Проценты в месяц при полном использовании лимита"
+      }
+    ]
+  },
+  {
+    "login": "orlov",
+    "request": {
+      "purpose": "CASH_GAP",
+      "amount": 1000000,
+      "term_months": 12,
+      "legal_form": "IP",
+      "business_months": 38,
+      "is_bank_client": false,
+      "account_months": 0
+    },
+    "response": [
+      {
+        "code": "OVERDRAFT",
+        "eligible": false,
+        "issues": ["Доступен клиентам банка с поступлениями на счёт от 6 мес."],
+        "rate_from": "13.00",
+        "monthly_payment": "10833.33",
+        "overpayment": "129999.96",
+        "payment_label": "Проценты в месяц при полном использовании лимита"
+      },
+      {
+        "code": "CREDIT_LINE",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "14.50",
+        "monthly_payment": "12083.33",
+        "overpayment": "144999.96",
+        "payment_label": "Проценты в месяц при полном использовании лимита"
+      },
+      {
+        "code": "EXPRESS",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "21.00",
+        "monthly_payment": "93113.77",
+        "overpayment": "117365.24",
+        "payment_label": "Ежемесячный платёж"
+      }
+    ]
+  },
+  {
+    "login": "orlov",
+    "request": {
+      "purpose": "EQUIPMENT",
+      "amount": 8000000,
+      "term_months": 48,
+      "legal_form": "IP",
+      "business_months": 38,
+      "is_bank_client": false,
+      "account_months": 0
+    },
+    "response": [
+      {
+        "code": "SECURED",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "15.50",
+        "monthly_payment": "224678.87",
+        "overpayment": "2784585.76",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "GROWTH",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "19.00",
+        "monthly_payment": "239200.95",
+        "overpayment": "3481645.60",
+        "payment_label": "Ежемесячный платёж"
+      }
+    ]
+  },
+  {
+    "login": "orlov",
+    "request": {
+      "purpose": "EXPANSION",
+      "amount": 40000000,
+      "term_months": 84,
+      "legal_form": "IP",
+      "business_months": 38,
+      "is_bank_client": false,
+      "account_months": 0
+    },
+    "response": [
+      {
+        "code": "GROWTH",
+        "eligible": false,
+        "issues": ["Сумма от 1 000 000 ₽ до 30 000 000 ₽","Срок от 12 до 60 мес."],
+        "rate_from": "19.00",
+        "monthly_payment": "778216.53",
+        "overpayment": "16692991.80",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "SECURED",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "15.50",
+        "monthly_payment": "783133.87",
+        "overpayment": "25783245.08",
+        "payment_label": "Ежемесячный платёж"
+      }
+    ]
+  },
+  {
+    "login": "vektor",
+    "request": {
+      "purpose": "WORKING_CAPITAL",
+      "amount": 3000000,
+      "term_months": 24,
+      "legal_form": "OOO",
+      "business_months": 40,
+      "is_bank_client": true,
+      "account_months": 18
+    },
+    "response": [
+      {
+        "code": "GROWTH",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "19.00",
+        "monthly_payment": "151225.85",
+        "overpayment": "629420.40",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "EXPRESS",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "21.00",
+        "monthly_payment": "154156.95",
+        "overpayment": "699766.80",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "CREDIT_LINE",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "14.50",
+        "monthly_payment": "36250.00",
+        "overpayment": "870000.00",
+        "payment_label": "Проценты в месяц при полном использовании лимита"
+      }
+    ]
+  },
+  {
+    "login": "vektor",
+    "request": {
+      "purpose": "CASH_GAP",
+      "amount": 1000000,
+      "term_months": 12,
+      "legal_form": "OOO",
+      "business_months": 40,
+      "is_bank_client": true,
+      "account_months": 18
+    },
+    "response": [
+      {
+        "code": "OVERDRAFT",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "13.00",
+        "monthly_payment": "10833.33",
+        "overpayment": "129999.96",
+        "payment_label": "Проценты в месяц при полном использовании лимита"
+      },
+      {
+        "code": "CREDIT_LINE",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "14.50",
+        "monthly_payment": "12083.33",
+        "overpayment": "144999.96",
+        "payment_label": "Проценты в месяц при полном использовании лимита"
+      },
+      {
+        "code": "EXPRESS",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "21.00",
+        "monthly_payment": "93113.77",
+        "overpayment": "117365.24",
+        "payment_label": "Ежемесячный платёж"
+      }
+    ]
+  },
+  {
+    "login": "vektor",
+    "request": {
+      "purpose": "EQUIPMENT",
+      "amount": 8000000,
+      "term_months": 48,
+      "legal_form": "OOO",
+      "business_months": 40,
+      "is_bank_client": true,
+      "account_months": 18
+    },
+    "response": [
+      {
+        "code": "SECURED",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "15.50",
+        "monthly_payment": "224678.87",
+        "overpayment": "2784585.76",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "GROWTH",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "19.00",
+        "monthly_payment": "239200.95",
+        "overpayment": "3481645.60",
+        "payment_label": "Ежемесячный платёж"
+      }
+    ]
+  },
+  {
+    "login": "vektor",
+    "request": {
+      "purpose": "EXPANSION",
+      "amount": 40000000,
+      "term_months": 84,
+      "legal_form": "OOO",
+      "business_months": 40,
+      "is_bank_client": true,
+      "account_months": 18
+    },
+    "response": [
+      {
+        "code": "GROWTH",
+        "eligible": false,
+        "issues": ["Сумма от 1 000 000 ₽ до 30 000 000 ₽","Срок от 12 до 60 мес."],
+        "rate_from": "19.00",
+        "monthly_payment": "778216.53",
+        "overpayment": "16692991.80",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "SECURED",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "15.50",
+        "monthly_payment": "783133.87",
+        "overpayment": "25783245.08",
+        "payment_label": "Ежемесячный платёж"
+      }
+    ]
+  },
+  {
+    "login": "grand",
+    "request": {
+      "purpose": "WORKING_CAPITAL",
+      "amount": 3000000,
+      "term_months": 24,
+      "legal_form": "OOO",
+      "business_months": 100,
+      "is_bank_client": true,
+      "account_months": 36
+    },
+    "response": [
+      {
+        "code": "GROWTH",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "19.00",
+        "monthly_payment": "151225.85",
+        "overpayment": "629420.40",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "EXPRESS",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "21.00",
+        "monthly_payment": "154156.95",
+        "overpayment": "699766.80",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "CREDIT_LINE",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "14.50",
+        "monthly_payment": "36250.00",
+        "overpayment": "870000.00",
+        "payment_label": "Проценты в месяц при полном использовании лимита"
+      }
+    ]
+  },
+  {
+    "login": "grand",
+    "request": {
+      "purpose": "CASH_GAP",
+      "amount": 1000000,
+      "term_months": 12,
+      "legal_form": "OOO",
+      "business_months": 100,
+      "is_bank_client": true,
+      "account_months": 36
+    },
+    "response": [
+      {
+        "code": "OVERDRAFT",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "13.00",
+        "monthly_payment": "10833.33",
+        "overpayment": "129999.96",
+        "payment_label": "Проценты в месяц при полном использовании лимита"
+      },
+      {
+        "code": "CREDIT_LINE",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "14.50",
+        "monthly_payment": "12083.33",
+        "overpayment": "144999.96",
+        "payment_label": "Проценты в месяц при полном использовании лимита"
+      },
+      {
+        "code": "EXPRESS",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "21.00",
+        "monthly_payment": "93113.77",
+        "overpayment": "117365.24",
+        "payment_label": "Ежемесячный платёж"
+      }
+    ]
+  },
+  {
+    "login": "grand",
+    "request": {
+      "purpose": "EQUIPMENT",
+      "amount": 8000000,
+      "term_months": 48,
+      "legal_form": "OOO",
+      "business_months": 100,
+      "is_bank_client": true,
+      "account_months": 36
+    },
+    "response": [
+      {
+        "code": "SECURED",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "15.50",
+        "monthly_payment": "224678.87",
+        "overpayment": "2784585.76",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "GROWTH",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "19.00",
+        "monthly_payment": "239200.95",
+        "overpayment": "3481645.60",
+        "payment_label": "Ежемесячный платёж"
+      }
+    ]
+  },
+  {
+    "login": "grand",
+    "request": {
+      "purpose": "EXPANSION",
+      "amount": 40000000,
+      "term_months": 84,
+      "legal_form": "OOO",
+      "business_months": 100,
+      "is_bank_client": true,
+      "account_months": 36
+    },
+    "response": [
+      {
+        "code": "GROWTH",
+        "eligible": false,
+        "issues": ["Сумма от 1 000 000 ₽ до 30 000 000 ₽","Срок от 12 до 60 мес."],
+        "rate_from": "19.00",
+        "monthly_payment": "778216.53",
+        "overpayment": "16692991.80",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "SECURED",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "15.50",
+        "monthly_payment": "783133.87",
+        "overpayment": "25783245.08",
+        "payment_label": "Ежемесячный платёж"
+      }
+    ]
+  },
+  {
+    "login": "start",
+    "request": {
+      "purpose": "WORKING_CAPITAL",
+      "amount": 3000000,
+      "term_months": 24,
+      "legal_form": "OOO",
+      "business_months": 5,
+      "is_bank_client": true,
+      "account_months": 5
+    },
+    "response": [
+      {
+        "code": "STARTUP",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "23.00",
+        "monthly_payment": "157119.92",
+        "overpayment": "770878.08",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "GROWTH",
+        "eligible": false,
+        "issues": ["Доступен бизнесу от 1 года"],
+        "rate_from": "19.00",
+        "monthly_payment": "151225.85",
+        "overpayment": "629420.40",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "EXPRESS",
+        "eligible": false,
+        "issues": ["Доступен бизнесу от 9 мес."],
+        "rate_from": "21.00",
+        "monthly_payment": "154156.95",
+        "overpayment": "699766.80",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "CREDIT_LINE",
+        "eligible": false,
+        "issues": ["Доступен бизнесу от 1 года"],
+        "rate_from": "14.50",
+        "monthly_payment": "36250.00",
+        "overpayment": "870000.00",
+        "payment_label": "Проценты в месяц при полном использовании лимита"
+      }
+    ]
+  },
+  {
+    "login": "start",
+    "request": {
+      "purpose": "CASH_GAP",
+      "amount": 1000000,
+      "term_months": 12,
+      "legal_form": "OOO",
+      "business_months": 5,
+      "is_bank_client": true,
+      "account_months": 5
+    },
+    "response": [
+      {
+        "code": "STARTUP",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "23.00",
+        "monthly_payment": "94076.32",
+        "overpayment": "128915.84",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "OVERDRAFT",
+        "eligible": false,
+        "issues": ["Доступен бизнесу от 6 мес.","Доступен клиентам банка с поступлениями на счёт от 6 мес."],
+        "rate_from": "13.00",
+        "monthly_payment": "10833.33",
+        "overpayment": "129999.96",
+        "payment_label": "Проценты в месяц при полном использовании лимита"
+      },
+      {
+        "code": "CREDIT_LINE",
+        "eligible": false,
+        "issues": ["Доступен бизнесу от 1 года"],
+        "rate_from": "14.50",
+        "monthly_payment": "12083.33",
+        "overpayment": "144999.96",
+        "payment_label": "Проценты в месяц при полном использовании лимита"
+      },
+      {
+        "code": "EXPRESS",
+        "eligible": false,
+        "issues": ["Доступен бизнесу от 9 мес."],
+        "rate_from": "21.00",
+        "monthly_payment": "93113.77",
+        "overpayment": "117365.24",
+        "payment_label": "Ежемесячный платёж"
+      }
+    ]
+  },
+  {
+    "login": "start",
+    "request": {
+      "purpose": "EQUIPMENT",
+      "amount": 8000000,
+      "term_months": 48,
+      "legal_form": "OOO",
+      "business_months": 5,
+      "is_bank_client": true,
+      "account_months": 5
+    },
+    "response": [
+      {
+        "code": "STARTUP",
+        "eligible": false,
+        "issues": ["Сумма от 100 000 ₽ до 3 000 000 ₽","Срок от 6 до 36 мес."],
+        "rate_from": "23.00",
+        "monthly_payment": "116129.16",
+        "overpayment": "1180649.76",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "SECURED",
+        "eligible": false,
+        "issues": ["Доступен бизнесу от 1 года"],
+        "rate_from": "15.50",
+        "monthly_payment": "224678.87",
+        "overpayment": "2784585.76",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "GROWTH",
+        "eligible": false,
+        "issues": ["Доступен бизнесу от 1 года"],
+        "rate_from": "19.00",
+        "monthly_payment": "239200.95",
+        "overpayment": "3481645.60",
+        "payment_label": "Ежемесячный платёж"
+      }
+    ]
+  },
+  {
+    "login": "start",
+    "request": {
+      "purpose": "EXPANSION",
+      "amount": 40000000,
+      "term_months": 84,
+      "legal_form": "OOO",
+      "business_months": 5,
+      "is_bank_client": true,
+      "account_months": 5
+    },
+    "response": [
+      {
+        "code": "STARTUP",
+        "eligible": false,
+        "issues": ["Сумма от 100 000 ₽ до 3 000 000 ₽","Срок от 6 до 36 мес."],
+        "rate_from": "23.00",
+        "monthly_payment": "116129.16",
+        "overpayment": "1180649.76",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "GROWTH",
+        "eligible": false,
+        "issues": ["Доступен бизнесу от 1 года","Сумма от 1 000 000 ₽ до 30 000 000 ₽","Срок от 12 до 60 мес."],
+        "rate_from": "19.00",
+        "monthly_payment": "778216.53",
+        "overpayment": "16692991.80",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "SECURED",
+        "eligible": false,
+        "issues": ["Доступен бизнесу от 1 года"],
+        "rate_from": "15.50",
+        "monthly_payment": "783133.87",
+        "overpayment": "25783245.08",
+        "payment_label": "Ежемесячный платёж"
+      }
+    ]
+  },
+  {
+    "login": "altair",
+    "request": {
+      "purpose": "WORKING_CAPITAL",
+      "amount": 3000000,
+      "term_months": 24,
+      "legal_form": "OOO",
+      "business_months": 98,
+      "is_bank_client": true,
+      "account_months": 48
+    },
+    "response": [
+      {
+        "code": "GROWTH",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "19.00",
+        "monthly_payment": "151225.85",
+        "overpayment": "629420.40",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "EXPRESS",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "21.00",
+        "monthly_payment": "154156.95",
+        "overpayment": "699766.80",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "CREDIT_LINE",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "14.50",
+        "monthly_payment": "36250.00",
+        "overpayment": "870000.00",
+        "payment_label": "Проценты в месяц при полном использовании лимита"
+      }
+    ]
+  },
+  {
+    "login": "altair",
+    "request": {
+      "purpose": "CASH_GAP",
+      "amount": 1000000,
+      "term_months": 12,
+      "legal_form": "OOO",
+      "business_months": 98,
+      "is_bank_client": true,
+      "account_months": 48
+    },
+    "response": [
+      {
+        "code": "OVERDRAFT",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "13.00",
+        "monthly_payment": "10833.33",
+        "overpayment": "129999.96",
+        "payment_label": "Проценты в месяц при полном использовании лимита"
+      },
+      {
+        "code": "CREDIT_LINE",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "14.50",
+        "monthly_payment": "12083.33",
+        "overpayment": "144999.96",
+        "payment_label": "Проценты в месяц при полном использовании лимита"
+      },
+      {
+        "code": "EXPRESS",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "21.00",
+        "monthly_payment": "93113.77",
+        "overpayment": "117365.24",
+        "payment_label": "Ежемесячный платёж"
+      }
+    ]
+  },
+  {
+    "login": "altair",
+    "request": {
+      "purpose": "EQUIPMENT",
+      "amount": 8000000,
+      "term_months": 48,
+      "legal_form": "OOO",
+      "business_months": 98,
+      "is_bank_client": true,
+      "account_months": 48
+    },
+    "response": [
+      {
+        "code": "SECURED",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "15.50",
+        "monthly_payment": "224678.87",
+        "overpayment": "2784585.76",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "GROWTH",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "19.00",
+        "monthly_payment": "239200.95",
+        "overpayment": "3481645.60",
+        "payment_label": "Ежемесячный платёж"
+      }
+    ]
+  },
+  {
+    "login": "altair",
+    "request": {
+      "purpose": "EXPANSION",
+      "amount": 40000000,
+      "term_months": 84,
+      "legal_form": "OOO",
+      "business_months": 98,
+      "is_bank_client": true,
+      "account_months": 48
+    },
+    "response": [
+      {
+        "code": "GROWTH",
+        "eligible": false,
+        "issues": ["Сумма от 1 000 000 ₽ до 30 000 000 ₽","Срок от 12 до 60 мес."],
+        "rate_from": "19.00",
+        "monthly_payment": "778216.53",
+        "overpayment": "16692991.80",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "SECURED",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "15.50",
+        "monthly_payment": "783133.87",
+        "overpayment": "25783245.08",
+        "payment_label": "Ежемесячный платёж"
+      }
+    ]
+  },
+  {
+    "login": "romashka",
+    "request": {
+      "purpose": "WORKING_CAPITAL",
+      "amount": 3000000,
+      "term_months": 24,
+      "legal_form": "OOO",
+      "business_months": 70,
+      "is_bank_client": false,
+      "account_months": 0
+    },
+    "response": [
+      {
+        "code": "GROWTH",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "19.00",
+        "monthly_payment": "151225.85",
+        "overpayment": "629420.40",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "EXPRESS",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "21.00",
+        "monthly_payment": "154156.95",
+        "overpayment": "699766.80",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "CREDIT_LINE",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "14.50",
+        "monthly_payment": "36250.00",
+        "overpayment": "870000.00",
+        "payment_label": "Проценты в месяц при полном использовании лимита"
+      }
+    ]
+  },
+  {
+    "login": "romashka",
+    "request": {
+      "purpose": "CASH_GAP",
+      "amount": 1000000,
+      "term_months": 12,
+      "legal_form": "OOO",
+      "business_months": 70,
+      "is_bank_client": false,
+      "account_months": 0
+    },
+    "response": [
+      {
+        "code": "OVERDRAFT",
+        "eligible": false,
+        "issues": ["Доступен клиентам банка с поступлениями на счёт от 6 мес."],
+        "rate_from": "13.00",
+        "monthly_payment": "10833.33",
+        "overpayment": "129999.96",
+        "payment_label": "Проценты в месяц при полном использовании лимита"
+      },
+      {
+        "code": "CREDIT_LINE",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "14.50",
+        "monthly_payment": "12083.33",
+        "overpayment": "144999.96",
+        "payment_label": "Проценты в месяц при полном использовании лимита"
+      },
+      {
+        "code": "EXPRESS",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "21.00",
+        "monthly_payment": "93113.77",
+        "overpayment": "117365.24",
+        "payment_label": "Ежемесячный платёж"
+      }
+    ]
+  },
+  {
+    "login": "romashka",
+    "request": {
+      "purpose": "EQUIPMENT",
+      "amount": 8000000,
+      "term_months": 48,
+      "legal_form": "OOO",
+      "business_months": 70,
+      "is_bank_client": false,
+      "account_months": 0
+    },
+    "response": [
+      {
+        "code": "SECURED",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "15.50",
+        "monthly_payment": "224678.87",
+        "overpayment": "2784585.76",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "GROWTH",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "19.00",
+        "monthly_payment": "239200.95",
+        "overpayment": "3481645.60",
+        "payment_label": "Ежемесячный платёж"
+      }
+    ]
+  },
+  {
+    "login": "romashka",
+    "request": {
+      "purpose": "EXPANSION",
+      "amount": 40000000,
+      "term_months": 84,
+      "legal_form": "OOO",
+      "business_months": 70,
+      "is_bank_client": false,
+      "account_months": 0
+    },
+    "response": [
+      {
+        "code": "GROWTH",
+        "eligible": false,
+        "issues": ["Сумма от 1 000 000 ₽ до 30 000 000 ₽","Срок от 12 до 60 мес."],
+        "rate_from": "19.00",
+        "monthly_payment": "778216.53",
+        "overpayment": "16692991.80",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "SECURED",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "15.50",
+        "monthly_payment": "783133.87",
+        "overpayment": "25783245.08",
+        "payment_label": "Ежемесячный платёж"
+      }
+    ]
+  },
+  {
+    "login": "meridian",
+    "request": {
+      "purpose": "WORKING_CAPITAL",
+      "amount": 3000000,
+      "term_months": 24,
+      "legal_form": "OOO",
+      "business_months": 44,
+      "is_bank_client": false,
+      "account_months": 0
+    },
+    "response": [
+      {
+        "code": "GROWTH",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "19.00",
+        "monthly_payment": "151225.85",
+        "overpayment": "629420.40",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "EXPRESS",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "21.00",
+        "monthly_payment": "154156.95",
+        "overpayment": "699766.80",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "CREDIT_LINE",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "14.50",
+        "monthly_payment": "36250.00",
+        "overpayment": "870000.00",
+        "payment_label": "Проценты в месяц при полном использовании лимита"
+      }
+    ]
+  },
+  {
+    "login": "meridian",
+    "request": {
+      "purpose": "CASH_GAP",
+      "amount": 1000000,
+      "term_months": 12,
+      "legal_form": "OOO",
+      "business_months": 44,
+      "is_bank_client": false,
+      "account_months": 0
+    },
+    "response": [
+      {
+        "code": "OVERDRAFT",
+        "eligible": false,
+        "issues": ["Доступен клиентам банка с поступлениями на счёт от 6 мес."],
+        "rate_from": "13.00",
+        "monthly_payment": "10833.33",
+        "overpayment": "129999.96",
+        "payment_label": "Проценты в месяц при полном использовании лимита"
+      },
+      {
+        "code": "CREDIT_LINE",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "14.50",
+        "monthly_payment": "12083.33",
+        "overpayment": "144999.96",
+        "payment_label": "Проценты в месяц при полном использовании лимита"
+      },
+      {
+        "code": "EXPRESS",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "21.00",
+        "monthly_payment": "93113.77",
+        "overpayment": "117365.24",
+        "payment_label": "Ежемесячный платёж"
+      }
+    ]
+  },
+  {
+    "login": "meridian",
+    "request": {
+      "purpose": "EQUIPMENT",
+      "amount": 8000000,
+      "term_months": 48,
+      "legal_form": "OOO",
+      "business_months": 44,
+      "is_bank_client": false,
+      "account_months": 0
+    },
+    "response": [
+      {
+        "code": "SECURED",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "15.50",
+        "monthly_payment": "224678.87",
+        "overpayment": "2784585.76",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "GROWTH",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "19.00",
+        "monthly_payment": "239200.95",
+        "overpayment": "3481645.60",
+        "payment_label": "Ежемесячный платёж"
+      }
+    ]
+  },
+  {
+    "login": "meridian",
+    "request": {
+      "purpose": "EXPANSION",
+      "amount": 40000000,
+      "term_months": 84,
+      "legal_form": "OOO",
+      "business_months": 44,
+      "is_bank_client": false,
+      "account_months": 0
+    },
+    "response": [
+      {
+        "code": "GROWTH",
+        "eligible": false,
+        "issues": ["Сумма от 1 000 000 ₽ до 30 000 000 ₽","Срок от 12 до 60 мес."],
+        "rate_from": "19.00",
+        "monthly_payment": "778216.53",
+        "overpayment": "16692991.80",
+        "payment_label": "Ежемесячный платёж"
+      },
+      {
+        "code": "SECURED",
+        "eligible": true,
+        "issues": [],
+        "rate_from": "15.50",
+        "monthly_payment": "783133.87",
+        "overpayment": "25783245.08",
+        "payment_label": "Ежемесячный платёж"
+      }
+    ]
+  }
+]

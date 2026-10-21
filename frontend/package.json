@@ -10,6 +10,8 @@
     "build:demo": "tsc -p tsconfig.json --noEmit && vite build --mode demo",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "preview": "vite preview",
+    "demo:check": "node scripts/demo-selfcheck.mjs",
+    "demo:capture": "node scripts/capture-demo-fixtures.mjs",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\""
   },

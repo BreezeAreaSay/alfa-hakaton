@@ -1,0 +1,8 @@
+[
+  {"source":"egrul","title":"ЕГРЮЛ / ЕГРИП","mode":"ok","latency_ms":0},
+  {"source":"fns","title":"ФНС «Прозрачный бизнес»","mode":"ok","latency_ms":0},
+  {"source":"girbo","title":"ГИР БО (отчётность)","mode":"ok","latency_ms":0},
+  {"source":"bki","title":"Бюро кредитных историй","mode":"ok","latency_ms":0},
+  {"source":"bank","title":"Внутренние данные банка","mode":"ok","latency_ms":0},
+  {"source":"core","title":"Выдача кредита (АБС)","mode":"ok","latency_ms":0}
+]

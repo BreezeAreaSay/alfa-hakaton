@@ -7,8 +7,8 @@ import { login, money, PASSWORD, resetDemo } from './helpers';
 
 const DEMO_FILES = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../frontend/public/demo-files');
 
-test.beforeEach(async ({ request }) => {
-    await resetDemo(request);
+test.beforeEach(async ({ request, page }) => {
+    await resetDemo({ request, page });
 });
 
 /** Шаг «Подбор»: описание задачи → распознанные параметры → выбор продукта. */

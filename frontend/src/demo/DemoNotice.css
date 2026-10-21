@@ -1,0 +1,33 @@
+/* Полоса демо-версии: тон чуть светлее чёрной шапки, чтобы читалась отдельно и не спорила с навигацией */
+:root {
+    --demo-notice-height: 36px;
+}
+
+.demo-notice {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: var(--gap-4) var(--gap-12);
+    min-height: var(--demo-notice-height);
+    padding: var(--gap-8) var(--gap-24);
+    background: #1d1d1f;
+    text-align: center;
+}
+
+.demo-notice__badge {
+    padding: 2px var(--gap-8);
+    border-radius: 6px;
+    background: var(--color-light-accent-primary, #ef3124);
+    color: #fff;
+    font-size: 11px;
+    line-height: 16px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+/* страница входа занимает всю высоту окна — вместе с полосой не должна давать прокрутку */
+.demo-notice ~ .login {
+    min-height: calc(100vh - var(--demo-notice-height));
+}

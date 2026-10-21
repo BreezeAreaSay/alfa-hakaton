@@ -76,6 +76,41 @@ jobs:
       - run: npm run format:check
       - run: npm run build
 
+  e2e-demo:
+    name: Сквозные сценарии на демо-версии без сервера
+    needs: [frontend]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: |
+            frontend/package-lock.json
+            e2e/package-lock.json
+      - run: npm ci --no-audit --no-fund
+        working-directory: frontend
+      - name: Имитация сервера совпадает со снимками настоящего API
+        working-directory: frontend
+        run: npm run demo:check
+      - name: Сценарии в браузере (Playwright) на демо-сборке
+        working-directory: e2e
+        run: |
+          npm ci --no-audit --no-fund
+          npm run typecheck
+          npx playwright install --with-deps chromium
+          npm run test:demo
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: e2e-demo-report
+          path: |
+            e2e/playwright-report
+            e2e/test-results
+          retention-days: 7
+
   e2e:
     name: Сквозные сценарии на docker compose
     needs: [backend, simulator, frontend]

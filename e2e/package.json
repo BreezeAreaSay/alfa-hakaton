@@ -2,10 +2,11 @@
   "name": "smart-credit-e2e",
   "private": true,
   "version": "1.0.0",
-  "description": "Сквозные тесты интерфейса на запущенном стеке docker compose",
+  "description": "Сквозные тесты интерфейса: на запущенном стеке docker compose или на демо-версии без сервера",
   "type": "module",
   "scripts": {
     "test": "playwright test",
+    "test:demo": "E2E_DEMO=1 playwright test",
     "report": "playwright show-report",
     "typecheck": "tsc -p tsconfig.json"
   },

@@ -1,0 +1,162 @@
+[
+  {
+    "id": 1,
+    "text": "Нужно закупить партию товара к сезону на 3 млн, верну за полгода",
+    "result": {"purpose":"WORKING_CAPITAL","amount":3000000,"term_months":6,"summary":null,"source":"rules"}
+  },
+  {
+    "id": 2,
+    "text": "Хотим купить два грузовика за 12 млн на 5 лет",
+    "result": {"purpose":"EQUIPMENT","amount":12000000,"term_months":60,"summary":null,"source":"rules"}
+  },
+  {
+    "id": 3,
+    "text": "Покупатели платят с отсрочкой, нужно 800 тыс, чтобы рассчитаться с поставщиками, на год",
+    "result": {"purpose":"CASH_GAP","amount":800000,"term_months":12,"summary":null,"source":"rules"}
+  },
+  {
+    "id": 4,
+    "text": "Открываем вторую точку кофейни, нужно 2,5 млн на 3 года",
+    "result": {"purpose":"EXPANSION","amount":2500000,"term_months":36,"summary":null,"source":"rules"}
+  },
+  {
+    "id": 5,
+    "text": "Нужен кредит 1 500 000 рублей на 18 месяцев на закупку сырья",
+    "result": {"purpose":"WORKING_CAPITAL","amount":1500000,"term_months":18,"summary":null,"source":"rules"}
+  },
+  {
+    "id": 6,
+    "text": "Не хватает денег на зарплату и налоги, нужно 400к на 6 мес",
+    "result": {"purpose":"CASH_GAP","amount":400000,"term_months":6,"summary":null,"source":"rules"}
+  },
+  {
+    "id": 7,
+    "text": "Хочу новый станок за полтора миллиона",
+    "result": {"purpose":"EQUIPMENT","amount":1500000,"term_months":null,"summary":null,"source":"rules"}
+  },
+  {
+    "id": 8,
+    "text": "Нужен кредит для бизнеса",
+    "result": {"purpose":null,"amount":null,"term_months":null,"summary":null,"source":"rules"}
+  },
+  {
+    "id": 9,
+    "text": "Требуется 5 000 000 ₽ на ремонт помещения под новый склад, срок 4 года",
+    "result": {"purpose":"EXPANSION","amount":5000000,"term_months":48,"summary":null,"source":"rules"}
+  },
+  {
+    "id": 10,
+    "text": "Перед Новым годом хотим увеличить запасы товара, около 2 млн на 9 месяцев",
+    "result": {"purpose":"WORKING_CAPITAL","amount":2000000,"term_months":9,"summary":null,"source":"rules"}
+  },
+  {
+    "id": 11,
+    "text": "Заказчик задерживает оплату по контракту, нужно 3,2 млн закрыть кассовый разрыв на 3 месяца",
+    "result": {"purpose":"CASH_GAP","amount":3200000,"term_months":3,"summary":null,"source":"rules"}
+  },
+  {
+    "id": 12,
+    "text": "Планируем купить экскаватор за 7.5 млн, кредит на 60 месяцев",
+    "result": {"purpose":null,"amount":7500000,"term_months":60,"summary":null,"source":"rules"}
+  },
+  {
+    "id": 13,
+    "text": "Нужно 300 тысяч на закупку материалов для производства на полгода",
+    "result": {"purpose":"WORKING_CAPITAL","amount":300000,"term_months":6,"summary":null,"source":"rules"}
+  },
+  {
+    "id": 14,
+    "text": "Хотим открыть филиал в Казани, бюджет 15 млн, срок 5 лет",
+    "result": {"purpose":"EXPANSION","amount":15000000,"term_months":60,"summary":null,"source":"rules"}
+  },
+  {
+    "id": 15,
+    "text": "Купить кофемашину и печь для пекарни, нужно 900 000 руб. на 2 года",
+    "result": {"purpose":"EQUIPMENT","amount":900000,"term_months":24,"summary":null,"source":"rules"}
+  },
+  {
+    "id": 16,
+    "text": "Надо заплатить аренду и зарплату, пока маркетплейс не перечислил выручку: 600 тыс. на 4 месяца",
+    "result": {"purpose":"CASH_GAP","amount":600000,"term_months":4,"summary":null,"source":"rules"}
+  },
+  {
+    "id": 17,
+    "text": "Обновляем автопарк — три фургона, около 9 миллионов, на 4 года",
+    "result": {"purpose":"EQUIPMENT","amount":9000000,"term_months":48,"summary":null,"source":"rules"}
+  },
+  {
+    "id": 18,
+    "text": "Сезонная закупка удобрений для перепродажи, 4 млн до осени",
+    "result": {"purpose":"WORKING_CAPITAL","amount":4000000,"term_months":null,"summary":null,"source":"rules"}
+  },
+  {
+    "id": 19,
+    "text": "Хотим пополнить оборотные средства на 10 млн на год",
+    "result": {"purpose":"WORKING_CAPITAL","amount":10000000,"term_months":12,"summary":null,"source":"rules"}
+  },
+  {
+    "id": 20,
+    "text": "Нужен овердрафт на 1 млн, чтобы платить поставщикам вовремя",
+    "result": {"purpose":"CASH_GAP","amount":1000000,"term_months":null,"summary":null,"source":"rules"}
+  },
+  {
+    "id": 21,
+    "text": "Расширяем производство: новый цех и линия розлива, 25 млн на 7 лет",
+    "result": {"purpose":"EXPANSION","amount":25000000,"term_months":84,"summary":null,"source":"rules"}
+  },
+  {
+    "id": 22,
+    "text": "Нужно 250 тысяч на открытие нового магазина у дома",
+    "result": {"purpose":"EXPANSION","amount":250000,"term_months":null,"summary":null,"source":"rules"}
+  },
+  {
+    "id": 23,
+    "text": "Купить трактор и навесное оборудование для фермы, 6 млн рублей, лет на пять",
+    "result": {"purpose":"EQUIPMENT","amount":6000000,"term_months":null,"summary":null,"source":"rules"}
+  },
+  {
+    "id": 24,
+    "text": "Нужен миллион на закупку товара на полгода",
+    "result": {"purpose":"WORKING_CAPITAL","amount":1000000,"term_months":6,"summary":null,"source":"rules"}
+  },
+  {
+    "id": 25,
+    "text": "Срочно нужно 700 000 на выплату зарплаты сотрудникам, вернём через 2 месяца",
+    "result": {"purpose":"CASH_GAP","amount":700000,"term_months":2,"summary":null,"source":"rules"}
+  },
+  {
+    "id": 26,
+    "text": "Нам нужно 3 млн на 24 месяца на покупку оборудования для цеха",
+    "result": {"purpose":"EQUIPMENT","amount":3000000,"term_months":24,"summary":null,"source":"rules"}
+  },
+  {
+    "id": 27,
+    "text": "Хотим взять 50 млн на строительство нового склада на 10 лет",
+    "result": {"purpose":"EXPANSION","amount":50000000,"term_months":120,"summary":null,"source":"rules"}
+  },
+  {
+    "id": 28,
+    "text": "Нужно 1,2 млн на закупку зерна, кредит на 11 месяцев",
+    "result": {"purpose":"WORKING_CAPITAL","amount":1200000,"term_months":11,"summary":null,"source":"rules"}
+  },
+  {
+    "id": 29,
+    "text": "Компания растёт, нужно 5 млн, чтобы закупать больше товара у производителя, на полтора года",
+    "result": {"purpose":"WORKING_CAPITAL","amount":5000000,"term_months":18,"summary":null,"source":"rules"}
+  },
+  {
+    "id": 30,
+    "text": "Покупаем помещение под офис за 20 млн на 7 лет",
+    "result": {"purpose":"EXPANSION","amount":20000000,"term_months":84,"summary":null,"source":"rules"}
+  },
+  {
+    "id": 31,
+    "text": "У нас 25 сотрудников, нужно 2 млн на зарплату, пока не пришла оплата от клиента, на 3 месяца",
+    "result": {"purpose":"CASH_GAP","amount":2000000,"term_months":3,"summary":null,"source":"rules"}
+  },
+  {
+    "id": 32,
+    "text": "Нужно 450000 на закупку товара",
+    "result": {"purpose":"WORKING_CAPITAL","amount":450000,"term_months":null,"summary":null,"source":"rules"}
+  }
+]

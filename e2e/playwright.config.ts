@@ -1,5 +1,9 @@
 import { defineConfig, devices } from '@playwright/test';
 
+// Демо-версия без сервера (E2E_DEMO=1): сборка frontend с имитацией API, раздаётся через vite preview.
+const demo = process.env.E2E_DEMO === '1';
+const demoUrl = 'http://localhost:4173';
+
 // Тесты идут по общим демо-данным (перед каждым тестом — сброс), поэтому строго последовательно.
 export default defineConfig({
     testDir: './tests',
@@ -11,13 +15,24 @@ export default defineConfig({
     forbidOnly: !!process.env.CI,
     reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'list',
     use: {
-        baseURL: process.env.E2E_BASE_URL ?? 'http://localhost:8080',
+        baseURL: process.env.E2E_BASE_URL ?? (demo ? demoUrl : 'http://localhost:8080'),
         locale: 'ru-RU',
         timezoneId: 'Europe/Moscow',
         viewport: { width: 1440, height: 900 },
         trace: 'retain-on-failure',
         screenshot: 'only-on-failure',
     },
+    // Без своего адреса в демо-режиме собираем демо-версию и поднимаем vite preview
+    webServer:
+        demo && !process.env.E2E_BASE_URL
+            ? {
+                  command: 'npm run build:demo -- --logLevel error && npm run preview -- --port 4173 --strictPort',
+                  cwd: '../frontend',
+                  url: demoUrl,
+                  reuseExistingServer: !process.env.CI,
+                  timeout: 180_000,
+              }
+            : undefined,
     projects: [
         {
             name: 'chromium',

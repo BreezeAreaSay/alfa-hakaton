@@ -2,8 +2,8 @@ import { expect, test } from '@playwright/test';
 
 import { login, openAs, resetDemo } from './helpers';
 
-test.beforeEach(async ({ request }) => {
-    await resetDemo(request);
+test.beforeEach(async ({ request, page }) => {
+    await resetDemo({ request, page });
 });
 
 test('аналитик рассматривает заявку вручную и одобряет её, клиент видит предложение', async ({ page, browser }) => {
@@ -27,11 +27,11 @@ test('аналитик рассматривает заявку вручную и
     await expect(page.getByText('Предложение выдано').first()).toBeVisible();
 
     // Клиент в своём кабинете сразу видит одобрение
-    const client = await openAs(browser, 'grand');
+    const { page: client, close } = await openAs(browser, 'grand', page);
     await expect(client.locator('table')).toContainText('Предложение готово');
     await client.getByRole('row', { name: /Предложение готово/ }).click();
     await expect(client.getByRole('heading', { name: 'Кредит одобрен' })).toBeVisible();
-    await client.context().close();
+    await close();
 });
 
 test('сотрудник банка не может открыть кабинет клиента', async ({ page }) => {

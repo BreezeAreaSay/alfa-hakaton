@@ -1,0 +1,48 @@
+{
+  "vypiska_orlov_1c.txt": {
+    "source": "1C",
+    "account": "40802810000000001006",
+    "period_from": "2025-10-05",
+    "period_to": "2026-09-25",
+    "operations": 60,
+    "months": [
+      {"month":"2025-10","inflow":651000,"outflow":124060},
+      {"month":"2025-11","inflow":735000,"outflow":129100},
+      {"month":"2025-12","inflow":686000,"outflow":126160},
+      {"month":"2026-01","inflow":714000,"outflow":127840},
+      {"month":"2026-02","inflow":679000,"outflow":125740},
+      {"month":"2026-03","inflow":728000,"outflow":128680},
+      {"month":"2026-04","inflow":700000,"outflow":127000},
+      {"month":"2026-05","inflow":672000,"outflow":125320},
+      {"month":"2026-06","inflow":721000,"outflow":128260},
+      {"month":"2026-07","inflow":693000,"outflow":126580},
+      {"month":"2026-08","inflow":707000,"outflow":127420},
+      {"month":"2026-09","inflow":714000,"outflow":127840}
+    ],
+    "total_inflow": 8400000,
+    "avg_monthly_inflow": 700000
+  },
+  "vypiska_orlov.csv": {
+    "source": "CSV",
+    "account": null,
+    "period_from": "2025-10-05",
+    "period_to": "2026-09-25",
+    "operations": 60,
+    "months": [
+      {"month":"2025-10","inflow":651000,"outflow":124060},
+      {"month":"2025-11","inflow":735000,"outflow":129100},
+      {"month":"2025-12","inflow":686000,"outflow":126160},
+      {"month":"2026-01","inflow":714000,"outflow":127840},
+      {"month":"2026-02","inflow":679000,"outflow":125740},
+      {"month":"2026-03","inflow":728000,"outflow":128680},
+      {"month":"2026-04","inflow":700000,"outflow":127000},
+      {"month":"2026-05","inflow":672000,"outflow":125320},
+      {"month":"2026-06","inflow":721000,"outflow":128260},
+      {"month":"2026-07","inflow":693000,"outflow":126580},
+      {"month":"2026-08","inflow":707000,"outflow":127420},
+      {"month":"2026-09","inflow":714000,"outflow":127840}
+    ],
+    "total_inflow": 8400000,
+    "avg_monthly_inflow": 700000
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "answer_empty": {"status":422,"detail":"Добавьте ответ или приложите документ"},
+  "decision_over_limit_no_comment": {"status":422,"detail":"Сумма выше расчётного лимита — добавьте комментарий с обоснованием"},
+  "decision_over_tolerance": {"status":422,"detail":"Сумма превышает расчётный лимит 5 650 000 ₽ больше чем на 20%"},
+  "reject_without_comment": {"status":422,"detail":"Добавьте комментарий к отказу"},
+  "reject_without_reason": {"status":422,"detail":"Укажите причину отказа"},
+  "decline_draft": {"status":409,"detail":"Действие недоступно: заявка в статусе «Черновик»"},
+  "analyst_sees_draft": {"status":404,"detail":"Заявка не найдена"},
+  "stranger_sees_application": {"status":404,"detail":"Заявка не найдена"},
+  "submit_twice": {"status":409,"detail":"Заявка уже отправлена"},
+  "patch_submitted": {"status":409,"detail":"Изменить можно только черновик"},
+  "delete_submitted": {"status":409,"detail":"Удалить можно только черновик. Отправленную заявку можно отозвать"},
+  "decision_not_review": {"status":409,"detail":"Решение можно принять только по заявке на ручном рассмотрении"},
+  "assign_not_review": {"status":409,"detail":"Взять в работу можно заявку на ручном рассмотрении"},
+  "accept_again": {"status":409,"detail":"Предложение больше не действует"},
+  "sign_wrong_password": {"status":422,"detail":"Неверный пароль"},
+  "analyst_signs": {"status":403,"detail":"Недостаточно прав"},
+  "cancel_cancelled": {"status":409,"detail":"Действие недоступно: заявка в статусе «Заявка отозвана»"},
+  "answer_without_statement": {"status":422,"detail":"Приложите выписку по счёту в формате 1С или CSV"},
+  "upload_bad_statement": {"status":422,"detail":"Не удалось разобрать выписку: Поддерживаются выписки в формате 1С (.txt) и CSV"},
+  "upload_agreement_kind": {"status":422,"detail":"Этот тип документа формирует банк"},
+  "upload_bad_extension": {"status":422,"detail":"Можно загрузить PDF, JPG, PNG, TXT или CSV"},
+  "deleted_draft": {"status":404,"detail":"Заявка не найдена"},
+  "request_unknown_item": {"status":422,"detail":"Неизвестные пункты запроса: UNKNOWN"},
+  "analyst_sets_fault": {"status":403,"detail":"Недостаточно прав"},
+  "unknown_fault_source": {"status":404,"detail":"Неизвестная внешняя система: unknown"},
+  "login_wrong_password": {"status":401,"detail":"Неверный логин или пароль"},
+  "me_without_token": {"status":401,"detail":"Нужно войти заново"},
+  "client_bank_summary": {"status":403,"detail":"Недостаточно прав"},
+  "client_faults": {"status":403,"detail":"Недостаточно прав"},
+  "analyst_client_list": {"status":403,"detail":"Недостаточно прав"},
+  "analyst_company": {"status":403,"detail":"Недостаточно прав"},
+  "analyst_reset": {"status":403,"detail":"Недостаточно прав"},
+  "unknown_path": {"status":404,"detail":"Not Found"},
+  "wrong_method": {"status":405,"detail":"Method Not Allowed"},
+  "unknown_product": {"status":422,"detail":"Такого продукта нет"},
+  "negative_amount": {
+    "status": 422,
+    "detail": [
+      {
+        "type": "greater_than",
+        "loc": ["body","amount"],
+        "msg": "Input should be greater than 0",
+        "input": -1,
+        "ctx": {"gt":0}
+      }
+    ]
+  },
+  "parse_need_short": {
+    "status": 422,
+    "detail": [
+      {
+        "type": "string_too_short",
+        "loc": ["body","text"],
+        "msg": "String should have at least 3 characters",
+        "input": "ab",
+        "ctx": {"min_length":3}
+      }
+    ]
+  },
+  "ai_summary": {"status":404,"detail":"ИИ-функции выключены"},
+  "submit_ineligible": {"status":422,"detail":"Доступен бизнесу от 1 года"},
+  "submit_without_consent": {
+    "status": 422,
+    "detail": "Без согласий на запрос в БКИ и обработку персональных данных мы не сможем рассмотреть заявку"
+  },
+  "submit_without_collateral": {"status":422,"detail":"Укажите залог и его оценочную стоимость"}
+}
