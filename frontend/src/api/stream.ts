@@ -1,4 +1,4 @@
-import { getToken } from './client';
+import { apiFetch, getToken } from './client';
 
 export interface StreamEvent {
     id: number;
@@ -25,7 +25,7 @@ export function subscribe(onEvent: (event: StreamEvent) => void): () => void {
                 const token = getToken();
                 if (token) headers.Authorization = `Bearer ${token}`;
                 if (lastId) headers['Last-Event-ID'] = lastId;
-                const response = await fetch('/api/stream', { headers, signal: controller.signal });
+                const response = await apiFetch('/api/stream', { headers, signal: controller.signal });
                 if (!response.ok || !response.body) throw new Error(`stream ${response.status}`);
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();

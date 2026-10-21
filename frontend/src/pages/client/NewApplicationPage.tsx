@@ -589,7 +589,7 @@ function DetailsStep({
                         >
                             Из другого банка, в формате 1С (.txt) или CSV — по ней оценим выручку. Без выписки банк
                             запросит её после проверки.{' '}
-                            <a href='/demo-files/vypiska_orlov_1c.txt' download={true}>
+                            <a href={`${import.meta.env.BASE_URL}demo-files/vypiska_orlov_1c.txt`} download={true}>
                                 Тестовая выписка
                             </a>
                         </Plate>

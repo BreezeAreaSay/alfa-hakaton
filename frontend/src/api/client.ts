@@ -1,5 +1,20 @@
 const TOKEN_KEY = 'credit-cabinet-token';
 
+/**
+ * Демо-режим для GitHub Pages (сборка с VITE_DEMO=1): запросы к API обслуживает имитация сервера в браузере,
+ * данные хранятся в localStorage. В обычной сборке код имитации не загружается.
+ */
+export const DEMO_MODE = import.meta.env.VITE_DEMO === '1';
+
+/** Единая точка обращения к серверу: обычный fetch или имитация сервера в демо-режиме. */
+export async function apiFetch(path: string, init: RequestInit = {}): Promise<Response> {
+    if (DEMO_MODE) {
+        const { demoFetch } = await import('../demo/server');
+        return demoFetch(path, init);
+    }
+    return fetch(path, init);
+}
+
 export class ApiError extends Error {
     constructor(
         public status: number,
@@ -56,7 +71,7 @@ export async function api<T>(
         headers['Content-Type'] = 'application/json';
         body = JSON.stringify(options.body);
     }
-    const response = await fetch(path, { method: options.method ?? 'GET', headers, body });
+    const response = await apiFetch(path, { method: options.method ?? 'GET', headers, body });
     if (response.status === 401 && token) onUnauthorized?.();
     if (!response.ok) {
         let data: unknown = null;
@@ -77,7 +92,7 @@ export function newIdempotencyKey(): string {
 
 export async function download(path: string, fileName: string): Promise<void> {
     const token = getToken();
-    const response = await fetch(path, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+    const response = await apiFetch(path, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
     if (!response.ok) throw new ApiError(response.status, 'Не удалось скачать файл');
     const blob = await response.blob();
     const url = URL.createObjectURL(blob);
@@ -90,7 +105,7 @@ export async function download(path: string, fileName: string): Promise<void> {
 
 export async function openInNewTab(path: string): Promise<void> {
     const token = getToken();
-    const response = await fetch(path, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+    const response = await apiFetch(path, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
     if (!response.ok) throw new ApiError(response.status, 'Не удалось открыть файл');
     const blob = await response.blob();
     window.open(URL.createObjectURL(blob), '_blank', 'noopener');

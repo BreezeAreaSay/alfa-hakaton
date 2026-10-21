@@ -82,7 +82,7 @@ export function InfoRequestSection({ application, request }: { application: Appl
                     Прикрепить документ
                 </UploadButton>
                 {needsStatement && (
-                    <a href='/demo-files/vypiska_orlov_1c.txt' download={true}>
+                    <a href={`${import.meta.env.BASE_URL}demo-files/vypiska_orlov_1c.txt`} download={true}>
                         <Typography.Text view='primary-small' color='secondary'>
                             Скачать тестовую выписку
                         </Typography.Text>

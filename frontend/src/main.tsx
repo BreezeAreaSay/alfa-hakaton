@@ -26,7 +26,7 @@ createRoot(document.getElementById('root')!).render(
     <StrictMode>
         <CoreConfigContext.Provider value={{ breakpoint: 1024, client: 'desktop' }}>
             <QueryClientProvider client={queryClient}>
-                <BrowserRouter>
+                <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '')}>
                     <AuthProvider>
                         <App />
                     </AuthProvider>

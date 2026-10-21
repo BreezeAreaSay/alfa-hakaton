@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:demo": "vite --mode demo",
     "build": "tsc -p tsconfig.json --noEmit && vite build",
+    "build:demo": "tsc -p tsconfig.json --noEmit && vite build --mode demo",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "preview": "vite preview",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
