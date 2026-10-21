@@ -1,0 +1,796 @@
+# Сторонние компоненты, модели, данные и интеграции
+
+Решение «Умный кредитный кабинет предпринимателя» (кейс Альфа-Банка, хакатон «Альфа Будущее»): какой сторонний код,
+шрифты, модели, данные и внешние системы оно использует и на каких условиях.
+
+Коротко:
+
+- Всё, что входит в поставку, распространяется по открытым лицензиям. Платных компонентов, сервисов, подписок и
+  моделей нет.
+- Лицензии с копилефтом в поставке есть только у трёх Python-библиотек бэкенда: psycopg и psycopg-binary
+  (LGPL-3.0-only) и certifi (MPL-2.0). Все они используются без изменений (раздел 1.5).
+- ИИ-функции необязательны и по умолчанию выключены. Поддерживаются только модели с открытыми весами, в поставку
+  модели не входят (раздел 6).
+- Все данные синтетические и созданы командой. ЕГРЮЛ/ЕГРИП, ФНС, ГИР БО, БКИ и системы банка заменены
+  симулятором (раздел 9).
+- Логотипы, фирменная графика и фирменные шрифты Альфа-Банка не используются (разделы 4 и 5).
+
+Таблицы пакетов в разделах 1 и 2 формирует скрипт по lock-файлам и метаданным установленных пакетов:
+
+    python3 scripts/third_party_notices.py
+
+Что нужно для запуска, описано в начале скрипта. Текст между строками `<!-- BEGIN GENERATED: … -->` и
+`<!-- END GENERATED: … -->` скрипт перезаписывает, остальное ведётся вручную.
+
+Содержание:
+
+1. Компоненты, входящие в поставку
+2. Инструменты сборки и проверки
+3. Базовые образы Docker
+4. Шрифты
+5. Дизайн-система
+6. Модели
+7. Датасеты
+8. Внешние сервисы
+9. Смоделированные интеграции
+
+
+## 1. Компоненты, входящие в поставку
+
+Поставка — образы, которые `docker compose up --build` собирает из репозитория:
+
+- `api` и `worker` — бэкенд на Python: зависимости из `backend/uv.lock` без группы `dev`
+  (в Dockerfile — `uv sync --frozen --no-dev`);
+- `simulator` — симулятор внешних систем на Python: `simulator/uv.lock` без группы `dev`;
+- `frontend` — собранный веб-интерфейс, который раздаёт nginx: записи `frontend/package-lock.json`
+  без `"dev": true`.
+
+Лицензия в таблицах взята из метаданных пакета. Для Python — поле License-Expression, если его нет — License,
+если нет и его — классификаторы `License ::` (с пометкой «по классификатору»). Для npm — поле license из
+package.json пакета. Если лицензия в метаданных не указана, так и написано.
+
+### 1.1. Сводка
+
+<!-- BEGIN GENERATED: summary -->
+
+Всего в поставке 403 пакета: backend — 36, simulator — 20, frontend — 347 (пары «пакет — версия»). Зависимости
+Python отобраны для образов: Linux x86_64, CPython 3.12.7 из Dockerfile.
+
+| Лицензия                        | backend | simulator | frontend | Всего |
+|---------------------------------|---------|-----------|----------|-------|
+| MIT                             | 17      | 11        | 318      | 346   |
+| BSD-3-Clause                    | 9       | 6         | 2        | 17    |
+| ISC                             | —       | —         | 13       | 13    |
+| Apache-2.0                      | 3       | 1         | 7        | 11    |
+| LGPL-3.0-only                   | 2       | —         | —        | 2     |
+| MIT License                     | 1       | 1         | —        | 2     |
+| PSF-2.0                         | 1       | 1         | —        | 2     |
+| не указана в метаданных         | —       | —         | 2        | 2     |
+| 0BSD                            | —       | —         | 1        | 1     |
+| BSD License (по классификатору) | 1       | —         | —        | 1     |
+| CC0-1.0                         | —       | —         | 1        | 1     |
+| MIT AND ISC                     | —       | —         | 1        | 1     |
+| MIT-CMU                         | 1       | —         | —        | 1     |
+| MPL-2.0                         | 1       | —         | —        | 1     |
+| OFL-1.1                         | —       | —         | 1        | 1     |
+| Unlicense                       | —       | —         | 1        | 1     |
+
+Лицензии с копилефтом (GPL, LGPL, AGPL, MPL и подобные): certifi 2026.10.19 — MPL-2.0 (backend); psycopg 3.3.6 —
+LGPL-3.0-only (backend); psycopg-binary 3.3.6 — LGPL-3.0-only (backend).
+
+Лицензия не указана в метаданных: @alfalab/react-canvas-pattern-lock 2.0.8 (frontend); react-canvas-pattern-lock
+2.0.7 (frontend).
+
+<!-- END GENERATED: summary -->
+
+### 1.2. Бэкенд: api и worker
+
+<!-- BEGIN GENERATED: backend -->
+
+| Пакет              | Версия     | Лицензия                        | Сайт проекта                                                                       |
+|--------------------|------------|---------------------------------|------------------------------------------------------------------------------------|
+| alembic            | 1.20.0     | MIT                             | https://alembic.sqlalchemy.org                                                     |
+| annotated-doc      | 0.0.5      | MIT                             | https://github.com/fastapi/annotated-doc                                           |
+| annotated-types    | 0.8.0      | MIT                             | https://github.com/annotated-types/annotated-types                                 |
+| anyio              | 4.15.1     | MIT                             | https://github.com/agronholm/anyio                                                 |
+| bcrypt             | 5.0.0      | Apache-2.0                      | https://github.com/pyca/bcrypt/                                                    |
+| certifi            | 2026.10.19 | MPL-2.0                         | https://github.com/certifi/python-certifi                                          |
+| charset-normalizer | 3.5.2      | MIT                             | https://github.com/jawah/charset_normalizer                                        |
+| click              | 8.5.0      | BSD-3-Clause                    | https://github.com/pallets/click/                                                  |
+| fastapi            | 0.156.8    | MIT                             | https://github.com/fastapi/fastapi                                                 |
+| h11                | 0.16.0     | MIT                             | https://github.com/python-hyper/h11                                                |
+| httpcore           | 1.0.9      | BSD-3-Clause                    | https://www.encode.io/httpcore/                                                    |
+| httptools          | 0.9.0      | MIT                             | https://github.com/MagicStack/httptools                                            |
+| httpx              | 0.28.1     | BSD-3-Clause                    | https://github.com/encode/httpx                                                    |
+| idna               | 3.20       | BSD-3-Clause                    | https://github.com/kjd/idna                                                        |
+| Mako               | 1.4.3      | MIT                             | https://www.makotemplates.org/                                                     |
+| MarkupSafe         | 3.0.4      | BSD-3-Clause                    | https://github.com/pallets/markupsafe/                                             |
+| opentelemetry-api  | 1.45.1     | Apache-2.0                      | https://github.com/open-telemetry/opentelemetry-python/tree/main/opentelemetry-api |
+| pillow             | 13.0.0     | MIT-CMU                         | https://python-pillow.org                                                          |
+| psycopg            | 3.3.6      | LGPL-3.0-only                   | https://psycopg.org/                                                               |
+| psycopg-binary     | 3.3.6      | LGPL-3.0-only                   | https://psycopg.org/                                                               |
+| pydantic           | 2.14.1     | MIT                             | https://github.com/pydantic/pydantic                                               |
+| pydantic_core      | 2.50.1     | MIT                             | https://github.com/pydantic                                                        |
+| pydantic-settings  | 2.16.1     | MIT                             | https://github.com/pydantic/pydantic-settings                                      |
+| PyJWT              | 2.15.1     | MIT                             | https://github.com/jpadilla/pyjwt                                                  |
+| python-dotenv      | 1.2.4      | BSD-3-Clause                    | https://github.com/theskumar/python-dotenv                                         |
+| python-multipart   | 0.0.32     | Apache-2.0                      | https://github.com/Kludex/python-multipart                                         |
+| PyYAML             | 6.0.3      | MIT                             | https://pyyaml.org/                                                                |
+| reportlab          | 5.0.1      | BSD License (по классификатору) | https://www.reportlab.com/                                                         |
+| SQLAlchemy         | 2.1.5      | MIT                             | https://www.sqlalchemy.org                                                         |
+| starlette          | 1.9.0      | BSD-3-Clause                    | https://github.com/Kludex/starlette                                                |
+| typing_extensions  | 4.16.0     | PSF-2.0                         | https://github.com/python/typing_extensions                                        |
+| typing-inspection  | 0.4.4      | MIT                             | https://github.com/pydantic/typing-inspection                                      |
+| uvicorn            | 0.54.0     | BSD-3-Clause                    | https://uvicorn.dev/                                                               |
+| uvloop             | 0.23.0     | MIT License                     | https://github.com/MagicStack/uvloop                                               |
+| watchfiles         | 1.3.0      | MIT                             | https://github.com/samuelcolvin/watchfiles                                         |
+| websockets         | 17.3       | BSD-3-Clause                    | https://github.com/python-websockets/websockets                                    |
+
+<!-- END GENERATED: backend -->
+
+### 1.3. Симулятор внешних систем
+
+<!-- BEGIN GENERATED: simulator -->
+
+| Пакет             | Версия  | Лицензия     | Сайт проекта                                                                       |
+|-------------------|---------|--------------|------------------------------------------------------------------------------------|
+| annotated-doc     | 0.0.5   | MIT          | https://github.com/fastapi/annotated-doc                                           |
+| annotated-types   | 0.8.0   | MIT          | https://github.com/annotated-types/annotated-types                                 |
+| anyio             | 4.15.1  | MIT          | https://github.com/agronholm/anyio                                                 |
+| click             | 8.5.0   | BSD-3-Clause | https://github.com/pallets/click/                                                  |
+| fastapi           | 0.156.8 | MIT          | https://github.com/fastapi/fastapi                                                 |
+| h11               | 0.16.0  | MIT          | https://github.com/python-hyper/h11                                                |
+| httptools         | 0.9.0   | MIT          | https://github.com/MagicStack/httptools                                            |
+| idna              | 3.20    | BSD-3-Clause | https://github.com/kjd/idna                                                        |
+| opentelemetry-api | 1.45.1  | Apache-2.0   | https://github.com/open-telemetry/opentelemetry-python/tree/main/opentelemetry-api |
+| pydantic          | 2.14.1  | MIT          | https://github.com/pydantic/pydantic                                               |
+| pydantic_core     | 2.50.1  | MIT          | https://github.com/pydantic                                                        |
+| python-dotenv     | 1.2.4   | BSD-3-Clause | https://github.com/theskumar/python-dotenv                                         |
+| PyYAML            | 6.0.3   | MIT          | https://pyyaml.org/                                                                |
+| starlette         | 1.9.0   | BSD-3-Clause | https://github.com/Kludex/starlette                                                |
+| typing_extensions | 4.16.0  | PSF-2.0      | https://github.com/python/typing_extensions                                        |
+| typing-inspection | 0.4.4   | MIT          | https://github.com/pydantic/typing-inspection                                      |
+| uvicorn           | 0.54.0  | BSD-3-Clause | https://uvicorn.dev/                                                               |
+| uvloop            | 0.23.0  | MIT License  | https://github.com/MagicStack/uvloop                                               |
+| watchfiles        | 1.3.0   | MIT          | https://github.com/samuelcolvin/watchfiles                                         |
+| websockets        | 17.3    | BSD-3-Clause | https://github.com/python-websockets/websockets                                    |
+
+<!-- END GENERATED: simulator -->
+
+### 1.4. Веб-интерфейс
+
+В таблице — все production-зависимости из `frontend/package-lock.json`, то есть всё, что npm ставит без
+devDependencies. В браузерный бандл после tree-shaking попадает меньше: только модули, которые импортирует
+приложение. Пакеты `@types/*` содержат только описания типов TypeScript и в бандл не попадают вовсе.
+
+<!-- BEGIN GENERATED: frontend -->
+
+| Пакет                                              | Версия  | Лицензия                | Сайт проекта                                                                                                |
+|----------------------------------------------------|---------|-------------------------|-------------------------------------------------------------------------------------------------------------|
+| @alfalab/core-components                           | 50.37.0 | MIT                     | https://github.com/core-ds/core-components                                                                  |
+| @alfalab/core-components-accordion                 | 3.0.13  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-accordion                                            |
+| @alfalab/core-components-action-button             | 3.0.9   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-action-button                                        |
+| @alfalab/core-components-alert                     | 6.0.12  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-alert                                                |
+| @alfalab/core-components-amount                    | 5.1.1   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-amount                                               |
+| @alfalab/core-components-amount-input              | 9.3.5   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-amount-input                                         |
+| @alfalab/core-components-attach                    | 8.0.12  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-attach                                               |
+| @alfalab/core-components-backdrop                  | 5.0.2   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-backdrop                                             |
+| @alfalab/core-components-badge                     | 7.0.3   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-badge                                                |
+| @alfalab/core-components-bank-card                 | 7.0.17  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-bank-card                                            |
+| @alfalab/core-components-base-modal                | 7.2.2   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-base-modal                                           |
+| @alfalab/core-components-bottom-sheet              | 8.1.16  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-bottom-sheet                                         |
+| @alfalab/core-components-button                    | 13.2.4  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-button                                               |
+| @alfalab/core-components-calendar                  | 9.1.16  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-calendar                                             |
+| @alfalab/core-components-calendar-input            | 12.0.22 | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-calendar-input                                       |
+| @alfalab/core-components-calendar-range            | 9.1.8   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-calendar-range                                       |
+| @alfalab/core-components-calendar-with-skeleton    | 7.0.20  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-calendar-with-skeleton                               |
+| @alfalab/core-components-card-image                | 5.0.3   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-card-image                                           |
+| @alfalab/core-components-carousel                  | 1.1.6   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-carousel                                             |
+| @alfalab/core-components-cdn-icon                  | 7.1.9   | ISC                     | https://www.npmjs.com/package/@alfalab/core-components-cdn-icon                                             |
+| @alfalab/core-components-chart                     | 5.0.13  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-chart                                                |
+| @alfalab/core-components-checkbox                  | 6.3.2   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-checkbox                                             |
+| @alfalab/core-components-checkbox-group            | 6.0.10  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-checkbox-group                                       |
+| @alfalab/core-components-circular-progress-bar     | 5.0.13  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-circular-progress-bar                                |
+| @alfalab/core-components-code-input                | 5.1.5   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-code-input                                           |
+| @alfalab/core-components-collapse                  | 6.0.3   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-collapse                                             |
+| @alfalab/core-components-comment                   | 4.0.13  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-comment                                              |
+| @alfalab/core-components-config                    | 1.1.0   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-config                                               |
+| @alfalab/core-components-confirmation              | 15.2.5  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-confirmation                                         |
+| @alfalab/core-components-confirmation-v1           | 3.0.12  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-confirmation-v1                                      |
+| @alfalab/core-components-custom-button             | 5.0.13  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-custom-button                                        |
+| @alfalab/core-components-custom-picker-button      | 4.1.24  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-custom-picker-button                                 |
+| @alfalab/core-components-date-input                | 6.0.15  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-date-input                                           |
+| @alfalab/core-components-date-range-input          | 5.0.22  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-date-range-input                                     |
+| @alfalab/core-components-date-time-input           | 6.0.22  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-date-time-input                                      |
+| @alfalab/core-components-divider                   | 5.0.2   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-divider                                              |
+| @alfalab/core-components-drawer                    | 7.0.13  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-drawer                                               |
+| @alfalab/core-components-dropzone                  | 6.0.2   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-dropzone                                             |
+| @alfalab/core-components-file-upload-item          | 8.2.4   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-file-upload-item                                     |
+| @alfalab/core-components-file-upload-item-v1       | 3.0.12  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-file-upload-item-v1                                  |
+| @alfalab/core-components-filter-tag                | 7.1.3   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-filter-tag                                           |
+| @alfalab/core-components-form-control              | 14.0.11 | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-form-control                                         |
+| @alfalab/core-components-gallery                   | 7.4.4   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-gallery                                              |
+| @alfalab/core-components-gap                       | 3.0.2   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-gap                                                  |
+| @alfalab/core-components-generic-wrapper           | 3.0.2   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-generic-wrapper                                      |
+| @alfalab/core-components-global-store              | 4.0.1   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-global-store                                         |
+| @alfalab/core-components-grid                      | 5.0.2   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-grid                                                 |
+| @alfalab/core-components-hatching-progress-bar     | 4.0.1   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-hatching-progress-bar                                |
+| @alfalab/core-components-icon-button               | 8.0.12  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-icon-button                                          |
+| @alfalab/core-components-icon-view                 | 5.0.4   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-icon-view                                            |
+| @alfalab/core-components-indicator                 | 4.0.2   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-indicator                                            |
+| @alfalab/core-components-input                     | 17.2.2  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-input                                                |
+| @alfalab/core-components-input-autocomplete        | 14.0.29 | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-input-autocomplete                                   |
+| @alfalab/core-components-international-phone-input | 4.0.29  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-international-phone-input                            |
+| @alfalab/core-components-intl-phone-input          | 11.0.29 | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-intl-phone-input                                     |
+| @alfalab/core-components-keyboard-focusable        | 6.0.2   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-keyboard-focusable                                   |
+| @alfalab/core-components-link                      | 7.0.3   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-link                                                 |
+| @alfalab/core-components-list                      | 5.0.14  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-list                                                 |
+| @alfalab/core-components-list-header               | 5.0.13  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-list-header                                          |
+| @alfalab/core-components-loader                    | 5.0.2   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-loader                                               |
+| @alfalab/core-components-lottie                    | 1.1.0   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-lottie                                               |
+| @alfalab/core-components-markdown                  | 3.1.0   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-markdown                                             |
+| @alfalab/core-components-masked-input              | 8.0.16  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-masked-input                                         |
+| @alfalab/core-components-modal                     | 11.0.19 | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-modal                                                |
+| @alfalab/core-components-mq                        | 6.0.9   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-mq                                                   |
+| @alfalab/core-components-navigation-bar            | 3.0.15  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-navigation-bar                                       |
+| @alfalab/core-components-navigation-bar-private    | 2.0.16  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-navigation-bar-private                               |
+| @alfalab/core-components-notification              | 9.0.13  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-notification                                         |
+| @alfalab/core-components-notification-manager      | 7.0.13  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-notification-manager                                 |
+| @alfalab/core-components-number-input              | 4.0.15  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-number-input                                         |
+| @alfalab/core-components-page-indicator            | 3.0.9   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-page-indicator                                       |
+| @alfalab/core-components-pagination                | 4.0.12  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-pagination                                           |
+| @alfalab/core-components-pass-code                 | 4.0.13  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-pass-code                                            |
+| @alfalab/core-components-pass-code-v1              | 3.0.12  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-pass-code-v1                                         |
+| @alfalab/core-components-password-input            | 7.0.15  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-password-input                                       |
+| @alfalab/core-components-pattern-lock              | 4.0.12  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-pattern-lock                                         |
+| @alfalab/core-components-pattern-lock-v1           | 3.0.12  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-pattern-lock-v1                                      |
+| @alfalab/core-components-phone-input               | 9.0.17  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-phone-input                                          |
+| @alfalab/core-components-picker-button             | 13.1.7  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-picker-button                                        |
+| @alfalab/core-components-plate                     | 9.0.12  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-plate                                                |
+| @alfalab/core-components-popover                   | 8.1.4   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-popover                                              |
+| @alfalab/core-components-popup-sheet               | 3.0.19  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-popup-sheet                                          |
+| @alfalab/core-components-portal                    | 5.0.6   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-portal                                               |
+| @alfalab/core-components-product-cover             | 3.3.0   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-product-cover                                        |
+| @alfalab/core-components-progress-bar              | 5.0.2   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-progress-bar                                         |
+| @alfalab/core-components-pure-cell                 | 6.1.0   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-pure-cell                                            |
+| @alfalab/core-components-radio                     | 6.1.2   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-radio                                                |
+| @alfalab/core-components-radio-group               | 6.0.10  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-radio-group                                          |
+| @alfalab/core-components-scrollbar                 | 5.0.8   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-scrollbar                                            |
+| @alfalab/core-components-scrollbar-private         | 0.0.1   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-scrollbar-private                                    |
+| @alfalab/core-components-segmented-control         | 3.1.6   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-segmented-control                                    |
+| @alfalab/core-components-select                    | 19.2.11 | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-select                                               |
+| @alfalab/core-components-select-with-tags          | 10.1.24 | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-select-with-tags                                     |
+| @alfalab/core-components-shared                    | 2.3.0   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-shared                                               |
+| @alfalab/core-components-side-panel                | 7.1.4   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-side-panel                                           |
+| @alfalab/core-components-skeleton                  | 7.0.5   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-skeleton                                             |
+| @alfalab/core-components-slider                    | 6.1.1   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-slider                                               |
+| @alfalab/core-components-slider-input              | 11.1.10 | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-slider-input                                         |
+| @alfalab/core-components-sortable-list             | 3.0.10  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-sortable-list                                        |
+| @alfalab/core-components-space                     | 5.0.2   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-space                                                |
+| @alfalab/core-components-spinner                   | 6.0.9   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-spinner                                              |
+| @alfalab/core-components-stack                     | 7.0.1   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-stack                                                |
+| @alfalab/core-components-stack-context             | 1.0.1   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-stack-context                                        |
+| @alfalab/core-components-status                    | 5.1.1   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-status                                               |
+| @alfalab/core-components-status-badge              | 3.0.2   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-status-badge                                         |
+| @alfalab/core-components-stepped-progress-bar      | 4.0.13  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-stepped-progress-bar                                 |
+| @alfalab/core-components-steps                     | 3.0.11  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-steps                                                |
+| @alfalab/core-components-switch                    | 6.2.3   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-switch                                               |
+| @alfalab/core-components-system-message            | 4.0.10  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-system-message                                       |
+| @alfalab/core-components-tab-bar                   | 4.0.14  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-tab-bar                                              |
+| @alfalab/core-components-table                     | 4.0.30  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-table                                                |
+| @alfalab/core-components-tabs                      | 10.1.4  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-tabs                                                 |
+| @alfalab/core-components-tag                       | 10.3.2  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-tag                                                  |
+| @alfalab/core-components-text                      | 3.0.3   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-text                                                 |
+| @alfalab/core-components-textarea                  | 10.1.4  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-textarea                                             |
+| @alfalab/core-components-themes                    | 15.2.1  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-themes                                               |
+| @alfalab/core-components-time-input                | 4.0.15  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-time-input                                           |
+| @alfalab/core-components-toast                     | 8.0.15  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-toast                                                |
+| @alfalab/core-components-toast-plate               | 9.1.8   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-toast-plate                                          |
+| @alfalab/core-components-tooltip                   | 9.0.22  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-tooltip                                              |
+| @alfalab/core-components-types                     | 2.1.0   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-types                                                |
+| @alfalab/core-components-typography                | 6.0.13  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-typography                                           |
+| @alfalab/core-components-underlay                  | 3.2.0   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-underlay                                             |
+| @alfalab/core-components-universal-date-input      | 4.0.22  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-universal-date-input                                 |
+| @alfalab/core-components-universal-modal           | 3.2.8   | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-universal-modal                                      |
+| @alfalab/core-components-vars                      | 11.4.1  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-vars                                                 |
+| @alfalab/core-components-with-suffix               | 6.0.16  | MIT                     | https://www.npmjs.com/package/@alfalab/core-components-with-suffix                                          |
+| @alfalab/data                                      | 1.10.2  | MIT                     | https://www.npmjs.com/package/@alfalab/data                                                                 |
+| @alfalab/hooks                                     | 1.18.0  | MIT                     | https://www.npmjs.com/package/@alfalab/hooks                                                                |
+| @alfalab/icons-glyph                               | 2.293.0 | MIT                     | https://www.npmjs.com/package/@alfalab/icons-glyph                                                          |
+| @alfalab/icons-glyph-26                            | 1.31.0  | MIT                     | https://www.npmjs.com/package/@alfalab/icons-glyph-26                                                       |
+| @alfalab/icons-logotype                            | 2.37.0  | MIT                     | https://www.npmjs.com/package/@alfalab/icons-logotype                                                       |
+| @alfalab/react-canvas-pattern-lock                 | 2.0.8   | не указана в метаданных | https://github.com/core-ds/react-canvas-pattern-lock                                                        |
+| @alfalab/utils                                     | 1.21.0  | MIT                     | https://www.npmjs.com/package/@alfalab/utils                                                                |
+| @babel/runtime                                     | 7.29.10 | MIT                     | https://babel.dev/docs/en/next/babel-runtime                                                                |
+| @dnd-kit/accessibility                             | 3.1.1   | MIT                     | https://github.com/clauderic/dnd-kit                                                                        |
+| @dnd-kit/core                                      | 6.3.1   | MIT                     | https://github.com/clauderic/dnd-kit                                                                        |
+| @dnd-kit/sortable                                  | 7.0.2   | MIT                     | https://github.com/clauderic/dnd-kit                                                                        |
+| @dnd-kit/utilities                                 | 3.2.2   | MIT                     | https://github.com/clauderic/dnd-kit                                                                        |
+| @fontsource/onest                                  | 5.3.1   | OFL-1.1                 | https://fontsource.org/fonts/onest                                                                          |
+| @juggle/resize-observer                            | 3.4.0   | Apache-2.0              | https://juggle.studio/resize-observer/                                                                      |
+| @maskito/core                                      | 1.9.0   | Apache-2.0              | https://maskito.dev                                                                                         |
+| @maskito/core                                      | 4.0.1   | Apache-2.0              | https://maskito.dev                                                                                         |
+| @maskito/kit                                       | 4.0.1   | Apache-2.0              | https://maskito.dev                                                                                         |
+| @maskito/react                                     | 1.9.0   | Apache-2.0              | https://maskito.dev                                                                                         |
+| @popperjs/core                                     | 2.11.8  | MIT                     | https://github.com/popperjs/popper-core                                                                     |
+| @reach/observe-rect                                | 1.2.0   | MIT                     | https://github.com/reach/observe-rect                                                                       |
+| @tanstack/query-core                               | 5.104.5 | MIT                     | https://tanstack.com/query                                                                                  |
+| @tanstack/react-query                              | 5.104.5 | MIT                     | https://tanstack.com/query                                                                                  |
+| @types/d3-array                                    | 3.2.2   | MIT                     | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/d3-array                               |
+| @types/d3-color                                    | 3.1.3   | MIT                     | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/d3-color                               |
+| @types/d3-ease                                     | 3.0.2   | MIT                     | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/d3-ease                                |
+| @types/d3-interpolate                              | 3.0.4   | MIT                     | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/d3-interpolate                         |
+| @types/d3-path                                     | 3.1.1   | MIT                     | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/d3-path                                |
+| @types/d3-scale                                    | 4.0.9   | MIT                     | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/d3-scale                               |
+| @types/d3-shape                                    | 3.2.0   | MIT                     | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/d3-shape                               |
+| @types/d3-time                                     | 3.0.4   | MIT                     | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/d3-time                                |
+| @types/d3-timer                                    | 3.0.2   | MIT                     | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/d3-timer                               |
+| @types/debug                                       | 4.1.13  | MIT                     | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/debug                                  |
+| @types/estree                                      | 1.0.9   | MIT                     | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/estree                                 |
+| @types/estree-jsx                                  | 1.0.5   | MIT                     | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/estree-jsx                             |
+| @types/hast                                        | 3.0.5   | MIT                     | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/hast                                   |
+| @types/mdast                                       | 4.0.4   | MIT                     | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/mdast                                  |
+| @types/ms                                          | 2.1.0   | MIT                     | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/ms                                     |
+| @types/react                                       | 19.3.0  | MIT                     | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/react                                  |
+| @types/react-transition-group                      | 4.4.12  | MIT                     | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/react-transition-group                 |
+| @types/unist                                       | 2.0.11  | MIT                     | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/unist                                  |
+| @types/unist                                       | 3.0.3   | MIT                     | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/unist                                  |
+| @ungap/structured-clone                            | 1.4.0   | ISC                     | https://github.com/ungap/structured-clone                                                                   |
+| bail                                               | 2.0.2   | MIT                     | https://github.com/wooorm/bail                                                                              |
+| can-use-dom                                        | 0.1.0   | MIT                     | https://github.com/akiran/can-use-dom                                                                       |
+| ccount                                             | 2.0.1   | MIT                     | https://github.com/wooorm/ccount                                                                            |
+| character-entities                                 | 1.2.4   | MIT                     | https://github.com/wooorm/character-entities                                                                |
+| character-entities                                 | 2.0.2   | MIT                     | https://github.com/wooorm/character-entities                                                                |
+| character-entities-html4                           | 2.1.0   | MIT                     | https://github.com/wooorm/character-entities-html4                                                          |
+| character-entities-legacy                          | 1.1.4   | MIT                     | https://github.com/wooorm/character-entities-legacy                                                         |
+| character-entities-legacy                          | 3.0.0   | MIT                     | https://github.com/wooorm/character-entities-legacy                                                         |
+| character-reference-invalid                        | 1.1.4   | MIT                     | https://github.com/wooorm/character-reference-invalid                                                       |
+| character-reference-invalid                        | 2.0.1   | MIT                     | https://github.com/wooorm/character-reference-invalid                                                       |
+| classnames                                         | 2.5.1   | MIT                     | https://github.com/JedWatson/classnames                                                                     |
+| clsx                                               | 2.1.1   | MIT                     | https://github.com/lukeed/clsx                                                                              |
+| comma-separated-tokens                             | 2.0.3   | MIT                     | https://github.com/wooorm/comma-separated-tokens                                                            |
+| compute-scroll-into-view                           | 3.1.1   | MIT                     | https://scroll-into-view.dev                                                                                |
+| cookie                                             | 1.1.1   | MIT                     | https://github.com/jshttp/cookie                                                                            |
+| core-js                                            | 3.51.0  | MIT                     | https://core-js.io                                                                                          |
+| csstype                                            | 3.2.3   | MIT                     | https://github.com/frenic/csstype                                                                           |
+| d3-array                                           | 3.2.4   | ISC                     | https://d3js.org/d3-array/                                                                                  |
+| d3-color                                           | 3.1.0   | ISC                     | https://d3js.org/d3-color/                                                                                  |
+| d3-ease                                            | 3.0.1   | BSD-3-Clause            | https://d3js.org/d3-ease/                                                                                   |
+| d3-format                                          | 3.1.2   | ISC                     | https://d3js.org/d3-format/                                                                                 |
+| d3-interpolate                                     | 3.0.1   | ISC                     | https://d3js.org/d3-interpolate/                                                                            |
+| d3-path                                            | 3.1.0   | ISC                     | https://d3js.org/d3-path/                                                                                   |
+| d3-scale                                           | 4.0.2   | ISC                     | https://d3js.org/d3-scale/                                                                                  |
+| d3-shape                                           | 3.2.0   | ISC                     | https://d3js.org/d3-shape/                                                                                  |
+| d3-time                                            | 3.1.0   | ISC                     | https://d3js.org/d3-time/                                                                                   |
+| d3-time-format                                     | 4.1.0   | ISC                     | https://d3js.org/d3-time-format/                                                                            |
+| d3-timer                                           | 3.0.1   | ISC                     | https://d3js.org/d3-timer/                                                                                  |
+| date-fns                                           | 4.4.0   | MIT                     | https://github.com/date-fns/date-fns                                                                        |
+| debug                                              | 4.4.3   | MIT                     | https://github.com/debug-js/debug                                                                           |
+| decimal.js-light                                   | 2.5.1   | MIT                     | https://github.com/MikeMcl/decimal.js-light                                                                 |
+| decode-named-character-reference                   | 1.3.0   | MIT                     | https://github.com/wooorm/decode-named-character-reference                                                  |
+| dequal                                             | 2.0.3   | MIT                     | https://github.com/lukeed/dequal                                                                            |
+| detect-browser                                     | 5.3.0   | MIT                     | https://github.com/DamonOehlman/detect-browser                                                              |
+| detect-node-es                                     | 1.1.0   | MIT                     | https://github.com/thekashey/detect-node                                                                    |
+| devlop                                             | 1.1.0   | MIT                     | https://github.com/wooorm/devlop                                                                            |
+| dom-helpers                                        | 5.2.1   | MIT                     | https://github.com/react-bootstrap/dom-helpers                                                              |
+| downshift                                          | 8.4.0   | MIT                     | https://downshift-js.com                                                                                    |
+| element-closest                                    | 3.0.2   | CC0-1.0                 | https://github.com/jonathantneal/closest                                                                    |
+| estree-util-is-identifier-name                     | 3.0.0   | MIT                     | https://github.com/syntax-tree/estree-util-is-identifier-name                                               |
+| eventemitter3                                      | 4.0.7   | MIT                     | https://github.com/primus/eventemitter3                                                                     |
+| extend                                             | 3.0.2   | MIT                     | https://github.com/justmoon/node-extend                                                                     |
+| fast-equals                                        | 5.4.5   | MIT                     | https://github.com/planttheidea/fast-equals                                                                 |
+| focus-lock                                         | 1.3.6   | MIT                     | https://github.com/theKashey/focus-lock                                                                     |
+| get-nonce                                          | 1.0.1   | MIT                     | https://github.com/theKashey/get-nonce                                                                      |
+| hast-util-to-jsx-runtime                           | 2.3.6   | MIT                     | https://github.com/syntax-tree/hast-util-to-jsx-runtime                                                     |
+| hast-util-whitespace                               | 3.0.0   | MIT                     | https://github.com/syntax-tree/hast-util-whitespace                                                         |
+| hls.js                                             | 1.7.3   | Apache-2.0              | https://github.com/video-dev/hls.js                                                                         |
+| html-url-attributes                                | 3.0.1   | MIT                     | https://github.com/rehypejs/rehype-minify/tree/main/packages/html-url-attributes                            |
+| inline-style-parser                                | 0.2.7   | MIT                     | https://github.com/remarkablemark/inline-style-parser                                                       |
+| internmap                                          | 2.0.3   | ISC                     | https://github.com/mbostock/internmap/                                                                      |
+| intersection-observer                              | 0.12.2  | Apache-2.0              | https://github.com/GoogleChromeLabs/intersection-observer                                                   |
+| is-alphabetical                                    | 1.0.4   | MIT                     | https://github.com/wooorm/is-alphabetical                                                                   |
+| is-alphabetical                                    | 2.0.1   | MIT                     | https://github.com/wooorm/is-alphabetical                                                                   |
+| is-alphanumerical                                  | 1.0.4   | MIT                     | https://github.com/wooorm/is-alphanumerical                                                                 |
+| is-alphanumerical                                  | 2.0.1   | MIT                     | https://github.com/wooorm/is-alphanumerical                                                                 |
+| is-decimal                                         | 1.0.4   | MIT                     | https://github.com/wooorm/is-decimal                                                                        |
+| is-decimal                                         | 2.0.1   | MIT                     | https://github.com/wooorm/is-decimal                                                                        |
+| is-hexadecimal                                     | 1.0.4   | MIT                     | https://github.com/wooorm/is-hexadecimal                                                                    |
+| is-hexadecimal                                     | 2.0.1   | MIT                     | https://github.com/wooorm/is-hexadecimal                                                                    |
+| is-plain-obj                                       | 4.1.0   | MIT                     | https://github.com/sindresorhus/is-plain-obj                                                                |
+| js-tokens                                          | 4.0.0   | MIT                     | https://github.com/lydell/js-tokens                                                                         |
+| libphonenumber-js                                  | 1.13.15 | MIT                     | https://gitlab.com/catamphetamine/libphonenumber-js                                                         |
+| lodash                                             | 4.18.1  | MIT                     | https://lodash.com/                                                                                         |
+| lodash.debounce                                    | 4.0.8   | MIT                     | https://lodash.com/                                                                                         |
+| lodash-es                                          | 4.18.1  | MIT                     | https://lodash.com/custom-builds                                                                            |
+| lodash.memoize                                     | 4.1.2   | MIT                     | https://lodash.com/                                                                                         |
+| lodash.throttle                                    | 4.1.1   | MIT                     | https://lodash.com/                                                                                         |
+| longest-streak                                     | 2.0.4   | MIT                     | https://github.com/wooorm/longest-streak                                                                    |
+| longest-streak                                     | 3.1.0   | MIT                     | https://github.com/wooorm/longest-streak                                                                    |
+| loose-envify                                       | 1.4.0   | MIT                     | https://github.com/zertosh/loose-envify                                                                     |
+| lottie-web                                         | 5.13.0  | MIT                     | https://github.com/airbnb/lottie-web                                                                        |
+| mdast-util-from-markdown                           | 2.1.0   | MIT                     | https://github.com/syntax-tree/mdast-util-from-markdown                                                     |
+| mdast-util-gfm-strikethrough                       | 0.2.3   | MIT                     | https://github.com/syntax-tree/mdast-util-gfm-strikethrough                                                 |
+| mdast-util-mdx-expression                          | 2.0.1   | MIT                     | https://github.com/syntax-tree/mdast-util-mdx-expression                                                    |
+| mdast-util-mdx-jsx                                 | 3.2.0   | MIT                     | https://github.com/syntax-tree/mdast-util-mdx-jsx                                                           |
+| mdast-util-mdxjs-esm                               | 2.0.1   | MIT                     | https://github.com/syntax-tree/mdast-util-mdxjs-esm                                                         |
+| mdast-util-phrasing                                | 4.1.0   | MIT                     | https://github.com/syntax-tree/mdast-util-phrasing                                                          |
+| mdast-util-to-hast                                 | 13.2.1  | MIT                     | https://github.com/syntax-tree/mdast-util-to-hast                                                           |
+| mdast-util-to-markdown                             | 0.6.5   | MIT                     | https://github.com/syntax-tree/mdast-util-to-markdown                                                       |
+| mdast-util-to-markdown                             | 2.2.0   | MIT                     | https://github.com/syntax-tree/mdast-util-to-markdown                                                       |
+| mdast-util-to-string                               | 2.0.0   | MIT                     | https://github.com/syntax-tree/mdast-util-to-string                                                         |
+| mdast-util-to-string                               | 4.0.0   | MIT                     | https://github.com/syntax-tree/mdast-util-to-string                                                         |
+| micromark                                          | 2.11.4  | MIT                     | https://github.com/micromark/micromark                                                                      |
+| micromark                                          | 4.0.3   | MIT                     | https://github.com/micromark/micromark/tree/main/packages/micromark                                         |
+| micromark-core-commonmark                          | 2.0.4   | MIT                     | https://github.com/micromark/micromark/tree/main/packages/micromark-core-commonmark                         |
+| micromark-extension-gfm-strikethrough              | 0.6.5   | MIT                     | https://github.com/micromark/micromark-extension-gfm-strikethrough                                          |
+| micromark-factory-destination                      | 2.0.1   | MIT                     | https://github.com/micromark/micromark/tree/main/packages/micromark-factory-destination                     |
+| micromark-factory-label                            | 2.0.1   | MIT                     | https://github.com/micromark/micromark/tree/main/packages/micromark-factory-label                           |
+| micromark-factory-space                            | 2.1.0   | MIT                     | https://github.com/micromark/micromark/tree/main/packages/micromark-factory-space                           |
+| micromark-factory-title                            | 2.0.1   | MIT                     | https://github.com/micromark/micromark/tree/main/packages/micromark-factory-title                           |
+| micromark-factory-whitespace                       | 2.0.1   | MIT                     | https://github.com/micromark/micromark/tree/main/packages/micromark-factory-whitespace                      |
+| micromark-util-character                           | 2.1.1   | MIT                     | https://github.com/micromark/micromark/tree/main/packages/micromark-util-character                          |
+| micromark-util-chunked                             | 2.0.1   | MIT                     | https://github.com/micromark/micromark/tree/main/packages/micromark-util-chunked                            |
+| micromark-util-classify-character                  | 2.0.1   | MIT                     | https://github.com/micromark/micromark/tree/main/packages/micromark-util-classify-character                 |
+| micromark-util-combine-extensions                  | 2.0.1   | MIT                     | https://github.com/micromark/micromark/tree/main/packages/micromark-util-combine-extensions                 |
+| micromark-util-decode-numeric-character-reference  | 2.0.2   | MIT                     | https://github.com/micromark/micromark/tree/main/packages/micromark-util-decode-numeric-character-reference |
+| micromark-util-decode-string                       | 2.0.1   | MIT                     | https://github.com/micromark/micromark/tree/main/packages/micromark-util-decode-string                      |
+| micromark-util-edit-map                            | 1.0.0   | MIT                     | https://github.com/micromark/micromark/tree/main/packages/micromark-util-edit-map                           |
+| micromark-util-encode                              | 2.0.1   | MIT                     | https://github.com/micromark/micromark/tree/main/packages/micromark-util-encode                             |
+| micromark-util-html-tag-name                       | 2.0.1   | MIT                     | https://github.com/micromark/micromark/tree/main/packages/micromark-util-html-tag-name                      |
+| micromark-util-normalize-identifier                | 2.0.1   | MIT                     | https://github.com/micromark/micromark/tree/main/packages/micromark-util-normalize-identifier               |
+| micromark-util-resolve-all                         | 2.0.1   | MIT                     | https://github.com/micromark/micromark/tree/main/packages/micromark-util-resolve-all                        |
+| micromark-util-sanitize-uri                        | 2.0.1   | MIT                     | https://github.com/micromark/micromark/tree/main/packages/micromark-util-sanitize-uri                       |
+| micromark-util-subtokenize                         | 2.1.0   | MIT                     | https://github.com/micromark/micromark/tree/main/packages/micromark-util-subtokenize                        |
+| micromark-util-symbol                              | 2.0.1   | MIT                     | https://github.com/micromark/micromark/tree/main/packages/micromark-util-symbol                             |
+| micromark-util-types                               | 2.0.3   | MIT                     | https://github.com/micromark/micromark/tree/main/packages/micromark-util-types                              |
+| ms                                                 | 2.1.3   | MIT                     | https://github.com/vercel/ms                                                                                |
+| nouislider                                         | 15.8.1  | MIT                     | https://github.com/leongersen/noUiSlider                                                                    |
+| object-assign                                      | 4.1.1   | MIT                     | https://github.com/sindresorhus/object-assign                                                               |
+| parse-entities                                     | 2.0.0   | MIT                     | https://github.com/wooorm/parse-entities                                                                    |
+| parse-entities                                     | 4.0.2   | MIT                     | https://github.com/wooorm/parse-entities                                                                    |
+| popper-max-size-modifier                           | 0.2.0   | MIT                     | https://www.npmjs.com/package/popper-max-size-modifier                                                      |
+| prop-types                                         | 15.8.1  | MIT                     | https://facebook.github.io/react/                                                                           |
+| property-information                               | 7.2.0   | MIT                     | https://github.com/wooorm/property-information                                                              |
+| react                                              | 19.3.1  | MIT                     | https://react.dev/                                                                                          |
+| react-canvas-pattern-lock                          | 2.0.7   | не указана в метаданных | https://github.com/Lacronts/react-canvas-pattern-lock                                                       |
+| react-clientside-effect                            | 1.2.8   | MIT                     | https://github.com/thekashey/react-clientside-effect                                                        |
+| react-div-100vh                                    | 0.7.0   | MIT                     | https://github.com/mvasin/react-div-100vh                                                                   |
+| react-dom                                          | 19.3.1  | MIT                     | https://react.dev/                                                                                          |
+| react-fast-compare                                 | 3.2.2   | MIT                     | https://github.com/FormidableLabs/react-fast-compare                                                        |
+| react-focus-lock                                   | 2.13.7  | MIT                     | https://github.com/theKashey/react-focus-lock                                                               |
+| react-is                                           | 16.13.1 | MIT                     | https://reactjs.org/                                                                                        |
+| react-is                                           | 18.3.1  | MIT                     | https://reactjs.org/                                                                                        |
+| react-markdown                                     | 9.1.0   | MIT                     | https://github.com/remarkjs/react-markdown                                                                  |
+| react-merge-refs                                   | 1.1.0   | MIT                     | https://github.com/gregberge/react-merge-refs                                                               |
+| react-popper                                       | 2.3.0   | MIT                     | https://popper.js.org/react-popper                                                                          |
+| react-remove-scroll                                | 2.7.2   | MIT                     | https://github.com/theKashey/react-remove-scroll                                                            |
+| react-remove-scroll-bar                            | 2.3.8   | MIT                     | https://github.com/theKashey/react-remove-scroll-bar                                                        |
+| react-router                                       | 7.18.4  | MIT                     | https://github.com/remix-run/react-router                                                                   |
+| react-router-dom                                   | 7.18.4  | MIT                     | https://github.com/remix-run/react-router                                                                   |
+| react-smooth                                       | 4.0.4   | MIT                     | https://github.com/recharts/react-smooth                                                                    |
+| react-style-singleton                              | 2.2.3   | MIT                     | https://github.com/theKashey/react-style-singleton                                                          |
+| react-swipeable                                    | 7.0.2   | MIT                     | https://github.com/FormidableLabs/react-swipeable                                                           |
+| react-textarea-autosize                            | 8.5.9   | MIT                     | https://github.com/Andarist/react-textarea-autosize                                                         |
+| react-transition-group                             | 4.4.5   | BSD-3-Clause            | https://github.com/reactjs/react-transition-group                                                           |
+| react-use-event-hook                               | 0.9.6   | MIT                     | https://github.com/scottrippey/react-use-event-hook                                                         |
+| react-virtual                                      | 2.10.4  | MIT                     | https://github.com/tannerlinsley/react-virtual                                                              |
+| react-virtuoso                                     | 4.18.19 | MIT                     | https://virtuoso.dev/                                                                                       |
+| recharts                                           | 2.15.4  | MIT                     | https://github.com/recharts/recharts                                                                        |
+| recharts-scale                                     | 0.4.5   | MIT                     | https://github.com/recharts/recharts-scale                                                                  |
+| remark-parse                                       | 11.0.0  | MIT                     | https://remark.js.org                                                                                       |
+| remark-rehype                                      | 11.1.2  | MIT                     | https://github.com/remarkjs/remark-rehype                                                                   |
+| repeat-string                                      | 1.6.1   | MIT                     | https://github.com/jonschlinkert/repeat-string                                                              |
+| scheduler                                          | 0.28.0  | MIT                     | https://react.dev/                                                                                          |
+| set-cookie-parser                                  | 2.7.2   | MIT                     | https://github.com/nfriedly/set-cookie-parser                                                               |
+| simplebar                                          | 5.3.9   | MIT                     | https://grsmto.github.io/simplebar/                                                                         |
+| simplebar-core                                     | 1.3.2   | MIT                     | https://grsmto.github.io/simplebar/                                                                         |
+| simplebar-react                                    | 3.3.2   | MIT                     | https://grsmto.github.io/simplebar/                                                                         |
+| space-separated-tokens                             | 2.0.2   | MIT                     | https://github.com/wooorm/space-separated-tokens                                                            |
+| stringify-entities                                 | 4.0.4   | MIT                     | https://github.com/wooorm/stringify-entities                                                                |
+| style-to-js                                        | 1.1.21  | MIT                     | https://github.com/remarkablemark/style-to-js                                                               |
+| style-to-object                                    | 1.0.14  | MIT                     | https://github.com/remarkablemark/style-to-object                                                           |
+| swiper                                             | 12.2.0  | MIT                     | https://swiperjs.com                                                                                        |
+| text-mask-core                                     | 5.1.2   | Unlicense               | https://github.com/text-mask/text-mask/core/                                                                |
+| tiny-invariant                                     | 1.3.3   | MIT                     | https://github.com/alexreardon/tiny-invariant                                                               |
+| trim-lines                                         | 3.0.1   | MIT                     | https://github.com/wooorm/trim-lines                                                                        |
+| trough                                             | 2.2.0   | MIT                     | https://github.com/wooorm/trough                                                                            |
+| tslib                                              | 2.8.1   | 0BSD                    | https://www.typescriptlang.org/                                                                             |
+| unified                                            | 11.0.5  | MIT                     | https://unifiedjs.com                                                                                       |
+| unist-util-is                                      | 6.0.1   | MIT                     | https://github.com/syntax-tree/unist-util-is                                                                |
+| unist-util-position                                | 5.0.0   | MIT                     | https://github.com/syntax-tree/unist-util-position                                                          |
+| unist-util-stringify-position                      | 4.0.0   | MIT                     | https://github.com/syntax-tree/unist-util-stringify-position                                                |
+| unist-util-visit                                   | 5.1.0   | MIT                     | https://github.com/syntax-tree/unist-util-visit                                                             |
+| unist-util-visit-parents                           | 6.0.2   | MIT                     | https://github.com/syntax-tree/unist-util-visit-parents                                                     |
+| use-callback-ref                                   | 1.3.3   | MIT                     | https://github.com/theKashey/use-callback-ref/                                                              |
+| use-composed-ref                                   | 1.4.0   | MIT                     | https://github.com/Andarist/use-composed-ref                                                                |
+| use-isomorphic-layout-effect                       | 1.2.1   | MIT                     | https://github.com/Andarist/use-isomorphic-layout-effect                                                    |
+| use-latest                                         | 1.3.0   | MIT                     | https://github.com/Andarist/use-latest                                                                      |
+| use-sidecar                                        | 1.1.3   | MIT                     | https://github.com/theKashey/use-sidecar                                                                    |
+| use-sync-external-store                            | 1.7.0   | MIT                     | https://github.com/react/react                                                                              |
+| uuid                                               | 14.0.3  | MIT                     | https://github.com/uuidjs/uuid                                                                              |
+| vfile                                              | 6.0.3   | MIT                     | https://github.com/vfile/vfile                                                                              |
+| vfile-message                                      | 4.0.3   | MIT                     | https://github.com/vfile/vfile-message                                                                      |
+| victory-vendor                                     | 36.9.2  | MIT AND ISC             | https://commerce.nearform.com/open-source/victory                                                           |
+| warning                                            | 4.0.3   | MIT                     | https://github.com/BerkeleyTrue/warning                                                                     |
+| zwitch                                             | 1.0.5   | MIT                     | https://github.com/wooorm/zwitch                                                                            |
+| zwitch                                             | 2.0.4   | MIT                     | https://github.com/wooorm/zwitch                                                                            |
+
+<!-- END GENERATED: frontend -->
+
+### 1.5. Замечания о лицензиях
+
+- **psycopg и psycopg-binary (LGPL-3.0-only)** — драйвер PostgreSQL. Используется без изменений как отдельный
+  пакет, который устанавливается из PyPI и подключается при работе; его можно заменить другой сборкой.
+  Исходный код и текст лицензии — на https://psycopg.org/ и в самом пакете.
+- **certifi (MPL-2.0)** — набор корневых сертификатов Mozilla, нужен httpx. Используется без изменений.
+- **Нативные библиотеки внутри пакетов.** psycopg-binary содержит собранные libpq, OpenSSL, Kerberos, OpenLDAP,
+  Cyrus SASL и их зависимости. pillow (его использует ReportLab) — FreeType, HarfBuzz, libjpeg-turbo, libpng,
+  libtiff, libwebp, Little CMS, OpenJPEG, libavif и другие. pydantic-core и watchfiles написаны на Rust и
+  включают сторонние библиотеки Rust. Лицензии этих компонентов перечислены в самих пакетах:
+  `*.dist-info/licenses` и `*.dist-info/sboms`.
+- **Пакеты без лицензии в метаданных** — `@alfalab/react-canvas-pattern-lock` и `react-canvas-pattern-lock`.
+  Это зависимости компонента «графический ключ» (PatternLock) из `@alfalab/core-components`. Приложение его не
+  импортирует, и в бандл эти пакеты не попадают (проверено по sourcemap production-сборки). Они есть только в
+  node_modules на этапе сборки образа `frontend`.
+
+
+## 2. Инструменты сборки и проверки
+
+Нужны, чтобы собрать образы, проверить код и запустить тесты. В поставку не входят; исключение — uv, который
+остаётся в образах Python-сервисов после установки зависимостей (2.3).
+
+### 2.1. Python: группа dev
+
+<!-- BEGIN GENERATED: tools-python -->
+
+| Пакет     | Версия     | Лицензия                   | Где                | Сайт проекта                              |
+|-----------|------------|----------------------------|--------------------|-------------------------------------------|
+| certifi   | 2026.10.19 | MPL-2.0                    | simulator          | https://github.com/certifi/python-certifi |
+| httpcore  | 1.0.9      | BSD-3-Clause               | simulator          | https://www.encode.io/httpcore/           |
+| httpx     | 0.28.1     | BSD-3-Clause               | simulator          | https://github.com/encode/httpx           |
+| iniconfig | 2.3.1      | MIT                        | backend, simulator | https://github.com/pytest-dev/iniconfig   |
+| packaging | 26.3       | Apache-2.0 OR BSD-2-Clause | backend, simulator | https://github.com/pypa/packaging         |
+| pluggy    | 1.7.0      | MIT                        | backend, simulator | https://github.com/pytest-dev/pluggy      |
+| Pygments  | 2.21.0     | BSD-2-Clause               | backend, simulator | https://pygments.org                      |
+| pytest    | 9.1.1      | MIT                        | backend, simulator | https://docs.pytest.org/en/latest/        |
+| ruff      | 0.17.1     | MIT                        | backend, simulator | https://docs.astral.sh/ruff               |
+
+В uv.lock есть и пакеты для других платформ, в образы для Linux они не устанавливаются: colorama 0.4.6 (backend,
+simulator; маркер sys_platform == 'win32'); tzdata 2026.5 (backend; маркер sys_platform == 'win32').
+
+<!-- END GENERATED: tools-python -->
+
+### 2.2. npm: сборка фронтенда и тесты в браузере
+
+`frontend` — devDependencies и их зависимости (Vite, TypeScript, Prettier), `e2e` — Playwright. Платформенные
+сборки одного инструмента показаны одной строкой: npm устанавливает только сборку для текущей платформы.
+
+<!-- BEGIN GENERATED: tools-npm -->
+
+| Пакет                                         | Версия  | Лицензия     | Где           | Сайт проекта                                                                   |
+|-----------------------------------------------|---------|--------------|---------------|--------------------------------------------------------------------------------|
+| @oxc-project/types                            | 0.154.0 | MIT          | frontend      | https://oxc.rs                                                                 |
+| @playwright/test                              | 1.64.1  | Apache-2.0   | e2e           | https://playwright.dev                                                         |
+| @rolldown/binding-* (15 платформенных сборок) | 1.2.14  | MIT          | frontend      | https://www.npmjs.com/package/@rolldown/binding-android-arm-eabi               |
+| @rolldown/pluginutils                         | 1.0.1   | MIT          | frontend      | https://github.com/rolldown/plugins/tree/main/packages/pluginutils             |
+| @types/node                                   | 22.20.5 | MIT          | e2e           | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/node      |
+| @types/react-dom                              | 19.3.0  | MIT          | frontend      | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/react-dom |
+| @vitejs/plugin-react                          | 6.1.2   | MIT          | frontend      | https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react    |
+| detect-libc                                   | 2.1.2   | Apache-2.0   | frontend      | https://github.com/lovell/detect-libc                                          |
+| fdir                                          | 6.5.0   | MIT          | frontend      | https://github.com/thecodrr/fdir                                               |
+| fsevents (только darwin)                      | 2.3.3   | MIT          | frontend      | https://www.npmjs.com/package/fsevents                                         |
+| lightningcss                                  | 1.33.0  | MPL-2.0      | frontend      | https://github.com/parcel-bundler/lightningcss                                 |
+| lightningcss-* (11 платформенных сборок)      | 1.33.0  | MPL-2.0      | frontend      | https://www.npmjs.com/package/lightningcss-android-arm64                       |
+| nanoid                                        | 3.3.20  | MIT          | frontend      | https://github.com/ai/nanoid                                                   |
+| picocolors                                    | 1.1.1   | ISC          | frontend      | https://github.com/alexeyraspopov/picocolors                                   |
+| picomatch                                     | 4.0.7   | MIT          | frontend      | https://github.com/micromatch/picomatch                                        |
+| playwright                                    | 1.64.1  | Apache-2.0   | e2e           | https://playwright.dev                                                         |
+| playwright-core                               | 1.64.1  | Apache-2.0   | e2e           | https://playwright.dev                                                         |
+| postcss                                       | 8.5.31  | MIT          | frontend      | https://postcss.org/                                                           |
+| prettier                                      | 3.8.1   | MIT          | frontend      | https://prettier.io                                                            |
+| rolldown                                      | 1.2.14  | MIT          | frontend      | https://rolldown.rs/                                                           |
+| source-map-js                                 | 1.2.2   | BSD-3-Clause | frontend      | https://github.com/7rulnik/source-map-js                                       |
+| tinyglobby                                    | 0.2.17  | MIT          | frontend      | https://superchupu.dev/tinyglobby                                              |
+| typescript                                    | 5.9.3   | Apache-2.0   | frontend, e2e | https://www.typescriptlang.org/                                                |
+| undici-types                                  | 6.21.0  | MIT          | e2e           | https://undici.nodejs.org                                                      |
+| vite                                          | 8.3.4   | MIT          | frontend      | https://vite.dev                                                               |
+
+<!-- END GENERATED: tools-npm -->
+
+lightningcss (MPL-2.0) минифицирует CSS внутри Vite во время сборки. Его код в бандл не попадает.
+
+### 2.3. Прочие инструменты
+
+- **uv 0.11.32** — MIT OR Apache-2.0 (метаданные PyPI). Устанавливает Python-зависимости в Dockerfile бэкенда и
+  симулятора и в CI. Ставится в образы `api`, `worker` и `simulator` через pip, во время работы не вызывается.
+- **Node.js 22.22.0** — MIT. Сборка фронтенда (образ `node:22.22.0-alpine`) и запуск Playwright в CI.
+- **GitHub Actions** `actions/checkout@v4`, `actions/setup-python@v5`, `actions/setup-node@v4`,
+  `actions/upload-artifact@v4` — MIT. CI в `.github/workflows/ci.yml`.
+- **Chromium для Playwright** — BSD-3-Clause и лицензии сторонних компонентов браузера. Скачивается командой
+  `npx playwright install chromium` только для тестов.
+
+
+## 3. Базовые образы Docker
+
+Официальные образы Docker Hub с точными тегами. Поверх них ставятся только файлы и зависимости проекта.
+
+| Образ                       | Где используется                                                    | Основное ПО и его лицензия           |
+|-----------------------------|---------------------------------------------------------------------|--------------------------------------|
+| postgres:16.4-alpine        | сервис `postgres` в docker-compose.yml                              | PostgreSQL 16.4 — PostgreSQL License |
+| python:3.12.7-slim-bookworm | backend/Dockerfile, simulator/Dockerfile                            | CPython 3.12.7 — PSF-2.0; Debian 12  |
+| node:22.22.0-alpine         | frontend/Dockerfile, только этап сборки, в итоговый образ не входит | Node.js 22.22.0 — MIT                |
+| nginx:1.27.2-alpine         | frontend/Dockerfile, итоговый образ                                 | nginx 1.27.2 — BSD-2-Clause          |
+| caddy:2.8.4-alpine          | deploy/docker-compose.prod.yml, только для публикации с HTTPS       | Caddy 2.8.4 — Apache-2.0             |
+
+Кроме основного ПО, образы содержат пакеты дистрибутива (Alpine Linux или Debian) под их собственными лицензиями,
+в том числе GPL и LGPL: оболочку, системные библиотеки и утилиты. Их перечень — в описании официальных образов
+на Docker Hub.
+
+
+## 4. Шрифты
+
+- **Onest** — весь веб-интерфейс. Пакет `@fontsource/onest` 5.3.1, начертания 400, 500 и 700, кириллица и
+  латиница. Лицензия SIL Open Font License 1.1 (OFL-1.1), © 2021 The Onest Project Authors
+  (https://github.com/simpals/onest). Файлы шрифта входят в сборку фронтенда (`assets/onest-*.woff2`, `*.woff`).
+- **DejaVu Sans и DejaVu Sans Bold 2.37** — кредитный договор в PDF (ReportLab). Файлы лежат в
+  `backend/app/assets/fonts`. Шрифты основаны на Bitstream Vera: © 2003 Bitstream, Inc., лицензия Bitstream Vera
+  Fonts; изменения DejaVu — общественное достояние; глифы из шрифтов Arev — © 2006 Tavmjong Bah, лицензия Arev
+  Fonts. Полный текст лицензии встроен в сами файлы шрифтов (метаданные TTF), текст лицензии Bitstream Vera
+  продублирован в `backend/app/assets/fonts/LICENSE`.
+
+Фирменные шрифты Альфа-Банка (Styrene UI, Alfa Interface Sans) распространяются по коммерческой лицензии и в
+решение не входят. Шрифтовые переменные дизайн-системы переопределены на Onest
+(`frontend/src/components/Theme.tsx`), в собранном CSS есть только `@font-face` для Onest. Шрифты подключены
+локально и работают без интернета. Почему выбран Onest — в docs/design.md.
+
+
+## 5. Дизайн-система
+
+| Пакет                                  | Версия  | Лицензия |
+|----------------------------------------|---------|----------|
+| @alfalab/core-components               | 50.37.0 | MIT      |
+| @alfalab/core-components-config        | 1.1.0   | MIT      |
+| @alfalab/core-components-stack-context | 1.0.1   | MIT      |
+| @alfalab/icons-glyph                   | 2.293.0 | MIT      |
+
+Открытая дизайн-система Альфа-Банка (https://github.com/core-ds/core-components), опубликована в npm по лицензии
+MIT. Используются компоненты, темы `corp` и `intranet`, токены цветов и отступов и иконки интерфейса из
+`@alfalab/icons-glyph`. Зависимости дизайн-системы — в таблице раздела 1.4.
+
+Логотипы и фирменная графика Альфа-Банка не используются. Пакет `@alfalab/icons-logotype` с логотипами npm
+ставит как зависимость `@alfalab/core-components`, но приложение его не импортирует, и в бандл он не попадает
+(проверено по sourcemap production-сборки). Знак «К» в шапке и значок вкладки (`frontend/public/favicon.svg`)
+сделаны для прототипа.
+
+
+## 6. Модели
+
+ИИ-функции необязательны и по умолчанию выключены (`AI_ENABLED=false`). Подбор продукта, заявка, проверки,
+решение, подписание и выдача работают без модели. Модель подключается по API в формате OpenAI; веса в
+репозиторий и образы не входят.
+
+- **Модель организаторов хакатона** — Qwen с открытыми весами, имя модели — из письма организаторов. Работает на
+  сервере организаторов, доступ по ключу (`LLM_BASE_URL`, `LLM_API_KEY`, `LLM_MODEL`). Условия использования
+  весов — в карточке модели.
+- **Qwen3 4B (`qwen3:4b`) в Ollama** — веса по лицензии Apache-2.0. Работает на компьютере пользователя вне
+  Docker. Ollama (MIT) и модель устанавливаются отдельно и в поставку не входят.
+
+Проприетарных и платных моделей нет. Модель не принимает кредитных решений: она разбирает описание задачи
+клиента и пишет сводку досье для аналитика. Если модель выключена или не ответила, работает разбор на правилах.
+Подробнее — в docs/ai.md.
+
+
+## 7. Датасеты
+
+Сторонних датасетов нет. Все компании, люди, документы, заявки и финансовые показатели синтетические и созданы
+командой:
+
+- `simulator/sim/data/companies.json` — ответы внешних систем для 10 тестовых компаний: реестр, налоги,
+  отчётность, кредитная история, поступления на счёт;
+- `backend/app/seed/demo.py` и `backend/app/domain/catalog.py` — продукты, тестовые компании, пользователи и
+  демо-заявки;
+- `frontend/public/demo-files` — выписки по счёту в форматах 1С и CSV для сценария с запросом выписки;
+- `backend/app/ai_eval/golden_set.json` — эталонный набор из 32 фраз предпринимателей для оценки разбора
+  потребности, фразы и разметку написала команда.
+
+ИНН тестовых компаний начинаются с 00 — такого кода налогового органа нет, поэтому совпадение с реальными
+компаниями исключено. Совпадения названий, имён и адресов с реальными случайны. Описание данных — в
+docs/data-model.md.
+
+
+## 8. Внешние сервисы
+
+Для работы решения внешние сервисы не нужны: после сборки образов стенд работает без интернета. Платных API и
+подписок нет.
+
+- PyPI, реестр npm и Docker Hub — только при сборке: загрузка зависимостей и базовых образов.
+- API модели организаторов — по желанию, если включены ИИ-функции.
+- Let's Encrypt и sslip.io — по желанию, при публикации на внешнем сервере (docs/deploy.md): сертификат HTTPS
+  и доменное имя по IP-адресу.
+
+
+## 9. Смоделированные интеграции
+
+Внешние системы заменены сервисом `simulator` (`simulator/sim/main.py`) с синтетическими данными из
+`simulator/sim/data/companies.json`. Бэкенд обращается к нему по HTTP так же, как обращался бы к настоящим
+системам (`backend/app/integrations/simulator.py`): с таймаутом 3 с, повторами с растущей паузой и
+circuit breaker. Даты в данных заданы относительно текущего дня, поэтому сценарии не устаревают. Контракты
+упрощены, смысл интеграций сохранён.
+
+### ЕГРЮЛ / ЕГРИП — `GET /egrul/{inn}`
+
+- Настоящая система: государственные реестры юридических лиц и индивидуальных предпринимателей ФНС.
+- Симулятор возвращает: название, форму (ООО или ИП), ОГРН, дату регистрации, статус (в данных — действует или
+  ликвидируется), основной ОКВЭД, адрес, руководителя и дату его назначения. Неизвестный ИНН — ответ 404, заявка
+  уходит аналитику.
+- Упрощено: один ОКВЭД; нет учредителей, уставного капитала, лицензий и истории изменений.
+
+### ФНС «Прозрачный бизнес» — `GET /fns/{inn}`
+
+- Настоящая система: сервис ФНС со сведениями о налоговой задолженности, адресах массовой регистрации,
+  дисквалифицированных лицах, численности и налоговых режимах.
+- Симулятор возвращает: сумму налоговой задолженности, признак адреса массовой регистрации, признак
+  дисквалификации руководителя, численность работников, налоговый режим (ОСН или УСН).
+- Упрощено: только эти пять показателей, без дат и истории.
+
+### ГИР БО — `GET /girbo/{inn}`
+
+- Настоящая система: государственный информационный ресурс бухгалтерской (финансовой) отчётности ФНС.
+- Симулятор возвращает: выручку, прибыль от продаж и чистую прибыль за два последних года. Для ИП —
+  `available: false`: индивидуальные предприниматели не сдают бухгалтерскую отчётность.
+- Упрощено: три показателя вместо полных форм бухгалтерского баланса и отчёта о финансовых результатах.
+
+### Бюро кредитных историй — `POST /bki/report`
+
+- Настоящая система: кредитный отчёт БКИ по юридическому лицу или ИП, запрос — только с согласия субъекта.
+- Симулятор возвращает: есть ли кредитная история, максимальную просрочку за 24 месяца, текущую просрочку и
+  действующие обязательства (кредитор, вид, сумма, остаток долга, ежемесячный платёж, дата открытия). Без
+  идентификатора согласия (берётся из таблицы `consents`) — ответ 400.
+- Упрощено: одно бюро; нет запросов кредитной истории другими кредиторами, поручительств и оценки бюро.
+
+### Внутренние данные банка — `GET /bank/clients/{inn}`
+
+- Настоящая система: банковские системы с данными о расчётных счетах клиента.
+- Симулятор возвращает: клиент ли компания банка, дату открытия счёта и поступления на счёт по месяцам — не
+  больше чем за 12 последних месяцев.
+- Упрощено: только поступления — без списаний, остатков и контрагентов.
+
+### АБС: выдача кредита — `POST /core/loans`
+
+- Настоящая система: автоматизированная банковская система — открытие ссудного счёта и перечисление денег на
+  расчётный счёт клиента.
+- Симулятор возвращает: номер ссудного счёта (условный, 20 цифр, строится из номера заявки), время выдачи и
+  статус `DISBURSED`.
+- Упрощено: нет проводок и реального перечисления; график платежей рассчитывает бэкенд.
+
+### Электронная подпись — в API, не в симуляторе
+
+`POST /api/applications/{id}/sign` (`backend/app/api/applications.py`). Это простая электронная подпись в
+личном кабинете: клиент с правом подписи подтверждает подписание договора паролем от кабинета. Сохраняются две
+подписи — клиента (способ `PEP_PASSWORD`) и банка (`BANK_AUTO`, автоматически), обе с SHA-256 договора. В журнал
+действий пишется `AGREEMENT_SIGNED`: пользователь, время, идентификатор и SHA-256 документа. Криптографической
+подписи файла, усиленной квалифицированной подписи и SMS-кодов нет.
+
+Не моделируются: вход через ЕСИА или интернет-банк (вход по логину и паролю), SMS и email (уведомления только
+в продукте), реальные платежи и оценка залога.
+
+### Сбои
+
+Для каждого источника (`egrul`, `fns`, `girbo`, `bki`, `bank`, `core`) можно включить режим сбоя:
+
+| Режим   | Что делает симулятор                      | Как реагирует бэкенд                                               |
+|---------|-------------------------------------------|--------------------------------------------------------------------|
+| ok      | отвечает с задержкой 200–600 мс (±30 %)   | —                                                                  |
+| error   | сразу отвечает 503                        | источник недоступен: повтор через 2, 4, 8, 16 с, дальше раз в 30 с |
+| timeout | отвечает через 30 с                       | обрывает запрос через 3 с, дальше как при ошибке                   |
+| slow    | добавляет `latency_ms` к обычной задержке | если ответа нет за 3 с — как при ошибке                            |
+
+После 5 ошибок источника подряд бэкенд на 20 с перестаёт его вызывать (circuit breaker). Пока источник
+недоступен, шаг конвейера ждёт и заявка остаётся в автоматической проверке. Если ожидание дольше 15 минут, шаг
+помечается как неуспешный и заявка уходит аналитику с флагом F05. Выдача кредита (`core`) повторяется, пока
+АБС не ответит; после третьей неудачной попытки аналитики получают уведомление.
+
+Управление сбоями: страница «Конвейер и сбои» под учётной записью `admin` (API `/api/admin/simulator/faults`)
+или напрямую в симуляторе: `GET /admin/faults`, `PUT /admin/faults/{source}`, `POST /admin/faults/reset`.
+Состояние хранится в памяти симулятора и сбрасывается при его перезапуске и при сбросе демо-данных. Переменная
+`SIMULATOR_LATENCY_SCALE=0` отключает искусственные задержки (так запускаются тесты симулятора).
