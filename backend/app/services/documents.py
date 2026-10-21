@@ -23,7 +23,8 @@ from app.domain.text import months_text, rub
 from app.models import Application, Document, Offer, User
 
 ALLOWED_EXTENSIONS = {".pdf", ".jpg", ".jpeg", ".png", ".txt", ".csv"}
-FONT_DIR = Path("/usr/share/fonts/truetype/dejavu")
+# Шрифты с кириллицей лежат в репозитории, чтобы сборка образа не зависела от пакетного менеджера ОС
+FONT_DIR = Path(__file__).resolve().parent.parent / "assets" / "fonts"
 
 
 class UploadError(ValueError):
