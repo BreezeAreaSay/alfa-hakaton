@@ -273,8 +273,9 @@ class ApplicationOut(BaseModel):
 
 
 class InfoAnswer(BaseModel):
+    """Ответ на запрос банка. Файлы прикладываются заранее загрузкой документа с info_request_id."""
+
     text: str | None = Field(default=None, max_length=4000)
-    document_ids: list[uuid.UUID] = []
 
 
 class MessageIn(BaseModel):

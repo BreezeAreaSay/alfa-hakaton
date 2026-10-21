@@ -269,3 +269,56 @@ def test_invalid_transition_is_rejected():
     )
     response = client.http.post(f"/api/applications/{draft['id']}/decline")
     assert response.status_code == 409
+
+
+def test_draft_with_document_can_be_deleted():
+    client = Client("veter")
+    draft = client.post(
+        "/api/applications",
+        expect=201,
+        json={"product_code": "GROWTH", "purpose": "EXPANSION", "amount": 2_000_000, "term_months": 24},
+    )
+    client.post(
+        f"/api/applications/{draft['id']}/documents",
+        expect=201,
+        files={"file": ("plan.txt", b"business plan", "text/plain")},
+        data={"kind": "OTHER"},
+    )
+    assert client.http.delete(f"/api/applications/{draft['id']}").status_code == 204
+    assert client.http.get(f"/api/applications/{draft['id']}").status_code == 404
+
+
+def test_invalid_requests_are_rejected_with_clear_errors():
+    client = Client("veter")
+    admin = Client("admin")
+    analyst = Client("analyst")
+    draft = client.post(
+        "/api/applications",
+        expect=201,
+        json={"product_code": "GROWTH", "purpose": "EXPANSION", "amount": 2_000_000, "term_months": 24},
+    )
+    too_long_key = client.http.post(
+        f"/api/applications/{draft['id']}/submit",
+        json={"consent_bki": True, "consent_pd": True},
+        headers={"Idempotency-Key": "x" * 129},
+    )
+    assert too_long_key.status_code == 422
+    assert admin.http.put("/api/admin/simulator/faults/unknown", json={"mode": "error"}).status_code == 404
+    foreign_request = client.http.post(
+        f"/api/applications/{draft['id']}/documents",
+        files={"file": ("note.txt", b"note", "text/plain")},
+        data={"kind": "OTHER", "info_request_id": str(uuid.uuid4())},
+    )
+    assert foreign_request.status_code == 422
+    assert analyst.http.get(f"/api/applications/{draft['id']}").status_code == 404, "черновик видит только клиент"
+
+
+def test_demo_reset_keeps_event_ids_growing():
+    admin = Client("admin")
+    client = Client("veter")
+    apply(client, "GROWTH", 3_000_000, 24)
+    before = max(item["id"] for item in client.get("/api/notifications")["items"])
+    admin.post("/api/admin/demo/reset")
+    apply(client, "GROWTH", 3_000_000, 24)
+    after = min(item["id"] for item in client.get("/api/notifications")["items"])
+    assert after > before, "после сброса открытые вкладки должны продолжать получать события"

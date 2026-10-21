@@ -461,7 +461,8 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "string"
+                  "type": "string",
+                  "maxLength": 128
                 },
                 {
                   "type": "null"
@@ -990,7 +991,8 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "string"
+                  "type": "string",
+                  "maxLength": 128
                 },
                 {
                   "type": "null"
@@ -3232,19 +3234,11 @@
               }
             ],
             "title": "Text"
-          },
-          "document_ids": {
-            "items": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "type": "array",
-            "title": "Document Ids",
-            "default": []
           }
         },
         "type": "object",
-        "title": "InfoAnswer"
+        "title": "InfoAnswer",
+        "description": "Ответ на запрос банка. Файлы прикладываются заранее загрузкой документа с info_request_id."
       },
       "InfoRequestCreate": {
         "properties": {

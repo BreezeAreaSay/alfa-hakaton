@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.config import get_settings
 from app.db import get_db
-from app.domain.enums import Role
+from app.domain.enums import AppStatus, Role
 from app.models import Application, User
 
 bearer = HTTPBearer(auto_error=False)
@@ -78,4 +78,6 @@ def ensure_access(user: User, application: Application | None) -> Application:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Заявка не найдена")
     if user.role == Role.CLIENT and application.company_id != user.company_id:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Заявка не найдена")
+    if user.role != Role.CLIENT and application.status == AppStatus.DRAFT:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Заявка не найдена")  # черновик видит только клиент
     return application

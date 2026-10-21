@@ -6,7 +6,7 @@ from decimal import Decimal
 from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, File, Form, Header, HTTPException, Response, UploadFile, status
-from sqlalchemy import select, text
+from sqlalchemy import delete, select, text
 from sqlalchemy.orm import Session
 
 from app.db import get_db
@@ -25,7 +25,19 @@ from app.domain.enums import (
 )
 from app.domain.features import months_between
 from app.domain.policy import eligibility_issues
-from app.models import Application, Company, Consent, Document, InfoRequest, Message, Offer, Product, Signature, User
+from app.models import (
+    Application,
+    Company,
+    Consent,
+    Document,
+    Event,
+    InfoRequest,
+    Message,
+    Offer,
+    Product,
+    Signature,
+    User,
+)
 from app.schemas import (
     ApplicationCreate,
     ApplicationListItem,
@@ -167,13 +179,17 @@ def delete_draft(
         raise HTTPException(
             status.HTTP_409_CONFLICT, "Удалить можно только черновик. Отправленную заявку можно отозвать"
         )
+    files = []
     for document in db.scalars(select(Document).where(Document.application_id == application.id)):
+        files.append(document.storage_key)
         db.delete(document)
+    db.execute(delete(Event).where(Event.application_id == application.id))
     audit(
         db, actor=Actor.CLIENT, user=user, action="DRAFT_DELETED", entity_type="application", entity_id=application.id
     )
     db.delete(application)
     db.commit()
+    documents.discard(files)
     return Response(status_code=204)
 
 
@@ -181,7 +197,7 @@ def delete_draft(
 def submit(
     application_id: uuid.UUID,
     body: SubmitRequest,
-    idempotency_key: str | None = Header(default=None, alias="Idempotency-Key"),
+    idempotency_key: str | None = Header(default=None, alias="Idempotency-Key", max_length=128),
     user: User = Depends(client_only),
     db: Session = Depends(get_db),
 ) -> ApplicationOut:
@@ -244,6 +260,10 @@ async def upload(
     allowed = {AppStatus.DRAFT, AppStatus.NEED_INFO} if user.role == Role.CLIENT else {AppStatus.MANUAL_REVIEW}
     if application.status not in allowed:
         raise HTTPException(status.HTTP_409_CONFLICT, "Сейчас нельзя добавить документ к заявке")
+    if info_request_id is not None:
+        request = db.get(InfoRequest, info_request_id)
+        if request is None or request.application_id != application.id or request.status != InfoStatus.OPEN:
+            raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "Запрос банка не найден или уже закрыт")
     data = await file.read()
     parsed = None
     if kind == DocumentKind.BANK_STATEMENT:
@@ -305,9 +325,11 @@ def delete_document(
     application = load(db, document.application_id, user)
     if document.source != DocumentSource.CLIENT or application.status not in (AppStatus.DRAFT, AppStatus.NEED_INFO):
         raise HTTPException(status.HTTP_409_CONFLICT, "Этот документ удалить нельзя")
+    stored = document.storage_key
     db.delete(document)
     events.refresh(db, application)
     db.commit()
+    documents.discard([stored])
     return Response(status_code=204)
 
 
@@ -443,7 +465,7 @@ def decline(
 def sign(
     application_id: uuid.UUID,
     body: SignRequest,
-    idempotency_key: str | None = Header(default=None, alias="Idempotency-Key"),
+    idempotency_key: str | None = Header(default=None, alias="Idempotency-Key", max_length=128),
     user: User = Depends(client_only),
     db: Session = Depends(get_db),
 ) -> ApplicationOut:

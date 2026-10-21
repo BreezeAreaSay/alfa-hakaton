@@ -1,9 +1,11 @@
 """Хранение файлов и формирование кредитного договора с графиком платежей (PDF)."""
 
+import contextlib
 import hashlib
 import io
 import re
 import uuid
+from collections.abc import Iterable
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -85,6 +87,16 @@ def store(
 
 def read(document: Document) -> bytes:
     return (_storage_root() / document.storage_key).read_bytes()
+
+
+def discard(storage_keys: Iterable[str]) -> None:
+    """Удаляет файлы с диска. Вызывать после фиксации транзакции, которая удалила записи о документах."""
+    root = _storage_root()
+    for key in storage_keys:
+        path = root / key
+        path.unlink(missing_ok=True)
+        with contextlib.suppress(OSError):
+            path.parent.rmdir()  # каталог заявки, если в нём больше нет файлов
 
 
 _fonts_ready = False

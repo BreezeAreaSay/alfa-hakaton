@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from app.db import get_db
+from app.domain.enums import AppStatus
 from app.domain.policy import FLAGS
 from app.models import Application, User
 from app.pipeline.steps import collect_inputs, run_results
@@ -48,7 +49,7 @@ def ai_summary(application_id: uuid.UUID, user: User = Depends(bank_staff), db: 
     if not ai.status()["enabled"]:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "ИИ-функции выключены")
     application = db.get(Application, application_id)
-    if application is None:
+    if application is None or application.status == AppStatus.DRAFT:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Заявка не найдена")
     scoring = latest_scoring(db, application)
     decision = latest_decision(db, application)

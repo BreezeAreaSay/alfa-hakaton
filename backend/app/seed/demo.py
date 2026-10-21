@@ -171,7 +171,8 @@ APPLICATION_TABLES = "applications"
 
 
 def reset_demo(db: Session) -> int:
-    db.execute(text(f"TRUNCATE {APPLICATION_TABLES}, audit_log, idempotency_keys RESTART IDENTITY CASCADE"))
+    # Идентификаторы не начинаются заново: открытые вкладки продолжают поток событий с последнего Last-Event-ID
+    db.execute(text(f"TRUNCATE {APPLICATION_TABLES}, audit_log, idempotency_keys CASCADE"))
     db.execute(text("ALTER SEQUENCE application_number_seq RESTART WITH 1"))
     db.execute(text("UPDATE users SET last_read_event_id = 0"))
     files = Path(get_settings().files_dir)

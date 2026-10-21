@@ -1,6 +1,6 @@
 """Администрирование демо-стенда: сброс данных и управление сбоями внешних систем."""
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -43,6 +43,8 @@ def faults(user: User = Depends(bank_staff)) -> list[dict]:
 def set_fault(
     source: str, body: FaultIn, user: User = Depends(admin_only), db: Session = Depends(get_db)
 ) -> list[dict]:
+    if source not in SOURCE_TITLES:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, f"Неизвестная внешняя система: {source}")
     external_systems().set_fault(source, body.mode, body.latency_ms)
     audit(
         db,
@@ -58,8 +60,10 @@ def set_fault(
 
 
 @router.post("/simulator/faults/reset", summary="Вернуть все внешние системы в рабочее состояние")
-def reset_faults(user: User = Depends(admin_only)) -> list[dict]:
+def reset_faults(user: User = Depends(admin_only), db: Session = Depends(get_db)) -> list[dict]:
     external_systems().reset_faults()
+    audit(db, actor=Actor.ADMIN, user=user, action="FAULTS_RESET", entity_type="simulator", entity_id="all")
+    db.commit()
     return faults(user)
 
 
