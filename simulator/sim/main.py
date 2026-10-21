@@ -98,8 +98,12 @@ async def girbo(inn: str) -> dict[str, Any]:
         return {"inn": inn, "available": False, "years": []}
     year = datetime.now(UTC).year
     years = [
-        {"year": year - y["year_offset"], "revenue": y["revenue"], "sales_profit": y["sales_profit"],
-         "net_profit": y["net_profit"]}
+        {
+            "year": year - y["year_offset"],
+            "revenue": y["revenue"],
+            "sales_profit": y["sales_profit"],
+            "net_profit": y["net_profit"],
+        }
         for y in report["years"]
     ]
     return {"inn": inn, "available": True, "years": years}

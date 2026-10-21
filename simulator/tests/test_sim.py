@@ -13,7 +13,7 @@ def test_egrul_returns_dates_relative_to_today():
     data = client.get("/egrul/0010000017").json()
     assert data["name"] == "ООО «Северный ветер»"
     assert data["legal_form"] == "OOO"
-    assert data["registration_date"] < data["director"]["since"] or data["registration_date"] == data["director"]["since"]
+    assert data["registration_date"] <= data["director"]["since"]
 
 
 def test_unknown_inn_is_not_found():
