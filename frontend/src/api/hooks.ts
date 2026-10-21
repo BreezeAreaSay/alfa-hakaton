@@ -38,7 +38,8 @@ export const keys = {
     ai: ['ai'] as const,
 };
 
-export const useMeta = () => useQuery({ queryKey: keys.meta, queryFn: () => api<Meta>('/api/meta'), staleTime: Infinity });
+export const useMeta = () =>
+    useQuery({ queryKey: keys.meta, queryFn: () => api<Meta>('/api/meta'), staleTime: Infinity });
 
 export const useCompany = () => useQuery({ queryKey: keys.company, queryFn: () => api<Company>('/api/company') });
 
@@ -140,7 +141,17 @@ export const useCancel = () =>
 export const useUpload = () => {
     const client = useQueryClient();
     return useMutation({
-        mutationFn: ({ id, file, kind, infoRequestId }: { id: string; file: File; kind: string; infoRequestId?: string }) => {
+        mutationFn: ({
+            id,
+            file,
+            kind,
+            infoRequestId,
+        }: {
+            id: string;
+            file: File;
+            kind: string;
+            infoRequestId?: string;
+        }) => {
             const form = new FormData();
             form.append('file', file);
             form.append('kind', kind);
@@ -185,7 +196,8 @@ export const useSign = () =>
 export const useSendMessage = (id: string) => {
     const client = useQueryClient();
     return useMutation({
-        mutationFn: (text: string) => api<ChatMessage>(`/api/applications/${id}/messages`, { method: 'POST', body: { text } }),
+        mutationFn: (text: string) =>
+            api<ChatMessage>(`/api/applications/${id}/messages`, { method: 'POST', body: { text } }),
         onSuccess: () => void client.invalidateQueries({ queryKey: keys.messages(id) }),
     });
 };
@@ -199,7 +211,9 @@ export const useMarkRead = () => {
 };
 
 export const useParseNeed = () =>
-    useMutation({ mutationFn: (text: string) => api<ParsedNeed>('/api/ai/parse-need', { method: 'POST', body: { text } }) });
+    useMutation({
+        mutationFn: (text: string) => api<ParsedNeed>('/api/ai/parse-need', { method: 'POST', body: { text } }),
+    });
 
 // ---------------------------------------------------------------- банк
 
@@ -247,7 +261,8 @@ export const usePipelineIssues = () =>
 export const useFaults = () =>
     useQuery({ queryKey: ['bank', 'faults'], queryFn: () => api<Fault[]>('/api/admin/simulator/faults') });
 
-export const useAudit = () => useQuery({ queryKey: ['bank', 'audit'], queryFn: () => api<AuditRow[]>('/api/admin/audit') });
+export const useAudit = () =>
+    useQuery({ queryKey: ['bank', 'audit'], queryFn: () => api<AuditRow[]>('/api/admin/audit') });
 
 export const useAssign = () =>
     useAppMutation((id: string) => api<Application>(`/api/bank/applications/${id}/assign`, { method: 'POST' }));
@@ -269,11 +284,12 @@ export const useDecision = () =>
     );
 
 export const useRequestInfo = () =>
-    useAppMutation(({ id, items, comment, due_hours }: { id: string; items: string[]; comment: string; due_hours: number }) =>
-        api<Application>(`/api/bank/applications/${id}/info-requests`, {
-            method: 'POST',
-            body: { items, comment, due_hours },
-        }),
+    useAppMutation(
+        ({ id, items, comment, due_hours }: { id: string; items: string[]; comment: string; due_hours: number }) =>
+            api<Application>(`/api/bank/applications/${id}/info-requests`, {
+                method: 'POST',
+                body: { items, comment, due_hours },
+            }),
     );
 
 export const useRestart = () =>
@@ -288,7 +304,8 @@ export const useTermsPreview = (
 ) =>
     useQuery({
         queryKey: ['bank', 'preview', id, params],
-        queryFn: () => api<TermsPreview>(`/api/bank/applications/${id}/terms-preview`, { method: 'POST', body: params }),
+        queryFn: () =>
+            api<TermsPreview>(`/api/bank/applications/${id}/terms-preview`, { method: 'POST', body: params }),
         enabled: params !== null && params.amount > 0 && params.term_months > 0,
         placeholderData: (previous) => previous,
     });
@@ -327,6 +344,8 @@ export function useLiveUpdates(enabled: boolean): void {
             void client.invalidateQueries({ queryKey: ['bank', 'summary'] });
             void client.invalidateQueries({ queryKey: ['bank', 'queue'] });
             void client.invalidateQueries({ queryKey: ['bank', 'issues'] });
+            void client.invalidateQueries({ queryKey: ['bank', 'faults'] });
+            void client.invalidateQueries({ queryKey: ['bank', 'audit'] });
             pending.forEach((id) => {
                 void client.invalidateQueries({ queryKey: keys.application(id) });
                 void client.invalidateQueries({ queryKey: keys.messages(id) });
