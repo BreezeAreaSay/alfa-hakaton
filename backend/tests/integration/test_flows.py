@@ -13,7 +13,7 @@ import httpx
 import pytest
 
 API = os.getenv("API_URL", "http://localhost:8000")
-DEMO_FILES = Path(__file__).resolve().parents[3] / "demo-files"
+DEMO_FILES = Path(__file__).resolve().parents[3] / "frontend" / "public" / "demo-files"
 PROCESSING = {"SUBMITTED", "IN_PROCESSING", "ACCEPTED", "SIGNED"}
 
 pytestmark = pytest.mark.skipif(os.getenv("RUN_INTEGRATION") != "1", reason="нужен запущенный стек: RUN_INTEGRATION=1")
