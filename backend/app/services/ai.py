@@ -52,10 +52,10 @@ PURPOSE_KEYWORDS: dict[str, tuple[str, ...]] = {
     ),
     Purpose.EXPANSION: (
         "расшир",
-        "открыть",
+        "откры",
         "точк",
         "филиал",
-        "новый магазин",
+        "магазин",
         "новую",
         "новое",
         "цех",
@@ -90,7 +90,7 @@ AMOUNT_RE = re.compile(
     re.IGNORECASE,
 )
 TERM_RE = re.compile(
-    r"(?:на|за|срок\w*)\s+(\d+(?:[.,]\d+)?|полгода|год|полтора|полторы|один|одну|два|две|три|четыре|пять|шесть|десять)"
+    r"(?:на|за|через|срок\w*)\s+(\d+(?:[.,]\d+)?|полгода|год|полтора|полторы|один|одну|два|две|три|четыре|пять|шесть|десять)"
     r"\s*(лет|года|год|мес\w*)?",
     re.IGNORECASE,
 )
@@ -121,6 +121,8 @@ def parse_amount(text: str) -> int | None:
             continue  # голое маленькое число — скорее срок или количество, не сумма
         if value >= 10_000 and (best is None or value > best):
             best = value
+    if best is None and re.search(r"\bмиллион\b", text, re.IGNORECASE):
+        best = 1_000_000  # «нужен миллион»
     return int(best) if best else None
 
 
@@ -239,10 +241,27 @@ def parse_need(text: str) -> dict[str, Any]:
 
 
 SUMMARY_PROMPT = (
-    "Ты помогаешь кредитному аналитику банка. По данным досье напиши сводку для принятия решения: "
-    "3–5 коротких пунктов на русском, каждый с новой строки и начинается с «+ » (сильная сторона) или "
-    "«− » (риск). Используй только факты из данных, не придумывай цифры. Не принимай решение за аналитика."
+    "Ты помогаешь кредитному аналитику банка. По данным досье выдели сильные стороны и риски заявки. "
+    'Отвечай только JSON без пояснений: {"strengths": ["…"], "risks": ["…"]} — всего 3–5 коротких пунктов '
+    "на русском. Используй только факты из данных, не придумывай цифры. Не принимай решение за аналитика."
 )
+
+
+def _items(value: Any) -> list[str]:
+    return [item.strip() for item in value if isinstance(item, str) and item.strip()] if isinstance(value, list) else []
+
+
+def summary_points(raw: str) -> list[str]:
+    """Пункты сводки: «+ » — сильная сторона, «− » — риск."""
+    try:
+        data = _extract_json(raw)
+        points = [f"+ {item}" for item in _items(data.get("strengths"))]
+        points += [f"− {item}" for item in _items(data.get("risks"))]
+    except ValueError:
+        # модель ответила текстом: берём строки как есть, тире в начале считаем пометкой риска
+        lines = [line.strip(" •*\t") for line in raw.splitlines()]
+        points = [re.sub(r"^[–-]\s+", "− ", line) for line in lines if len(line) > 3]
+    return points[:6]
 
 
 def dossier_summary(context: dict[str, Any]) -> list[str]:
@@ -251,11 +270,13 @@ def dossier_summary(context: dict[str, Any]) -> list[str]:
             {"role": "system", "content": SUMMARY_PROMPT},
             {"role": "user", "content": json.dumps(context, ensure_ascii=False, default=str) + "\n/no_think"},
         ],
+        json_mode=True,
         max_tokens=500,
     )
-    lines = [line.strip(" •-*\t") for line in raw.splitlines() if line.strip()]
-    points = [line for line in lines if line.startswith(("+", "−", "–", "-")) or len(line) > 10]
-    return [re.sub(r"^[–-]\s*", "− ", p) for p in points][:6]
+    points = summary_points(raw)
+    if not points:
+        raise LlmUnavailable("Модель не вернула сводку")
+    return points
 
 
 def status() -> dict[str, Any]:
