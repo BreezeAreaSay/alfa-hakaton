@@ -27,6 +27,7 @@ class Settings(BaseSettings):
     breaker_open_seconds: float = 20.0
 
     # Обработчик конвейера
+    worker_concurrency: int = 4  # потоков на один процесс: шаги ждут ответов внешних систем, а не процессора
     worker_poll_seconds: float = 0.5
     worker_sweep_seconds: float = 10.0
     job_lock_timeout_seconds: int = 120

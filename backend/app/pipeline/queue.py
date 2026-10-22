@@ -4,11 +4,11 @@ import uuid
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
-from sqlalchemy import select, update
+from sqlalchemy import func, select, update
 from sqlalchemy.orm import Session
 
 from app.domain.enums import JobKind, JobStatus
-from app.models import Job
+from app.models import Application, Job
 
 
 def now() -> datetime:
@@ -30,12 +30,16 @@ def enqueue(
 
 
 def claim(db: Session, worker_id: str) -> Job | None:
+    # Заявки обрабатываются в порядке подачи: очередной шаг ранней заявки идёт раньше первого шага поздней.
+    # Иначе при наплыве заявок все они проходили бы шаг за шагом вместе, и первое решение появлялось бы
+    # только после того, как последняя заявка прошла первый шаг.
     job = db.scalars(
         select(Job)
+        .outerjoin(Application, Application.id == Job.application_id)
         .where(Job.status == JobStatus.QUEUED, Job.run_at <= now())
-        .order_by(Job.run_at, Job.id)
+        .order_by(func.coalesce(Application.submitted_at, Job.run_at), Job.run_at, Job.id)
         .limit(1)
-        .with_for_update(skip_locked=True)
+        .with_for_update(of=Job, skip_locked=True)
     ).first()
     if job is None:
         return None

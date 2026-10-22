@@ -4,7 +4,7 @@ COMPOSE ?= docker compose
 APP_URL ?= http://localhost:$(or $(APP_PORT),8080)
 
 .DEFAULT_GOAL := help
-.PHONY: help up down clean logs ps reset test test-api e2e ai-eval openapi
+.PHONY: help up down clean logs ps reset test test-api e2e load ai-eval openapi
 
 help: ## Список команд
 	@grep -E '^[a-z0-9-]+:.*## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "}; {printf "  make %-9s %s\n", $$1, $$2}'
@@ -37,6 +37,9 @@ test-api: ## Сценарии через API на запущенном стен�
 
 e2e: ## Сценарии в браузере (Playwright) на запущенном стенде
 	cd e2e && npm ci --no-audit --no-fund && npx playwright install chromium && E2E_BASE_URL=$(APP_URL) npx playwright test
+
+load: ## Нагрузка на запущенный стенд: время ответа API и пропускная способность конвейера (после — make reset)
+	cd backend && uv run python ../scripts/load_test.py --api $(APP_URL)
 
 ai-eval: ## Качество разбора потребности: правила, а при AI_ENABLED=true и модель
 	$(COMPOSE) exec api sh -c 'if [ "$$AI_ENABLED" = "true" ]; then python -m app.ai_eval --llm; else python -m app.ai_eval; fi'

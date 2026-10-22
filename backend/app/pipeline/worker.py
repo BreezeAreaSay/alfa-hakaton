@@ -1,9 +1,15 @@
-"""Обработчик конвейера: берёт задания из очереди и раз в несколько секунд проверяет таймеры."""
+"""Обработчик конвейера: потоки берут задания из очереди, главный поток раз в несколько секунд проверяет таймеры.
+
+Шаги конвейера в основном ждут ответов внешних систем, поэтому один процесс ведёт несколько заявок
+одновременно (WORKER_CONCURRENCY потоков). Несколько процессов тоже работают вместе: задания разбираются
+через SELECT … FOR UPDATE SKIP LOCKED.
+"""
 
 import logging
 import os
 import signal
 import socket
+import threading
 import time
 from datetime import UTC, datetime, timedelta
 
@@ -28,29 +34,42 @@ class Worker:
     def __init__(self) -> None:
         self.settings = get_settings()
         self.worker_id = f"{socket.gethostname()}-{os.getpid()}"
-        self.running = True
-        self.last_sweep = 0.0
+        self._stopped = threading.Event()
+
+    @property
+    def running(self) -> bool:
+        return not self._stopped.is_set()
 
     def stop(self, *_: object) -> None:
         log.info("Остановка обработчика")
-        self.running = False
+        self._stopped.set()
 
     def run(self) -> None:
         signal.signal(signal.SIGTERM, self.stop)
         signal.signal(signal.SIGINT, self.stop)
-        log.info("Обработчик запущен: %s", self.worker_id)
+        threads = [
+            threading.Thread(target=self.loop, args=(f"{self.worker_id}-{index}",), name=f"jobs-{index}", daemon=True)
+            for index in range(1, max(self.settings.worker_concurrency, 1) + 1)
+        ]
+        for thread in threads:
+            thread.start()
+        log.info("Обработчик запущен: %s, потоков: %s", self.worker_id, len(threads))
         while self.running:
-            processed = self.process_one()
-            if time.monotonic() - self.last_sweep > self.settings.worker_sweep_seconds:
-                self.sweep()
-                self.last_sweep = time.monotonic()
-            if not processed:
-                time.sleep(self.settings.worker_poll_seconds)
+            self.sweep()
+            self._stopped.wait(self.settings.worker_sweep_seconds)
+        # Текущие задания доделываются; дольше внешнего таймаута ждать нечего
+        for thread in threads:
+            thread.join(timeout=self.settings.external_timeout_seconds + 5)
 
-    def process_one(self) -> bool:
+    def loop(self, worker_id: str) -> None:
+        while self.running:
+            if not self.process_one(worker_id):
+                self._stopped.wait(self.settings.worker_poll_seconds)
+
+    def process_one(self, worker_id: str) -> bool:
         with SessionLocal() as db:
             try:
-                job = queue.claim(db, self.worker_id)
+                job = queue.claim(db, worker_id)
             except Exception:
                 log.exception("Не удалось взять задание")
                 db.rollback()
