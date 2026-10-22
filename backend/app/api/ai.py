@@ -56,8 +56,8 @@ def ai_summary(application_id: uuid.UUID, user: User = Depends(bank_staff), db: 
     key = (application.id, application.run_no, decision.id if decision else None)
     if key not in _summary_cache:
         features = collect_inputs(db, application).to_dict()
+        # Без названия, ИНН и имён: модели они не нужны, а у ИП название содержит ФИО предпринимателя
         context = {
-            "компания": application.company.name,
             "продукт": application.product.name,
             "сумма": float(application.amount),
             "срок_мес": application.term_months,
