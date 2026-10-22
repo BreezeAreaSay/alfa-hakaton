@@ -1,5 +1,6 @@
 import { IconButton } from '@alfalab/core-components/icon-button';
 import { Typography } from '@alfalab/core-components/typography';
+import { AlfaBankLIcon } from '@alfalab/icons-logotype/AlfaBankLIcon';
 import { BellMIcon } from '@alfalab/icons-glyph/BellMIcon';
 import { PowerButtonMIcon } from '@alfalab/icons-glyph/PowerButtonMIcon';
 import { useEffect, useRef, useState } from 'react';
@@ -22,7 +23,9 @@ export function AppHeader({ nav, home, bank = false }: { nav: NavItem[]; home: s
         <header className={`header${bank ? ' header--bank' : ''}`}>
             <div className='header__inner'>
                 <Link to={home} className='logo' aria-label='На главную'>
-                    <span className='logo__mark'>К</span>
+                    <span className='logo__mark'>
+                        <AlfaBankLIcon width={21} height={32} aria-label='Альфа-Банк' />
+                    </span>
                     <span>
                         <Typography.Text view='primary-medium' weight='bold' tag='div'>
                             {bank ? 'Кредитный конвейер' : 'Кредитный кабинет'}

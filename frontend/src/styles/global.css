@@ -78,15 +78,13 @@ a {
     white-space: nowrap;
 }
 
+/* знак «А» Альфа-Банка из @alfalab/icons-logotype: fill="currentColor", поэтому цвет задаётся через color */
 .logo__mark {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    background: var(--color-light-accent-primary, #ef3124);
     display: grid;
     place-items: center;
-    color: #fff;
-    font-weight: 700;
+    width: 32px;
+    height: 32px;
+    color: var(--color-light-accent-primary, #ef3124);
 }
 
 .nav {

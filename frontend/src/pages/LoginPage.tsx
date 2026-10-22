@@ -2,6 +2,7 @@ import { Button } from '@alfalab/core-components/button';
 import { Input } from '@alfalab/core-components/input';
 import { PasswordInput } from '@alfalab/core-components/password-input';
 import { Typography } from '@alfalab/core-components/typography';
+import { AlfaBankLIcon } from '@alfalab/icons-logotype/AlfaBankLIcon';
 import { type FormEvent, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 
@@ -61,7 +62,9 @@ export function LoginPage() {
         <div className='login'>
             <section className='login__brand'>
                 <div className='logo'>
-                    <span className='logo__mark'>К</span>
+                    <span className='logo__mark'>
+                        <AlfaBankLIcon width={21} height={32} aria-label='Альфа-Банк' />
+                    </span>
                     <Typography.Text view='primary-medium' weight='bold' color='primary-inverted'>
                         Кредитный кабинет для бизнеса
                     </Typography.Text>
