@@ -60,7 +60,14 @@ export function LoginPage() {
                 <div className='header__inner'>
                     <Logo home='/login' />
                     <div className='header__right'>
-                        {/* Настольный вариант на любой ширине: мобильная главная кнопка чёрная и пропала бы на шапке */}
+                        {/*
+                         * Страницу видят только гости — после входа она ведёт в кабинет, где «Получить кредит» есть
+                         * в шапке. Поэтому здесь кнопка открывает вход, а клиент после входа сразу попадает в подбор.
+                         * Настольный вариант кнопок на любой ширине: мобильные чёрные и пропали бы на шапке.
+                         */}
+                        <ButtonDesktop view='secondary' colors='inverted' size={40} onClick={start}>
+                            Получить кредит
+                        </ButtonDesktop>
                         <ButtonDesktop view='primary' size={40} onClick={() => enter(null)}>
                             Войти
                         </ButtonDesktop>
