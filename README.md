@@ -69,6 +69,25 @@ docker compose up -d --build --wait   # или make up
 
 Публикация на внешнем сервере с HTTPS — в [docs/deploy.md](docs/deploy.md).
 
+### Мониторинг (по желанию)
+
+`api` и `worker` отдают метрики Prometheus, но только внутри сети Docker. Чтобы смотреть их, запустите стенд с профилем `monitoring`:
+
+```bash
+docker compose --profile monitoring up -d --build --wait
+```
+
+Prometheus открывается на <http://localhost:9090> (порт меняется через `PROMETHEUS_PORT`). Полезные запросы:
+
+| Что | PromQL |
+|---|---|
+| Запросов в секунду по маршрутам | `sum by (route) (rate(http_requests_total[1m]))` |
+| Время ответа API, 95-й перцентиль | `histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket[5m])))` |
+| Заявок в минуту доходит до кредитной политики | `sum(rate(pipeline_steps_total{step="POLICY"}[5m])) * 60` |
+| Ошибки и тайм-ауты внешних систем | `sum by (source, result) (rate(external_calls_total{result!="ok"}[5m]))` |
+| Источники с приостановленными вызовами | `circuit_breaker_open == 1` |
+| Очередь заданий и заявки по статусам | `queue_jobs`, `applications` |
+
 ## Демо-версия без сервера
 
 Для работы над интерфейсом есть сборка без бэкенда: запросы к API обслуживает имитация сервера прямо в браузере, данные хранятся в `localStorage`. Те же экраны, тестовые учётные записи и исходы заявок, что и на стенде, но без Docker. Проверяемая версия решения — по-прежнему стенд в Docker: настоящая логика конвейера, скоринга и политики живёт в бэкенде.

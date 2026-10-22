@@ -7,6 +7,7 @@ from typing import Any
 import httpx
 
 from app.config import get_settings
+from app.telemetry import BREAKER_OPEN, EXTERNAL_CALLS, EXTERNAL_DURATION
 
 
 class SourceUnavailable(Exception):
@@ -64,25 +65,41 @@ class ExternalSystems:
             )
         return self.breakers[source]
 
+    def _observe(self, source: str, started: float | None, result: str) -> None:
+        EXTERNAL_CALLS.labels(source=source, result=result).inc()
+        if started is not None:
+            EXTERNAL_DURATION.labels(source=source).observe(time.monotonic() - started)
+        BREAKER_OPEN.labels(source=source).set(1 if self._breaker(source).is_open else 0)
+
     def _call(self, source: str, method: str, url: str, **kwargs: Any) -> dict[str, Any]:
         breaker = self._breaker(source)
-        breaker.before_call(source)
+        try:
+            breaker.before_call(source)
+        except SourceUnavailable:
+            self._observe(source, None, "breaker_open")
+            raise
+        started = time.monotonic()
         try:
             response = self.client.request(method, url, **kwargs)
         except httpx.TimeoutException:
             breaker.failure()
+            self._observe(source, started, "timeout")
             raise SourceUnavailable(f"{source}: превышено время ожидания ответа") from None
         except httpx.HTTPError as error:
             breaker.failure()
+            self._observe(source, started, "connection_error")
             raise SourceUnavailable(f"{source}: нет соединения ({error.__class__.__name__})") from None
         if response.status_code == 404:
             breaker.success()
+            self._observe(source, started, "not_found")
             raise SourceNotFound(response.json().get("detail", "не найдено"))
         if response.status_code >= 500:
             breaker.failure()
+            self._observe(source, started, "server_error")
             raise SourceUnavailable(f"{source}: сервис ответил ошибкой {response.status_code}")
         response.raise_for_status()
         breaker.success()
+        self._observe(source, started, "ok")
         return response.json()
 
     def egrul(self, inn: str) -> dict[str, Any]:

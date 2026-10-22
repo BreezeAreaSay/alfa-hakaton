@@ -54,7 +54,7 @@ package.json пакета. Если лицензия в метаданных н�
 
 <!-- BEGIN GENERATED: summary -->
 
-Всего в поставке 403 пакета: backend — 36, simulator — 20, frontend — 347 (пары «пакет — версия»). Зависимости
+Всего в поставке 404 пакета: backend — 37, simulator — 20, frontend — 347 (пары «пакет — версия»). Зависимости
 Python отобраны для образов: Linux x86_64, CPython 3.12.7 из Dockerfile.
 
 | Лицензия                        | backend | simulator | frontend | Всего |
@@ -68,6 +68,7 @@ Python отобраны для образов: Linux x86_64, CPython 3.12.7 из
 | PSF-2.0                         | 1       | 1         | —        | 2     |
 | не указана в метаданных         | —       | —         | 2        | 2     |
 | 0BSD                            | —       | —         | 1        | 1     |
+| Apache-2.0 AND BSD-2-Clause     | 1       | —         | —        | 1     |
 | BSD License (по классификатору) | 1       | —         | —        | 1     |
 | CC0-1.0                         | —       | —         | 1        | 1     |
 | MIT AND ISC                     | —       | —         | 1        | 1     |
@@ -108,6 +109,7 @@ LGPL-3.0-only (backend); psycopg-binary 3.3.6 — LGPL-3.0-only (backend).
 | MarkupSafe         | 3.0.4      | BSD-3-Clause                    | https://github.com/pallets/markupsafe/                                             |
 | opentelemetry-api  | 1.45.1     | Apache-2.0                      | https://github.com/open-telemetry/opentelemetry-python/tree/main/opentelemetry-api |
 | pillow             | 13.0.0     | MIT-CMU                         | https://python-pillow.org                                                          |
+| prometheus_client  | 0.26.0     | Apache-2.0 AND BSD-2-Clause     | https://github.com/prometheus/client_python                                        |
 | psycopg            | 3.3.6      | LGPL-3.0-only                   | https://psycopg.org/                                                               |
 | psycopg-binary     | 3.3.6      | LGPL-3.0-only                   | https://psycopg.org/                                                               |
 | pydantic           | 2.14.1     | MIT                             | https://github.com/pydantic/pydantic                                               |
@@ -626,6 +628,7 @@ lightningcss (MPL-2.0) минифицирует CSS внутри Vite во вр�
 | node:22.22.0-alpine         | frontend/Dockerfile, только этап сборки, в итоговый образ не входит | Node.js 22.22.0 — MIT                |
 | nginx:1.27.2-alpine         | frontend/Dockerfile, итоговый образ                                 | nginx 1.27.2 — BSD-2-Clause          |
 | caddy:2.8.4-alpine          | deploy/docker-compose.prod.yml, только для публикации с HTTPS       | Caddy 2.8.4 — Apache-2.0             |
+| prom/prometheus:v3.5.0      | сервис `prometheus` в docker-compose.yml, только профиль `monitoring` | Prometheus 3.5.0 — Apache-2.0        |
 
 Кроме основного ПО, образы содержат пакеты дистрибутива (Alpine Linux или Debian) под их собственными лицензиями,
 в том числе GPL и LGPL: оболочку, системные библиотеки и утилиты. Их перечень — в описании официальных образов

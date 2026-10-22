@@ -52,6 +52,7 @@ from app.pipeline import queue
 from app.services import documents, events
 from app.services.inn import is_valid_inn
 from app.services.workflow import transition
+from app.telemetry import DECISIONS, STEPS
 
 log = logging.getLogger("pipeline")
 
@@ -237,6 +238,7 @@ def save_decision(
     user: User | None = None,
     comment: str | None = None,
 ) -> Decision:
+    DECISIONS.labels(kind=kind.value, outcome=d.outcome.value).inc()
     decision = Decision(
         application_id=application.id,
         run_no=application.run_no,
@@ -375,6 +377,7 @@ def run_pipeline_step(db: Session, job: Job) -> None:
 
     row.status = outcome.status
     row.result = outcome.result
+    STEPS.labels(step=code.value, status=outcome.status.value).inc()
     row.error = None
     row.next_retry_at = None
     row.finished_at = now()
@@ -398,6 +401,7 @@ def handle_unavailable(db: Session, application: Application, row: PipelineStep,
         # Ждать дальше нельзя: шаг помечается как неуспешный, заявка уйдёт к аналитику с флагом F05.
         row.status = StepStatus.FAILED
         row.finished_at = now()
+        STEPS.labels(step=row.step, status=StepStatus.FAILED.value).inc()
         events.emit(
             db,
             application,
@@ -413,6 +417,7 @@ def handle_unavailable(db: Session, application: Application, row: PipelineStep,
         )
         return
     row.status = StepStatus.WAITING
+    STEPS.labels(step=row.step, status=StepStatus.WAITING.value).inc()
     delay = retry_delay(row.attempts)
     row.next_retry_at = now() + timedelta(seconds=delay)
     queue.reschedule(db, job, row.next_retry_at, error)

@@ -2,7 +2,7 @@ import logging
 import time
 import uuid
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm.exc import StaleDataError
@@ -11,6 +11,7 @@ from app.api import admin, ai, applications, auth, bank, catalog, notifications
 from app.logging_setup import setup_logging
 from app.services.audit import request_id_var
 from app.services.workflow import TransitionError
+from app.telemetry import metrics_payload, observe_request
 
 setup_logging()
 log = logging.getLogger("api")
@@ -53,7 +54,17 @@ async def request_context(request: Request, call_next):
     finally:
         request_id_var.reset(token)
     response.headers["X-Request-ID"] = request_id
-    if request.url.path.startswith("/api") and request.url.path not in ("/api/health", "/api/stream"):
+    path = request.url.path
+    if path.startswith("/api") and path != "/api/stream":
+        # Метрики по шаблону маршрута, а не по адресу: /api/applications/{application_id} — один ряд
+        route = request.scope.get("route")
+        observe_request(
+            request.method,
+            getattr(route, "path", None) or "unmatched",
+            response.status_code,
+            time.monotonic() - started,
+        )
+    if path.startswith("/api") and path not in ("/api/health", "/api/stream"):
         log.info(
             "HTTP",
             extra={
@@ -65,6 +76,13 @@ async def request_context(request: Request, call_next):
             },
         )
     return response
+
+
+@app.get("/metrics", include_in_schema=False)
+def metrics() -> Response:
+    """Метрики Prometheus. Наружу через nginx не проксируется — только внутри сети Docker."""
+    payload, content_type = metrics_payload()
+    return Response(payload, media_type=content_type)
 
 
 @app.exception_handler(TransitionError)

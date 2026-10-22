@@ -28,6 +28,7 @@ class Settings(BaseSettings):
 
     # Обработчик конвейера
     worker_concurrency: int = 4  # потоков на один процесс: шаги ждут ответов внешних систем, а не процессора
+    worker_metrics_port: int = 9100  # метрики Prometheus обработчика; 0 — не отдавать
     worker_poll_seconds: float = 0.5
     worker_sweep_seconds: float = 10.0
     job_lock_timeout_seconds: int = 120
