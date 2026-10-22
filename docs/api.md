@@ -26,13 +26,13 @@ npx newman@6.2.2 run docs/api/postman_collection.json
 
 ## Аутентификация и роли
 
-Вход — `POST /api/auth/login` с логином и паролем. В ответе JWT (HS256, действует 12 часов), его передают в заголовке `Authorization: Bearer <token>`. Демо-пользователи и их сценарии перечислены в [README](../README.md#сценарий-проверки), пароль у всех — `demo`.
+Вход — `POST /api/auth/login` с логином и паролем. В ответе JWT (HS256, действует 12 часов), его передают в заголовке `Authorization: Bearer <token>`. Демо-пользователи и их сценарии перечислены в [README](../README.md#сценарий-проверки), пароль у всех — `admin`.
 
 ```http
 POST /api/auth/login
 Content-Type: application/json
 
-{"login": "veter", "password": "demo"}
+{"login": "veter", "password": "admin"}
 ```
 
 ```json
@@ -437,7 +437,7 @@ POST /api/applications/74deba13-28af-41b2-89d9-8a80aef68715/sign
 Content-Type: application/json
 Idempotency-Key: 5b0b8d0e-1f7a-4a53-9a51-2f3c5b7f9e10
 
-{"password": "demo"}
+{"password": "admin"}
 ```
 
 ```json
@@ -1034,7 +1034,7 @@ Content-Type: application/json
 
 ```bash
 TOKEN=$(curl -s http://localhost:8080/api/auth/login -H 'Content-Type: application/json' \
-  -d '{"login": "veter", "password": "demo"}' | jq -r .token)
+  -d '{"login": "veter", "password": "admin"}' | jq -r .token)
 curl -N http://localhost:8080/api/stream -H "Authorization: Bearer $TOKEN"
 ```
 

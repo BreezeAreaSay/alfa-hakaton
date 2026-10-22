@@ -3791,7 +3791,7 @@
             "type": "string",
             "title": "Password",
             "examples": [
-              "demo"
+              "admin"
             ]
           }
         },

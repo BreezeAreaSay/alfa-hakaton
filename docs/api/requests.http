@@ -13,7 +13,7 @@
 # Описание API — docs/api.md, те же шаги с проверками в Postman — docs/api/postman_collection.json.
 
 @baseUrl = http://localhost:8080/api
-@password = demo
+@password = admin
 
 ### 0.1. Вход администратора
 # Шаги 0.1–0.2 возвращают стенд в исходное состояние. Они нужны для части 2:

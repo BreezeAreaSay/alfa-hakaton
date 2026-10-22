@@ -18,7 +18,7 @@ from app.services.workflow import transition
 
 log = logging.getLogger("seed")
 
-DEMO_PASSWORD = "demo"
+DEMO_PASSWORD = "admin"
 
 COMPANIES = [
     # ИНН, название, логин, ФИО, должность, право подписи
