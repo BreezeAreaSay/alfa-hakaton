@@ -37,43 +37,53 @@ const STAFF = [
 const TRANSITION_MS = 320;
 
 /**
- * Стартовая страница: шапка с кнопкой «Войти», как на alfabank.ru, баннеры о кредитах и ответы на вопросы.
- * Вход — в окне поверх размытой страницы. Кнопки баннеров открывают то же окно, а клиент после входа
- * попадает сразу в подбор кредита.
+ * Стартовая страница: шапка как на alfabank.ru, баннеры о кредитах и ответы на вопросы. Открыта и гостю,
+ * и после входа — в неё возвращает логотип в шапке кабинета. Гостю «Получить кредит» и кнопки баннеров
+ * открывают окно входа, и после входа клиент попадает сразу в подбор кредита; вошедшему — сразу подбор.
+ * guestOnly — для адреса /login: вошедшего он ведёт в кабинет.
  */
-export function LoginPage() {
-    const { user } = useAuth();
+export function LoginPage({ guestOnly = false }: { guestOnly?: boolean }) {
+    const { user, loading } = useAuth();
+    const navigate = useNavigate();
     const [open, setOpen] = useState(false);
     const [next, setNext] = useState<string | null>(null);
 
-    if (user) return <Navigate to={user.role === 'CLIENT' ? '/client' : '/bank'} replace={true} />;
+    const cabinet = user?.role === 'CLIENT' ? '/client' : '/bank';
+    if (guestOnly && user) return <Navigate to={cabinet} replace={true} />;
 
     const enter = (path: string | null) => {
         setNext(path);
         setOpen(true);
     };
-    const start = () => enter('/client/new');
+    // Сотрудника банка кабинет клиента сам отправит на рабочее место
+    const start = () => (user ? navigate('/client/new') : enter('/client/new'));
 
     return (
         <div className='app login'>
             <header className='header'>
                 <div className='header__inner'>
-                    <Logo home='/login' />
-                    {/*
-                     * Слева, как пункт меню в шапке кабинета. Страницу видят только гости — после входа она ведёт
-                     * в кабинет, где «Получить кредит» есть в шапке. Поэтому здесь кнопка открывает вход,
-                     * а клиент после входа сразу попадает в подбор.
-                     */}
+                    <Logo home='/' />
+                    {/* слева, как пункт меню в шапке кабинета */}
                     <nav className='nav' aria-label='Разделы'>
                         <button type='button' className='nav__link login__nav-button' onClick={start}>
                             Получить кредит
                         </button>
                     </nav>
                     <div className='header__right'>
-                        {/* Настольный вариант на любой ширине: мобильная главная кнопка чёрная и пропала бы на шапке */}
-                        <ButtonDesktop view='primary' size={40} onClick={() => enter(null)}>
-                            Войти
-                        </ButtonDesktop>
+                        {/*
+                         * Пока проверяется сохранённый вход, кнопки нет — чтобы «Войти» не мелькнуло у вошедшего.
+                         * Настольный вариант на любой ширине: мобильная главная кнопка чёрная и пропала бы на шапке.
+                         */}
+                        {!loading &&
+                            (user ? (
+                                <ButtonDesktop view='primary' size={40} onClick={() => navigate(cabinet)}>
+                                    {user.role === 'CLIENT' ? 'Личный кабинет' : 'Рабочее место'}
+                                </ButtonDesktop>
+                            ) : (
+                                <ButtonDesktop view='primary' size={40} onClick={() => enter(null)}>
+                                    Войти
+                                </ButtonDesktop>
+                            ))}
                     </div>
                 </div>
             </header>
