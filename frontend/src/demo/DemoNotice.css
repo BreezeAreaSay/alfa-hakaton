@@ -27,7 +27,8 @@
     text-transform: uppercase;
 }
 
-/* страница входа занимает всю высоту окна — вместе с полосой не должна давать прокрутку */
-.demo-notice ~ .login {
+/* страница входа и кабинет с подвалом занимают всю высоту окна — вместе с полосой не должны давать прокрутку */
+.demo-notice ~ .login,
+.demo-notice ~ .app {
     min-height: calc(100vh - var(--demo-notice-height));
 }

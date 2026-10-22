@@ -2,6 +2,7 @@ import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 
 import { useLiveUpdates } from './api/hooks';
 import { isBankRole, useAuth } from './auth/AuthContext';
+import { AppFooter } from './components/AppFooter';
 import { AppHeader } from './components/AppHeader';
 import { Theme } from './components/Theme';
 import { Loader } from './components/ui';
@@ -22,7 +23,7 @@ function ClientLayout() {
     if (!user) return <Navigate to='/login' replace={true} />;
     if (user.role !== 'CLIENT') return <Navigate to='/bank' replace={true} />;
     return (
-        <>
+        <div className='app'>
             <Theme name='corp' />
             <AppHeader
                 home='/client'
@@ -32,7 +33,8 @@ function ClientLayout() {
                 ]}
             />
             <Outlet />
-        </>
+            <AppFooter />
+        </div>
     );
 }
 
