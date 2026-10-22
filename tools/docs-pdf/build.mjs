@@ -11,8 +11,8 @@ import { parseArgs } from 'node:util';
 import { chromium } from 'playwright';
 import { escapeHtml, renderDocuments } from './lib/markdown.mjs';
 
-const TOOL_DIR = path.dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = path.resolve(TOOL_DIR, '..', '..');
+export const TOOL_DIR = path.dirname(fileURLToPath(import.meta.url));
+export const REPO_ROOT = path.resolve(TOOL_DIR, '..', '..');
 const require = createRequire(import.meta.url);
 
 // Документы в порядке следования. optional — включается, только если файл есть.
@@ -50,8 +50,8 @@ const DEFAULTS = {
 };
 
 // Геометрия страницы — та же, что в @page в page/style.css (поля 20, 18, 17, 18 мм).
-const PX_PER_MM = 96 / 25.4;
-const PORTRAIT = { width: 210 - 36, height: 297 - 37 };
+export const PX_PER_MM = 96 / 25.4;
+export const PORTRAIT = { width: 210 - 36, height: 297 - 37 };
 const LANDSCAPE = { width: 297 - 36, height: 210 - 37 };
 // Над диаграммой может стоять заголовок, под ней — подпись: оставляем запас по высоте.
 const DIAGRAM_BOXES = {
@@ -141,7 +141,7 @@ function normalizeBase(url) {
   return url.endsWith('/') ? url : `${url}/`;
 }
 
-function git(args) {
+export function git(args) {
   try {
     const out = execFileSync('git', args, { cwd: REPO_ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
     return out.trim() || null;
@@ -154,7 +154,7 @@ function projectVersion() {
   return process.env.DOCS_VERSION || git(['describe', '--tags', '--abbrev=0']) || git(['describe', '--always']) || '—';
 }
 
-function buildDate() {
+export function buildDate() {
   const epoch = Number(process.env.SOURCE_DATE_EPOCH);
   const date = Number.isFinite(epoch) && epoch > 0 ? new Date(epoch * 1000) : new Date();
   return new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }).format(date);
@@ -164,7 +164,7 @@ function cssString(text) {
   return `"${String(text).replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\s+/g, ' ')}"`;
 }
 
-function fontFaces() {
+export function fontFaces() {
   if (!fs.existsSync(path.join(ONEST_DIR, 'files'))) {
     fail(`не найден шрифт Onest (${path.relative(REPO_ROOT, ONEST_DIR)}). Установите зависимости фронтенда: cd frontend && npm ci`);
   }
@@ -350,7 +350,7 @@ function pageCount(pdfPath) {
 // Ожидаемая ошибка: печатается одной строкой, без стека.
 class BuildError extends Error {}
 
-async function launchBrowser() {
+export async function launchBrowser() {
   const executablePath = process.env.PW_CHROMIUM_PATH || undefined;
   try {
     return await chromium.launch({ executablePath });
@@ -363,7 +363,7 @@ async function launchBrowser() {
   }
 }
 
-async function printPdf(page, file) {
+export async function printPdf(page, file) {
   await page.pdf({
     path: file,
     preferCSSPageSize: true,
@@ -485,7 +485,10 @@ async function main() {
   }
 }
 
-main().catch((error) => {
-  console.error(error instanceof BuildError ? `Ошибка: ${error.message}` : error);
-  process.exit(1);
-});
+// cover.mjs импортирует отсюда шрифты, браузер и печать — сборка запускается только из командной строки
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  main().catch((error) => {
+    console.error(error instanceof BuildError ? `Ошибка: ${error.message}` : error);
+    process.exit(1);
+  });
+}

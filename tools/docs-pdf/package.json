@@ -8,7 +8,8 @@
     "node": ">=22.12"
   },
   "scripts": {
-    "build": "node build.mjs"
+    "build": "node build.mjs",
+    "cover": "node cover.mjs"
   },
   "dependencies": {
     "markdown-it": "15.0.3",
