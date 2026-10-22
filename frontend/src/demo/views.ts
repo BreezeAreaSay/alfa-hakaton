@@ -3,7 +3,12 @@ import type {
     Application,
     ApplicationListItem,
     AuditRow,
+    AnalystMetrics,
+    BankMetrics,
     BankSummary,
+    DailyMetrics,
+    MetricCount,
+    ProductMetrics,
     Company,
     DecisionView,
     DocumentItem,
@@ -20,8 +25,8 @@ import type {
     TermsPreview,
     User,
 } from '../api/types';
-import { META, companyProfile, userName } from './data';
-import { productRow, productTerms } from './engine/catalog';
+import { META, USERS, companyProfile, userName } from './data';
+import { PRODUCTS, productRow, productTerms } from './engine/catalog';
 import { todayUtc } from './engine/dates';
 import { paymentSchedule } from './engine/finance';
 import {
@@ -39,13 +44,14 @@ import {
 import { score } from './engine/scoring';
 import { HttpError } from './http';
 import {
-    type AppRow,
     CANCELLABLE,
+    PIPELINE_ORDER,
+    iso,
+    type AppRow,
     type DecisionRow,
     type DemoState,
     type DemoUser,
     type EventRow,
-    PIPELINE_ORDER,
 } from './model';
 import { collectInputs, runSteps } from './pipeline';
 
@@ -616,3 +622,215 @@ export const auditOut = (state: DemoState): AuditRow[] =>
             details: r.details,
             created_at: r.created_at,
         }));
+
+// ---------------------------------------------------------------- показатели конвейера (backend/app/services/metrics.py)
+
+const FINAL_OUTCOMES = new Set(['APPROVE', 'COUNTER', 'REJECT']);
+const APPROVED_OUTCOMES = new Set(['APPROVE', 'COUNTER']);
+const OUTCOME_TITLES: Record<string, string> = {
+    APPROVE: 'Одобрено как запрошено',
+    COUNTER: 'Контрпредложение',
+    REJECT: 'Отказ',
+};
+const STOP_FACTOR_TITLES: Record<string, string> = {
+    S01: 'Ликвидация, реорганизация или банкротство',
+    S02: 'Руководитель дисквалифицирован',
+    S03: 'Текущая просрочка больше 30 дней',
+    S04: 'Бизнес младше 3 месяцев',
+    S05: 'Класс риска E',
+};
+const DAY_MS = 86_400_000;
+
+const medianOf = (values: number[]): number | null => {
+    if (!values.length) return null;
+    const sorted = [...values].sort((a, b) => a - b);
+    const mid = sorted.length >> 1;
+    return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+};
+const percentileOf = (values: number[], share: number): number | null => {
+    if (!values.length) return null;
+    const sorted = [...values].sort((a, b) => a - b);
+    return sorted[Math.min(sorted.length - 1, Math.round(share * (sorted.length - 1)))];
+};
+const shareOf = (part: number, whole: number): number | null =>
+    whole ? Math.round((part / whole) * 1000) / 1000 : null;
+const hoursOf = (seconds: number[]): number | null => {
+    const value = medianOf(seconds);
+    return value === null ? null : Math.round(value / 360) / 10;
+};
+const seconds = (later: string, earlier: string): number => (Date.parse(later) - Date.parse(earlier)) / 1000;
+const dayOf = (iso: string): string => iso.slice(0, 10);
+// Decimal(0) сервер отдаёт как "0", суммы — с копейками
+const sumMoney = (total: number): string => (total === 0 ? '0' : money(total));
+
+const countRows = (counter: Map<string, number>, title: (code: string) => string): MetricCount[] =>
+    [...counter.entries()].sort((a, b) => b[1] - a[1]).map(([code, count]) => ({ code, title: title(code), count }));
+
+const bump = (counter: Map<string, number>, code: string) => counter.set(code, (counter.get(code) ?? 0) + 1);
+
+export function bankMetrics(state: DemoState, now: number, days: number): BankMetrics {
+    const since = now - days * DAY_MS;
+    const apps = state.applications.filter((a) => a.submitted_at && Date.parse(a.submitted_at) >= since);
+    const appIds = new Set(apps.map((a) => a.id));
+    const byId = new Map(apps.map((a) => [a.id, a]));
+    const decisions = state.decisions.filter((d) => appIds.has(d.app_id)).sort((a, b) => a.id - b.id);
+    const offers = state.offers.filter((o) => appIds.has(o.app_id));
+    const infoRequests = state.info_requests.filter((r) => appIds.has(r.app_id));
+    const reviewHistory = state.history
+        .filter((h) => appIds.has(h.app_id) && h.to_status === 'MANUAL_REVIEW')
+        .sort((a, b) => a.id - b.id);
+    const loans = new Map(state.loans.filter((l) => appIds.has(l.app_id)).map((l) => [l.app_id, l]));
+
+    const firstFinal = new Map<string, DecisionRow>();
+    const lastFinal = new Map<string, DecisionRow>();
+    for (const d of decisions) {
+        if (!FINAL_OUTCOMES.has(d.outcome)) continue;
+        if (!firstFinal.has(d.app_id)) firstFinal.set(d.app_id, d);
+        lastFinal.set(d.app_id, d);
+    }
+    const finals = [...lastFinal.values()];
+    const auto = finals.filter((d) => d.kind === 'AUTO').length;
+    const issued = apps.filter((a) => a.status === 'ISSUED');
+    const issuedAmount = issued.reduce((sum, a) => sum + (loans.get(a.id)?.amount ?? 0), 0);
+
+    const toDecision = [...firstFinal.entries()].map(([appId, d]) =>
+        seconds(d.created_at, byId.get(appId)!.submitted_at!),
+    );
+    const toIssue = issued.filter((a) => a.closed_at).map((a) => seconds(a.closed_at!, a.submitted_at!));
+    const infoResponse = infoRequests
+        .filter((r) => r.status === 'ANSWERED' && r.answered_at)
+        .map((r) => seconds(r.answered_at!, r.created_at));
+    const reviewSeconds = new Map<string | null, number[]>();
+    let breached = 0;
+    for (const d of decisions) {
+        if (d.kind !== 'MANUAL' || !FINAL_OUTCOMES.has(d.outcome)) continue;
+        const starts = reviewHistory.filter((h) => h.app_id === d.app_id && h.created_at <= d.created_at);
+        if (starts.length) {
+            const list = reviewSeconds.get(d.decided_by) ?? [];
+            list.push(seconds(d.created_at, starts[starts.length - 1].created_at));
+            reviewSeconds.set(d.decided_by, list);
+        }
+        const due = byId.get(d.app_id)?.sla_due_at;
+        if (due && d.created_at > due) breached += 1;
+    }
+    const allReview = [...reviewSeconds.values()].flat();
+
+    const offered = new Set(offers.map((o) => o.app_id));
+    const accepted = new Set(offers.filter((o) => o.status === 'ACCEPTED').map((o) => o.app_id));
+    const counterApps = new Set(
+        [...offered].filter((appId) => offers.filter((o) => o.app_id === appId).every((o) => o.kind === 'COUNTER')),
+    );
+    const counterAccepted = [...counterApps].filter((appId) => accepted.has(appId)).length;
+
+    const reasons = new Map<string, number>();
+    const stopFactors = new Map<string, number>();
+    for (const d of finals) {
+        if (d.outcome !== 'REJECT') continue;
+        d.reason_codes.forEach((code) => bump(reasons, code));
+        d.stop_factors.forEach((code) => bump(stopFactors, code));
+    }
+    const reasonTitle = (code: string): string => META.reasons[code]?.bank ?? code;
+
+    const products = new Map<string, ProductMetrics>(
+        PRODUCTS.map((p) => [
+            p.code,
+            { code: p.code, name: p.name, applications: 0, approved: 0, issued: 0, issued_amount: 0 },
+        ]),
+    );
+    for (const a of apps) {
+        let row = products.get(a.product_code);
+        if (!row) {
+            row = {
+                code: a.product_code,
+                name: a.product_code,
+                applications: 0,
+                approved: 0,
+                issued: 0,
+                issued_amount: 0,
+            };
+            products.set(a.product_code, row);
+        }
+        row.applications += 1;
+        const final = lastFinal.get(a.id);
+        if (final && APPROVED_OUTCOMES.has(final.outcome)) row.approved += 1;
+        const loan = loans.get(a.id);
+        if (a.status === 'ISSUED' && loan) {
+            row.issued += 1;
+            row.issued_amount = Number(row.issued_amount) + loan.amount;
+        }
+    }
+
+    const manualNow = apps.filter((a) => a.status === 'MANUAL_REVIEW');
+    const analysts: AnalystMetrics[] = USERS.filter((u) => u.role === 'UNDERWRITER')
+        .sort((a, b) => a.full_name.localeCompare(b.full_name, 'ru'))
+        .map((user) => {
+            const inWork = manualNow.filter((a) => a.assignee_id === user.id);
+            return {
+                name: user.full_name,
+                decided: finals.filter((d) => d.kind === 'MANUAL' && d.decided_by === user.id).length,
+                in_work: inWork.length,
+                overdue: inWork.filter((a) => a.sla_due_at && Date.parse(a.sla_due_at) < now).length,
+                median_review_hours: hoursOf(reviewSeconds.get(user.id) ?? []),
+            };
+        });
+
+    const daily = new Map<string, DailyMetrics>();
+    for (let offset = days - 1; offset >= 0; offset -= 1) {
+        const day = dayOf(iso(now - offset * DAY_MS));
+        daily.set(day, { date: day, submitted: 0, decided: 0, issued: 0 });
+    }
+    for (const a of apps) {
+        const submitted = daily.get(dayOf(a.submitted_at!));
+        if (submitted) submitted.submitted += 1;
+        if (a.status === 'ISSUED' && a.closed_at) {
+            const row = daily.get(dayOf(a.closed_at));
+            if (row) row.issued += 1;
+        }
+    }
+    for (const d of firstFinal.values()) {
+        const row = daily.get(dayOf(d.created_at));
+        if (row) row.decided += 1;
+    }
+
+    const outcomeCounter = new Map<string, number>();
+    finals.forEach((d) => bump(outcomeCounter, d.outcome));
+
+    return {
+        period_days: days,
+        since: iso(since),
+        until: iso(now),
+        submitted: apps.length,
+        in_progress: apps.filter((a) => ACTIVE.includes(a.status)).length,
+        decided: finals.length,
+        auto_decided: auto,
+        manual_decided: finals.length - auto,
+        automation_share: shareOf(auto, finals.length),
+        manual_review: new Set(reviewHistory.map((h) => h.app_id)).size,
+        need_info: new Set(infoRequests.filter((r) => r.origin === 'SYSTEM').map((r) => r.app_id)).size,
+        issued: issued.length,
+        issued_amount: sumMoney(issuedAmount),
+        outcomes: countRows(outcomeCounter, (code) => OUTCOME_TITLES[code] ?? code),
+        to_decision_median_seconds: medianOf(toDecision),
+        to_decision_p95_seconds: percentileOf(toDecision, 0.95),
+        to_issue_median_hours: hoursOf(toIssue),
+        info_response_median_hours: hoursOf(infoResponse),
+        review_median_hours: hoursOf(allReview),
+        offered: offered.size,
+        accepted: accepted.size,
+        offer_conversion: shareOf(accepted.size, offered.size),
+        counter_offered: counterApps.size,
+        counter_accepted: counterAccepted,
+        counter_conversion: shareOf(counterAccepted, counterApps.size),
+        sla_overdue_now: manualNow.filter((a) => a.sla_due_at && Date.parse(a.sla_due_at) < now).length,
+        sla_breached: breached,
+        rejection_reasons: [
+            ...countRows(stopFactors, (code) => STOP_FACTOR_TITLES[code] ?? code),
+            ...countRows(reasons, reasonTitle),
+        ],
+        products: [...products.values()]
+            .filter((row) => row.applications)
+            .map((row) => ({ ...row, issued_amount: sumMoney(Number(row.issued_amount)) })),
+        analysts,
+        daily: [...daily.values()],
+    };
+}

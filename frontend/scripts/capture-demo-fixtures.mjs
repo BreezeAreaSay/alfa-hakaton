@@ -330,6 +330,7 @@ async function main() {
     }, 'стартовые заявки в очереди');
     examples.queue = queue;
     examples.summary = await analyst.get('/api/bank/summary');
+    examples.metrics = await analyst.get('/api/bank/metrics?days=30');
     const vektorId = queue.find((r) => r.inn === companies.vektor.inn).id;
     const grandId = queue.find((r) => r.inn === companies.grand.inn).id;
     for (const [login, id] of [
@@ -929,6 +930,7 @@ async function main() {
         pick(r, ['number', 'status', 'status_label', 'risk_class', 'score', 'flags']),
     );
     examples.summary_end = await analyst.get('/api/bank/summary');
+    examples.metrics_end = await analyst.get('/api/bank/metrics?days=30');
     examples.faults = { initial: faultsInitial, bki_error: faultsError, reset: faultsReset };
 
     // Сохраняем

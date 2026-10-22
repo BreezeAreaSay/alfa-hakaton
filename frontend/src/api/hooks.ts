@@ -9,6 +9,7 @@ import type {
     Application,
     ApplicationListItem,
     AuditRow,
+    BankMetrics,
     BankSummary,
     ChatMessage,
     Company,
@@ -255,6 +256,14 @@ function queueQuery(filters: QueueFilters): string {
 
 export const useBankSummary = () =>
     useQuery({ queryKey: ['bank', 'summary'], queryFn: () => api<BankSummary>('/api/bank/summary') });
+
+/** Ключ внутри ['bank'] — события SSE обновляют показатели вместе с очередью. */
+export const useBankMetrics = (days: number) =>
+    useQuery({
+        queryKey: ['bank', 'metrics', days],
+        queryFn: () => api<BankMetrics>(`/api/bank/metrics?days=${days}`),
+        placeholderData: (previous) => previous,
+    });
 
 export const useQueue = (filters: QueueFilters) =>
     useQuery({

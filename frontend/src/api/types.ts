@@ -302,6 +302,71 @@ export interface QueueItem {
     waiting_source: string | null;
 }
 
+export interface MetricCount {
+    code: string;
+    title: string;
+    count: number;
+}
+
+export interface ProductMetrics {
+    code: string;
+    name: string;
+    applications: number;
+    approved: number;
+    issued: number;
+    issued_amount: Money;
+}
+
+export interface AnalystMetrics {
+    name: string;
+    decided: number;
+    in_work: number;
+    overdue: number;
+    median_review_hours: number | null;
+}
+
+export interface DailyMetrics {
+    date: string;
+    submitted: number;
+    decided: number;
+    issued: number;
+}
+
+/** Показатели конвейера за период по заявкам, поданным за этот период. */
+export interface BankMetrics {
+    period_days: number;
+    since: string;
+    until: string;
+    submitted: number;
+    in_progress: number;
+    decided: number;
+    auto_decided: number;
+    manual_decided: number;
+    automation_share: number | null;
+    manual_review: number;
+    need_info: number;
+    issued: number;
+    issued_amount: Money;
+    outcomes: MetricCount[];
+    to_decision_median_seconds: number | null;
+    to_decision_p95_seconds: number | null;
+    to_issue_median_hours: number | null;
+    info_response_median_hours: number | null;
+    review_median_hours: number | null;
+    offered: number;
+    accepted: number;
+    offer_conversion: number | null;
+    counter_offered: number;
+    counter_accepted: number;
+    counter_conversion: number | null;
+    sla_overdue_now: number;
+    sla_breached: number;
+    rejection_reasons: MetricCount[];
+    products: ProductMetrics[];
+    analysts: AnalystMetrics[];
+    daily: DailyMetrics[];
+}
+
 export interface BankSummary {
     manual_review: number;
     mine: number;

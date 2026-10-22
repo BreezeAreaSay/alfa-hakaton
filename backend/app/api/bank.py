@@ -39,6 +39,7 @@ from app.models import Application, AuditLog, Company, Decision, InfoRequest, Jo
 from app.pipeline.steps import collect_inputs, run_results, save_decision
 from app.schemas import (
     ApplicationOut,
+    BankMetrics,
     BankSummary,
     DecisionRequest,
     InfoRequestCreate,
@@ -48,6 +49,7 @@ from app.schemas import (
 )
 from app.security import bank_staff
 from app.services.audit import audit
+from app.services.metrics import bank_metrics
 from app.services.views import application_out, latest_decision, latest_scoring, payment_label
 from app.services.workflow import transition
 
@@ -106,6 +108,15 @@ def summary(user: User = Depends(bank_staff), db: Session = Depends(get_db)) -> 
         offers=count(Application.status == AppStatus.OFFER),
         issued_today=count(Application.status == AppStatus.ISSUED, Application.closed_at >= midnight),
     )
+
+
+@router.get("/metrics", response_model=BankMetrics, summary="Показатели конвейера за период")
+def metrics(
+    days: int = Query(default=30, ge=1, le=365, description="Период в днях, считая сегодня"),
+    user: User = Depends(bank_staff),
+    db: Session = Depends(get_db),
+) -> BankMetrics:
+    return bank_metrics(db, days=days, now=now())
 
 
 @router.get("/applications", response_model=list[QueueItem], summary="Очередь заявок")

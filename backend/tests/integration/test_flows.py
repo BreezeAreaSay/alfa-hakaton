@@ -325,3 +325,21 @@ def test_demo_reset_keeps_event_ids_growing():
     apply(client, "GROWTH", 3_000_000, 24)
     after = min(item["id"] for item in client.get("/api/notifications")["items"])
     assert after > before, "после сброса открытые вкладки должны продолжать получать события"
+
+
+def test_bank_metrics_reflect_period():
+    # Показатели считаются по заявкам, поданным за период; к этому моменту сценарии выше уже создали заявки
+    analyst = Client("analyst")
+    metrics = analyst.get("/api/bank/metrics", params={"days": 30})
+    assert metrics["submitted"] >= metrics["decided"] >= 1
+    assert metrics["auto_decided"] + metrics["manual_decided"] == metrics["decided"]
+    assert 0 <= metrics["automation_share"] <= 1
+    assert {o["code"] for o in metrics["outcomes"]} <= {"APPROVE", "COUNTER", "REJECT"}
+    assert sum(o["count"] for o in metrics["outcomes"]) == metrics["decided"]
+    assert metrics["to_decision_median_seconds"] is not None and metrics["to_decision_median_seconds"] > 0
+    assert len(metrics["daily"]) == 30 and sum(d["submitted"] for d in metrics["daily"]) == metrics["submitted"]
+    assert sum(p["applications"] for p in metrics["products"]) == metrics["submitted"]
+    assert {a["name"] for a in metrics["analysts"]}
+    assert Client("analyst").http.get("/api/bank/metrics", params={"days": 0}).status_code == 422
+    # Клиенту показатели банка недоступны
+    assert Client("veter").http.get("/api/bank/metrics").status_code == 403

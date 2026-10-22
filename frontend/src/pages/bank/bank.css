@@ -928,3 +928,78 @@ table.simple th.bank-factors__bar-head {
         width: 100%;
     }
 }
+
+/* показатели конвейера */
+.metrics-period {
+    margin-bottom: var(--gap-24);
+}
+
+.bank-tile--static,
+.bank-tile--static:hover {
+    cursor: default;
+    border-color: transparent;
+}
+
+.bank-tile__hint {
+    display: block;
+    margin-top: var(--gap-4);
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--color-light-text-secondary);
+}
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--gap-24);
+    align-items: start;
+}
+
+.metric-rows {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--gap-12);
+}
+
+.metric-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--gap-4) var(--gap-12);
+    align-items: center;
+    font-size: 14px;
+    line-height: 20px;
+}
+
+.metric-row__count {
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.metric-row__bar {
+    grid-column: 1 / -1;
+    height: 6px;
+    border-radius: 3px;
+    overflow: hidden;
+    background: var(--color-light-neutral-translucent-200, rgba(5, 11, 44, 0.08));
+}
+
+.metric-row__fill {
+    display: block;
+    height: 100%;
+    border-radius: 3px;
+    background: var(--bank-series, #2a78d6);
+}
+
+.bank-negative {
+    color: var(--color-light-text-negative, #ec2d20);
+    font-weight: 500;
+}
+
+@media (max-width: 1100px) {
+    .metrics-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}

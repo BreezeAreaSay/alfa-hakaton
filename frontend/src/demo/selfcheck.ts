@@ -188,6 +188,20 @@ function compactApp(app: Application): J {
 }
 
 const EXTERNAL = ['EGRUL', 'FNS', 'GIRBO', 'BKI', 'BANK'];
+// Стартовые заявки обрабатываются параллельно, поэтому порядок в очереди (по сроку рассмотрения) может отличаться
+const byNumber = (a: J, b: J) => a.number.localeCompare(b.number);
+// Показатели: сроки и календарь зависят от момента снятия снимка и скорости стенда, сверяются только счётчики
+const METRICS_TIMING_KEYS = [
+    'since',
+    'until',
+    'daily',
+    'to_decision_median_seconds',
+    'to_decision_p95_seconds',
+    'to_issue_median_hours',
+    'info_response_median_hours',
+    'review_median_hours',
+    'median_review_hours',
+];
 const decisionView = (d: J) =>
     d &&
     pick(d, [
@@ -396,11 +410,21 @@ export async function run(io: SelfcheckIo): Promise<boolean> {
     const queue = await analyst.get('/api/bank/applications');
     check.same(
         'очередь после сброса',
-        examples.queue.map((r: J) => pick(r, ['number', 'company_name', 'status', 'risk_class', 'score', 'flags'])),
-        queue.map((r: J) => pick(r, ['number', 'company_name', 'status', 'risk_class', 'score', 'flags'])),
+        [...examples.queue]
+            .sort(byNumber)
+            .map((r: J) => pick(r, ['number', 'company_name', 'status', 'risk_class', 'score', 'flags'])),
+        [...queue]
+            .sort(byNumber)
+            .map((r: J) => pick(r, ['number', 'company_name', 'status', 'risk_class', 'score', 'flags'])),
     );
     check.shape('очередь: поля ответа', examples.queue, queue);
     check.same('сводка после сброса', examples.summary, await analyst.get('/api/bank/summary'));
+    check.same(
+        'показатели после сброса',
+        examples.metrics,
+        await analyst.get('/api/bank/metrics?days=30'),
+        METRICS_TIMING_KEYS,
+    );
     const vektorId = queue.find((r: J) => r.company_name.includes('Вектор')).id;
     const grandId = queue.find((r: J) => r.company_name.includes('Гранд')).id;
     for (const [login, id] of [
@@ -963,7 +987,6 @@ export async function run(io: SelfcheckIo): Promise<boolean> {
         auditRows.slice(0, examples.audit_actions.length).map((r: J) => r.action),
     );
     const closed = await analyst.get('/api/bank/applications?include_closed=true');
-    const byNumber = (a: J, b: J) => a.number.localeCompare(b.number);
     check.same(
         'очередь с завершёнными',
         [...examples.queue_closed].sort(byNumber),
@@ -972,6 +995,12 @@ export async function run(io: SelfcheckIo): Promise<boolean> {
             .sort(byNumber),
     );
     check.same('сводка в конце', examples.summary_end, await analyst.get('/api/bank/summary'), ['issued_today']);
+    check.same(
+        'показатели в конце',
+        examples.metrics_end,
+        await analyst.get('/api/bank/metrics?days=30'),
+        METRICS_TIMING_KEYS,
+    );
 
     // Сброс демо-данных возвращает стартовые заявки
     const reset = await admin.post('/api/admin/demo/reset');
@@ -982,8 +1011,12 @@ export async function run(io: SelfcheckIo): Promise<boolean> {
     }, 'стартовые заявки после сброса');
     check.same(
         'очередь после сброса администратором',
-        examples.queue.map((r: J) => pick(r, ['number', 'company_name', 'status', 'risk_class', 'score', 'flags'])),
-        afterReset.map((r: J) => pick(r, ['number', 'company_name', 'status', 'risk_class', 'score', 'flags'])),
+        [...examples.queue]
+            .sort(byNumber)
+            .map((r: J) => pick(r, ['number', 'company_name', 'status', 'risk_class', 'score', 'flags'])),
+        [...afterReset]
+            .sort(byNumber)
+            .map((r: J) => pick(r, ['number', 'company_name', 'status', 'risk_class', 'score', 'flags'])),
     );
 
     io.log(`Проверок пройдено: ${check.passed}, с расхождениями: ${check.failures.length}`);

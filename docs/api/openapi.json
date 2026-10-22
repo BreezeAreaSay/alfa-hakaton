@@ -1182,6 +1182,58 @@
         ]
       }
     },
+    "/api/bank/metrics": {
+      "get": {
+        "tags": [
+          "Рабочее место банка"
+        ],
+        "summary": "Показатели конвейера за период",
+        "operationId": "metrics_api_bank_metrics_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "days",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 365,
+              "minimum": 1,
+              "description": "Период в днях, считая сегодня",
+              "default": 30,
+              "title": "Days"
+            },
+            "description": "Период в днях, считая сегодня"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BankMetrics"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/bank/applications": {
       "get": {
         "tags": [
@@ -2070,6 +2122,46 @@
   },
   "components": {
     "schemas": {
+      "AnalystMetrics": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "decided": {
+            "type": "integer",
+            "title": "Decided"
+          },
+          "in_work": {
+            "type": "integer",
+            "title": "In Work"
+          },
+          "overdue": {
+            "type": "integer",
+            "title": "Overdue"
+          },
+          "median_review_hours": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Median Review Hours"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "decided",
+          "in_work",
+          "overdue",
+          "median_review_hours"
+        ],
+        "title": "AnalystMetrics"
+      },
       "AppStatus": {
         "type": "string",
         "enum": [
@@ -2575,6 +2667,243 @@
         "title": "ApplicationUpdate",
         "description": "Изменение черновика: передаются только меняемые поля. Обязательные поля нельзя очистить — null даёт 422."
       },
+      "BankMetrics": {
+        "properties": {
+          "period_days": {
+            "type": "integer",
+            "title": "Period Days"
+          },
+          "since": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Since"
+          },
+          "until": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Until"
+          },
+          "submitted": {
+            "type": "integer",
+            "title": "Submitted"
+          },
+          "in_progress": {
+            "type": "integer",
+            "title": "In Progress"
+          },
+          "decided": {
+            "type": "integer",
+            "title": "Decided"
+          },
+          "auto_decided": {
+            "type": "integer",
+            "title": "Auto Decided"
+          },
+          "manual_decided": {
+            "type": "integer",
+            "title": "Manual Decided"
+          },
+          "automation_share": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Automation Share"
+          },
+          "manual_review": {
+            "type": "integer",
+            "title": "Manual Review"
+          },
+          "need_info": {
+            "type": "integer",
+            "title": "Need Info"
+          },
+          "issued": {
+            "type": "integer",
+            "title": "Issued"
+          },
+          "issued_amount": {
+            "type": "string",
+            "title": "Issued Amount"
+          },
+          "outcomes": {
+            "items": {
+              "$ref": "#/components/schemas/MetricCount"
+            },
+            "type": "array",
+            "title": "Outcomes"
+          },
+          "to_decision_median_seconds": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "To Decision Median Seconds"
+          },
+          "to_decision_p95_seconds": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "To Decision P95 Seconds"
+          },
+          "to_issue_median_hours": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "To Issue Median Hours"
+          },
+          "info_response_median_hours": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Info Response Median Hours"
+          },
+          "review_median_hours": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Review Median Hours"
+          },
+          "offered": {
+            "type": "integer",
+            "title": "Offered"
+          },
+          "accepted": {
+            "type": "integer",
+            "title": "Accepted"
+          },
+          "offer_conversion": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offer Conversion"
+          },
+          "counter_offered": {
+            "type": "integer",
+            "title": "Counter Offered"
+          },
+          "counter_accepted": {
+            "type": "integer",
+            "title": "Counter Accepted"
+          },
+          "counter_conversion": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Counter Conversion"
+          },
+          "sla_overdue_now": {
+            "type": "integer",
+            "title": "Sla Overdue Now"
+          },
+          "sla_breached": {
+            "type": "integer",
+            "title": "Sla Breached"
+          },
+          "rejection_reasons": {
+            "items": {
+              "$ref": "#/components/schemas/MetricCount"
+            },
+            "type": "array",
+            "title": "Rejection Reasons"
+          },
+          "products": {
+            "items": {
+              "$ref": "#/components/schemas/ProductMetrics"
+            },
+            "type": "array",
+            "title": "Products"
+          },
+          "analysts": {
+            "items": {
+              "$ref": "#/components/schemas/AnalystMetrics"
+            },
+            "type": "array",
+            "title": "Analysts"
+          },
+          "daily": {
+            "items": {
+              "$ref": "#/components/schemas/DailyMetrics"
+            },
+            "type": "array",
+            "title": "Daily"
+          }
+        },
+        "type": "object",
+        "required": [
+          "period_days",
+          "since",
+          "until",
+          "submitted",
+          "in_progress",
+          "decided",
+          "auto_decided",
+          "manual_decided",
+          "automation_share",
+          "manual_review",
+          "need_info",
+          "issued",
+          "issued_amount",
+          "outcomes",
+          "to_decision_median_seconds",
+          "to_decision_p95_seconds",
+          "to_issue_median_hours",
+          "info_response_median_hours",
+          "review_median_hours",
+          "offered",
+          "accepted",
+          "offer_conversion",
+          "counter_offered",
+          "counter_accepted",
+          "counter_conversion",
+          "sla_overdue_now",
+          "sla_breached",
+          "rejection_reasons",
+          "products",
+          "analysts",
+          "daily"
+        ],
+        "title": "BankMetrics",
+        "description": "Показатели конвейера за период по заявкам, поданным за этот период (docs/product.md, «Как измерять успех»)."
+      },
       "BankSummary": {
         "properties": {
           "manual_review": {
@@ -2837,6 +3166,35 @@
           "registry_synced_at"
         ],
         "title": "CompanyOut"
+      },
+      "DailyMetrics": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "submitted": {
+            "type": "integer",
+            "title": "Submitted",
+            "default": 0
+          },
+          "decided": {
+            "type": "integer",
+            "title": "Decided",
+            "default": 0
+          },
+          "issued": {
+            "type": "integer",
+            "title": "Issued",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "date"
+        ],
+        "title": "DailyMetrics"
       },
       "DecisionRequest": {
         "properties": {
@@ -3483,6 +3841,29 @@
         ],
         "title": "MessageOut"
       },
+      "MetricCount": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "title",
+          "count"
+        ],
+        "title": "MetricCount"
+      },
       "NeedRequest": {
         "properties": {
           "text": {
@@ -3730,6 +4111,44 @@
           "source"
         ],
         "title": "ParsedNeed"
+      },
+      "ProductMetrics": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "applications": {
+            "type": "integer",
+            "title": "Applications",
+            "default": 0
+          },
+          "approved": {
+            "type": "integer",
+            "title": "Approved",
+            "default": 0
+          },
+          "issued": {
+            "type": "integer",
+            "title": "Issued",
+            "default": 0
+          },
+          "issued_amount": {
+            "type": "string",
+            "title": "Issued Amount",
+            "default": "0"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "name"
+        ],
+        "title": "ProductMetrics"
       },
       "ProductOut": {
         "properties": {

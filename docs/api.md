@@ -204,6 +204,7 @@ Content-Type: application/json
 | Метод | Путь | Кто | Что делает |
 |---|---|---|---|
 | `GET` | `/api/bank/summary` | Банк | Счётчики: ручное рассмотрение, мои, просроченные, ожидают клиента, в обработке, ждут источник, предложения, выдано сегодня |
+| `GET` | `/api/bank/metrics` | Банк | Показатели конвейера за период `days` (1–365, по умолчанию 30): воронка, доля автоматических решений, сроки, конверсия предложений, причины отказов, разрез по продуктам и аналитикам, динамика по дням |
 | `GET` | `/api/bank/applications` | Банк | Очередь. Фильтры: `status` (можно несколько), `product`, `risk_class`, `mine`, `q` (название, ИНН или номер), `include_closed`. Без фильтра по статусу — активные заявки. Сверху ручное рассмотрение (по сроку рассмотрения), затем автоматическая обработка, ожидание клиента и остальные (по времени смены статуса) |
 | `POST` | `/api/bank/applications/{application_id}/assign` | Банк | Взять заявку в работу (`MANUAL_REVIEW`, `NEED_INFO`) |
 | `GET` | `/api/bank/applications/{application_id}/dossier` | Банк | Досье: ответы источников, скоринг с факторами, автоматическое решение с трассировкой правил, расчётный лимит, журнал действий |
@@ -765,6 +766,178 @@ Content-Type: application/json
 ```
 
 После восстановления источника `POST /api/bank/applications/{id}/pipeline/retry` повторяет шаг сразу, не дожидаясь паузы. Если ожидание превысило лимит (15 минут), шаг завершается с ошибкой, заявка уходит аналитику с флагом F05, а после восстановления источника её проверку перезапускают: `POST /api/bank/applications/{id}/restart`.
+
+### Показатели конвейера
+
+`GET /api/bank/metrics?days=30` — показатели по заявкам, поданным за последние `days` дней (страница «Показатели» в рабочем
+месте). Считаются по данным базы при каждом запросе; интерфейс перечитывает их по событиям SSE вместе с очередью.
+
+| Группа | Поля | Как считается |
+|---|---|---|
+| Воронка | `submitted`, `in_progress`, `decided`, `auto_decided`, `manual_decided`, `automation_share`, `manual_review`, `need_info`, `issued`, `issued_amount` | Решение — последнее окончательное (`APPROVE`, `COUNTER`, `REJECT`) по заявке; доля автоматических — решения `AUTO` среди окончательных; `manual_review` — заявки, побывавшие у аналитика; `need_info` — с запросом информации от системы |
+| Исходы | `outcomes[]` | Число заявок по исходу последнего окончательного решения |
+| Сроки | `to_decision_median_seconds`, `to_decision_p95_seconds`, `to_issue_median_hours`, `info_response_median_hours`, `review_median_hours` | От подачи до первого окончательного решения; от подачи до выдачи; от запроса информации до ответа; от попадания к аналитику до его решения. `null`, если данных нет |
+| Предложения | `offered`, `accepted`, `offer_conversion`, `counter_offered`, `counter_accepted`, `counter_conversion` | По заявкам, а не по вариантам: у контрпредложения может быть два варианта |
+| SLA | `sla_overdue_now`, `sla_breached` | Просроченные на ручном рассмотрении сейчас; решения аналитика позже срока за период |
+| Причины отказов | `rejection_reasons[]` | Стоп-факторы `S01`–`S05` и коды причин `R01`–`R07` по отказам |
+| Продукты | `products[]` | Заявки, одобрения, выдачи и сумма выдач по продуктам, только продукты с заявками |
+| Аналитики | `analysts[]` | Окончательные решения, заявки в работе, просроченные, медиана рассмотрения по каждому аналитику |
+| По дням | `daily[]` | Подано, первых решений и выдач за каждый день периода |
+
+Ответ после прохождения всех сценариев из [test-scenarios.md](test-scenarios.md) (записи `daily` сокращены):
+
+```json
+{
+  "period_days": 30,
+  "since": "2026-09-22T15:18:28.005918Z",
+  "until": "2026-10-22T15:18:28.005918Z",
+  "submitted": 12,
+  "in_progress": 6,
+  "decided": 12,
+  "auto_decided": 9,
+  "manual_decided": 3,
+  "automation_share": 0.75,
+  "manual_review": 3,
+  "need_info": 1,
+  "issued": 1,
+  "issued_amount": "3000000.00",
+  "outcomes": [
+    {
+      "code": "APPROVE",
+      "title": "Одобрено как запрошено",
+      "count": 5
+    },
+    {
+      "code": "COUNTER",
+      "title": "Контрпредложение",
+      "count": 4
+    },
+    {
+      "code": "REJECT",
+      "title": "Отказ",
+      "count": 3
+    }
+  ],
+  "to_decision_median_seconds": 1.9357630000000001,
+  "to_decision_p95_seconds": 3.609633,
+  "to_issue_median_hours": 0,
+  "info_response_median_hours": 0,
+  "review_median_hours": 0,
+  "offered": 9,
+  "accepted": 1,
+  "offer_conversion": 0.111,
+  "counter_offered": 4,
+  "counter_accepted": 0,
+  "counter_conversion": 0,
+  "sla_overdue_now": 0,
+  "sla_breached": 0,
+  "rejection_reasons": [
+    {
+      "code": "S05",
+      "title": "Класс риска E",
+      "count": 2
+    },
+    {
+      "code": "S01",
+      "title": "Ликвидация, реорганизация или банкротство",
+      "count": 1
+    },
+    {
+      "code": "S03",
+      "title": "Текущая просрочка больше 30 дней",
+      "count": 1
+    },
+    {
+      "code": "R01",
+      "title": "Высокий кредитный риск",
+      "count": 1
+    }
+  ],
+  "products": [
+    {
+      "code": "GROWTH",
+      "name": "Кредит на развитие бизнеса",
+      "applications": 5,
+      "approved": 3,
+      "issued": 1,
+      "issued_amount": "3000000.00"
+    },
+    {
+      "code": "EXPRESS",
+      "name": "Экспресс-кредит без залога",
+      "applications": 3,
+      "approved": 3,
+      "issued": 0,
+      "issued_amount": "0"
+    },
+    {
+      "code": "SECURED",
+      "name": "Кредит под залог",
+      "applications": 1,
+      "approved": 1,
+      "issued": 0,
+      "issued_amount": "0"
+    },
+    {
+      "code": "OVERDRAFT",
+      "name": "Овердрафт",
+      "applications": 1,
+      "approved": 1,
+      "issued": 0,
+      "issued_amount": "0"
+    },
+    {
+      "code": "CREDIT_LINE",
+      "name": "Возобновляемая кредитная линия",
+      "applications": 1,
+      "approved": 1,
+      "issued": 0,
+      "issued_amount": "0"
+    },
+    {
+      "code": "STARTUP",
+      "name": "Кредит для начинающего бизнеса",
+      "applications": 1,
+      "approved": 0,
+      "issued": 0,
+      "issued_amount": "0"
+    }
+  ],
+  "analysts": [
+    {
+      "name": "Иванова Ольга Дмитриевна",
+      "decided": 2,
+      "in_work": 0,
+      "overdue": 0,
+      "median_review_hours": 0
+    },
+    {
+      "name": "Ковалёв Павел Игоревич",
+      "decided": 1,
+      "in_work": 0,
+      "overdue": 0,
+      "median_review_hours": 0
+    }
+  ],
+  "daily": [
+    "… по одной записи на каждый день периода …",
+    {
+      "date": "2026-10-21",
+      "submitted": 0,
+      "decided": 0,
+      "issued": 0
+    },
+    {
+      "date": "2026-10-22",
+      "submitted": 12,
+      "decided": 12,
+      "issued": 1
+    }
+  ]
+}
+```
+
+Период меньше 1 или больше 365 дней — 422. Клиенту метод недоступен — 403.
 
 ## Управление демо-стендом
 

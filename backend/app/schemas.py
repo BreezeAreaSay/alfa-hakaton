@@ -352,6 +352,72 @@ class BankSummary(BaseModel):
     issued_today: int
 
 
+class MetricCount(BaseModel):
+    code: str
+    title: str
+    count: int
+
+
+class ProductMetrics(BaseModel):
+    code: str
+    name: str
+    applications: int = 0
+    approved: int = 0
+    issued: int = 0
+    issued_amount: Decimal = Decimal(0)
+
+
+class AnalystMetrics(BaseModel):
+    name: str
+    decided: int
+    in_work: int
+    overdue: int
+    median_review_hours: float | None
+
+
+class DailyMetrics(BaseModel):
+    date: date
+    submitted: int = 0
+    decided: int = 0
+    issued: int = 0
+
+
+class BankMetrics(BaseModel):
+    """Показатели конвейера за период по заявкам, поданным за этот период (docs/product.md, «Как измерять успех»)."""
+
+    period_days: int
+    since: datetime
+    until: datetime
+    submitted: int
+    in_progress: int
+    decided: int
+    auto_decided: int
+    manual_decided: int
+    automation_share: float | None
+    manual_review: int
+    need_info: int
+    issued: int
+    issued_amount: Decimal
+    outcomes: list[MetricCount]
+    to_decision_median_seconds: float | None
+    to_decision_p95_seconds: float | None
+    to_issue_median_hours: float | None
+    info_response_median_hours: float | None
+    review_median_hours: float | None
+    offered: int
+    accepted: int
+    offer_conversion: float | None
+    counter_offered: int
+    counter_accepted: int
+    counter_conversion: float | None
+    sla_overdue_now: int
+    sla_breached: int
+    rejection_reasons: list[MetricCount]
+    products: list[ProductMetrics]
+    analysts: list[AnalystMetrics]
+    daily: list[DailyMetrics]
+
+
 class DecisionRequest(BaseModel):
     action: Literal["APPROVE", "COUNTER", "REJECT"]
     product_code: str | None = None

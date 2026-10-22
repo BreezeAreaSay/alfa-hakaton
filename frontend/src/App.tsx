@@ -7,6 +7,7 @@ import { Theme } from './components/Theme';
 import { Loader } from './components/ui';
 import { AuditPage } from './pages/bank/AuditPage';
 import { DossierPage } from './pages/bank/DossierPage';
+import { MetricsPage } from './pages/bank/MetricsPage';
 import { PipelinePage } from './pages/bank/PipelinePage';
 import { QueuePage } from './pages/bank/QueuePage';
 import { ApplicationPage } from './pages/client/ApplicationPage';
@@ -49,6 +50,7 @@ function BankLayout() {
                 home='/bank'
                 nav={[
                     { to: '/bank', label: 'Очередь заявок', end: true },
+                    { to: '/bank/metrics', label: 'Показатели' },
                     { to: '/bank/pipeline', label: 'Конвейер и сбои' },
                     { to: '/bank/audit', label: 'Журнал действий' },
                 ]}
@@ -85,6 +87,7 @@ export function App() {
             <Route path='/bank' element={<BankLayout />}>
                 <Route index={true} element={<QueuePage />} />
                 <Route path='applications/:id' element={<DossierPage />} />
+                <Route path='metrics' element={<MetricsPage />} />
                 <Route path='pipeline' element={<PipelinePage />} />
                 <Route path='audit' element={<AuditPage />} />
             </Route>

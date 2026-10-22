@@ -1535,6 +1535,57 @@
           "response": []
         },
         {
+          "id": "9c6f21e8-4ea5-4275-b154-bc617c642eba",
+          "name": "Показатели конвейера за период",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "ac1b8990-9f62-4ed8-b610-78be61fcbd03",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const m = pm.response.json();",
+                  "pm.test('Воронка согласована', () => {",
+                  "    pm.expect(m.period_days).to.eql(30);",
+                  "    pm.expect(m.decided).to.eql(m.auto_decided + m.manual_decided);",
+                  "    pm.expect(m.outcomes.reduce((sum, o) => sum + o.count, 0)).to.eql(m.decided);",
+                  "    pm.expect(m.daily).to.have.lengthOf(30);",
+                  "    pm.expect(m.daily.reduce((sum, d) => sum + d.submitted, 0)).to.eql(m.submitted);",
+                  "});",
+                  "pm.test('Доля автоматических решений — от 0 до 1 или null', () => {",
+                  "    if (m.automation_share !== null) pm.expect(m.automation_share).to.be.within(0, 1);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/bank/metrics?days=30",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bank",
+                "metrics"
+              ],
+              "query": [
+                {
+                  "key": "days",
+                  "value": "30",
+                  "description": "Период в днях, 1–365"
+                }
+              ]
+            },
+            "description": "Показатели конвейера для руководителя по заявкам, поданным за период: воронка, доля автоматических решений, сроки, конверсия предложений, причины отказов, продукты, аналитики, динамика по дням."
+          },
+          "response": []
+        },
+        {
           "id": "373f4dfd-1f28-541d-9e28-5fa1e52cc208",
           "name": "Очередь: заявки на ручном рассмотрении",
           "event": [

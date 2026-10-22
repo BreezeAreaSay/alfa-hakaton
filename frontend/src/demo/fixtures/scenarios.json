@@ -2417,8 +2417,8 @@
           "actor": "CLIENT",
           "user": "Ветров Андрей Сергеевич",
           "details": {
-            "sha256": "100ed94b15d7d494011e1b12cb8cfa67a2efbf2e36d2bf35ef799a5f6586872b",
-            "document": "eb8afdcd-72e9-462f-9f4c-83ca0cfa051a"
+            "sha256": "5ec264128f48d652282179aa778dcf5f534c212976ba3205ca40e478c33b181e",
+            "document": "24c590ca-92f0-4d59-a987-86cea4bec368"
           }
         },
         {
@@ -4479,18 +4479,6 @@
     },
     "dossier": {
       "sources": {
-        "EGRUL": {"status":"DONE","error":null,"attempts":1},
-        "SCORING": {"status":"DONE","result":{"score":630,"version":"v1.0","risk_class":"C"},"error":null,"attempts":1},
-        "FNS": {"status":"DONE","error":null,"attempts":1},
-        "GIRBO": {"status":"SKIPPED","error":null,"attempts":1},
-        "POLICY": {
-          "status": "DONE",
-          "result": {"flags":["F03","F07"],"limit":1430000,"outcome":"MANUAL_REVIEW","version":"v1.0","stop_factors":[]},
-          "error": null,
-          "attempts": 1
-        },
-        "BKI": {"status":"DONE","error":null,"attempts":1},
-        "BANK": {"status":"DONE","error":null,"attempts":1},
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -4503,6 +4491,18 @@
               {"ok":true,"title":"Согласие на обработку персональных данных"}
             ]
           },
+          "error": null,
+          "attempts": 1
+        },
+        "EGRUL": {"status":"DONE","error":null,"attempts":1},
+        "FNS": {"status":"DONE","error":null,"attempts":1},
+        "GIRBO": {"status":"SKIPPED","error":null,"attempts":1},
+        "BKI": {"status":"DONE","error":null,"attempts":1},
+        "BANK": {"status":"DONE","error":null,"attempts":1},
+        "SCORING": {"status":"DONE","result":{"score":630,"version":"v1.0","risk_class":"C"},"error":null,"attempts":1},
+        "POLICY": {
+          "status": "DONE",
+          "result": {"flags":["F03","F07"],"limit":1430000,"outcome":"MANUAL_REVIEW","version":"v1.0","stop_factors":[]},
           "error": null,
           "attempts": 1
         }
@@ -4773,18 +4773,6 @@
     },
     "dossier_rejected": {
       "sources": {
-        "EGRUL": {"status":"DONE","error":null,"attempts":1},
-        "SCORING": {"status":"DONE","result":{"score":630,"version":"v1.0","risk_class":"C"},"error":null,"attempts":1},
-        "FNS": {"status":"DONE","error":null,"attempts":1},
-        "GIRBO": {"status":"SKIPPED","error":null,"attempts":1},
-        "POLICY": {
-          "status": "DONE",
-          "result": {"flags":["F03","F07"],"limit":1430000,"outcome":"MANUAL_REVIEW","version":"v1.0","stop_factors":[]},
-          "error": null,
-          "attempts": 1
-        },
-        "BKI": {"status":"DONE","error":null,"attempts":1},
-        "BANK": {"status":"DONE","error":null,"attempts":1},
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -4797,6 +4785,18 @@
               {"ok":true,"title":"Согласие на обработку персональных данных"}
             ]
           },
+          "error": null,
+          "attempts": 1
+        },
+        "EGRUL": {"status":"DONE","error":null,"attempts":1},
+        "FNS": {"status":"DONE","error":null,"attempts":1},
+        "GIRBO": {"status":"SKIPPED","error":null,"attempts":1},
+        "BKI": {"status":"DONE","error":null,"attempts":1},
+        "BANK": {"status":"DONE","error":null,"attempts":1},
+        "SCORING": {"status":"DONE","result":{"score":630,"version":"v1.0","risk_class":"C"},"error":null,"attempts":1},
+        "POLICY": {
+          "status": "DONE",
+          "result": {"flags":["F03","F07"],"limit":1430000,"outcome":"MANUAL_REVIEW","version":"v1.0","stop_factors":[]},
           "error": null,
           "attempts": 1
         }
@@ -4963,9 +4963,6 @@
     },
     "dossier": {
       "sources": {
-        "EGRUL": {"status":"DONE","error":null,"attempts":1},
-        "BKI": {"status":"DONE","error":null,"attempts":1},
-        "SCORING": {"status":"DONE","result":{"score":370,"version":"v1.0","risk_class":"E"},"error":null,"attempts":1},
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -4981,9 +4978,12 @@
           "error": null,
           "attempts": 1
         },
-        "FNS": {"status":"DONE","error":null,"attempts":1},
         "GIRBO": {"status":"DONE","error":null,"attempts":1},
         "BANK": {"status":"DONE","error":null,"attempts":1},
+        "EGRUL": {"status":"DONE","error":null,"attempts":1},
+        "BKI": {"status":"DONE","error":null,"attempts":1},
+        "SCORING": {"status":"DONE","result":{"score":370,"version":"v1.0","risk_class":"E"},"error":null,"attempts":1},
+        "FNS": {"status":"DONE","error":null,"attempts":1},
         "POLICY": {
           "status": "DONE",
           "result": {"flags":[],"limit":null,"outcome":"REJECT","version":"v1.0","stop_factors":["S01","S05"]},
@@ -5239,6 +5239,7 @@
     },
     "dossier": {
       "sources": {
+        "BKI": {"status":"DONE","error":null,"attempts":1},
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -5254,10 +5255,7 @@
           "error": null,
           "attempts": 1
         },
-        "EGRUL": {"status":"DONE","error":null,"attempts":1},
         "FNS": {"status":"DONE","error":null,"attempts":1},
-        "GIRBO": {"status":"DONE","error":null,"attempts":1},
-        "BKI": {"status":"DONE","error":null,"attempts":1},
         "BANK": {"status":"DONE","error":null,"attempts":1},
         "SCORING": {"status":"DONE","result":{"score":500,"version":"v1.0","risk_class":"E"},"error":null,"attempts":1},
         "POLICY": {
@@ -5265,7 +5263,9 @@
           "result": {"flags":[],"limit":null,"outcome":"REJECT","version":"v1.0","stop_factors":["S03","S05"]},
           "error": null,
           "attempts": 1
-        }
+        },
+        "EGRUL": {"status":"DONE","error":null,"attempts":1},
+        "GIRBO": {"status":"DONE","error":null,"attempts":1}
       },
       "scoring": {
         "score": 500,
@@ -5872,10 +5872,10 @@
           "error": null,
           "attempts": 1
         },
-        "GIRBO": {"status":"DONE","error":null,"attempts":1},
         "EGRUL": {"status":"DONE","error":null,"attempts":1},
-        "BKI": {"status":"WAITING","error":"bki: сервис ответил ошибкой 503","attempts":1},
         "FNS": {"status":"DONE","error":null,"attempts":1},
+        "GIRBO": {"status":"DONE","error":null,"attempts":1},
+        "BKI": {"status":"WAITING","error":"bki: сервис ответил ошибкой 503","attempts":1},
         "BANK": {"status":"PENDING","error":null,"attempts":0},
         "SCORING": {"status":"PENDING","result":null,"error":null,"attempts":0},
         "POLICY": {"status":"PENDING","result":null,"error":null,"attempts":0}
@@ -6022,6 +6022,17 @@
     "dossier": {
       "sources": {
         "BANK": {"status":"DONE","error":null,"attempts":1},
+        "EGRUL": {"status":"DONE","error":null,"attempts":1},
+        "FNS": {"status":"DONE","error":null,"attempts":1},
+        "BKI": {"status":"DONE","error":null,"attempts":3},
+        "GIRBO": {"status":"DONE","error":null,"attempts":1},
+        "SCORING": {"status":"DONE","result":{"score":900,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
+        "POLICY": {
+          "status": "DONE",
+          "result": {"flags":[],"limit":5000000,"outcome":"APPROVE","version":"v1.0","stop_factors":[]},
+          "error": null,
+          "attempts": 1
+        },
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -6034,17 +6045,6 @@
               {"ok":true,"title":"Согласие на обработку персональных данных"}
             ]
           },
-          "error": null,
-          "attempts": 1
-        },
-        "GIRBO": {"status":"DONE","error":null,"attempts":1},
-        "EGRUL": {"status":"DONE","error":null,"attempts":1},
-        "BKI": {"status":"DONE","error":null,"attempts":3},
-        "FNS": {"status":"DONE","error":null,"attempts":1},
-        "SCORING": {"status":"DONE","result":{"score":900,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
-        "POLICY": {
-          "status": "DONE",
-          "result": {"flags":[],"limit":5000000,"outcome":"APPROVE","version":"v1.0","stop_factors":[]},
           "error": null,
           "attempts": 1
         }

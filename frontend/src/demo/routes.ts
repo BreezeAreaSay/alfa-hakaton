@@ -17,6 +17,7 @@ import { openStream } from './stream';
 import {
     applicationOut,
     auditOut,
+    bankMetrics,
     bankSummary,
     companyOut,
     documentsOut,
@@ -721,6 +722,20 @@ function summary(ctx: Ctx) {
     return bankSummary(getState(), bankStaff(ctx), ctx.now);
 }
 
+function queryInt(ctx: Ctx, name: string, fallback: number, opts: { ge?: number; le?: number }): number {
+    const raw = ctx.url.searchParams.get(name);
+    if (raw === null) return fallback;
+    const v = new Validator({ [name]: raw }, 'query');
+    const value = v.number(name, { int: true, ...opts });
+    v.done();
+    return value ?? fallback;
+}
+
+function metrics(ctx: Ctx) {
+    bankStaff(ctx);
+    return bankMetrics(getState(), ctx.now, queryInt(ctx, 'days', 30, { ge: 1, le: 365 }));
+}
+
 function queue(ctx: Ctx) {
     const user = bankStaff(ctx);
     const status = ctx.url.searchParams.getAll('status');
@@ -1073,6 +1088,7 @@ export const ROUTES: Route[] = [
     route('POST', '/api/notifications/read', markRead),
     route('GET', '/api/stream', stream),
     route('GET', '/api/bank/summary', summary),
+    route('GET', '/api/bank/metrics', metrics),
     route('GET', '/api/bank/applications', queue),
     route('POST', '/api/bank/applications/{id}/assign', assign),
     route('GET', '/api/bank/applications/{id}/dossier', dossier),
