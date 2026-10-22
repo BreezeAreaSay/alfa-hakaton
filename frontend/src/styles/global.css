@@ -617,11 +617,6 @@ table.simple td.num {
     color: #fff;
 }
 
-/* заголовок в две строки, текст не растягивается на всю ширину */
-.login__brand .login__inner > * {
-    max-width: 760px;
-}
-
 .login__note {
     margin-top: var(--gap-24);
 }

@@ -1,0 +1,451 @@
+/*
+ * Стартовая страница: баннеры о кредитах и ответы на вопросы. Композиция — как на alfabank.ru: чёрная шторка
+ * с иллюстрацией, чёрный блок с карточками в тёмном градиенте, светлые баннеры, серые строки вопросов.
+ * Иллюстрации — глянцевые шары с иконками дизайн-системы, нарисованные градиентами.
+ */
+
+.landing-sections {
+    display: grid;
+    gap: var(--gap-64);
+}
+
+/* ---------------------------------------------------------------- шторка */
+
+.landing-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 380px;
+    align-items: center;
+    gap: var(--gap-32);
+}
+
+.landing-hero__text {
+    max-width: 760px;
+}
+
+.landing-hero__actions {
+    margin-top: var(--gap-8);
+}
+
+.landing-hero__art {
+    position: relative;
+    height: 300px;
+}
+
+.landing-hero__orb {
+    position: absolute;
+    animation: landing-float 6s ease-in-out infinite;
+}
+
+.landing-hero__orb--main {
+    top: 56px;
+    left: 96px;
+}
+
+.landing-hero__orb--rub {
+    top: 8px;
+    left: 0;
+    animation-delay: -2s;
+}
+
+.landing-hero__orb--star {
+    right: 8px;
+    bottom: 8px;
+    animation-delay: -4s;
+}
+
+.landing-hero__sparkle--top {
+    position: absolute;
+    top: 0;
+    right: 40px;
+}
+
+.landing-hero__sparkle--bottom {
+    position: absolute;
+    bottom: 24px;
+    left: 40px;
+}
+
+@keyframes landing-float {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* ---------------------------------------------------------------- шары и звёзды */
+
+.landing-orb {
+    --orb-light: #ff9b8f;
+    --orb-base: #ef3124;
+    --orb-dark: #8a1008;
+    --orb-glow: rgba(239, 49, 36, 0.55);
+
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    border-radius: 50%;
+    color: #fff;
+    background: radial-gradient(circle at 32% 28%, var(--orb-light) 0%, var(--orb-base) 46%, var(--orb-dark) 100%);
+    box-shadow:
+        inset -8px -12px 20px rgba(0, 0, 0, 0.28),
+        inset 6px 8px 14px rgba(255, 255, 255, 0.35),
+        0 18px 40px -14px var(--orb-glow);
+}
+
+.landing-orb svg {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
+}
+
+.landing-orb--orange {
+    --orb-light: #ffd29a;
+    --orb-base: #ff8a1f;
+    --orb-dark: #a34700;
+    --orb-glow: rgba(255, 138, 31, 0.5);
+}
+
+.landing-orb--green {
+    --orb-light: #b8ff8a;
+    --orb-base: #2fc14a;
+    --orb-dark: #0b6a24;
+    --orb-glow: rgba(47, 193, 74, 0.5);
+}
+
+.landing-orb--teal {
+    --orb-light: #9ff5ec;
+    --orb-base: #13b8b0;
+    --orb-dark: #075f63;
+    --orb-glow: rgba(19, 184, 176, 0.5);
+}
+
+.landing-orb--blue {
+    --orb-light: #a9d0ff;
+    --orb-base: #2f7dff;
+    --orb-dark: #0d2f8f;
+    --orb-glow: rgba(47, 125, 255, 0.5);
+}
+
+.landing-orb--violet {
+    --orb-light: #e0b8ff;
+    --orb-base: #8b3dff;
+    --orb-dark: #3e0d8f;
+    --orb-glow: rgba(139, 61, 255, 0.5);
+}
+
+.landing-orb--silver {
+    --orb-light: #ffffff;
+    --orb-base: #c9ced6;
+    --orb-dark: #6b7280;
+    --orb-glow: rgba(201, 206, 214, 0.4);
+
+    color: #2b2f36;
+}
+
+/* четырёхлучевая звезда */
+.landing-sparkle {
+    display: block;
+    background: linear-gradient(160deg, #ffffff 10%, #9fd4ff 60%, #4f8dff 100%);
+    clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
+}
+
+/* ---------------------------------------------------------------- чёрный блок с продуктами */
+
+.landing-dark {
+    display: grid;
+    gap: var(--gap-32);
+    padding: var(--gap-48);
+    border-radius: 40px;
+    background: var(--brand-black);
+    color: #fff;
+}
+
+.landing-products {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--gap-16);
+}
+
+/* тёмный градиент карточек — как у баннеров alfabank.ru */
+.landing-product,
+.landing-feature {
+    background: linear-gradient(135deg, #3a2838 0%, #2c2c38 55%, #22363b 100%);
+}
+
+.landing-product {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-8);
+    min-height: 236px;
+    padding: var(--gap-24);
+    border: 0;
+    border-radius: 28px;
+    color: #fff;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition:
+        transform 200ms ease,
+        filter 200ms ease;
+}
+
+.landing-product:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.12);
+}
+
+.landing-product:focus-visible,
+.landing-promo:focus-visible {
+    outline: 2px solid var(--color-light-accent-primary, #ef3124);
+    outline-offset: 3px;
+}
+
+.landing-product__rate {
+    font-size: 32px;
+    line-height: 36px;
+    font-weight: 700;
+}
+
+.landing-product__name {
+    font-size: 18px;
+    line-height: 24px;
+    font-weight: 700;
+}
+
+.landing-product__facts {
+    font-size: 14px;
+    line-height: 20px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* текст не заходит под шар в правом нижнем углу */
+.landing-product__text {
+    max-width: calc(100% - 72px);
+    font-size: 14px;
+    line-height: 20px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.landing-product__art {
+    position: absolute;
+    right: -18px;
+    bottom: -18px;
+}
+
+.landing-feature {
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: var(--gap-24);
+    padding: var(--gap-32);
+    border-radius: 28px;
+}
+
+.landing-feature__body {
+    display: grid;
+    gap: var(--gap-20);
+    align-content: start;
+}
+
+.landing-feature__list {
+    display: grid;
+    gap: var(--gap-12);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.landing-feature__list li {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--gap-12);
+    font-size: 16px;
+    line-height: 24px;
+    color: rgba(255, 255, 255, 0.88);
+}
+
+.landing-feature__list svg {
+    flex-shrink: 0;
+    color: rgba(255, 255, 255, 0.64);
+}
+
+.landing-feature__art {
+    position: relative;
+    min-height: 220px;
+}
+
+.landing-feature__art > * {
+    position: absolute;
+}
+
+.landing-feature__orb--main {
+    top: 24px;
+    left: 64px;
+}
+
+.landing-feature__orb--doc {
+    top: 0;
+    right: 0;
+}
+
+.landing-feature__orb--ok {
+    bottom: 0;
+    left: 24px;
+}
+
+.landing-feature__sparkle {
+    right: 48px;
+    bottom: 16px;
+}
+
+/* ---------------------------------------------------------------- светлые баннеры */
+
+.landing-promos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--gap-16);
+}
+
+.landing-promo {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-8);
+    min-height: 232px;
+    padding: var(--gap-24);
+    border: 0;
+    border-radius: 28px;
+    background: linear-gradient(135deg, #f7f7f9 0%, #eceef2 100%);
+    color: var(--color-light-text-primary);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: transform 200ms ease;
+}
+
+.landing-promo:hover {
+    transform: translateY(-2px);
+}
+
+.landing-promo__title {
+    font-size: 20px;
+    line-height: 24px;
+    font-weight: 700;
+}
+
+.landing-promo__text {
+    max-width: calc(100% - 64px);
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--color-light-text-secondary);
+}
+
+.landing-promo__action {
+    margin-top: auto;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 500;
+}
+
+.landing-promo__art {
+    position: absolute;
+    right: -16px;
+    bottom: -16px;
+}
+
+/* ---------------------------------------------------------------- ответы на вопросы */
+
+.landing-faq {
+    display: grid;
+    gap: var(--gap-8);
+}
+
+.landing-faq__item {
+    border-radius: 24px;
+    background: #f2f3f5;
+}
+
+.landing-faq__question {
+    align-items: center;
+    padding: var(--gap-20) var(--gap-24);
+}
+
+.landing-faq__header {
+    flex: 1;
+}
+
+.landing-faq .landing-faq__answer {
+    padding: 0 var(--gap-24) var(--gap-24);
+}
+
+.landing-faq__answer p {
+    max-width: 880px;
+}
+
+/* ---------------------------------------------------------------- узкие экраны */
+
+@media (max-width: 1023px) {
+    .landing-hero {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    /* иллюстрации без места рядом с текстом не нужны */
+    .landing-hero__art,
+    .landing-feature__art {
+        display: none;
+    }
+
+    .landing-feature {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 767px) {
+    .landing-sections {
+        gap: var(--gap-40);
+    }
+
+    .landing-dark {
+        gap: var(--gap-24);
+        padding: var(--gap-24) var(--gap-16);
+        border-radius: 28px;
+    }
+
+    .landing-products {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .landing-product {
+        min-height: 0;
+        padding-bottom: var(--gap-32);
+    }
+
+    .landing-feature {
+        padding: var(--gap-24) var(--gap-20);
+    }
+
+    .landing-faq__question {
+        padding: var(--gap-16) var(--gap-20);
+    }
+
+    .landing-faq .landing-faq__answer {
+        padding: 0 var(--gap-20) var(--gap-20);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .landing-hero__orb {
+        animation: none;
+    }
+
+    .landing-product,
+    .landing-promo {
+        transition: none;
+    }
+}
