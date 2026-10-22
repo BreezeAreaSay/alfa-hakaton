@@ -25,8 +25,9 @@ function ClientLayout() {
     return (
         <div className='app'>
             <Theme name='corp' />
+            {/* логотип ведёт на стартовую страницу с баннерами, «Главная» в меню — на главную кабинета */}
             <AppHeader
-                home='/client'
+                home='/'
                 nav={[
                     { to: '/client', label: 'Главная', end: true },
                     { to: '/client/new', label: 'Получить кредит' },
@@ -72,12 +73,22 @@ function Home() {
 export function App() {
     return (
         <Routes>
+            {/* Стартовая страница с баннерами открыта всем; /login — она же, но вошедших ведёт в кабинет */}
+            <Route
+                path='/'
+                element={
+                    <>
+                        <Theme name='corp' />
+                        <LoginPage />
+                    </>
+                }
+            />
             <Route
                 path='/login'
                 element={
                     <>
                         <Theme name='corp' />
-                        <LoginPage />
+                        <LoginPage guestOnly={true} />
                     </>
                 }
             />

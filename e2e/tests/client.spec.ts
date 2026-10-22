@@ -106,6 +106,22 @@ test('вход с неверным паролем и разграничение 
     await expect(page).toHaveURL(/\/client$/);
 });
 
+test('логотип возвращает вошедшего клиента на стартовую страницу с баннерами', async ({ page }) => {
+    await login(page, 'veter');
+    await expect(page).toHaveURL(/\/client$/);
+
+    await page.getByRole('link', { name: 'На главную' }).click();
+    await expect(page).toHaveURL(/\/$/);
+    await expect(page.getByRole('heading', { name: /Кредиты для бизнеса/ })).toBeVisible();
+    // вошедшему окно входа не нужно: «Получить кредит» ведёт сразу в подбор
+    await page.getByRole('banner').getByRole('button', { name: 'Получить кредит' }).click();
+    await expect(page).toHaveURL(/\/client\/new$/);
+
+    await page.getByRole('link', { name: 'На главную' }).click();
+    await page.getByRole('banner').getByRole('button', { name: 'Личный кабинет' }).click();
+    await expect(page).toHaveURL(/\/client$/);
+});
+
 test('выписка с кассовым разрывом: прогноз и подсказка лимита овердрафта', async ({ page }) => {
     await login(page, 'smirnova');
     await chooseProduct(page, 'Нужно 1 000 000 на год, закрыть кассовый разрыв', 'Овердрафт');
