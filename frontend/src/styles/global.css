@@ -713,6 +713,137 @@ table.simple td.num {
     }
 }
 
+/* ---------------------------------------------------------------- подвал */
+
+/* Подвал прижат к низу окна и на короткой странице */
+.app {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Чёрное поле со скруглёнными верхними углами поверх белой страницы — как на alfabank.ru */
+.footer {
+    margin-top: auto;
+    border-radius: var(--sheet-radius) var(--sheet-radius) 0 0;
+    background: var(--brand-black);
+    color: #fff;
+    font-size: 14px;
+    line-height: 20px;
+}
+
+.footer__inner {
+    max-width: var(--page-max-width);
+    margin: 0 auto;
+    padding: var(--gap-48) var(--gap-24) var(--gap-40);
+}
+
+.footer__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--gap-40) var(--gap-32);
+    padding-bottom: var(--gap-40);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.footer__title {
+    margin: 0 0 var(--gap-16);
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.48);
+}
+
+.footer a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.footer a:hover {
+    color: rgba(255, 255, 255, 0.72);
+}
+
+.footer__links {
+    display: grid;
+    gap: var(--gap-8);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.footer__contacts {
+    margin: 0;
+}
+
+.footer__contacts dt {
+    font-size: 12px;
+    line-height: 16px;
+    color: rgba(255, 255, 255, 0.48);
+}
+
+.footer__contacts dd {
+    margin: 0 0 var(--gap-12);
+}
+
+.footer__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--gap-12) var(--gap-24);
+}
+
+.footer__item {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--gap-8);
+}
+
+.footer__city {
+    font-weight: 700;
+}
+
+.footer__app-icon {
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: linear-gradient(180deg, #6b6c72, #3c3d42);
+}
+
+.footer__social {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+}
+
+.footer__social--telegram {
+    background: #2aabee;
+}
+
+.footer__social--vk {
+    background: #07f;
+}
+
+.footer__legal {
+    display: grid;
+    gap: var(--gap-8);
+    padding-top: var(--gap-24);
+    font-size: 12px;
+    line-height: 18px;
+    color: rgba(255, 255, 255, 0.48);
+}
+
+@media (max-width: 1023px) {
+    .footer__grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
 /* ---------------------------------------------------------------- телефон: кабинет клиента от 360 px */
 @media (max-width: 767px) {
     :root {
@@ -794,5 +925,14 @@ table.simple td.num {
 
     .metrics {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .footer__inner {
+        padding: var(--gap-32) var(--gap-16) var(--gap-24);
+    }
+
+    .footer__grid {
+        gap: var(--gap-32) var(--gap-16);
+        padding-bottom: var(--gap-32);
     }
 }
