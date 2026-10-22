@@ -606,12 +606,18 @@ table.simple td.num {
  * с шагами и подвал. Шторка и лист — по ширине шапки, поэтому заголовок начинается на одной линии со знаком банка.
  */
 
-/* «Получить кредит» выглядит как пункт меню кабинета (.nav__link): текст без фона */
+/* «Получить кредит» — как пункт меню кабинета (.nav__link), но белым: текст без фона, при наведении тускнеет */
 .login__nav-button {
     border: 0;
     background: none;
+    color: #fff;
     font-family: inherit;
     cursor: pointer;
+    transition: color 150ms ease;
+}
+
+.login__nav-button:hover {
+    color: rgba(255, 255, 255, 0.72);
 }
 
 .login__inner {
