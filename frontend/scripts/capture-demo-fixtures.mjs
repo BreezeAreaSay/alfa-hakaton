@@ -712,11 +712,28 @@ async function main() {
         })
     ).data;
     await orlov.del(`/api/documents/${csvUploaded.id}`, { expect: 204 });
+    // Выписка с кассовым разрывом — для прогноза денежного потока
+    const gapForm = new FormData();
+    gapForm.append(
+        'file',
+        new Blob([await readFile(join(DEMO_FILES, 'vypiska_smirnova.csv'))], { type: 'text/csv' }),
+        'vypiska_smirnova.csv',
+    );
+    gapForm.append('kind', 'BANK_STATEMENT');
+    const gapUploaded = (
+        await call('POST', `/api/applications/${csvDraft.id}/documents`, {
+            token: orlov.token,
+            form: gapForm,
+            expect: 201,
+        })
+    ).data;
+    await orlov.del(`/api/documents/${gapUploaded.id}`, { expect: 204 });
     await orlov.del(`/api/applications/${csvDraft.id}`, { expect: 204 });
     errors.deleted_draft = await orlov.error('GET', `/api/applications/${csvDraft.id}`);
     const statements = {
         'vypiska_orlov_1c.txt': uploaded.parsed,
         'vypiska_orlov.csv': csvUploaded.parsed,
+        'vypiska_smirnova.csv': gapUploaded.parsed,
     };
     log('orlov: выписка разобрана, одобрено');
 

@@ -343,3 +343,41 @@ def test_bank_metrics_reflect_period():
     assert Client("analyst").http.get("/api/bank/metrics", params={"days": 0}).status_code == 422
     # Клиенту показатели банка недоступны
     assert Client("veter").http.get("/api/bank/metrics").status_code == 403
+
+
+def test_statement_forecast_predicts_cash_gap():
+    # Выписку можно приложить к черновику по желанию: по ней строится прогноз кассового разрыва
+    client = Client("smirnova")
+    draft = client.post(
+        "/api/applications",
+        expect=201,
+        json={"product_code": "OVERDRAFT", "purpose": "CASH_GAP", "amount": 500_000, "term_months": 12},
+    )
+    with open(DEMO_FILES / "vypiska_smirnova.csv", "rb") as file:
+        document = client.post(
+            f"/api/applications/{draft['id']}/documents",
+            expect=201,
+            data={"kind": "BANK_STATEMENT"},
+            files={"file": ("vypiska_smirnova.csv", file, "text/csv")},
+        )
+    forecast = document["parsed"]["forecast"]
+    assert document["parsed"]["closing_balance"] is None and forecast["balance_known"] is False
+    assert len(forecast["months"]) == 3 and forecast["gap"] > 0
+    assert forecast["recommendation"]["product"] == "OVERDRAFT"
+    assert forecast["recommendation"]["amount"] <= forecast["overdraft_cap"]
+    # Выписка 1С с остатком на счёте: разрыва нет
+    orlov = Client("orlov")
+    draft = orlov.post(
+        "/api/applications",
+        expect=201,
+        json={"product_code": "EXPRESS", "purpose": "WORKING_CAPITAL", "amount": 500_000, "term_months": 12},
+    )
+    with open(DEMO_FILES / "vypiska_orlov_1c.txt", "rb") as file:
+        document = orlov.post(
+            f"/api/applications/{draft['id']}/documents",
+            expect=201,
+            data={"kind": "BANK_STATEMENT"},
+            files={"file": ("vypiska_orlov_1c.txt", file, "text/plain")},
+        )
+    assert document["parsed"]["closing_balance"] == 7_026_000
+    assert document["parsed"]["forecast"]["recommendation"]["reason"] == "NO_GAP"

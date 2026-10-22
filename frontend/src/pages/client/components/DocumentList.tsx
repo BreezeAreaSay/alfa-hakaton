@@ -7,6 +7,7 @@ import { TrashCanLineMIcon } from '@alfalab/icons-glyph/TrashCanLineMIcon';
 
 import { openInNewTab } from '../../../api/client';
 import type { DocumentItem } from '../../../api/types';
+import { CashflowForecast } from '../../../components/CashflowForecast';
 import { Badge } from '../../../components/ui';
 import { date, fileSize, rub } from '../../../utils/format';
 
@@ -45,6 +46,11 @@ export function DocumentList({
                             <div className='row' style={{ gap: 6, marginTop: 4 }}>
                                 {doc.signed_by_client && <Badge color='green'>подписан вами</Badge>}
                                 {doc.signed_by_bank && <Badge color='green'>подписан банком</Badge>}
+                            </div>
+                        )}
+                        {doc.parsed && (
+                            <div style={{ marginTop: 12 }}>
+                                <CashflowForecast forecast={doc.parsed.forecast} compact={true} />
                             </div>
                         )}
                     </div>

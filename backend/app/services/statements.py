@@ -11,6 +11,8 @@ from datetime import date, datetime
 from decimal import Decimal, InvalidOperation
 from typing import Any
 
+from app.domain.cashflow import forecast
+
 
 class StatementError(ValueError):
     pass
@@ -42,7 +44,9 @@ def _parse_amount(value: str) -> Decimal:
         raise StatementError(f"Не удалось разобрать сумму «{value}»") from None
 
 
-def _summary(rows: list[tuple[date, Decimal, Decimal]], source: str, account: str | None) -> dict[str, Any]:
+def _summary(
+    rows: list[tuple[date, Decimal, Decimal]], source: str, account: str | None, closing_balance: Decimal | None = None
+) -> dict[str, Any]:
     if not rows:
         raise StatementError("В выписке нет операций")
     inflow: dict[str, Decimal] = defaultdict(Decimal)
@@ -53,15 +57,20 @@ def _summary(rows: list[tuple[date, Decimal, Decimal]], source: str, account: st
         outflow[key] += amount_out
     months = sorted(set(inflow) | set(outflow))[-12:]
     total_in = sum(inflow[m] for m in months)
+    monthly = [{"month": m, "inflow": float(inflow[m]), "outflow": float(outflow[m])} for m in months]
+    closing = float(closing_balance) if closing_balance is not None else None
     return {
         "source": source,
         "account": account,
         "period_from": min(r[0] for r in rows).isoformat(),
         "period_to": max(r[0] for r in rows).isoformat(),
         "operations": len(rows),
-        "months": [{"month": m, "inflow": float(inflow[m]), "outflow": float(outflow[m])} for m in months],
+        "months": monthly,
         "total_inflow": float(total_in),
         "avg_monthly_inflow": float(total_in / len(months)),
+        "closing_balance": closing,
+        # Прогноз кассового разрыва на три месяца — docs/credit-policy.md, «Прогноз кассового разрыва»
+        "forecast": forecast(monthly, closing),
     }
 
 
@@ -69,6 +78,7 @@ def parse_1c(text: str) -> dict[str, Any]:
     if not text.lstrip().startswith("1CClientBankExchange"):
         raise StatementError("Это не файл обмена 1С")
     account = None
+    closing_balance: Decimal | None = None
     rows: list[tuple[date, Decimal, Decimal]] = []
     document: dict[str, str] | None = None
     for line in text.splitlines():
@@ -95,9 +105,11 @@ def parse_1c(text: str) -> dict[str, Any]:
             document[key] = value
         elif key == "РасчСчет":
             account = value
+        elif key == "КонечныйОстаток":
+            closing_balance = _parse_amount(value)
     if not account:
         raise StatementError("В файле не указан расчётный счёт (РасчСчет)")
-    return _summary(rows, "1C", account)
+    return _summary(rows, "1C", account, closing_balance)
 
 
 def parse_csv(text: str) -> dict[str, Any]:

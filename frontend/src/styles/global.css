@@ -669,3 +669,15 @@ table.simple td.num {
         display: none;
     }
 }
+
+/* прогноз денежного потока по выписке */
+.cashflow__table td,
+.cashflow__table th {
+    padding-top: 6px;
+    padding-bottom: 6px;
+}
+
+.cashflow__negative {
+    color: var(--color-light-text-negative, #ec2d20);
+    font-weight: 500;
+}

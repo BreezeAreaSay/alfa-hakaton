@@ -73,11 +73,17 @@ test('банку не хватает данных: клиент загружае
     await submitApplication(page);
 
     await expect(page.getByText('Нужна информация').first()).toBeVisible();
-    await page.locator('input[type="file"][accept=".txt,.csv"]').setInputFiles(path.join(DEMO_FILES, 'vypiska_orlov_1c.txt'));
+    await page
+        .locator('input[type="file"][accept=".txt,.csv"]')
+        .setInputFiles(path.join(DEMO_FILES, 'vypiska_orlov_1c.txt'));
     await expect(page.getByText('vypiska_orlov_1c.txt').first()).toBeVisible();
     await page.getByRole('button', { name: 'Отправить ответ' }).click();
 
-    await expect(page.getByRole('heading', { name: /Кредит одобрен|Банк предлагает другие условия/ })).toBeVisible();
+    await expect(
+        page.getByRole('heading', {
+            name: /Кредит одобрен|Банк предлагает другие условия/,
+        }),
+    ).toBeVisible();
     await expect(page.getByRole('button', { name: 'Принять предложение' })).toBeEnabled();
 });
 
@@ -98,4 +104,21 @@ test('вход с неверным паролем и разграничение 
     await expect(page).toHaveURL(/\/client$/);
     await page.goto('/bank');
     await expect(page).toHaveURL(/\/client$/);
+});
+
+test('выписка с кассовым разрывом: прогноз и подсказка лимита овердрафта', async ({ page }) => {
+    await login(page, 'smirnova');
+    await chooseProduct(page, 'Нужно 1 000 000 на год, закрыть кассовый разрыв', 'Овердрафт');
+
+    // Выписка не обязательна для клиента банка, но по ней строится прогноз денежного потока
+    await page
+        .locator('input[type="file"][accept=".txt,.csv"]')
+        .setInputFiles(path.join(DEMO_FILES, 'vypiska_smirnova.csv'));
+    await expect(page.getByText('vypiska_smirnova.csv').first()).toBeVisible();
+    await expect(page.getByText('возможен кассовый разрыв').first()).toBeVisible();
+    await expect(page.getByText(/Подойдёт овердрафт до/).first()).toContainText(money(250_000));
+
+    await submitApplication(page);
+    await expect(page.getByRole('heading', { name: 'Банк предлагает другие условия' })).toBeVisible();
+    await expect(page.getByText('возможен кассовый разрыв').first()).toBeVisible();
 });

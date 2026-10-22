@@ -531,7 +531,21 @@ curl -X POST http://localhost:8080/api/applications/c368aa16-caa5-4fbd-9aac-c746
     "operations": 60,
     "months": [{"month": "2025-10", "inflow": 651000.0, "outflow": 124060.0}],
     "total_inflow": 8400000.0,
-    "avg_monthly_inflow": 700000.0
+    "avg_monthly_inflow": 700000.0,
+    "closing_balance": 7026000,
+    "forecast": {
+      "horizon_months": 3,
+      "balance_known": true,
+      "deficit_months": [],
+      "trend_inflow": 1664,
+      "trend_outflow": 100,
+      "months": [{"month": "2026-10", "inflow": 706331, "outflow": 127380, "balance": 7604951}],
+      "min_balance": 7026000,
+      "min_balance_month": null,
+      "gap": 0,
+      "overdraft_cap": 280000,
+      "recommendation": {"product": null, "amount": 0, "reason": "NO_GAP"}
+    }
   }
 }
 ```
@@ -540,6 +554,7 @@ curl -X POST http://localhost:8080/api/applications/c368aa16-caa5-4fbd-9aac-c746
 - `kind`: `BANK_STATEMENT`, `FIN_STATEMENT`, `COLLATERAL` или `OTHER` (по умолчанию). Договор и график формирует банк.
 - Клиент загружает PDF, JPG, PNG, TXT или CSV до 10 МБ. Хранится SHA-256 файла.
 - Выписка разбирается сразу: формат обмена 1С (`1CClientBankExchange`, `.txt`) или CSV с колонками `Дата; Приход; Расход`, кодировки UTF-8 и Windows-1251. Если разобрать не удалось — 422 «Не удалось разобрать выписку: …». Примеры — в [frontend/public/demo-files](../frontend/public/demo-files).
+- Вместе с разбором сохраняется `forecast` — прогноз денежного потока на три месяца ([credit-policy.md](credit-policy.md#прогноз-кассового-разрыва)): `months` с поступлениями, списаниями и остатком (или накопленным потоком, если остатка в выписке нет — `balance_known: false`), `deficit_months` — месяцы выписки со списаниями больше поступлений, `gap` — размер кассового разрыва, `recommendation` — `OVERDRAFT` или `CREDIT_LINE` на сумму `amount` либо `NO_GAP`. Для `vypiska_smirnova.csv` из demo-files прогноз даёт разрыв 205399 ₽ и овердрафт до 250000 ₽.
 
 **Ответ на запрос.** Документы привязываются к запросу при загрузке через `info_request_id`, в теле ответа — только текст.
 

@@ -576,36 +576,40 @@ function DetailsStep({
                     <Typography.Title tag='h2' view='small' font='system' weight='bold'>
                         Документы
                     </Typography.Title>
-                    {company.is_bank_client ? (
-                        <Typography.Text view='primary-medium' color='secondary' tag='p'>
-                            У вас есть счёт в банке — обороты возьмём сами, выписку прикладывать не нужно.
-                        </Typography.Text>
-                    ) : (
+                    {!company.is_bank_client || (company.account_months ?? 0) < 3 ? (
                         <Plate
                             view='common'
                             rounded={true}
                             limitContentWidth={false}
                             title='Приложите выписку по счёту за 12 месяцев'
                         >
-                            Из другого банка, в формате 1С (.txt) или CSV — по ней оценим выручку. Без выписки банк
-                            запросит её после проверки.{' '}
+                            Из другого банка, в формате 1С (.txt) или CSV — по ней оценим выручку, если её не подтвердит
+                            отчётность, и построим прогноз денежного потока. Без выписки банк запросит её после
+                            проверки.{' '}
                             <a href={`${import.meta.env.BASE_URL}demo-files/vypiska_orlov_1c.txt`} download={true}>
                                 Тестовая выписка
                             </a>
                         </Plate>
+                    ) : (
+                        <Typography.Text view='primary-medium' color='secondary' tag='p'>
+                            Обороты по счёту в банке возьмём сами, выписка не обязательна. Но по выписке из другого
+                            банка (1С или CSV) мы построим прогноз денежного потока на три месяца и подскажем лимит
+                            овердрафта под кассовый разрыв.{' '}
+                            <a href={`${import.meta.env.BASE_URL}demo-files/vypiska_smirnova.csv`} download={true}>
+                                Тестовая выписка с кассовым разрывом
+                            </a>
+                        </Typography.Text>
                     )}
                     <DocumentList documents={statementDocs} onDelete={(doc) => deleteDocument.mutate(doc.id)} />
                     <DocumentList documents={otherDocs} onDelete={(doc) => deleteDocument.mutate(doc.id)} />
                     <div className='row'>
-                        {!company.is_bank_client && (
-                            <UploadButton
-                                accept='.txt,.csv'
-                                loading={upload.isPending && upload.variables?.kind === 'BANK_STATEMENT'}
-                                onFile={(file) => upload.mutate({ id: application.id, file, kind: 'BANK_STATEMENT' })}
-                            >
-                                Прикрепить выписку
-                            </UploadButton>
-                        )}
+                        <UploadButton
+                            accept='.txt,.csv'
+                            loading={upload.isPending && upload.variables?.kind === 'BANK_STATEMENT'}
+                            onFile={(file) => upload.mutate({ id: application.id, file, kind: 'BANK_STATEMENT' })}
+                        >
+                            Прикрепить выписку
+                        </UploadButton>
                         <UploadButton
                             loading={upload.isPending && upload.variables?.kind === 'OTHER'}
                             onFile={(file) => upload.mutate({ id: application.id, file, kind: 'OTHER' })}

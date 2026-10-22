@@ -136,6 +136,27 @@ export interface StatementSummary {
     months: { month: string; inflow: number; outflow: number }[];
     total_inflow: number;
     avg_monthly_inflow: number;
+    closing_balance: number | null;
+    forecast: CashflowForecast;
+}
+
+/** Прогноз денежного потока на три месяца по выписке (backend/app/domain/cashflow.py). */
+export interface CashflowForecast {
+    horizon_months: number;
+    balance_known: boolean;
+    deficit_months: string[];
+    trend_inflow: number;
+    trend_outflow: number;
+    months: { month: string; inflow: number; outflow: number; balance: number }[];
+    min_balance: number;
+    min_balance_month: string | null;
+    gap: number;
+    overdraft_cap: number;
+    recommendation: {
+        product: 'OVERDRAFT' | 'CREDIT_LINE' | null;
+        amount: number;
+        reason: 'GAP_COVERED_BY_OVERDRAFT' | 'GAP_ABOVE_OVERDRAFT_LIMIT' | 'NO_GAP';
+    };
 }
 
 export interface DocumentItem {

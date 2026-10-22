@@ -737,6 +737,18 @@ export async function run(io: SelfcheckIo): Promise<boolean> {
     );
     check.same('разбор CSV-выписки при загрузке', (statements as J)['vypiska_orlov.csv'], csvUploaded.parsed);
     await orlov.del(`/api/documents/${csvUploaded.id}`);
+    // Выписка с кассовым разрывом — прогноз денежного потока
+    const gapUploaded = await orlov.post(
+        `/api/applications/${csvDraft.id}/documents`,
+        form(
+            'vypiska_smirnova.csv',
+            (await io.readFile('public/demo-files/vypiska_smirnova.csv')) as BlobPart,
+            'text/csv',
+            'BANK_STATEMENT',
+        ),
+    );
+    check.same('прогноз кассового разрыва по выписке', (statements as J)['vypiska_smirnova.csv'], gapUploaded.parsed);
+    await orlov.del(`/api/documents/${gapUploaded.id}`);
     await orlov.del(`/api/applications/${csvDraft.id}`);
     errorsSeen.deleted_draft = await orlov.error('GET', `/api/applications/${csvDraft.id}`);
 

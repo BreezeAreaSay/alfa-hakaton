@@ -1,5 +1,6 @@
 // Разбор выписки по расчётному счёту (формат обмена 1С и CSV) — порт backend/app/services/statements.py.
 import type { StatementSummary } from '../../api/types';
+import { forecast } from './cashflow';
 
 export class StatementError extends Error {}
 
@@ -43,7 +44,12 @@ function parseCents(value: string): number {
 
 type Row = [string, number, number];
 
-function summary(rows: Row[], source: string, account: string | null): StatementSummary {
+function summary(
+    rows: Row[],
+    source: string,
+    account: string | null,
+    closingBalance: number | null = null,
+): StatementSummary {
     if (!rows.length) throw new StatementError('В выписке нет операций');
     const inflow = new Map<string, number>();
     const outflow = new Map<string, number>();
@@ -55,19 +61,22 @@ function summary(rows: Row[], source: string, account: string | null): Statement
     const months = [...new Set([...inflow.keys(), ...outflow.keys()])].sort().slice(-12);
     const totalIn = months.reduce((sum, m) => sum + (inflow.get(m) ?? 0), 0);
     const days = rows.map((r) => r[0]).sort();
+    const monthly = months.map((m) => ({
+        month: m,
+        inflow: (inflow.get(m) ?? 0) / 100,
+        outflow: (outflow.get(m) ?? 0) / 100,
+    }));
     return {
         source,
         account,
         period_from: days[0],
         period_to: days[days.length - 1],
         operations: rows.length,
-        months: months.map((m) => ({
-            month: m,
-            inflow: (inflow.get(m) ?? 0) / 100,
-            outflow: (outflow.get(m) ?? 0) / 100,
-        })),
+        months: monthly,
         total_inflow: totalIn / 100,
         avg_monthly_inflow: totalIn / (100 * months.length),
+        closing_balance: closingBalance,
+        forecast: forecast(monthly, closingBalance),
     };
 }
 
@@ -76,6 +85,7 @@ const LINE_BREAK = /\r\n|[\n\r\v\f\x1c\x1d\x1e\x85\u2028\u2029]/;
 export function parse1c(text: string): StatementSummary {
     if (!text.trimStart().startsWith('1CClientBankExchange')) throw new StatementError('Это не файл обмена 1С');
     let account: string | null = null;
+    let closingBalance: number | null = null;
     const rows: Row[] = [];
     let document: Record<string, string> | null = null;
     for (const rawLine of text.split(LINE_BREAK)) {
@@ -100,9 +110,10 @@ export function parse1c(text: string): StatementSummary {
         const value = index >= 0 ? line.slice(index + 1) : '';
         if (document !== null) document[key] = value;
         else if (key === 'РасчСчет') account = value;
+        else if (key === 'КонечныйОстаток') closingBalance = parseCents(value) / 100;
     }
     if (!account) throw new StatementError('В файле не указан расчётный счёт (РасчСчет)');
-    return summary(rows, '1C', account);
+    return summary(rows, '1C', account, closingBalance);
 }
 
 /** Строки CSV с кавычками — как csv.reader в Python. */

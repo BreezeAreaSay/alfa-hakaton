@@ -4,6 +4,7 @@ import { useState } from 'react';
 
 import { openInNewTab } from '../../../api/client';
 import type { Application, DocumentItem, StatementSummary } from '../../../api/types';
+import { CashflowForecast } from '../../../components/CashflowForecast';
 import { Badge, Empty, ErrorPlate } from '../../../components/ui';
 import { date, dateTime, fileSize, rub } from '../../../utils/format';
 import { Card } from './common';
@@ -49,6 +50,12 @@ function Statement({ parsed }: { parsed: StatementSummary }) {
                     <dt>Формат</dt>
                     <dd>{parsed.source === '1C' ? '1С' : parsed.source}</dd>
                 </div>
+                {parsed.closing_balance !== null && (
+                    <div>
+                        <dt>Остаток на конец периода</dt>
+                        <dd>{rub(parsed.closing_balance)}</dd>
+                    </div>
+                )}
             </dl>
             {parsed.months.length > 0 && (
                 <InflowChart
@@ -56,6 +63,7 @@ function Statement({ parsed }: { parsed: StatementSummary }) {
                     title='Поступления по выписке по месяцам'
                 />
             )}
+            <CashflowForecast forecast={parsed.forecast} />
         </div>
     );
 }

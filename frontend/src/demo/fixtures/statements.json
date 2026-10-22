@@ -20,7 +20,25 @@
       {"month":"2026-09","inflow":714000,"outflow":127840}
     ],
     "total_inflow": 8400000,
-    "avg_monthly_inflow": 700000
+    "avg_monthly_inflow": 700000,
+    "closing_balance": 7026000,
+    "forecast": {
+      "horizon_months": 3,
+      "balance_known": true,
+      "deficit_months": [],
+      "trend_inflow": 1664,
+      "trend_outflow": 100,
+      "months": [
+        {"month":"2026-10","inflow":706331,"outflow":127380,"balance":7604951},
+        {"month":"2026-11","inflow":707995,"outflow":127480,"balance":8185467},
+        {"month":"2026-12","inflow":709660,"outflow":127580,"balance":8767547}
+      ],
+      "min_balance": 7026000,
+      "min_balance_month": null,
+      "gap": 0,
+      "overdraft_cap": 280000,
+      "recommendation": {"product":null,"amount":0,"reason":"NO_GAP"}
+    }
   },
   "vypiska_orlov.csv": {
     "source": "CSV",
@@ -43,6 +61,65 @@
       {"month":"2026-09","inflow":714000,"outflow":127840}
     ],
     "total_inflow": 8400000,
-    "avg_monthly_inflow": 700000
+    "avg_monthly_inflow": 700000,
+    "closing_balance": null,
+    "forecast": {
+      "horizon_months": 3,
+      "balance_known": false,
+      "deficit_months": [],
+      "trend_inflow": 1664,
+      "trend_outflow": 100,
+      "months": [
+        {"month":"2026-10","inflow":706331,"outflow":127380,"balance":578951},
+        {"month":"2026-11","inflow":707995,"outflow":127480,"balance":1159467},
+        {"month":"2026-12","inflow":709660,"outflow":127580,"balance":1741547}
+      ],
+      "min_balance": 0,
+      "min_balance_month": null,
+      "gap": 0,
+      "overdraft_cap": 280000,
+      "recommendation": {"product":null,"amount":0,"reason":"NO_GAP"}
+    }
+  },
+  "vypiska_smirnova.csv": {
+    "source": "CSV",
+    "account": null,
+    "period_from": "2025-10-04",
+    "period_to": "2026-09-25",
+    "operations": 88,
+    "months": [
+      {"month":"2025-10","inflow":820000,"outflow":728000},
+      {"month":"2025-11","inflow":760000,"outflow":670000},
+      {"month":"2025-12","inflow":980000,"outflow":740000},
+      {"month":"2026-01","inflow":540000,"outflow":668000},
+      {"month":"2026-02","inflow":600000,"outflow":630000},
+      {"month":"2026-03","inflow":720000,"outflow":660000},
+      {"month":"2026-04","inflow":800000,"outflow":728000},
+      {"month":"2026-05","inflow":900000,"outflow":710000},
+      {"month":"2026-06","inflow":960000,"outflow":730000},
+      {"month":"2026-07","inflow":780000,"outflow":748000},
+      {"month":"2026-08","inflow":650000,"outflow":680000},
+      {"month":"2026-09","inflow":520000,"outflow":670000}
+    ],
+    "total_inflow": 9030000,
+    "avg_monthly_inflow": 752500,
+    "closing_balance": null,
+    "forecast": {
+      "horizon_months": 3,
+      "balance_known": false,
+      "deficit_months": ["2026-01","2026-02","2026-08","2026-09"],
+      "trend_inflow": -9126,
+      "trend_outflow": 441,
+      "months": [
+        {"month":"2026-10","inflow":640874,"outflow":699774,"balance":-58900},
+        {"month":"2026-11","inflow":631748,"outflow":700214,"balance":-127366},
+        {"month":"2026-12","inflow":622622,"outflow":700655,"balance":-205399}
+      ],
+      "min_balance": -205399,
+      "min_balance_month": "2026-12",
+      "gap": 205399,
+      "overdraft_cap": 300000,
+      "recommendation": {"product":"OVERDRAFT","amount":250000,"reason":"GAP_COVERED_BY_OVERDRAFT"}
+    }
   }
 }

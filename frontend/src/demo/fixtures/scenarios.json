@@ -2417,8 +2417,8 @@
           "actor": "CLIENT",
           "user": "Ветров Андрей Сергеевич",
           "details": {
-            "sha256": "5ec264128f48d652282179aa778dcf5f534c212976ba3205ca40e478c33b181e",
-            "document": "24c590ca-92f0-4d59-a987-86cea4bec368"
+            "sha256": "c8cd211b5170562484e5fd47d1a53dffa170f567feb64e214a033fe0db3cf8d5",
+            "document": "41e32f9c-3596-46ec-9cda-a6b5ed568a10"
           }
         },
         {
@@ -2566,8 +2566,8 @@
           "error": null,
           "attempts": 1
         },
-        "EGRUL": {"status":"DONE","error":null,"attempts":1},
         "FNS": {"status":"DONE","error":null,"attempts":1},
+        "EGRUL": {"status":"DONE","error":null,"attempts":1},
         "GIRBO": {"status":"SKIPPED","error":null,"attempts":1},
         "BKI": {"status":"DONE","error":null,"attempts":1},
         "BANK": {"status":"DONE","error":null,"attempts":1},
@@ -2944,6 +2944,12 @@
     },
     "dossier": {
       "sources": {
+        "POLICY": {
+          "status": "DONE",
+          "result": {"flags":[],"limit":3200000,"outcome":"COUNTER","version":"v1.0","stop_factors":[]},
+          "error": null,
+          "attempts": 1
+        },
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -2964,13 +2970,7 @@
         "GIRBO": {"status":"DONE","error":null,"attempts":1},
         "BKI": {"status":"DONE","error":null,"attempts":1},
         "BANK": {"status":"DONE","error":null,"attempts":1},
-        "SCORING": {"status":"DONE","result":{"score":790,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
-        "POLICY": {
-          "status": "DONE",
-          "result": {"flags":[],"limit":3200000,"outcome":"COUNTER","version":"v1.0","stop_factors":[]},
-          "error": null,
-          "attempts": 1
-        }
+        "SCORING": {"status":"DONE","result":{"score":790,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1}
       },
       "scoring": {
         "score": 790,
@@ -3363,13 +3363,7 @@
     },
     "dossier": {
       "sources": {
-        "SCORING": {"status":"DONE","result":{"score":790,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
-        "POLICY": {
-          "status": "DONE",
-          "result": {"flags":[],"limit":2280000,"outcome":"COUNTER","version":"v1.0","stop_factors":[]},
-          "error": null,
-          "attempts": 1
-        },
+        "FNS": {"status":"DONE","error":null,"attempts":1},
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -3385,9 +3379,15 @@
           "error": null,
           "attempts": 1
         },
-        "EGRUL": {"status":"DONE","error":null,"attempts":1},
-        "FNS": {"status":"DONE","error":null,"attempts":1},
         "GIRBO": {"status":"DONE","error":null,"attempts":1},
+        "EGRUL": {"status":"DONE","error":null,"attempts":1},
+        "SCORING": {"status":"DONE","result":{"score":790,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
+        "POLICY": {
+          "status": "DONE",
+          "result": {"flags":[],"limit":2280000,"outcome":"COUNTER","version":"v1.0","stop_factors":[]},
+          "error": null,
+          "attempts": 1
+        },
         "BKI": {"status":"DONE","error":null,"attempts":1},
         "BANK": {"status":"DONE","error":null,"attempts":1}
       },
@@ -3890,7 +3890,25 @@
           {"month":"2026-09","inflow":714000,"outflow":127840}
         ],
         "total_inflow": 8400000,
-        "avg_monthly_inflow": 700000
+        "avg_monthly_inflow": 700000,
+        "closing_balance": 7026000,
+        "forecast": {
+          "horizon_months": 3,
+          "balance_known": true,
+          "deficit_months": [],
+          "trend_inflow": 1664,
+          "trend_outflow": 100,
+          "months": [
+            {"month":"2026-10","inflow":706331,"outflow":127380,"balance":7604951},
+            {"month":"2026-11","inflow":707995,"outflow":127480,"balance":8185467},
+            {"month":"2026-12","inflow":709660,"outflow":127580,"balance":8767547}
+          ],
+          "min_balance": 7026000,
+          "min_balance_month": null,
+          "gap": 0,
+          "overdraft_cap": 280000,
+          "recommendation": {"product":null,"amount":0,"reason":"NO_GAP"}
+        }
       }
     },
     "rechecking": {
@@ -3969,10 +3987,28 @@
             ],
             "source": "1C",
             "account": "40802810000000001006",
+            "forecast": {
+              "gap": 0,
+              "months": [
+                {"month":"2026-10","inflow":706331,"balance":7604951,"outflow":127380},
+                {"month":"2026-11","inflow":707995,"balance":8185467,"outflow":127480},
+                {"month":"2026-12","inflow":709660,"balance":8767547,"outflow":127580}
+              ],
+              "min_balance": 7026000,
+              "trend_inflow": 1664,
+              "balance_known": true,
+              "overdraft_cap": 280000,
+              "trend_outflow": 100,
+              "deficit_months": [],
+              "horizon_months": 3,
+              "recommendation": {"amount":0,"reason":"NO_GAP","product":null},
+              "min_balance_month": null
+            },
             "period_to": "2026-09-25",
             "operations": 60,
             "period_from": "2025-10-05",
             "total_inflow": 8400000,
+            "closing_balance": 7026000,
             "avg_monthly_inflow": 700000
           },
           "signed_by_client": false,
@@ -4111,10 +4147,28 @@
             ],
             "source": "1C",
             "account": "40802810000000001006",
+            "forecast": {
+              "gap": 0,
+              "months": [
+                {"month":"2026-10","inflow":706331,"balance":7604951,"outflow":127380},
+                {"month":"2026-11","inflow":707995,"balance":8185467,"outflow":127480},
+                {"month":"2026-12","inflow":709660,"balance":8767547,"outflow":127580}
+              ],
+              "min_balance": 7026000,
+              "trend_inflow": 1664,
+              "balance_known": true,
+              "overdraft_cap": 280000,
+              "trend_outflow": 100,
+              "deficit_months": [],
+              "horizon_months": 3,
+              "recommendation": {"amount":0,"reason":"NO_GAP","product":null},
+              "min_balance_month": null
+            },
             "period_to": "2026-09-25",
             "operations": 60,
             "period_from": "2025-10-05",
             "total_inflow": 8400000,
+            "closing_balance": 7026000,
             "avg_monthly_inflow": 700000
           },
           "signed_by_client": false,
@@ -4167,6 +4221,17 @@
     },
     "dossier": {
       "sources": {
+        "SCORING": {"status":"DONE","result":{"score":770,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
+        "FNS": {"status":"DONE","error":null,"attempts":1},
+        "GIRBO": {"status":"SKIPPED","error":null,"attempts":1},
+        "POLICY": {
+          "status": "DONE",
+          "result": {"flags":[],"limit":1700000,"outcome":"APPROVE","version":"v1.0","stop_factors":[]},
+          "error": null,
+          "attempts": 1
+        },
+        "BKI": {"status":"DONE","error":null,"attempts":1},
+        "BANK": {"status":"DONE","error":null,"attempts":1},
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -4182,18 +4247,7 @@
           "error": null,
           "attempts": 1
         },
-        "EGRUL": {"status":"DONE","error":null,"attempts":1},
-        "FNS": {"status":"DONE","error":null,"attempts":1},
-        "GIRBO": {"status":"SKIPPED","error":null,"attempts":1},
-        "BKI": {"status":"DONE","error":null,"attempts":1},
-        "BANK": {"status":"DONE","error":null,"attempts":1},
-        "SCORING": {"status":"DONE","result":{"score":770,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
-        "POLICY": {
-          "status": "DONE",
-          "result": {"flags":[],"limit":1700000,"outcome":"APPROVE","version":"v1.0","stop_factors":[]},
-          "error": null,
-          "attempts": 1
-        }
+        "EGRUL": {"status":"DONE","error":null,"attempts":1}
       },
       "scoring": {
         "score": 770,
@@ -4479,6 +4533,9 @@
     },
     "dossier": {
       "sources": {
+        "EGRUL": {"status":"DONE","error":null,"attempts":1},
+        "GIRBO": {"status":"SKIPPED","error":null,"attempts":1},
+        "SCORING": {"status":"DONE","result":{"score":630,"version":"v1.0","risk_class":"C"},"error":null,"attempts":1},
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -4494,12 +4551,9 @@
           "error": null,
           "attempts": 1
         },
-        "EGRUL": {"status":"DONE","error":null,"attempts":1},
         "FNS": {"status":"DONE","error":null,"attempts":1},
-        "GIRBO": {"status":"SKIPPED","error":null,"attempts":1},
         "BKI": {"status":"DONE","error":null,"attempts":1},
         "BANK": {"status":"DONE","error":null,"attempts":1},
-        "SCORING": {"status":"DONE","result":{"score":630,"version":"v1.0","risk_class":"C"},"error":null,"attempts":1},
         "POLICY": {
           "status": "DONE",
           "result": {"flags":["F03","F07"],"limit":1430000,"outcome":"MANUAL_REVIEW","version":"v1.0","stop_factors":[]},
@@ -4773,6 +4827,9 @@
     },
     "dossier_rejected": {
       "sources": {
+        "EGRUL": {"status":"DONE","error":null,"attempts":1},
+        "GIRBO": {"status":"SKIPPED","error":null,"attempts":1},
+        "SCORING": {"status":"DONE","result":{"score":630,"version":"v1.0","risk_class":"C"},"error":null,"attempts":1},
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -4788,12 +4845,9 @@
           "error": null,
           "attempts": 1
         },
-        "EGRUL": {"status":"DONE","error":null,"attempts":1},
         "FNS": {"status":"DONE","error":null,"attempts":1},
-        "GIRBO": {"status":"SKIPPED","error":null,"attempts":1},
         "BKI": {"status":"DONE","error":null,"attempts":1},
         "BANK": {"status":"DONE","error":null,"attempts":1},
-        "SCORING": {"status":"DONE","result":{"score":630,"version":"v1.0","risk_class":"C"},"error":null,"attempts":1},
         "POLICY": {
           "status": "DONE",
           "result": {"flags":["F03","F07"],"limit":1430000,"outcome":"MANUAL_REVIEW","version":"v1.0","stop_factors":[]},
@@ -4978,18 +5032,18 @@
           "error": null,
           "attempts": 1
         },
-        "GIRBO": {"status":"DONE","error":null,"attempts":1},
-        "BANK": {"status":"DONE","error":null,"attempts":1},
-        "EGRUL": {"status":"DONE","error":null,"attempts":1},
         "BKI": {"status":"DONE","error":null,"attempts":1},
-        "SCORING": {"status":"DONE","result":{"score":370,"version":"v1.0","risk_class":"E"},"error":null,"attempts":1},
+        "EGRUL": {"status":"DONE","error":null,"attempts":1},
         "FNS": {"status":"DONE","error":null,"attempts":1},
+        "GIRBO": {"status":"DONE","error":null,"attempts":1},
+        "SCORING": {"status":"DONE","result":{"score":370,"version":"v1.0","risk_class":"E"},"error":null,"attempts":1},
         "POLICY": {
           "status": "DONE",
           "result": {"flags":[],"limit":null,"outcome":"REJECT","version":"v1.0","stop_factors":["S01","S05"]},
           "error": null,
           "attempts": 1
-        }
+        },
+        "BANK": {"status":"DONE","error":null,"attempts":1}
       },
       "scoring": {
         "score": 370,
@@ -5239,7 +5293,6 @@
     },
     "dossier": {
       "sources": {
-        "BKI": {"status":"DONE","error":null,"attempts":1},
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -5255,7 +5308,10 @@
           "error": null,
           "attempts": 1
         },
+        "EGRUL": {"status":"DONE","error":null,"attempts":1},
         "FNS": {"status":"DONE","error":null,"attempts":1},
+        "GIRBO": {"status":"DONE","error":null,"attempts":1},
+        "BKI": {"status":"DONE","error":null,"attempts":1},
         "BANK": {"status":"DONE","error":null,"attempts":1},
         "SCORING": {"status":"DONE","result":{"score":500,"version":"v1.0","risk_class":"E"},"error":null,"attempts":1},
         "POLICY": {
@@ -5263,9 +5319,7 @@
           "result": {"flags":[],"limit":null,"outcome":"REJECT","version":"v1.0","stop_factors":["S03","S05"]},
           "error": null,
           "attempts": 1
-        },
-        "EGRUL": {"status":"DONE","error":null,"attempts":1},
-        "GIRBO": {"status":"DONE","error":null,"attempts":1}
+        }
       },
       "scoring": {
         "score": 500,
@@ -6021,18 +6075,6 @@
     },
     "dossier": {
       "sources": {
-        "BANK": {"status":"DONE","error":null,"attempts":1},
-        "EGRUL": {"status":"DONE","error":null,"attempts":1},
-        "FNS": {"status":"DONE","error":null,"attempts":1},
-        "BKI": {"status":"DONE","error":null,"attempts":3},
-        "GIRBO": {"status":"DONE","error":null,"attempts":1},
-        "SCORING": {"status":"DONE","result":{"score":900,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
-        "POLICY": {
-          "status": "DONE",
-          "result": {"flags":[],"limit":5000000,"outcome":"APPROVE","version":"v1.0","stop_factors":[]},
-          "error": null,
-          "attempts": 1
-        },
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -6045,6 +6087,18 @@
               {"ok":true,"title":"Согласие на обработку персональных данных"}
             ]
           },
+          "error": null,
+          "attempts": 1
+        },
+        "EGRUL": {"status":"DONE","error":null,"attempts":1},
+        "BKI": {"status":"DONE","error":null,"attempts":3},
+        "BANK": {"status":"DONE","error":null,"attempts":1},
+        "FNS": {"status":"DONE","error":null,"attempts":1},
+        "GIRBO": {"status":"DONE","error":null,"attempts":1},
+        "SCORING": {"status":"DONE","result":{"score":900,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
+        "POLICY": {
+          "status": "DONE",
+          "result": {"flags":[],"limit":5000000,"outcome":"APPROVE","version":"v1.0","stop_factors":[]},
           "error": null,
           "attempts": 1
         }
