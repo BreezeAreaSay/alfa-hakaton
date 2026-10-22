@@ -61,36 +61,44 @@ export function LoginPage() {
     return (
         <div className='login'>
             <section className='login__brand'>
-                <div className='logo'>
-                    <span className='logo__mark'>
-                        <AlfaBankLIcon width={21} height={32} aria-label='Альфа-Банк' />
-                    </span>
-                    <Typography.Text view='primary-medium' weight='bold' color='primary-inverted'>
-                        Кредитный кабинет для бизнеса
+                <div className='login__inner'>
+                    <div className='logo'>
+                        <span className='logo__mark'>
+                            <AlfaBankLIcon width={21} height={32} aria-label='Альфа-Банк' />
+                        </span>
+                        <Typography.Text view='primary-medium' weight='bold' color='primary-inverted'>
+                            Кредитный кабинет для бизнеса
+                        </Typography.Text>
+                    </div>
+                    <div className='stack-16'>
+                        <Typography.TitleResponsive
+                            tag='h1'
+                            view='xlarge'
+                            font='system'
+                            weight='bold'
+                            color='primary-inverted'
+                        >
+                            {/* неразрывные пробелы: строка не начинается с тире и не кончается на «от» */}
+                            {'Кредит для бизнеса — от задачи до денег на счёте'}
+                        </Typography.TitleResponsive>
+                        <Typography.Text
+                            view='primary-large'
+                            color='secondary-inverted'
+                            tag='p'
+                            className='login__lead'
+                        >
+                            Подберём продукт под вашу задачу, данные компании подтянем из ЕГРЮЛ, статус заявки — в
+                            реальном времени. Подписание и выдача — прямо в кабинете.
+                        </Typography.Text>
+                    </div>
+                    <Typography.Text view='primary-small' color='secondary-inverted' tag='p' className='login__note'>
+                        Демонстрационный стенд: все компании и данные синтетические.
                     </Typography.Text>
                 </div>
-                <div className='stack-16'>
-                    <Typography.TitleResponsive
-                        tag='h1'
-                        view='xlarge'
-                        font='system'
-                        weight='bold'
-                        color='primary-inverted'
-                    >
-                        Кредит для бизнеса — от задачи до денег на счёте
-                    </Typography.TitleResponsive>
-                    <Typography.Text view='primary-large' color='secondary-inverted' tag='p'>
-                        Подберём продукт под вашу задачу, данные компании подтянем из ЕГРЮЛ, статус заявки — в реальном
-                        времени. Подписание и выдача — прямо в кабинете.
-                    </Typography.Text>
-                </div>
-                <Typography.Text view='primary-small' color='secondary-inverted' tag='p'>
-                    Демонстрационный стенд: все компании и данные синтетические.
-                </Typography.Text>
             </section>
 
             <section className='login__form'>
-                <div style={{ width: '100%', maxWidth: 520 }} className='stack'>
+                <div className='login__inner stack'>
                     <Typography.Title tag='h2' view='medium' font='system' weight='bold'>
                         Вход
                     </Typography.Title>
