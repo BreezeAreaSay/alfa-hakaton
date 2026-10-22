@@ -141,7 +141,7 @@ function quote(ctx: Ctx) {
     const accountMonths = v.number('account_months', { ge: 0, int: true }) ?? 0;
     v.done();
     const age = businessMonths ?? null;
-    return productsForPurpose(purpose as Purpose, age).flatMap((code) => {
+    const items = productsForPurpose(purpose as Purpose, age).flatMap((code) => {
         const product = productTerms(code);
         const row = productRow(code);
         if (!product || !row) return [];
@@ -167,6 +167,16 @@ function quote(ctx: Ctx) {
             },
         ];
     });
+    // Подходящие продукты — от меньшей ставки к большей, недоступные — после них в порядке уместности
+    return items
+        .map((item, index) => ({ item, index }))
+        .sort(
+            (a, b) =>
+                Number(!a.item.eligible) - Number(!b.item.eligible) ||
+                (a.item.eligible ? Number(a.item.rate_from) - Number(b.item.rate_from) : 0) ||
+                a.index - b.index,
+        )
+        .map(({ item }) => item);
 }
 
 /** Внешняя система ответит, если для неё не включён сбой (профиль компании из ЕГРЮЛ и данных банка). */

@@ -29,7 +29,7 @@ import {
     useUpload,
 } from '../../api/hooks';
 import type { Application, Company, ParsedNeed, Purpose, QuoteItem } from '../../api/types';
-import { ErrorPlate, KeyValue, Loader, PageHead } from '../../components/ui';
+import { Badge, ErrorPlate, KeyValue, Loader, PageHead } from '../../components/ui';
 import { months, num, percent, rub, shortAmount } from '../../utils/format';
 import { CompanyCard } from './components/CompanyCard';
 import { DocumentList } from './components/DocumentList';
@@ -391,10 +391,14 @@ function SelectionStep({
                 <section className='stack-16' aria-label='Подходящие продукты'>
                     {quote.isLoading && <Loader text='Подбираем продукты…' />}
                     <ErrorPlate error={quote.error ?? create.error ?? update.error} />
-                    {quote.data?.map((item) => (
+                    {quote.data?.map((item, index) => (
                         <QuoteCard
                             key={item.product.code}
                             item={item}
+                            // Продукты идут от меньшей ставки: первый подходящий — самый дешёвый, если есть выбор
+                            cheapest={
+                                index === 0 && item.eligible && (quote.data?.filter((i) => i.eligible).length ?? 0) > 1
+                            }
                             onChoose={() => void choose(item)}
                             busy={create.isPending || update.isPending}
                         />
@@ -408,15 +412,28 @@ function SelectionStep({
     );
 }
 
-function QuoteCard({ item, onChoose, busy }: { item: QuoteItem; onChoose: () => void; busy: boolean }) {
+function QuoteCard({
+    item,
+    cheapest = false,
+    onChoose,
+    busy,
+}: {
+    item: QuoteItem;
+    cheapest?: boolean;
+    onChoose: () => void;
+    busy: boolean;
+}) {
     const product = item.product;
     return (
         <article className={`offer-card stack-16${item.eligible ? '' : ' offer-card--disabled'}`}>
             <div className='row row--between' style={{ alignItems: 'flex-start' }}>
                 <div className='stack-8' style={{ flex: 1 }}>
-                    <Typography.Title tag='h3' view='small' font='system' weight='bold'>
-                        {product.name}
-                    </Typography.Title>
+                    <div className='row' style={{ gap: 8 }}>
+                        <Typography.Title tag='h3' view='small' font='system' weight='bold'>
+                            {product.name}
+                        </Typography.Title>
+                        {cheapest && <Badge color='green'>самая низкая ставка</Badge>}
+                    </div>
                     <Typography.Text view='primary-small' color='secondary' tag='p'>
                         {product.description}
                     </Typography.Text>

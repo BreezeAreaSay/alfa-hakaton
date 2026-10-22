@@ -1,5 +1,5 @@
 {
-  "captured_at": "2026-10-22T16:04:51.820Z",
+  "captured_at": "2026-10-22T16:28:37.677Z",
   "captured_on": "2026-10-22",
   "companies": {
     "veter": {
@@ -20,7 +20,7 @@
         "bank_account_opened_at": "2021-10-22",
         "business_months": 74,
         "account_months": 60,
-        "registry_synced_at": "2026-10-22T16:04:37.998014Z"
+        "registry_synced_at": "2026-10-22T16:28:31.092620Z"
       },
       "sources": {
         "EGRUL": {
@@ -122,7 +122,7 @@
         "bank_account_opened_at": "2024-09-22",
         "business_months": 26,
         "account_months": 25,
-        "registry_synced_at": "2026-10-22T16:04:39.050618Z"
+        "registry_synced_at": "2026-10-22T16:28:05.543693Z"
       },
       "sources": {
         "EGRUL": {
@@ -208,7 +208,7 @@
         "bank_account_opened_at": "2026-06-22",
         "business_months": 52,
         "account_months": 4,
-        "registry_synced_at": "2026-10-22T16:04:39.600524Z"
+        "registry_synced_at": "2026-10-22T16:28:07.495659Z"
       },
       "sources": {
         "EGRUL": {
@@ -310,7 +310,7 @@
         "bank_account_opened_at": "2026-08-22",
         "business_months": 38,
         "account_months": 2,
-        "registry_synced_at": "2026-10-22T16:04:40.046516Z"
+        "registry_synced_at": "2026-10-22T16:28:11.857682Z"
       },
       "sources": {
         "EGRUL": {
@@ -392,7 +392,7 @@
         "bank_account_opened_at": "2025-04-22",
         "business_months": 40,
         "account_months": 18,
-        "registry_synced_at": "2026-10-22T16:04:51.365081Z"
+        "registry_synced_at": "2026-10-22T16:28:37.097909Z"
       },
       "sources": {
         "EGRUL": {
@@ -494,7 +494,7 @@
         "bank_account_opened_at": "2023-10-22",
         "business_months": 100,
         "account_months": 36,
-        "registry_synced_at": "2026-10-22T16:04:51.383869Z"
+        "registry_synced_at": "2026-10-22T16:28:37.168385Z"
       },
       "sources": {
         "EGRUL": {
@@ -596,7 +596,7 @@
         "bank_account_opened_at": "2026-05-22",
         "business_months": 5,
         "account_months": 5,
-        "registry_synced_at": "2026-10-22T16:04:35.390813Z"
+        "registry_synced_at": "2026-10-22T16:28:21.078296Z"
       },
       "sources": {
         "EGRUL": {
@@ -672,7 +672,7 @@
         "bank_account_opened_at": "2022-10-22",
         "business_months": 98,
         "account_months": 48,
-        "registry_synced_at": "2026-10-22T16:04:36.415286Z"
+        "registry_synced_at": "2026-10-22T16:28:23.833128Z"
       },
       "sources": {
         "EGRUL": {
@@ -759,7 +759,7 @@
         "bank_account_opened_at": "2026-07-22",
         "business_months": 70,
         "account_months": 3,
-        "registry_synced_at": "2026-10-22T16:04:36.936338Z"
+        "registry_synced_at": "2026-10-22T16:28:13.757538Z"
       },
       "sources": {
         "EGRUL": {
@@ -843,7 +843,7 @@
         "bank_account_opened_at": "2026-05-22",
         "business_months": 44,
         "account_months": 5,
-        "registry_synced_at": "2026-10-22T16:04:35.970177Z"
+        "registry_synced_at": "2026-10-22T16:28:16.013855Z"
       },
       "sources": {
         "EGRUL": {

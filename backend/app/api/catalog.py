@@ -83,7 +83,15 @@ def quote(body: QuoteRequest, db: Session = Depends(get_db)) -> list[QuoteItem]:
                 payment_label=payment_label(product.kind),
             )
         )
-    return items
+    # Подходящие продукты — от меньшей ставки к большей: для предпринимателя главный критерий выбора — стоимость
+    # (docs/research/interviews/01.md). Недоступные — после них, в порядке уместности для задачи.
+    return [
+        item
+        for _, item in sorted(
+            enumerate(items),
+            key=lambda pair: (not pair[1].eligible, pair[1].rate_from if pair[1].eligible else 0, pair[0]),
+        )
+    ]
 
 
 PROACTIVE_TTL_SECONDS = 600
