@@ -143,19 +143,19 @@
     "application": "vektor",
     "request": {"product_code":"CREDIT_LINE","amount":4000000,"term_months":18},
     "response": {
-      "limit": "3070000",
+      "limit": "2940000",
       "limit_binding": "DSCR",
       "limit_phrase": "Текущие платежи по кредитам и прибыль ограничивают сумму",
-      "min_rate": "16.00",
-      "rate": "16.00",
-      "monthly_payment": "53333.33",
-      "overpayment": "959999.94",
+      "min_rate": "19.50",
+      "rate": "19.50",
+      "monthly_payment": "65000.00",
+      "overpayment": "1170000.00",
       "payment_label": "Проценты в месяц при полном использовании лимита",
-      "errors": ["Сумма превышает расчётный лимит 3 070 000 ₽ больше чем на 20%"],
+      "errors": ["Сумма превышает расчётный лимит 2 940 000 ₽ больше чем на 20%"],
       "constraints": [
         {"code":"PRODUCT_MAX","amount":50000000},
         {"code":"REVENUE","amount":18000000},
-        {"code":"DSCR","amount":3070719.6,"max_payment":211538.46}
+        {"code":"DSCR","amount":2945990.18,"max_payment":211538.46}
       ]
     }
   },
@@ -166,10 +166,10 @@
       "limit": "1200000",
       "limit_binding": "OVERDRAFT",
       "limit_phrase": "Лимит овердрафта — до 40% среднемесячных поступлений на счёт",
-      "min_rate": "14.50",
-      "rate": "14.50",
-      "monthly_payment": "12083.33",
-      "overpayment": "144999.96",
+      "min_rate": "20.50",
+      "rate": "20.50",
+      "monthly_payment": "17083.33",
+      "overpayment": "204999.96",
       "payment_label": "Проценты в месяц при полном использовании лимита",
       "errors": [],
       "constraints": [{"code":"PRODUCT_MAX","amount":20000000},{"code":"OVERDRAFT","amount":1200000}]

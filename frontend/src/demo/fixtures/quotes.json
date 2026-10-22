@@ -33,9 +33,9 @@
         "code": "CREDIT_LINE",
         "eligible": true,
         "issues": [],
-        "rate_from": "14.50",
-        "monthly_payment": "36250.00",
-        "overpayment": "870000.00",
+        "rate_from": "18.00",
+        "monthly_payment": "45000.00",
+        "overpayment": "1080000.00",
         "payment_label": "Проценты в месяц при полном использовании лимита"
       }
     ]
@@ -56,18 +56,18 @@
         "code": "OVERDRAFT",
         "eligible": true,
         "issues": [],
-        "rate_from": "13.00",
-        "monthly_payment": "10833.33",
-        "overpayment": "129999.96",
+        "rate_from": "19.00",
+        "monthly_payment": "15833.33",
+        "overpayment": "189999.96",
         "payment_label": "Проценты в месяц при полном использовании лимита"
       },
       {
         "code": "CREDIT_LINE",
         "eligible": true,
         "issues": [],
-        "rate_from": "14.50",
-        "monthly_payment": "12083.33",
-        "overpayment": "144999.96",
+        "rate_from": "18.00",
+        "monthly_payment": "15000.00",
+        "overpayment": "180000.00",
         "payment_label": "Проценты в месяц при полном использовании лимита"
       },
       {
@@ -179,9 +179,9 @@
         "code": "CREDIT_LINE",
         "eligible": true,
         "issues": [],
-        "rate_from": "14.50",
-        "monthly_payment": "36250.00",
-        "overpayment": "870000.00",
+        "rate_from": "18.00",
+        "monthly_payment": "45000.00",
+        "overpayment": "1080000.00",
         "payment_label": "Проценты в месяц при полном использовании лимита"
       }
     ]
@@ -202,18 +202,18 @@
         "code": "OVERDRAFT",
         "eligible": true,
         "issues": [],
-        "rate_from": "13.00",
-        "monthly_payment": "10833.33",
-        "overpayment": "129999.96",
+        "rate_from": "19.00",
+        "monthly_payment": "15833.33",
+        "overpayment": "189999.96",
         "payment_label": "Проценты в месяц при полном использовании лимита"
       },
       {
         "code": "CREDIT_LINE",
         "eligible": true,
         "issues": [],
-        "rate_from": "14.50",
-        "monthly_payment": "12083.33",
-        "overpayment": "144999.96",
+        "rate_from": "18.00",
+        "monthly_payment": "15000.00",
+        "overpayment": "180000.00",
         "payment_label": "Проценты в месяц при полном использовании лимита"
       },
       {
@@ -325,9 +325,9 @@
         "code": "CREDIT_LINE",
         "eligible": true,
         "issues": [],
-        "rate_from": "14.50",
-        "monthly_payment": "36250.00",
-        "overpayment": "870000.00",
+        "rate_from": "18.00",
+        "monthly_payment": "45000.00",
+        "overpayment": "1080000.00",
         "payment_label": "Проценты в месяц при полном использовании лимита"
       }
     ]
@@ -348,18 +348,18 @@
         "code": "OVERDRAFT",
         "eligible": false,
         "issues": ["Доступен клиентам банка с поступлениями на счёт от 6 мес."],
-        "rate_from": "13.00",
-        "monthly_payment": "10833.33",
-        "overpayment": "129999.96",
+        "rate_from": "19.00",
+        "monthly_payment": "15833.33",
+        "overpayment": "189999.96",
         "payment_label": "Проценты в месяц при полном использовании лимита"
       },
       {
         "code": "CREDIT_LINE",
         "eligible": true,
         "issues": [],
-        "rate_from": "14.50",
-        "monthly_payment": "12083.33",
-        "overpayment": "144999.96",
+        "rate_from": "18.00",
+        "monthly_payment": "15000.00",
+        "overpayment": "180000.00",
         "payment_label": "Проценты в месяц при полном использовании лимита"
       },
       {
@@ -471,9 +471,9 @@
         "code": "CREDIT_LINE",
         "eligible": true,
         "issues": [],
-        "rate_from": "14.50",
-        "monthly_payment": "36250.00",
-        "overpayment": "870000.00",
+        "rate_from": "18.00",
+        "monthly_payment": "45000.00",
+        "overpayment": "1080000.00",
         "payment_label": "Проценты в месяц при полном использовании лимита"
       }
     ]
@@ -494,18 +494,18 @@
         "code": "OVERDRAFT",
         "eligible": false,
         "issues": ["Доступен клиентам банка с поступлениями на счёт от 6 мес."],
-        "rate_from": "13.00",
-        "monthly_payment": "10833.33",
-        "overpayment": "129999.96",
+        "rate_from": "19.00",
+        "monthly_payment": "15833.33",
+        "overpayment": "189999.96",
         "payment_label": "Проценты в месяц при полном использовании лимита"
       },
       {
         "code": "CREDIT_LINE",
         "eligible": true,
         "issues": [],
-        "rate_from": "14.50",
-        "monthly_payment": "12083.33",
-        "overpayment": "144999.96",
+        "rate_from": "18.00",
+        "monthly_payment": "15000.00",
+        "overpayment": "180000.00",
         "payment_label": "Проценты в месяц при полном использовании лимита"
       },
       {
@@ -617,9 +617,9 @@
         "code": "CREDIT_LINE",
         "eligible": true,
         "issues": [],
-        "rate_from": "14.50",
-        "monthly_payment": "36250.00",
-        "overpayment": "870000.00",
+        "rate_from": "18.00",
+        "monthly_payment": "45000.00",
+        "overpayment": "1080000.00",
         "payment_label": "Проценты в месяц при полном использовании лимита"
       }
     ]
@@ -640,18 +640,18 @@
         "code": "OVERDRAFT",
         "eligible": true,
         "issues": [],
-        "rate_from": "13.00",
-        "monthly_payment": "10833.33",
-        "overpayment": "129999.96",
+        "rate_from": "19.00",
+        "monthly_payment": "15833.33",
+        "overpayment": "189999.96",
         "payment_label": "Проценты в месяц при полном использовании лимита"
       },
       {
         "code": "CREDIT_LINE",
         "eligible": true,
         "issues": [],
-        "rate_from": "14.50",
-        "monthly_payment": "12083.33",
-        "overpayment": "144999.96",
+        "rate_from": "18.00",
+        "monthly_payment": "15000.00",
+        "overpayment": "180000.00",
         "payment_label": "Проценты в месяц при полном использовании лимита"
       },
       {
@@ -763,9 +763,9 @@
         "code": "CREDIT_LINE",
         "eligible": true,
         "issues": [],
-        "rate_from": "14.50",
-        "monthly_payment": "36250.00",
-        "overpayment": "870000.00",
+        "rate_from": "18.00",
+        "monthly_payment": "45000.00",
+        "overpayment": "1080000.00",
         "payment_label": "Проценты в месяц при полном использовании лимита"
       }
     ]
@@ -786,18 +786,18 @@
         "code": "OVERDRAFT",
         "eligible": true,
         "issues": [],
-        "rate_from": "13.00",
-        "monthly_payment": "10833.33",
-        "overpayment": "129999.96",
+        "rate_from": "19.00",
+        "monthly_payment": "15833.33",
+        "overpayment": "189999.96",
         "payment_label": "Проценты в месяц при полном использовании лимита"
       },
       {
         "code": "CREDIT_LINE",
         "eligible": true,
         "issues": [],
-        "rate_from": "14.50",
-        "monthly_payment": "12083.33",
-        "overpayment": "144999.96",
+        "rate_from": "18.00",
+        "monthly_payment": "15000.00",
+        "overpayment": "180000.00",
         "payment_label": "Проценты в месяц при полном использовании лимита"
       },
       {
@@ -918,9 +918,9 @@
         "code": "CREDIT_LINE",
         "eligible": false,
         "issues": ["Доступен бизнесу от 1 года"],
-        "rate_from": "14.50",
-        "monthly_payment": "36250.00",
-        "overpayment": "870000.00",
+        "rate_from": "18.00",
+        "monthly_payment": "45000.00",
+        "overpayment": "1080000.00",
         "payment_label": "Проценты в месяц при полном использовании лимита"
       }
     ]
@@ -950,18 +950,18 @@
         "code": "OVERDRAFT",
         "eligible": false,
         "issues": ["Доступен бизнесу от 6 мес.","Доступен клиентам банка с поступлениями на счёт от 6 мес."],
-        "rate_from": "13.00",
-        "monthly_payment": "10833.33",
-        "overpayment": "129999.96",
+        "rate_from": "19.00",
+        "monthly_payment": "15833.33",
+        "overpayment": "189999.96",
         "payment_label": "Проценты в месяц при полном использовании лимита"
       },
       {
         "code": "CREDIT_LINE",
         "eligible": false,
         "issues": ["Доступен бизнесу от 1 года"],
-        "rate_from": "14.50",
-        "monthly_payment": "12083.33",
-        "overpayment": "144999.96",
+        "rate_from": "18.00",
+        "monthly_payment": "15000.00",
+        "overpayment": "180000.00",
         "payment_label": "Проценты в месяц при полном использовании лимита"
       },
       {
@@ -1091,9 +1091,9 @@
         "code": "CREDIT_LINE",
         "eligible": true,
         "issues": [],
-        "rate_from": "14.50",
-        "monthly_payment": "36250.00",
-        "overpayment": "870000.00",
+        "rate_from": "18.00",
+        "monthly_payment": "45000.00",
+        "overpayment": "1080000.00",
         "payment_label": "Проценты в месяц при полном использовании лимита"
       }
     ]
@@ -1114,18 +1114,18 @@
         "code": "OVERDRAFT",
         "eligible": true,
         "issues": [],
-        "rate_from": "13.00",
-        "monthly_payment": "10833.33",
-        "overpayment": "129999.96",
+        "rate_from": "19.00",
+        "monthly_payment": "15833.33",
+        "overpayment": "189999.96",
         "payment_label": "Проценты в месяц при полном использовании лимита"
       },
       {
         "code": "CREDIT_LINE",
         "eligible": true,
         "issues": [],
-        "rate_from": "14.50",
-        "monthly_payment": "12083.33",
-        "overpayment": "144999.96",
+        "rate_from": "18.00",
+        "monthly_payment": "15000.00",
+        "overpayment": "180000.00",
         "payment_label": "Проценты в месяц при полном использовании лимита"
       },
       {
@@ -1237,9 +1237,9 @@
         "code": "CREDIT_LINE",
         "eligible": true,
         "issues": [],
-        "rate_from": "14.50",
-        "monthly_payment": "36250.00",
-        "overpayment": "870000.00",
+        "rate_from": "18.00",
+        "monthly_payment": "45000.00",
+        "overpayment": "1080000.00",
         "payment_label": "Проценты в месяц при полном использовании лимита"
       }
     ]
@@ -1260,18 +1260,18 @@
         "code": "OVERDRAFT",
         "eligible": false,
         "issues": ["Доступен клиентам банка с поступлениями на счёт от 6 мес."],
-        "rate_from": "13.00",
-        "monthly_payment": "10833.33",
-        "overpayment": "129999.96",
+        "rate_from": "19.00",
+        "monthly_payment": "15833.33",
+        "overpayment": "189999.96",
         "payment_label": "Проценты в месяц при полном использовании лимита"
       },
       {
         "code": "CREDIT_LINE",
         "eligible": true,
         "issues": [],
-        "rate_from": "14.50",
-        "monthly_payment": "12083.33",
-        "overpayment": "144999.96",
+        "rate_from": "18.00",
+        "monthly_payment": "15000.00",
+        "overpayment": "180000.00",
         "payment_label": "Проценты в месяц при полном использовании лимита"
       },
       {
@@ -1383,9 +1383,9 @@
         "code": "CREDIT_LINE",
         "eligible": true,
         "issues": [],
-        "rate_from": "14.50",
-        "monthly_payment": "36250.00",
-        "overpayment": "870000.00",
+        "rate_from": "18.00",
+        "monthly_payment": "45000.00",
+        "overpayment": "1080000.00",
         "payment_label": "Проценты в месяц при полном использовании лимита"
       }
     ]
@@ -1406,18 +1406,18 @@
         "code": "OVERDRAFT",
         "eligible": false,
         "issues": ["Доступен клиентам банка с поступлениями на счёт от 6 мес."],
-        "rate_from": "13.00",
-        "monthly_payment": "10833.33",
-        "overpayment": "129999.96",
+        "rate_from": "19.00",
+        "monthly_payment": "15833.33",
+        "overpayment": "189999.96",
         "payment_label": "Проценты в месяц при полном использовании лимита"
       },
       {
         "code": "CREDIT_LINE",
         "eligible": true,
         "issues": [],
-        "rate_from": "14.50",
-        "monthly_payment": "12083.33",
-        "overpayment": "144999.96",
+        "rate_from": "18.00",
+        "monthly_payment": "15000.00",
+        "overpayment": "180000.00",
         "payment_label": "Проценты в месяц при полном использовании лимита"
       },
       {

@@ -51,6 +51,10 @@ class ProductTerms:
 
 ALL_PURPOSES = tuple(p.value for p in Purpose)
 
+# Ключевая ставка Банка России: 14 % годовых с 27.07.2026 (решение от 24.07.2026, сохранена 11.09.2026).
+# Базовая ставка продукта = ключевая + спред; спреды обоснованы в docs/credit-policy.md, «Ставки».
+KEY_RATE = Decimal("14.0")
+
 PRODUCTS: tuple[ProductTerms, ...] = (
     ProductTerms(
         code="GROWTH",
@@ -61,7 +65,7 @@ PRODUCTS: tuple[ProductTerms, ...] = (
         max_amount=Decimal("30000000"),
         min_term=12,
         max_term=60,
-        base_rate=Decimal("19.0"),
+        base_rate=KEY_RATE + Decimal("5.0"),
         min_business_months=12,
         auto_limit=Decimal("10000000"),
         purposes=(Purpose.WORKING_CAPITAL, Purpose.EXPANSION, Purpose.EQUIPMENT),
@@ -76,7 +80,7 @@ PRODUCTS: tuple[ProductTerms, ...] = (
         max_amount=Decimal("5000000"),
         min_term=6,
         max_term=36,
-        base_rate=Decimal("21.0"),
+        base_rate=KEY_RATE + Decimal("7.0"),
         min_business_months=9,
         auto_limit=Decimal("5000000"),
         purposes=(Purpose.WORKING_CAPITAL, Purpose.CASH_GAP),
@@ -91,7 +95,7 @@ PRODUCTS: tuple[ProductTerms, ...] = (
         max_amount=Decimal("150000000"),
         min_term=12,
         max_term=120,
-        base_rate=Decimal("15.5"),
+        base_rate=KEY_RATE + Decimal("1.5"),
         collateral_required=True,
         min_business_months=12,
         always_manual=True,
@@ -110,7 +114,7 @@ PRODUCTS: tuple[ProductTerms, ...] = (
         max_amount=Decimal("20000000"),
         min_term=12,
         max_term=12,
-        base_rate=Decimal("13.0"),
+        base_rate=KEY_RATE + Decimal("5.0"),
         min_business_months=6,
         requires_bank_account_months=6,
         auto_limit=Decimal("5000000"),
@@ -128,7 +132,7 @@ PRODUCTS: tuple[ProductTerms, ...] = (
         max_amount=Decimal("50000000"),
         min_term=12,
         max_term=24,
-        base_rate=Decimal("14.5"),
+        base_rate=KEY_RATE + Decimal("4.0"),
         min_business_months=12,
         auto_limit=Decimal("10000000"),
         purposes=(Purpose.WORKING_CAPITAL, Purpose.CASH_GAP),
@@ -143,7 +147,7 @@ PRODUCTS: tuple[ProductTerms, ...] = (
         max_amount=Decimal("3000000"),
         min_term=6,
         max_term=36,
-        base_rate=Decimal("23.0"),
+        base_rate=KEY_RATE + Decimal("9.0"),
         min_business_months=3,
         max_business_months=12,
         auto_limit=Decimal("1000000"),

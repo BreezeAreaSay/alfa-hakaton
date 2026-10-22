@@ -1,99 +1,99 @@
 {
-  "captured_at": "2026-10-22T14:21:23.442Z",
+  "captured_at": "2026-10-22T14:42:03.418Z",
   "password": "demo",
   "users": [
     {
-      "id": "3f0c6df7-a76a-484c-99fe-b2d36e0443e3",
+      "id": "2d0717a7-2f8d-4fdd-945c-0ae7c00381ea",
       "login": "veter",
       "full_name": "Ветров Андрей Сергеевич",
       "position": "Генеральный директор",
       "role": "CLIENT",
       "can_sign": true,
-      "company_id": "074d7837-e31d-43b1-9898-aea2182e0ace"
+      "company_id": "20959516-caa4-49d7-8bf2-e71eff316a0b"
     },
     {
-      "id": "ad3f002a-0dfb-45c6-8282-d9d8aa40fed9",
+      "id": "6f4b8987-a652-47ba-b1a0-2d7aa6c50a1c",
       "login": "smirnova",
       "full_name": "Смирнова Анна Викторовна",
       "position": "Индивидуальный предприниматель",
       "role": "CLIENT",
       "can_sign": true,
-      "company_id": "4e862f3e-d733-4238-a83b-f9216bf2b0fa"
+      "company_id": "ccef86ba-f7cb-4fe2-a075-b0bf34ea80be"
     },
     {
-      "id": "f8eb1653-3af4-4b90-9341-80f8d16b99d7",
+      "id": "30d86ee7-3727-4780-b79e-66463548dd5c",
       "login": "tehnomaster",
       "full_name": "Кузнецов Игорь Петрович",
       "position": "Генеральный директор",
       "role": "CLIENT",
       "can_sign": true,
-      "company_id": "958e40bd-095e-42fe-af35-24b6b4d03727"
+      "company_id": "6cf99d6f-b592-4279-832f-d2f4b198dada"
     },
     {
-      "id": "d201230a-f7e8-4f6c-85c3-fa8d77baa30c",
+      "id": "5dddaec4-b10d-4a9f-8818-b95697825f5e",
       "login": "orlov",
       "full_name": "Орлов Дмитрий Сергеевич",
       "position": "Индивидуальный предприниматель",
       "role": "CLIENT",
       "can_sign": true,
-      "company_id": "30be083c-5a76-475d-850a-8457d1a3c32b"
+      "company_id": "6a57aaa5-f359-4543-8be5-253299bebb8a"
     },
     {
-      "id": "06234b87-5283-43bb-a4e4-46dbb85f1e8a",
+      "id": "5e4126f1-41c4-4693-9b81-f4531001f4ed",
       "login": "vektor",
       "full_name": "Лебедева Марина Олеговна",
       "position": "Финансовый директор (по доверенности)",
       "role": "CLIENT",
       "can_sign": true,
-      "company_id": "57770bf9-ba7d-4087-b8fd-977ef598cd53"
+      "company_id": "948c1f24-85a5-4d05-8362-e42bfeb48f64"
     },
     {
-      "id": "a3684807-ff83-4366-9521-cdea97cd140d",
+      "id": "348d04a9-d83b-4cd1-8c10-b02d952f8465",
       "login": "grand",
       "full_name": "Соколов Виктор Андреевич",
       "position": "Генеральный директор",
       "role": "CLIENT",
       "can_sign": true,
-      "company_id": "054a0455-cb39-4c13-a0c6-5dd8107d6ba7"
+      "company_id": "22f4ea56-01ec-4606-ae36-ca9c6d9ae64b"
     },
     {
-      "id": "7491f215-9460-41a2-a20b-2a70efb21888",
+      "id": "0de5ff51-ef19-4aa6-b733-c22f50888b60",
       "login": "start",
       "full_name": "Морозова Екатерина Ильинична",
       "position": "Генеральный директор",
       "role": "CLIENT",
       "can_sign": true,
-      "company_id": "2ca814dc-cc36-4f46-a029-8c86569e0857"
+      "company_id": "4eb55974-ae71-46fc-b1dd-ea1a46691343"
     },
     {
-      "id": "b031140b-4631-46d8-b531-31597ee84692",
+      "id": "b4d6b7a8-142a-43ae-b9b2-c4f1389821eb",
       "login": "altair",
       "full_name": "Белов Кирилл Андреевич",
       "position": "Генеральный директор",
       "role": "CLIENT",
       "can_sign": true,
-      "company_id": "a301e358-87d3-42dc-9827-6308d95b9e46"
+      "company_id": "1793df82-acdc-4949-82dd-d8fc67fe138b"
     },
     {
-      "id": "7fb77e19-31ec-4406-847e-ea77b3987e7d",
+      "id": "36f834d4-b3f9-48cd-83e2-90cb4e074468",
       "login": "romashka",
       "full_name": "Петров Олег Николаевич",
       "position": "Генеральный директор",
       "role": "CLIENT",
       "can_sign": true,
-      "company_id": "2234a746-8152-47fb-a2d5-7fb6c550435c"
+      "company_id": "2ee93f44-6168-4137-8517-e260dc31f8cf"
     },
     {
-      "id": "6a276646-3cf8-4294-9b23-98302bff5909",
+      "id": "6d449d41-28ae-4fc5-8fdb-68f03c1b17b2",
       "login": "meridian",
       "full_name": "Новиков Сергей Павлович",
       "position": "Генеральный директор",
       "role": "CLIENT",
       "can_sign": true,
-      "company_id": "0bddbb46-f410-416f-a253-b5672811e23d"
+      "company_id": "1128ce8f-8e2f-403a-8f23-3c92e6ea3ced"
     },
     {
-      "id": "10a120b0-7dff-4cd8-ba36-13b5c01772e6",
+      "id": "06ca6e47-551d-4370-b947-7daef322fdac",
       "login": "analyst",
       "full_name": "Иванова Ольга Дмитриевна",
       "position": "Кредитный аналитик",
@@ -102,7 +102,7 @@
       "company_id": null
     },
     {
-      "id": "8ca90746-1b75-4045-8b51-bb8a960cd952",
+      "id": "92bc3c8b-3862-456a-8a8a-8817e16104da",
       "login": "analyst2",
       "full_name": "Ковалёв Павел Игоревич",
       "position": "Кредитный аналитик",
@@ -111,7 +111,7 @@
       "company_id": null
     },
     {
-      "id": "0fc6467f-3609-4359-945a-379c176b9c52",
+      "id": "2392c5b6-30ca-44fa-a938-d869b55079b1",
       "login": "admin",
       "full_name": "Администратор демо-стенда",
       "position": "Администратор",
