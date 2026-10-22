@@ -129,7 +129,7 @@ export function NewApplicationPage() {
                 title='Заявка на кредит для бизнеса'
                 subtitle='Подберём продукт под задачу, данные компании подтянем из ЕГРЮЛ — заполнять почти ничего не нужно'
             />
-            <div className='card card--tight' style={{ marginBottom: 24 }}>
+            <div className='card card--tight steps-card' style={{ marginBottom: 24 }}>
                 <Steps activeStep={step + 1} isMarkCompletedSteps={true} ordered={true} interactive={false}>
                     <span>Подбор продукта</span>
                     <span>Данные заявки</span>
@@ -261,7 +261,7 @@ function SelectionStep({
             <Typography.Title tag='h2' view='medium' font='system' weight='bold'>
                 Рассчитаем кредит под вашу задачу
             </Typography.Title>
-            <div className='grid-2' style={{ gridTemplateColumns: 'minmax(0, 440px) minmax(0, 1fr)' }}>
+            <div className='grid-2 grid-2--calculator'>
                 <div className='stack'>
                     <div className='tile stack-16'>
                         <Typography.Text view='primary-medium' weight='medium' tag='div'>

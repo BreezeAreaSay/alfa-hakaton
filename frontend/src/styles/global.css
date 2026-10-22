@@ -696,3 +696,103 @@ table.simple td.num {
     line-height: 20px;
     color: var(--color-light-text-secondary);
 }
+
+/* калькулятор: слева параметры фиксированной ширины, справа карточки продуктов */
+.grid-2--calculator {
+    grid-template-columns: minmax(0, 440px) minmax(0, 1fr);
+}
+
+/* шаги мастера не влезают на узкий экран — прокрутка внутри карточки */
+.steps-card {
+    overflow-x: auto;
+}
+
+@media (max-width: 1023px) {
+    .grid-2--calculator {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* ---------------------------------------------------------------- телефон: кабинет клиента от 360 px */
+@media (max-width: 767px) {
+    :root {
+        --sheet-radius: 24px;
+        --header-height: 60px;
+    }
+
+    .header__inner {
+        gap: var(--gap-12);
+        padding: 0 var(--gap-16);
+    }
+
+    /* рядом со знаком остаётся только логотип, разделы прокручиваются по горизонтали */
+    .logo > span:last-child {
+        display: none;
+    }
+
+    .nav {
+        flex: 1;
+        min-width: 0;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+
+    .nav::-webkit-scrollbar {
+        display: none;
+    }
+
+    .nav__link {
+        padding: 8px var(--gap-12);
+        white-space: nowrap;
+    }
+
+    .header__right {
+        gap: var(--gap-4);
+    }
+
+    .header__user {
+        display: none;
+    }
+
+    .notifications {
+        width: min(380px, calc(100vw - 32px)) !important;
+    }
+
+    .page {
+        padding: var(--gap-24) var(--gap-16) var(--gap-40);
+    }
+
+    .page-head {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--gap-16);
+        margin-bottom: var(--gap-24);
+        padding: var(--gap-24) 0 calc(var(--sheet-radius) + var(--gap-16));
+    }
+
+    .card {
+        padding: var(--gap-20);
+        border-radius: 24px;
+    }
+
+    .card--tight {
+        padding: var(--gap-16);
+        border-radius: 20px;
+    }
+
+    .tile {
+        padding: var(--gap-16);
+    }
+
+    .stack {
+        gap: var(--gap-16);
+    }
+
+    .empty {
+        padding: var(--gap-32) var(--gap-16);
+    }
+
+    .metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}

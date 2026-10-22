@@ -43,5 +43,15 @@ export default defineConfig({
                 launchOptions: process.env.PW_CHROMIUM_PATH ? { executablePath: process.env.PW_CHROMIUM_PATH } : {},
             },
         },
+        {
+            // Кабинет клиента адаптирован под телефон: те же сценарии клиента на экране 390×844
+            name: 'mobile-client',
+            testMatch: /client\.spec\.ts/,
+            use: {
+                ...devices['iPhone 13'],
+                defaultBrowserType: 'chromium',
+                launchOptions: process.env.PW_CHROMIUM_PATH ? { executablePath: process.env.PW_CHROMIUM_PATH } : {},
+            },
+        },
     ],
 });
