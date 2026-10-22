@@ -11,6 +11,8 @@ import { AppFooter } from '../components/AppFooter';
 import { Logo } from '../components/AppHeader';
 import { ErrorPlate } from '../components/ui';
 import { HOW_IT_WORKS } from './client/DashboardPage';
+import { HeroArt, ProductsBanner, PromoBanners } from './landing/Banners';
+import { Faq } from './landing/Faq';
 
 const CLIENTS = [
     { login: 'veter', company: 'ООО «Северный ветер»', hint: 'Автоодобрение и выдача' },
@@ -34,12 +36,23 @@ const STAFF = [
 // Длительность выезда окна и размытия фона — совпадает с переходами .login-modal и .login-backdrop в global.css
 const TRANSITION_MS = 320;
 
-/** Стартовая страница: шапка с кнопкой «Войти», как на alfabank.ru; вход — в окне поверх размытой страницы. */
+/**
+ * Стартовая страница: шапка с кнопкой «Войти», как на alfabank.ru, баннеры о кредитах и ответы на вопросы.
+ * Вход — в окне поверх размытой страницы. Кнопки баннеров открывают то же окно, а клиент после входа
+ * попадает сразу в подбор кредита.
+ */
 export function LoginPage() {
     const { user } = useAuth();
     const [open, setOpen] = useState(false);
+    const [next, setNext] = useState<string | null>(null);
 
     if (user) return <Navigate to={user.role === 'CLIENT' ? '/client' : '/bank'} replace={true} />;
+
+    const enter = (path: string | null) => {
+        setNext(path);
+        setOpen(true);
+    };
+    const start = () => enter('/client/new');
 
     return (
         <div className='app login'>
@@ -48,7 +61,7 @@ export function LoginPage() {
                     <Logo home='/login' />
                     <div className='header__right'>
                         {/* Настольный вариант на любой ширине: мобильная главная кнопка чёрная и пропала бы на шапке */}
-                        <ButtonDesktop view='primary' size={40} onClick={() => setOpen(true)}>
+                        <ButtonDesktop view='primary' size={40} onClick={() => enter(null)}>
                             Войти
                         </ButtonDesktop>
                     </div>
@@ -56,50 +69,70 @@ export function LoginPage() {
             </header>
 
             <section className='login__brand'>
-                <div className='login__inner stack-16'>
-                    <Typography.TitleResponsive
-                        tag='h1'
-                        view='xlarge'
-                        font='system'
-                        weight='bold'
-                        color='primary-inverted'
-                    >
-                        {/* неразрывные пробелы: строка не начинается с тире и не кончается на «от» */}
-                        {'Кредит для бизнеса — от задачи до денег на счёте'}
-                    </Typography.TitleResponsive>
-                    <Typography.Text view='primary-large' color='secondary-inverted' tag='p'>
-                        Подберём продукт под вашу задачу, данные компании подтянем из ЕГРЮЛ, статус заявки — в реальном
-                        времени. Подписание и выдача — прямо в кабинете.
-                    </Typography.Text>
-                    <Typography.Text view='primary-small' color='secondary-inverted' tag='p' className='login__note'>
-                        Демонстрационный стенд: все компании и данные синтетические.
-                    </Typography.Text>
+                <div className='login__inner landing-hero'>
+                    <div className='stack-16 landing-hero__text'>
+                        <Typography.TitleResponsive
+                            tag='h1'
+                            view='xlarge'
+                            font='system'
+                            weight='bold'
+                            color='primary-inverted'
+                        >
+                            {/* неразрывные пробелы: строка не начинается с тире и не кончается на «от» */}
+                            {'Кредит для бизнеса — от задачи до денег на счёте'}
+                        </Typography.TitleResponsive>
+                        <Typography.Text view='primary-large' color='secondary-inverted' tag='p'>
+                            Подберём продукт под вашу задачу, данные компании подтянем из ЕГРЮЛ, статус заявки — в
+                            реальном времени. Подписание и выдача — прямо в кабинете.
+                        </Typography.Text>
+                        <div className='landing-hero__actions'>
+                            <ButtonDesktop view='primary' size={56} onClick={start}>
+                                Подобрать кредит
+                            </ButtonDesktop>
+                        </div>
+                        <Typography.Text
+                            view='primary-small'
+                            color='secondary-inverted'
+                            tag='p'
+                            className='login__note'
+                        >
+                            Демонстрационный стенд: все компании и данные синтетические.
+                        </Typography.Text>
+                    </div>
+                    <HeroArt />
                 </div>
             </section>
 
             <section className='login__sheet'>
-                <div className='login__inner stack'>
-                    <Typography.Title tag='h2' view='small' font='system' weight='bold'>
-                        Как получить кредит
-                    </Typography.Title>
-                    <ol className='login__steps'>
-                        {HOW_IT_WORKS.map((step, index) => (
-                            <li key={step.title} className='login__step'>
-                                <span className='login__step-number'>{index + 1}</span>
-                                <Typography.Text view='primary-medium' weight='bold' tag='div'>
-                                    {step.title}
-                                </Typography.Text>
-                                <Typography.Text view='primary-small' color='secondary' tag='div'>
-                                    {step.text}
-                                </Typography.Text>
-                            </li>
-                        ))}
-                    </ol>
+                <div className='login__inner landing-sections'>
+                    <ProductsBanner onStart={start} />
+                    <PromoBanners onStart={start} />
+
+                    <section className='stack'>
+                        <Typography.Title tag='h2' view='medium' font='system' weight='bold'>
+                            Как получить кредит
+                        </Typography.Title>
+                        <ol className='login__steps'>
+                            {HOW_IT_WORKS.map((step, index) => (
+                                <li key={step.title} className='login__step'>
+                                    <span className='login__step-number'>{index + 1}</span>
+                                    <Typography.Text view='primary-medium' weight='bold' tag='div'>
+                                        {step.title}
+                                    </Typography.Text>
+                                    <Typography.Text view='primary-small' color='secondary' tag='div'>
+                                        {step.text}
+                                    </Typography.Text>
+                                </li>
+                            ))}
+                        </ol>
+                    </section>
+
+                    <Faq />
                 </div>
             </section>
 
             <AppFooter />
-            <LoginWidget open={open} onClose={() => setOpen(false)} />
+            <LoginWidget open={open} next={next} onClose={() => setOpen(false)} />
         </div>
     );
 }
@@ -107,8 +140,9 @@ export function LoginPage() {
 /**
  * Окно входа по центру экрана: логин и пароль своей учётной записи и быстрый вход в тестовые.
  * Состояние формы живёт снаружи окна — после закрытия и повторного открытия введённое не теряется.
+ * next — куда вести клиента после входа (с баннера — в подбор кредита); сотрудник банка всегда попадает в очередь.
  */
-function LoginWidget({ open, onClose }: { open: boolean; onClose: () => void }) {
+function LoginWidget({ open, next, onClose }: { open: boolean; next: string | null; onClose: () => void }) {
     const { login } = useAuth();
     const navigate = useNavigate();
     const loginInput = useRef<HTMLInputElement>(null);
@@ -123,7 +157,7 @@ function LoginWidget({ open, onClose }: { open: boolean; onClose: () => void }) 
         setError(null);
         try {
             const result = await login(name, pass);
-            navigate(result.role === 'CLIENT' ? '/client' : '/bank');
+            navigate(result.role === 'CLIENT' ? (next ?? '/client') : '/bank');
         } catch (e) {
             setError(e);
         } finally {
