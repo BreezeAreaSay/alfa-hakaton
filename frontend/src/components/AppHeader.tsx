@@ -16,25 +16,32 @@ export interface NavItem {
     end?: boolean;
 }
 
+/** Знак банка и название кабинета в шапке; ведёт на главную раздела. */
+export function Logo({ home, bank = false }: { home: string; bank?: boolean }) {
+    return (
+        <Link to={home} className='logo' aria-label='На главную'>
+            <span className='logo__mark'>
+                <AlfaBankLIcon width={21} height={32} aria-label='Альфа-Банк' />
+            </span>
+            <span>
+                <Typography.Text view='primary-medium' weight='bold' tag='div'>
+                    {bank ? 'Кредитный конвейер' : 'Кредитный кабинет'}
+                </Typography.Text>
+                <Typography.Text view='primary-small' color='secondary' tag='div'>
+                    {bank ? 'Рабочее место аналитика' : 'для бизнеса'}
+                </Typography.Text>
+            </span>
+        </Link>
+    );
+}
+
 export function AppHeader({ nav, home, bank = false }: { nav: NavItem[]; home: string; bank?: boolean }) {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     return (
         <header className={`header${bank ? ' header--bank' : ''}`}>
             <div className='header__inner'>
-                <Link to={home} className='logo' aria-label='На главную'>
-                    <span className='logo__mark'>
-                        <AlfaBankLIcon width={21} height={32} aria-label='Альфа-Банк' />
-                    </span>
-                    <span>
-                        <Typography.Text view='primary-medium' weight='bold' tag='div'>
-                            {bank ? 'Кредитный конвейер' : 'Кредитный кабинет'}
-                        </Typography.Text>
-                        <Typography.Text view='primary-small' color='secondary' tag='div'>
-                            {bank ? 'Рабочее место аналитика' : 'для бизнеса'}
-                        </Typography.Text>
-                    </span>
-                </Link>
+                <Logo home={home} bank={bank} />
                 <nav className='nav' aria-label='Разделы'>
                     {nav.map((item) => (
                         <NavLink

@@ -29,11 +29,14 @@ export async function apiToken(request: APIRequestContext, login: string): Promi
     return (await response.json()).token as string;
 }
 
+/** Вход через кнопку «Войти» в шапке стартовой страницы: форма — в окне поверх страницы. */
 export async function login(page: Page, username: string, password = PASSWORD): Promise<void> {
     await page.goto('/login');
-    await page.locator('input[name="login"]').fill(username);
-    await page.locator('input[name="password"]').fill(password);
-    await page.getByRole('button', { name: 'Войти', exact: true }).click();
+    await page.getByRole('banner').getByRole('button', { name: 'Войти', exact: true }).click();
+    const dialog = page.getByRole('dialog', { name: 'Вход' });
+    await dialog.locator('input[name="login"]').fill(username);
+    await dialog.locator('input[name="password"]').fill(password);
+    await dialog.getByRole('button', { name: 'Войти', exact: true }).click();
 }
 
 /**

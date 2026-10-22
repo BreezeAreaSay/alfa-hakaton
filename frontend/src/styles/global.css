@@ -601,31 +601,165 @@ table.simple td.num {
     color: var(--color-light-text-primary);
 }
 
-/* Вход: чёрная шторка с названием, под ней белый лист с формой — как заголовок и лист на страницах кабинета */
+/*
+ * Стартовая страница: шапка с кнопкой «Войти», чёрная шторка с заголовком, белый лист с шагами и подвал.
+ * Шторка и лист — по ширине шапки, поэтому заголовок начинается на одной линии со знаком банка.
+ */
+.login__inner {
+    max-width: var(--page-max-width);
+    margin: 0 auto;
+    padding: 0 var(--gap-24);
+}
+
 .login__brand {
-    padding: var(--gap-32) var(--gap-24) calc(var(--sheet-radius) + var(--gap-48));
+    padding: var(--gap-48) 0 calc(var(--sheet-radius) + var(--gap-48));
     background: var(--brand-black);
     color: #fff;
 }
 
-/* шторка и лист в одной колонке: заголовок и форма начинаются с одной линии; ширина — под заголовок в две строки */
-.login__inner {
-    max-width: 720px;
-    margin: 0 auto;
+/* заголовок в две строки, текст не растягивается на всю ширину */
+.login__brand .login__inner > * {
+    max-width: 760px;
 }
 
-.login__brand .login__inner {
-    display: flex;
-    flex-direction: column;
-    gap: var(--gap-40);
+.login__note {
+    margin-top: var(--gap-24);
 }
 
-.login__form {
+.login__sheet {
     position: relative;
     margin-top: calc(var(--sheet-radius) * -1);
-    padding: var(--gap-48) var(--gap-24) var(--gap-64);
+    padding: var(--gap-48) 0 var(--gap-64);
     border-radius: var(--sheet-radius) var(--sheet-radius) 0 0;
-    background: var(--color-light-base-bg-primary);
+    background: #fff;
+}
+
+.login__steps {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--gap-16);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.login__step {
+    display: grid;
+    gap: var(--gap-8);
+    padding: var(--gap-24);
+    border-radius: 24px;
+    background: #f2f3f5;
+}
+
+.login__step-number {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    margin-bottom: var(--gap-8);
+    border: 2px solid var(--color-light-accent-primary, #ef3124);
+    border-radius: 50%;
+    color: var(--color-light-accent-primary, #ef3124);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+/* Окно входа: треть ширины и две трети высоты экрана, содержимое прокручивается внутри */
+.login-modal.login-modal {
+    width: clamp(420px, 33.333vw, 640px);
+    height: max(66.667vh, 480px);
+    max-height: calc(100vh - var(--gap-32));
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 32px;
+}
+
+/* отступ окна от краёв экрана меньше стандартного 40 px: на невысоком экране окну нужно место */
+.login-modal__wrapper {
+    --modal-vertical-padding: var(--gap-16);
+}
+
+.login-modal__content {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+/* колонки тестовых учётных записей — по ширине окна, а не экрана */
+.login-modal__body {
+    container-type: inline-size;
+}
+
+@container (max-width: 479px) {
+    .login-modal__body .demo-accounts {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* выезжает снизу с лёгким увеличением, уезжает быстрее */
+.login-modal-appear,
+.login-modal-enter {
+    opacity: 0;
+    transform: translateY(40px) scale(0.97);
+}
+
+.login-modal-appear-active,
+.login-modal-enter-active {
+    opacity: 1;
+    transform: none;
+    transition:
+        opacity 320ms ease-out,
+        transform 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.login-modal-exit {
+    opacity: 1;
+    transform: none;
+}
+
+.login-modal-exit-active {
+    opacity: 0;
+    transform: translateY(24px) scale(0.98);
+    transition:
+        opacity 220ms ease-in,
+        transform 220ms ease-in;
+}
+
+/* остальная страница размывается и чуть темнеет, чтобы внимание было на окне */
+.login-backdrop {
+    background-color: transparent;
+    -webkit-backdrop-filter: blur(0);
+    backdrop-filter: blur(0);
+    transition:
+        background-color 320ms ease-out,
+        backdrop-filter 320ms ease-out,
+        -webkit-backdrop-filter 320ms ease-out;
+}
+
+.login-backdrop-appear-active,
+.login-backdrop-appear-done,
+.login-backdrop-enter-active,
+.login-backdrop-enter-done,
+.login-backdrop-exit {
+    background-color: rgba(0, 0, 0, 0.32);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+}
+
+.login-backdrop-exit-active {
+    background-color: transparent;
+    -webkit-backdrop-filter: blur(0);
+    backdrop-filter: blur(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .login-modal-appear-active,
+    .login-modal-enter-active,
+    .login-modal-exit-active,
+    .login-backdrop {
+        transition-duration: 1ms;
+    }
 }
 
 .demo-accounts {
@@ -935,22 +1069,31 @@ table.simple td.num {
         padding-bottom: var(--gap-32);
     }
 
+    .login__inner {
+        padding: 0 var(--gap-16);
+    }
+
     .login__brand {
-        padding: var(--gap-24) var(--gap-16) calc(var(--sheet-radius) + var(--gap-32));
+        padding: var(--gap-32) 0 calc(var(--sheet-radius) + var(--gap-32));
     }
 
-    .login__brand .login__inner {
-        gap: var(--gap-32);
+    .login__sheet {
+        padding: var(--gap-32) 0 var(--gap-48);
     }
 
-    /* на телефоне в шторке только знак и заголовок, чтобы форма была видна сразу */
-    .login__lead,
-    .login__note {
-        display: none;
+    .login__steps {
+        grid-template-columns: minmax(0, 1fr);
     }
 
-    .login__form {
-        padding: var(--gap-32) var(--gap-16) var(--gap-48);
+    .login__step {
+        padding: var(--gap-20);
+    }
+
+    /* на телефоне окно почти во весь экран: треть ширины здесь слишком узко */
+    .login-modal.login-modal {
+        width: calc(100vw - var(--gap-32));
+        height: calc(100vh - var(--gap-32));
+        border-radius: 24px;
     }
 
     .demo-accounts {
