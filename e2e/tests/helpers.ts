@@ -1,6 +1,6 @@
 import { expect, type APIRequestContext, type Browser, type Page } from '@playwright/test';
 
-export const PASSWORD = 'demo';
+export const PASSWORD = 'admin';
 
 /**
  * Демо-версия без сервера (E2E_DEMO=1): API имитируется в браузере, данные лежат в localStorage

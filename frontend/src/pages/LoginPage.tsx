@@ -54,8 +54,8 @@ export function LoginPage() {
 
     const quick = (name: string) => {
         setLoginName(name);
-        setPassword('demo');
-        void submit(undefined, name, 'demo');
+        setPassword('admin');
+        void submit(undefined, name, 'admin');
     };
 
     return (
@@ -134,7 +134,7 @@ export function LoginPage() {
                             Тестовые учётные записи
                         </Typography.Text>
                         <Typography.Text view='primary-small' color='secondary' tag='div'>
-                            Пароль у всех — demo. Нажмите, чтобы войти.
+                            Пароль у всех — admin. Нажмите, чтобы войти.
                         </Typography.Text>
                         <Typography.Text view='caps' color='secondary' tag='div' style={{ marginTop: 8 }}>
                             Клиенты

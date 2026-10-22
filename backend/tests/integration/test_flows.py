@@ -20,7 +20,7 @@ pytestmark = pytest.mark.skipif(os.getenv("RUN_INTEGRATION") != "1", reason="Ð½Ñ
 
 
 class Client:
-    def __init__(self, login: str, password: str = "demo") -> None:
+    def __init__(self, login: str, password: str = "admin") -> None:
         self.http = httpx.Client(base_url=API, timeout=30)
         response = self.http.post("/api/auth/login", json={"login": login, "password": password})
         response.raise_for_status()
@@ -86,7 +86,7 @@ def accept_sign_issue(client: Client, application: dict, option: int = 0) -> dic
     assert pdf.content.startswith(b"%PDF")
     client.post(
         f"/api/applications/{application['id']}/sign",
-        json={"password": "demo"},
+        json={"password": "admin"},
         headers={"Idempotency-Key": str(uuid.uuid4())},
     )
     issued = wait(client, application["id"], until={"ISSUED"})

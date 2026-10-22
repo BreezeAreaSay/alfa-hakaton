@@ -49,7 +49,7 @@ class UserOut(Model):
 
 class LoginRequest(BaseModel):
     login: str = Field(examples=["veter"])
-    password: str = Field(examples=["demo"])
+    password: str = Field(examples=["admin"])
 
 
 class LoginResponse(BaseModel):

@@ -2,6 +2,7 @@
 // (scripts/capture-demo-fixtures.mjs), и сравнивает ответы со снимками в fixtures/. В приложение не входит —
 // запускается командой npm run demo:check (scripts/demo-selfcheck.mjs).
 import type { Application, Dossier } from '../api/types';
+import { DEMO_PASSWORD } from './data';
 import { parseNeedRules } from './engine/ai';
 import { parseStatement } from './engine/statements';
 import aiGolden from './fixtures/ai-golden.json';
@@ -292,7 +293,7 @@ interface Session {
 }
 
 async function session(login: string): Promise<Session> {
-    const data = await call('POST', '/api/auth/login', null, { login, password: 'demo' });
+    const data = await call('POST', '/api/auth/login', null, { login, password: DEMO_PASSWORD });
     const token = data.token as string;
     return {
         token,
@@ -599,8 +600,10 @@ export async function run(io: SelfcheckIo): Promise<boolean> {
     errorsSeen.sign_wrong_password = await veter.error('POST', `/api/applications/${draft.id}/sign`, {
         password: 'wrong',
     });
-    errorsSeen.analyst_signs = await analyst.error('POST', `/api/applications/${draft.id}/sign`, { password: 'demo' });
-    await veter.post(`/api/applications/${draft.id}/sign`, { password: 'demo' }, { 'Idempotency-Key': key() });
+    errorsSeen.analyst_signs = await analyst.error('POST', `/api/applications/${draft.id}/sign`, {
+        password: DEMO_PASSWORD,
+    });
+    await veter.post(`/api/applications/${draft.id}/sign`, { password: DEMO_PASSWORD }, { 'Idempotency-Key': key() });
     const veterSigned = await veter.get(`/api/applications/${draft.id}`);
     const veterIssued = await settle(veter, draft.id, ['ISSUED']);
     check.shape('выданный кредит: поля ответа', examples.application_issued, veterIssued);

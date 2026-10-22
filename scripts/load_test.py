@@ -39,7 +39,7 @@ def describe(values: list[float]) -> str:
 
 
 async def login(http: httpx.AsyncClient, user: str) -> dict[str, str]:
-    response = await http.post("/api/auth/login", json={"login": user, "password": "demo"})
+    response = await http.post("/api/auth/login", json={"login": user, "password": "admin"})
     response.raise_for_status()
     return {"Authorization": f"Bearer {response.json()['token']}"}
 

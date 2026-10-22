@@ -24,7 +24,7 @@ const GOLDEN_SET = join(ROOT, 'backend', 'app', 'ai_eval', 'golden_set.json');
 
 const argIndex = process.argv.indexOf('--api');
 const API = (argIndex > 0 ? process.argv[argIndex + 1] : process.env.API_URL) ?? 'http://localhost:8080';
-const PASSWORD = 'demo';
+const PASSWORD = 'admin';
 const CLIENTS = [
     'veter',
     'smirnova',
