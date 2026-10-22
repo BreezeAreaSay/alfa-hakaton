@@ -123,7 +123,7 @@ a {
     line-height: 1.2;
 }
 
-/* «Выйти»: красная открытая дверь на светлой плашке */
+/* «Выйти»: красная открытая дверь прямо на шапке, без плашки; кликабельная область 40×40 */
 .header__exit {
     display: grid;
     place-items: center;
@@ -133,14 +133,14 @@ a {
     padding: 0;
     border: 0;
     border-radius: 12px;
-    background: #f2f3f5;
+    background: transparent;
     color: var(--color-light-accent-primary, #ef3124);
     cursor: pointer;
-    transition: background-color 150ms ease;
+    transition: color 150ms ease;
 }
 
 .header__exit:hover {
-    background: #e4e6ea;
+    color: #ff6a5f;
 }
 
 .header__exit:focus-visible {
