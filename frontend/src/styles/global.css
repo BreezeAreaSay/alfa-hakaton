@@ -123,6 +123,31 @@ a {
     line-height: 1.2;
 }
 
+/* «Выйти»: красная открытая дверь на светлой плашке */
+.header__exit {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 0;
+    border-radius: 12px;
+    background: #f2f3f5;
+    color: var(--color-light-accent-primary, #ef3124);
+    cursor: pointer;
+    transition: background-color 150ms ease;
+}
+
+.header__exit:hover {
+    background: #e4e6ea;
+}
+
+.header__exit:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}
+
 .bell {
     position: relative;
 }

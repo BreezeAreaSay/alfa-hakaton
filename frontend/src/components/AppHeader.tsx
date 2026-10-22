@@ -2,7 +2,7 @@ import { IconButton } from '@alfalab/core-components/icon-button';
 import { Typography } from '@alfalab/core-components/typography';
 import { AlfaBankLIcon } from '@alfalab/icons-logotype/AlfaBankLIcon';
 import { BellMIcon } from '@alfalab/icons-glyph/BellMIcon';
-import { PowerButtonMIcon } from '@alfalab/icons-glyph/PowerButtonMIcon';
+import { DoorOpenMIcon } from '@alfalab/icons-glyph/DoorOpenMIcon';
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 
@@ -64,16 +64,18 @@ export function AppHeader({ nav, home, bank = false }: { nav: NavItem[]; home: s
                             {user?.company?.name ?? user?.position}
                         </Typography.Text>
                     </div>
-                    <IconButton
-                        icon={PowerButtonMIcon}
-                        colors='inverted'
+                    <button
+                        type='button'
+                        className='header__exit'
                         aria-label='Выйти'
                         title='Выйти'
                         onClick={() => {
                             logout();
                             navigate('/login');
                         }}
-                    />
+                    >
+                        <DoorOpenMIcon aria-hidden={true} />
+                    </button>
                 </div>
             </div>
         </header>
