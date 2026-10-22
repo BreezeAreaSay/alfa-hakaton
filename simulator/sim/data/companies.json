@@ -1,0 +1,225 @@
+{
+  "_comment": "Синтетические данные. Даты заданы относительно текущего дня: *_months_ago. Поступления на счёт — помесячно, от старых к новым.",
+  "companies": {
+    "0010000017": {
+      "persona": "Автоодобрение",
+      "egrul": {
+        "name": "ООО «Северный ветер»",
+        "legal_form": "OOO",
+        "ogrn": "1007700000010",
+        "registered_months_ago": 74,
+        "status": "ACTIVE",
+        "okved": "46.39",
+        "okved_name": "Торговля оптовая неспециализированная пищевыми продуктами",
+        "address": "г. Москва, Северный проезд, д. 12, офис 4",
+        "director": {"name": "Ветров Андрей Сергеевич", "since_months_ago": 74}
+      },
+      "fns": {"tax_debt": 0, "mass_address": false, "director_disqualified": false, "employees": 38, "tax_regime": "ОСН"},
+      "girbo": {"years": [
+        {"year_offset": 1, "revenue": 120000000, "sales_profit": 9600000, "net_profit": 7100000},
+        {"year_offset": 2, "revenue": 105000000, "sales_profit": 8200000, "net_profit": 6000000}
+      ]},
+      "bki": {"has_history": true, "max_overdue_days_24m": 0, "current_overdue_days": 0, "loans": [
+        {"lender": "Банк «Восток»", "kind": "Кредит", "amount": 5000000, "balance": 2100000, "monthly_payment": 150000, "opened_months_ago": 30}
+      ]},
+      "bank": {"is_client": true, "account_opened_months_ago": 60, "inflow_base": 10000000,
+               "inflow_pattern": [0.97, 1.02, 0.95, 1.04, 1.0, 0.98, 1.03, 0.99, 1.01, 1.05, 0.96, 1.0]}
+    },
+    "001000000436": {
+      "persona": "Контрпредложение по овердрафту",
+      "egrul": {
+        "name": "ИП Смирнова Анна Викторовна",
+        "legal_form": "IP",
+        "ogrn": "310770000000040",
+        "registered_months_ago": 26,
+        "status": "ACTIVE",
+        "okved": "56.30",
+        "okved_name": "Подача напитков",
+        "address": "г. Москва, ул. Липовая, д. 7",
+        "director": {"name": "Смирнова Анна Викторовна", "since_months_ago": 26}
+      },
+      "fns": {"tax_debt": 0, "mass_address": false, "director_disqualified": false, "employees": 6, "tax_regime": "УСН"},
+      "girbo": null,
+      "bki": {"has_history": true, "max_overdue_days_24m": 0, "current_overdue_days": 0, "loans": []},
+      "bank": {"is_client": true, "account_opened_months_ago": 25, "inflow_base": 1100000,
+               "inflow_pattern": [0.92, 0.95, 1.03, 1.08, 1.1, 1.02, 0.97, 0.94, 0.98, 1.0, 1.01, 1.0]}
+    },
+    "0010000024": {
+      "persona": "Контрпредложение: больший срок или меньшая сумма",
+      "egrul": {
+        "name": "ООО «ТехноМастер»",
+        "legal_form": "OOO",
+        "ogrn": "1007700000021",
+        "registered_months_ago": 52,
+        "status": "ACTIVE",
+        "okved": "25.11",
+        "okved_name": "Производство строительных металлических конструкций",
+        "address": "Московская обл., г. Подольск, Промышленная ул., д. 3",
+        "director": {"name": "Кузнецов Игорь Петрович", "since_months_ago": 52}
+      },
+      "fns": {"tax_debt": 0, "mass_address": false, "director_disqualified": false, "employees": 45, "tax_regime": "ОСН"},
+      "girbo": {"years": [
+        {"year_offset": 1, "revenue": 48000000, "sales_profit": 7200000, "net_profit": 5400000},
+        {"year_offset": 2, "revenue": 45000000, "sales_profit": 6500000, "net_profit": 4800000}
+      ]},
+      "bki": {"has_history": true, "max_overdue_days_24m": 0, "current_overdue_days": 0, "loans": [
+        {"lender": "Банк «Восток»", "kind": "Кредит", "amount": 6000000, "balance": 4100000, "monthly_payment": 180000, "opened_months_ago": 18},
+        {"lender": "Лизинговая компания «Опора»", "kind": "Лизинг", "amount": 4000000, "balance": 2600000, "monthly_payment": 120000, "opened_months_ago": 14}
+      ]},
+      "bank": {"is_client": false}
+    },
+    "001000001006": {
+      "persona": "Запрос выписки, затем автоматическое решение",
+      "egrul": {
+        "name": "ИП Орлов Дмитрий Сергеевич",
+        "legal_form": "IP",
+        "ogrn": "310770000000103",
+        "registered_months_ago": 38,
+        "status": "ACTIVE",
+        "okved": "74.10",
+        "okved_name": "Деятельность специализированная в области дизайна",
+        "address": "г. Москва, ул. Мастеровая, д. 21",
+        "director": {"name": "Орлов Дмитрий Сергеевич", "since_months_ago": 38}
+      },
+      "fns": {"tax_debt": 0, "mass_address": false, "director_disqualified": false, "employees": 4, "tax_regime": "УСН"},
+      "girbo": null,
+      "bki": {"has_history": true, "max_overdue_days_24m": 0, "current_overdue_days": 0, "loans": [
+        {"lender": "Банк «Восток»", "kind": "Кредитная карта", "amount": 500000, "balance": 300000, "monthly_payment": 20000, "opened_months_ago": 20}
+      ]},
+      "bank": {"is_client": false}
+    },
+    "0010000031": {
+      "persona": "Ручное рассмотрение: массовый адрес и налоговая задолженность",
+      "egrul": {
+        "name": "ООО «Вектор Логистик»",
+        "legal_form": "OOO",
+        "ogrn": "1007700000032",
+        "registered_months_ago": 40,
+        "status": "ACTIVE",
+        "okved": "49.41",
+        "okved_name": "Деятельность автомобильного грузового транспорта",
+        "address": "г. Москва, Деловой бульвар, д. 1, офис 315",
+        "director": {"name": "Громов Артём Валерьевич", "since_months_ago": 40}
+      },
+      "fns": {"tax_debt": 82000, "mass_address": true, "director_disqualified": false, "employees": 15, "tax_regime": "УСН"},
+      "girbo": {"years": [
+        {"year_offset": 1, "revenue": 36000000, "sales_profit": 7200000, "net_profit": 5300000},
+        {"year_offset": 2, "revenue": 31000000, "sales_profit": 5900000, "net_profit": 4300000}
+      ]},
+      "bki": {"has_history": true, "max_overdue_days_24m": 12, "current_overdue_days": 0, "loans": [
+        {"lender": "Банк «Восток»", "kind": "Кредит", "amount": 9000000, "balance": 5200000, "monthly_payment": 250000, "opened_months_ago": 22}
+      ]},
+      "bank": {"is_client": true, "account_opened_months_ago": 18, "inflow_base": 3000000,
+               "inflow_pattern": [0.95, 1.0, 1.05, 0.98, 1.02, 0.97, 1.03, 1.0, 0.99, 1.04, 0.96, 1.01]}
+    },
+    "0010000056": {
+      "persona": "Отказ по стоп-фактору: ликвидация",
+      "egrul": {
+        "name": "ООО «Ромашка-Строй»",
+        "legal_form": "OOO",
+        "ogrn": "1007700000054",
+        "registered_months_ago": 70,
+        "status": "LIQUIDATING",
+        "okved": "41.20",
+        "okved_name": "Строительство жилых и нежилых зданий",
+        "address": "г. Москва, ул. Строителей, д. 5",
+        "director": {"name": "Петров Олег Николаевич", "since_months_ago": 3}
+      },
+      "fns": {"tax_debt": 640000, "mass_address": false, "director_disqualified": false, "employees": 3, "tax_regime": "ОСН"},
+      "girbo": {"years": [
+        {"year_offset": 1, "revenue": 9000000, "sales_profit": -1200000, "net_profit": -1500000},
+        {"year_offset": 2, "revenue": 21000000, "sales_profit": 900000, "net_profit": 400000}
+      ]},
+      "bki": {"has_history": true, "max_overdue_days_24m": 20, "current_overdue_days": 0, "loans": []},
+      "bank": {"is_client": false}
+    },
+    "0010000063": {
+      "persona": "Кредит под залог: всегда аналитик",
+      "egrul": {
+        "name": "ООО «Гранд Девелопмент»",
+        "legal_form": "OOO",
+        "ogrn": "1007700000065",
+        "registered_months_ago": 100,
+        "status": "ACTIVE",
+        "okved": "41.20",
+        "okved_name": "Строительство жилых и нежилых зданий",
+        "address": "г. Москва, Набережная ул., д. 8",
+        "director": {"name": "Соколов Виктор Андреевич", "since_months_ago": 100}
+      },
+      "fns": {"tax_debt": 0, "mass_address": false, "director_disqualified": false, "employees": 120, "tax_regime": "ОСН"},
+      "girbo": {"years": [
+        {"year_offset": 1, "revenue": 420000000, "sales_profit": 63000000, "net_profit": 47000000},
+        {"year_offset": 2, "revenue": 360000000, "sales_profit": 52000000, "net_profit": 39000000}
+      ]},
+      "bki": {"has_history": true, "max_overdue_days_24m": 0, "current_overdue_days": 0, "loans": [
+        {"lender": "Банк «Восток»", "kind": "Кредитная линия", "amount": 80000000, "balance": 52000000, "monthly_payment": 2500000, "opened_months_ago": 26}
+      ]},
+      "bank": {"is_client": true, "account_opened_months_ago": 36, "inflow_base": 35000000,
+               "inflow_pattern": [0.9, 1.1, 1.0, 0.95, 1.05, 1.0, 0.98, 1.02, 1.0, 1.04, 0.96, 1.0]}
+    },
+    "0010000070": {
+      "persona": "Молодой бизнес: только кредит для начинающих",
+      "egrul": {
+        "name": "ООО «Новый старт»",
+        "legal_form": "OOO",
+        "ogrn": "1007700000076",
+        "registered_months_ago": 5,
+        "status": "ACTIVE",
+        "okved": "62.01",
+        "okved_name": "Разработка компьютерного программного обеспечения",
+        "address": "г. Москва, ул. Новаторов, д. 2",
+        "director": {"name": "Морозова Екатерина Ильинична", "since_months_ago": 5}
+      },
+      "fns": {"tax_debt": 0, "mass_address": false, "director_disqualified": false, "employees": 4, "tax_regime": "УСН"},
+      "girbo": null,
+      "bki": {"has_history": false, "max_overdue_days_24m": 0, "current_overdue_days": 0, "loans": []},
+      "bank": {"is_client": true, "account_opened_months_ago": 5, "inflow_base": 500000,
+               "inflow_pattern": [0.6, 0.9, 1.04, 1.2, 1.3]}
+    },
+    "0010000088": {
+      "persona": "Надёжная компания для демонстрации сбоев",
+      "egrul": {
+        "name": "ООО «Альтаир»",
+        "legal_form": "OOO",
+        "ogrn": "1007700000087",
+        "registered_months_ago": 98,
+        "status": "ACTIVE",
+        "okved": "62.02",
+        "okved_name": "Деятельность консультативная в области компьютерных технологий",
+        "address": "г. Москва, Звёздный бульвар, д. 19",
+        "director": {"name": "Белов Кирилл Андреевич", "since_months_ago": 98}
+      },
+      "fns": {"tax_debt": 0, "mass_address": false, "director_disqualified": false, "employees": 27, "tax_regime": "ОСН"},
+      "girbo": {"years": [
+        {"year_offset": 1, "revenue": 64000000, "sales_profit": 12800000, "net_profit": 9900000},
+        {"year_offset": 2, "revenue": 56000000, "sales_profit": 10600000, "net_profit": 8200000}
+      ]},
+      "bki": {"has_history": true, "max_overdue_days_24m": 0, "current_overdue_days": 0, "loans": []},
+      "bank": {"is_client": true, "account_opened_months_ago": 48, "inflow_base": 5300000,
+               "inflow_pattern": [0.98, 1.0, 1.02, 0.99, 1.01, 1.0, 0.97, 1.03, 1.0, 0.98, 1.02, 1.0]}
+    },
+    "0010000095": {
+      "persona": "Отказ по стоп-фактору: текущая просрочка",
+      "egrul": {
+        "name": "ООО «Меридиан»",
+        "legal_form": "OOO",
+        "ogrn": "1007700000098",
+        "registered_months_ago": 44,
+        "status": "ACTIVE",
+        "okved": "47.19",
+        "okved_name": "Торговля розничная прочая в неспециализированных магазинах",
+        "address": "г. Москва, ул. Торговая, д. 14",
+        "director": {"name": "Новиков Сергей Павлович", "since_months_ago": 44}
+      },
+      "fns": {"tax_debt": 0, "mass_address": false, "director_disqualified": false, "employees": 11, "tax_regime": "УСН"},
+      "girbo": {"years": [
+        {"year_offset": 1, "revenue": 26000000, "sales_profit": 1900000, "net_profit": 1300000},
+        {"year_offset": 2, "revenue": 29000000, "sales_profit": 2300000, "net_profit": 1700000}
+      ]},
+      "bki": {"has_history": true, "max_overdue_days_24m": 47, "current_overdue_days": 47, "loans": [
+        {"lender": "Банк «Восток»", "kind": "Кредит", "amount": 3000000, "balance": 1900000, "monthly_payment": 110000, "opened_months_ago": 16}
+      ]},
+      "bank": {"is_client": false}
+    }
+  }
+}
