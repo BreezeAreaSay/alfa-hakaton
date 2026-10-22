@@ -46,7 +46,7 @@ const NOT_INCLUDED = [
 
 const DEFAULTS = {
   out: 'docs/Документация-проекта.pdf',
-  githubBase: 'https://github.com/BreezeAreaSay/alfa-hakaton/blob/main/',
+  githubBase: 'https://github.com/stonebridgeway/alfa-hakaton/blob/main/',
 };
 
 // Геометрия страницы — та же, что в @page в page/style.css (поля 20, 18, 17, 18 мм).

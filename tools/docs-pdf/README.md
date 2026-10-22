@@ -49,7 +49,7 @@ PW_CHROMIUM_PATH=/opt/pw-browsers/chromium-1194/chrome-linux/chrome npm run buil
 | Параметр | По умолчанию | Назначение |
 |---|---|---|
 | `--out <путь>` | `docs/Документация-проекта.pdf` | Куда записать PDF, путь от корня репозитория |
-| `--github-base <адрес>` или `DOCS_GITHUB_BASE` | `https://github.com/BreezeAreaSay/alfa-hakaton/blob/main/` | Основа ссылок на файлы репозитория. Для сдаваемой версии — `…/blob/v1.0.0/` |
+| `--github-base <адрес>` или `DOCS_GITHUB_BASE` | `https://github.com/stonebridgeway/alfa-hakaton/blob/main/` | Основа ссылок на файлы репозитория. Для сдаваемой версии — `…/blob/v1.0.0/` |
 | `--strict` | выключено | Код выхода 1, если есть предупреждения |
 | `--keep-html` | выключено | Оставить промежуточный HTML для отладки, путь печатается |
 | `PW_CHROMIUM_PATH` | браузер Playwright | Путь к исполняемому файлу Chromium |
