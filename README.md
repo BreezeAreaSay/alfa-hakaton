@@ -2,7 +2,7 @@
 
 Прототип цифрового кредитного конвейера для малого и микробизнеса — решение кейса Альфа-Банка на хакатоне «Альфа Будущее». Кабинет клиента и рабочее место кредитного аналитика связаны одной заявкой и одним процессом: от потребности бизнеса в деньгах до выдачи кредита.
 
-**Версия для проверки — тег `v1.0.0`.**
+**Версия для проверки — тег `v1.0.0`.** Репозиторий: <https://github.com/stonebridgeway/alfa-hakaton>. Демо-версия интерфейса без сервера, чтобы посмотреть кабинет без установки: <https://stonebridgeway.github.io/alfa-hakaton/>.
 
 ## Назначение
 
@@ -24,7 +24,7 @@
 ## Быстрый старт
 
 ```bash
-git clone <адрес репозитория> alfa-hakaton
+git clone https://github.com/stonebridgeway/alfa-hakaton.git
 cd alfa-hakaton
 git checkout v1.0.0
 docker compose up -d --build --wait
@@ -95,7 +95,7 @@ Prometheus открывается на <http://localhost:9090> (порт мен�
 | Где | Как |
 |---|---|
 | На своём компьютере | `cd frontend && npm ci && npm run dev:demo` → <http://localhost:5173> |
-| GitHub Pages | Workflow [pages.yml](.github/workflows/pages.yml) публикует демо-версию при каждом изменении фронтенда в `main`. Один раз включите Settings → Pages → Source: GitHub Actions; адрес — `https://<владелец>.github.io/<репозиторий>/` |
+| GitHub Pages | Workflow [pages.yml](.github/workflows/pages.yml) публикует демо-версию при каждом изменении фронтенда в `main`. Один раз включите Settings → Pages → Source: GitHub Actions; адрес — `https://<владелец>.github.io/<репозиторий>/`, для этого репозитория — <https://stonebridgeway.github.io/alfa-hakaton/> |
 
 Чем имитация отличается от настоящего сервера, как её расширять при новых методах API и как обновлять снимки ответов — в [docs/demo-mode.md](docs/demo-mode.md).
 

@@ -2,6 +2,8 @@
 
 Организаторы рекомендуют заранее поднять решение на бесплатном внешнем сервере для демонстрации. Онлайн-версия дополняет локальный запуск, но не заменяет его: проверяемая версия решения — стенд, который жюри поднимает по [README](../README.md) командой `docker compose up`. На сервере разворачивается тот же `docker compose`, перед ним ставится [Caddy](https://caddyserver.com/), который сам выпускает сертификат Let's Encrypt.
 
+Отдельно от сервера есть демо-версия интерфейса без бэкенда на GitHub Pages — <https://stonebridgeway.github.io/alfa-hakaton/> ([demo-mode.md](demo-mode.md)). Ей не нужен сервер вовсе, но она и не показывает серверную часть: конвейер, очередь заданий и имитацию внешних систем там заменяет код в браузере.
+
 ```mermaid
 flowchart LR
     user(["Браузер"]) -- "HTTPS 443" --> caddy
@@ -27,7 +29,7 @@ flowchart LR
    ```
 2. Склонируйте репозиторий на сдаваемой версии:
    ```bash
-   git clone <адрес репозитория> alfa-hakaton
+   git clone https://github.com/stonebridgeway/alfa-hakaton.git
    cd alfa-hakaton
    git checkout v1.0.0
    ```

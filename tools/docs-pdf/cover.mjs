@@ -3,6 +3,7 @@
 // Запуск из tools/docs-pdf:
 //   npm run cover -- [--ref v1.0.0] [--repo-url https://github.com/stonebridgeway/alfa-hakaton]
 //                    [--demo-url https://…] [--out out/Сопроводительное-письмо.pdf]
+// Адрес демо-версии подставляется по умолчанию; --demo-url '' убирает его из письма.
 // Без --ref берётся тег текущего коммита, если он есть, иначе в письме указывается хеш коммита.
 import fs from 'node:fs';
 import os from 'node:os';
@@ -14,6 +15,7 @@ import { PORTRAIT, PX_PER_MM, REPO_ROOT, TOOL_DIR, buildDate, fontFaces, launchB
 import { escapeHtml, renderDocuments } from './lib/markdown.mjs';
 
 const DEFAULT_REPO = 'https://github.com/stonebridgeway/alfa-hakaton';
+const DEFAULT_DEMO = 'https://stonebridgeway.github.io/alfa-hakaton/';
 const DEFAULT_OUT = path.join(TOOL_DIR, 'out', 'Сопроводительное-письмо.pdf');
 
 function gitOutput(args) {
@@ -41,8 +43,9 @@ async function main() {
   const refLine = tag
     ? `тег \`${tag}\`, коммит \`${commit}\``
     : `коммит \`${commit}\` (тег будет проставлен на этот коммит)`;
-  const demoBlock = values['demo-url']
-    ? `- **Онлайн-демо** — дополнение к локальному запуску, а не замена: <${values['demo-url']}>.`
+  const demoUrl = values['demo-url'] ?? DEFAULT_DEMO;
+  const demoBlock = demoUrl
+    ? `- **Демо-версия интерфейса без сервера** — дополнение к локальному запуску, а не замена: <${demoUrl}>.`
     : '';
   if (gitOutput(['status', '--porcelain'])) {
     console.log('• Внимание: в рабочем каталоге есть незакоммиченные изменения — письмо описывает коммит без них');

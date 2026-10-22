@@ -607,8 +607,8 @@ lightningcss (MPL-2.0) минифицирует CSS внутри Vite во вр�
 - **uv 0.11.32** — MIT OR Apache-2.0 (метаданные PyPI). Устанавливает Python-зависимости в Dockerfile бэкенда и
   симулятора и в CI. Ставится в образы `api`, `worker` и `simulator` через pip, во время работы не вызывается.
 - **Node.js 22.22.0** — MIT. Сборка фронтенда (образ `node:22.22.0-alpine`) и запуск Playwright в CI.
-- **GitHub Actions** `actions/checkout@v4`, `actions/setup-python@v5`, `actions/setup-node@v4`,
-  `actions/upload-artifact@v4`, `actions/upload-pages-artifact@v3`, `actions/deploy-pages@v4` — MIT. CI в
+- **GitHub Actions** `actions/checkout@v5`, `actions/setup-python@v6`, `actions/setup-node@v5`,
+  `actions/upload-artifact@v6`, `actions/upload-pages-artifact@v5`, `actions/deploy-pages@v5` — MIT. CI в
   `.github/workflows/ci.yml`, публикация демо-версии на GitHub Pages в `.github/workflows/pages.yml`.
 - **Chromium для Playwright** — BSD-3-Clause и лицензии сторонних компонентов браузера. Скачивается командой
   `npx playwright install chromium` только для тестов и сборки PDF.

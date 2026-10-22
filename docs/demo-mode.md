@@ -49,7 +49,7 @@ Workflow [pages.yml](../.github/workflows/pages.yml) запускается пр
 2. копирует `index.html` в `404.html`: Pages отдаёт его на неизвестные адреса, поэтому прямые ссылки на страницы приложения тоже открываются;
 3. публикует `frontend/dist`.
 
-Чтобы включить публикацию, один раз в настройках репозитория выберите **Settings → Pages → Build and deployment → Source: GitHub Actions**. Адрес демо-версии: `https://<владелец>.github.io/<репозиторий>/`.
+Чтобы включить публикацию, один раз в настройках репозитория выберите **Settings → Pages → Build and deployment → Source: GitHub Actions**. Адрес демо-версии: `https://<владелец>.github.io/<репозиторий>/`; для основного репозитория — <https://stonebridgeway.github.io/alfa-hakaton/>.
 
 ## Как устроена имитация
 
