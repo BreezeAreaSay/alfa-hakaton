@@ -69,6 +69,26 @@ export interface Product {
     auto_limit: Money | null;
 }
 
+export interface ProactiveOffer {
+    product_code: string;
+    product_name: string;
+    kind: string;
+    purpose: Purpose;
+    amount: number;
+    term_months: number;
+    rate_from: number;
+    monthly_payment: number;
+    payment_label: string;
+}
+
+/** Предварительные предложения на главной: по данным компании, без кредитной истории и заявки. */
+export interface ProactiveOffers {
+    offers: ProactiveOffer[];
+    facts: string[];
+    note: string | null;
+    computed_at: string;
+}
+
 export interface QuoteItem {
     product: Product;
     eligible: boolean;

@@ -20,6 +20,7 @@ import type {
     Notifications,
     ParsedNeed,
     PipelineIssue,
+    ProactiveOffers,
     Product,
     Purpose,
     QueueItem,
@@ -44,6 +45,14 @@ export const useMeta = () =>
     useQuery({ queryKey: keys.meta, queryFn: () => api<Meta>('/api/meta'), staleTime: Infinity });
 
 export const useCompany = () => useQuery({ queryKey: keys.company, queryFn: () => api<Company>('/api/company') });
+
+/** Предварительные предложения на главной; сервер кеширует их на 10 минут. */
+export const useProactiveOffers = () =>
+    useQuery({
+        queryKey: ['proactive'],
+        queryFn: () => api<ProactiveOffers>('/api/offers/proactive'),
+        staleTime: 10 * 60_000,
+    });
 
 export const useProducts = () =>
     useQuery({ queryKey: keys.products, queryFn: () => api<Product[]>('/api/products'), staleTime: Infinity });

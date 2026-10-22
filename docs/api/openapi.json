@@ -166,6 +166,33 @@
         }
       }
     },
+    "/api/offers/proactive": {
+      "get": {
+        "tags": [
+          "Каталог и справочники"
+        ],
+        "summary": "Предварительные предложения клиенту",
+        "description": "Что банк готов дать по ЕГРЮЛ/ЕГРИП, отчётности и оборотам — без кредитной истории и заявки. Кеш 10 минут.",
+        "operationId": "proactive_api_offers_proactive_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProactiveOffers"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/api/company": {
       "get": {
         "tags": [
@@ -4111,6 +4138,101 @@
           "source"
         ],
         "title": "ParsedNeed"
+      },
+      "ProactiveOffer": {
+        "properties": {
+          "product_code": {
+            "type": "string",
+            "title": "Product Code"
+          },
+          "product_name": {
+            "type": "string",
+            "title": "Product Name"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "purpose": {
+            "$ref": "#/components/schemas/Purpose"
+          },
+          "amount": {
+            "type": "number",
+            "title": "Amount"
+          },
+          "term_months": {
+            "type": "integer",
+            "title": "Term Months"
+          },
+          "rate_from": {
+            "type": "number",
+            "title": "Rate From"
+          },
+          "monthly_payment": {
+            "type": "number",
+            "title": "Monthly Payment"
+          },
+          "payment_label": {
+            "type": "string",
+            "title": "Payment Label"
+          }
+        },
+        "type": "object",
+        "required": [
+          "product_code",
+          "product_name",
+          "kind",
+          "purpose",
+          "amount",
+          "term_months",
+          "rate_from",
+          "monthly_payment",
+          "payment_label"
+        ],
+        "title": "ProactiveOffer"
+      },
+      "ProactiveOffers": {
+        "properties": {
+          "offers": {
+            "items": {
+              "$ref": "#/components/schemas/ProactiveOffer"
+            },
+            "type": "array",
+            "title": "Offers"
+          },
+          "facts": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Facts"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "computed_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Computed At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "offers",
+          "facts",
+          "note",
+          "computed_at"
+        ],
+        "title": "ProactiveOffers",
+        "description": "Предварительные предложения на главной: по ЕГРЮЛ, отчётности и оборотам, без кредитной истории и заявки."
       },
       "ProductMetrics": {
         "properties": {

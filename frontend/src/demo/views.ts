@@ -8,7 +8,9 @@ import type {
     BankSummary,
     DailyMetrics,
     MetricCount,
+    ProactiveOffers,
     ProductMetrics,
+    Purpose,
     Company,
     DecisionView,
     DocumentItem,
@@ -25,10 +27,12 @@ import type {
     TermsPreview,
     User,
 } from '../api/types';
-import { META, USERS, companyProfile, userName } from './data';
+import { META, USERS, companyProfile, sourceSnapshot, userName } from './data';
 import { PRODUCTS, productRow, productTerms } from './engine/catalog';
 import { todayUtc } from './engine/dates';
+import { buildFeatures } from './engine/features';
 import { paymentSchedule } from './engine/finance';
+import { TYPICAL_TERM, proactiveFacts, proactiveNote, proactiveOffers } from './engine/proactive';
 import {
     LIMIT_PHRASES,
     type LimitResult,
@@ -832,5 +836,35 @@ export function bankMetrics(state: DemoState, now: number, days: number): BankMe
             .map((row) => ({ ...row, issued_amount: sumMoney(Number(row.issued_amount)) })),
         analysts,
         daily: [...daily.values()],
+    };
+}
+
+// ---------------------------------------------------------------- предварительные предложения (backend/app/api/catalog.py)
+
+export const PROACTIVE_UNAVAILABLE = 'Внешние источники сейчас недоступны — попробуйте позже';
+
+export function proactiveOffersOut(companyId: string, now: number): ProactiveOffers {
+    const today = todayUtc(now);
+    const egrul = sourceSnapshot(companyId, 'EGRUL', today)?.result ?? null;
+    const bank = sourceSnapshot(companyId, 'BANK', today)?.result ?? null;
+    const girbo = egrul?.legal_form === 'OOO' ? (sourceSnapshot(companyId, 'GIRBO', today)?.result ?? null) : null;
+    const f = buildFeatures({
+        today,
+        amount: 0,
+        term_months: TYPICAL_TERM,
+        declared_revenue: null,
+        egrul,
+        fns: null,
+        girbo,
+        bki: null,
+        bank,
+        statement: null,
+    });
+    const offers = proactiveOffers(f);
+    return {
+        offers: offers.map((o) => ({ ...o, purpose: o.purpose as Purpose, payment_label: paymentLabel(o.kind) })),
+        facts: proactiveFacts(f),
+        note: proactiveNote(f, offers),
+        computed_at: iso(now),
     };
 }

@@ -97,6 +97,27 @@ class QuoteItem(BaseModel):
     payment_label: str
 
 
+class ProactiveOffer(BaseModel):
+    product_code: str
+    product_name: str
+    kind: str
+    purpose: Purpose
+    amount: float
+    term_months: int
+    rate_from: float
+    monthly_payment: float
+    payment_label: str
+
+
+class ProactiveOffers(BaseModel):
+    """Предварительные предложения на главной: по ЕГРЮЛ, отчётности и оборотам, без кредитной истории и заявки."""
+
+    offers: list[ProactiveOffer]
+    facts: list[str]
+    note: str | None
+    computed_at: datetime
+
+
 # ---------------------------------------------------------------- заявка
 
 

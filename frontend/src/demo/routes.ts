@@ -17,6 +17,7 @@ import { openStream } from './stream';
 import {
     applicationOut,
     auditOut,
+    PROACTIVE_UNAVAILABLE,
     bankMetrics,
     bankSummary,
     companyOut,
@@ -31,6 +32,7 @@ import {
     queueItems,
     termsFor,
     userOut,
+    proactiveOffersOut,
 } from './views';
 import { audit, emit, refresh, transition } from './workflow';
 
@@ -722,6 +724,18 @@ function summary(ctx: Ctx) {
     return bankSummary(getState(), bankStaff(ctx), ctx.now);
 }
 
+function proactive(ctx: Ctx) {
+    const user = clientOnly(ctx);
+    const state = getState();
+    const companyId = user.company_id as string;
+    const legalForm = companyProfile(companyId, todayUtc(ctx.now), null).legal_form;
+    const needed = ['egrul', 'bank', ...(legalForm === 'OOO' ? ['girbo'] : [])];
+    if (!needed.every((source) => available(state, source))) {
+        return { offers: [], facts: [], note: PROACTIVE_UNAVAILABLE, computed_at: iso(ctx.now) };
+    }
+    return proactiveOffersOut(companyId, ctx.now);
+}
+
 function queryInt(ctx: Ctx, name: string, fallback: number, opts: { ge?: number; le?: number }): number {
     const raw = ctx.url.searchParams.get(name);
     if (raw === null) return fallback;
@@ -1067,6 +1081,7 @@ export const ROUTES: Route[] = [
     route('GET', '/api/products', () => PRODUCT_ROWS),
     route('POST', '/api/calculator/quote', quote),
     route('GET', '/api/company', company),
+    route('GET', '/api/offers/proactive', proactive),
     route('GET', '/api/applications', myApplications),
     route('POST', '/api/applications', createDraft),
     route('GET', '/api/applications/{id}', getApplication),

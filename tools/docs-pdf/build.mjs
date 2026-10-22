@@ -32,6 +32,7 @@ const DOCUMENTS = [
   { file: 'docs/demo-mode.md', optional: true },
   { file: 'docs/research/interview-guide.md' },
   { file: 'docs/research/questionnaire.md' },
+  { file: 'docs/research/desk-research.md' },
 ];
 
 // Не входят в PDF, на странице содержания — ссылки на репозиторий.

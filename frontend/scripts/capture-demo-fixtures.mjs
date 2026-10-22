@@ -282,6 +282,8 @@ async function main() {
     examples.me = await sessions.veter.get('/api/me');
     const companies = {};
     for (const login of CLIENTS) companies[login] = await sessions[login].get('/api/company');
+    examples.proactive = {};
+    for (const login of CLIENTS) examples.proactive[login] = await sessions[login].get('/api/offers/proactive');
     const faultsInitial = await admin.get('/api/admin/simulator/faults');
     const aiStatus = await sessions.veter.get('/api/ai/status');
 

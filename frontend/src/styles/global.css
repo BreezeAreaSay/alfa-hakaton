@@ -681,3 +681,18 @@ table.simple td.num {
     color: var(--color-light-text-negative, #ec2d20);
     font-weight: 500;
 }
+
+/* предварительные предложения на главной */
+.proactive__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: var(--gap-12);
+}
+
+.proactive__facts {
+    margin: 0;
+    padding-left: 20px;
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--color-light-text-secondary);
+}

@@ -1,3 +1,5 @@
+import time
+import uuid
 from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
 
@@ -8,6 +10,7 @@ from sqlalchemy.orm import Session
 from app.db import get_db
 from app.domain.catalog import ProductTerms, products_for_purpose
 from app.domain.enums import Role
+from app.domain.features import build_features
 from app.domain.labels import (
     COMPANY_STATUS_LABELS,
     DOCUMENT_LABELS,
@@ -17,9 +20,10 @@ from app.domain.labels import (
     STEP_LABELS,
 )
 from app.domain.policy import FLAGS, LIMIT_PHRASES, REASONS, STOP_FACTORS, eligibility_issues, offer_figures
+from app.domain.proactive import TYPICAL_TERM, proactive_facts, proactive_note, proactive_offers
 from app.integrations.simulator import SourceNotFound, SourceUnavailable, external_systems
 from app.models import Company, Product, User
-from app.schemas import CompanyOut, ProductOut, QuoteItem, QuoteRequest
+from app.schemas import CompanyOut, ProactiveOffer, ProactiveOffers, ProductOut, QuoteItem, QuoteRequest
 from app.security import require_roles
 from app.services.views import company_out, payment_label
 
@@ -80,6 +84,52 @@ def quote(body: QuoteRequest, db: Session = Depends(get_db)) -> list[QuoteItem]:
             )
         )
     return items
+
+
+PROACTIVE_TTL_SECONDS = 600
+_proactive_cache: dict[uuid.UUID, tuple[float, ProactiveOffers]] = {}
+
+
+@router.get("/offers/proactive", response_model=ProactiveOffers, summary="Предварительные предложения клиенту")
+def proactive(user: User = Depends(require_roles(Role.CLIENT)), db: Session = Depends(get_db)) -> ProactiveOffers:
+    """Что банк готов дать по ЕГРЮЛ/ЕГРИП, отчётности и оборотам — без кредитной истории и заявки. Кеш 10 минут."""
+    company = user.company
+    cached = _proactive_cache.get(company.id)
+    if cached and time.monotonic() - cached[0] < PROACTIVE_TTL_SECONDS:
+        return cached[1]
+    computed_at = datetime.now(UTC)
+    systems = external_systems()
+    try:
+        # Признаки ждут результат шага конвейера: ответ реестра с пометкой found
+        egrul = {"found": True, **systems.egrul(company.inn)}
+        bank = systems.bank(company.inn)
+        girbo = systems.girbo(company.inn) if egrul.get("legal_form") == "OOO" else None
+    except (SourceUnavailable, SourceNotFound):
+        return ProactiveOffers(
+            offers=[], facts=[], note="Внешние источники сейчас недоступны — попробуйте позже", computed_at=computed_at
+        )
+    features = build_features(
+        today=computed_at.date(),
+        amount=Decimal(0),
+        term_months=TYPICAL_TERM,
+        declared_revenue=None,
+        egrul=egrul,
+        fns=None,
+        girbo=girbo,
+        bki=None,
+        bank=bank,
+        statement=None,
+    )
+    catalog = {p.code: ProductTerms.from_model(p) for p in db.scalars(select(Product).where(Product.active))}
+    offers = proactive_offers(catalog, features)
+    result = ProactiveOffers(
+        offers=[ProactiveOffer(**offer, payment_label=payment_label(offer["kind"])) for offer in offers],
+        facts=proactive_facts(features),
+        note=proactive_note(features, offers),
+        computed_at=computed_at,
+    )
+    _proactive_cache[company.id] = (time.monotonic(), result)
+    return result
 
 
 def refresh_company(db: Session, company: Company) -> None:

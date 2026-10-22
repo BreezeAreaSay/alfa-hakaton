@@ -419,6 +419,14 @@ export async function run(io: SelfcheckIo): Promise<boolean> {
     );
     check.shape('очередь: поля ответа', examples.queue, queue);
     check.same('сводка после сброса', examples.summary, await analyst.get('/api/bank/summary'));
+    for (const [login, expected] of Object.entries((examples as J).proactive as Record<string, J>)) {
+        check.same(
+            `предварительные предложения ${login}`,
+            expected,
+            await sessions[login].get('/api/offers/proactive'),
+            ['computed_at'],
+        );
+    }
     check.same(
         'показатели после сброса',
         examples.metrics,

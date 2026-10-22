@@ -381,3 +381,18 @@ def test_statement_forecast_predicts_cash_gap():
         )
     assert document["parsed"]["closing_balance"] == 7_026_000
     assert document["parsed"]["forecast"]["recommendation"]["reason"] == "NO_GAP"
+
+
+def test_proactive_offers_follow_company_data():
+    # Предварительные предложения на главной: по ЕГРЮЛ, отчётности и оборотам, без заявки
+    veter = Client("veter").get("/api/offers/proactive")
+    assert [o["product_code"] for o in veter["offers"]] == ["OVERDRAFT", "GROWTH"]
+    assert veter["offers"][0]["amount"] == 4_000_000 and veter["offers"][1]["amount"] == 10_000_000
+    assert any(fact.startswith("Выручка по отчётности") for fact in veter["facts"])
+    assert veter["note"].startswith("Предварительно")
+    # Ликвидация — предложений нет; ИП со счётом два месяца — нет данных о выручке, есть подсказка
+    assert Client("romashka").get("/api/offers/proactive")["offers"] == []
+    orlov = Client("orlov").get("/api/offers/proactive")
+    assert orlov["offers"] == [] and "выписку" in orlov["note"]
+    # Аналитику метод недоступен
+    assert Client("analyst").http.get("/api/offers/proactive").status_code == 403

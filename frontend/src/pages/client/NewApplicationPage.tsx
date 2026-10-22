@@ -86,6 +86,8 @@ const toNumber = (value: string): number | null => {
 
 const formatDigits = (value: number | null): string => (value ? new Intl.NumberFormat('ru-RU').format(value) : '');
 
+const isPurpose = (value: string | null): value is Purpose => PURPOSES.some((p) => p.code === value);
+
 export function NewApplicationPage() {
     const navigate = useNavigate();
     const [params, setParams] = useSearchParams();
@@ -94,9 +96,13 @@ export function NewApplicationPage() {
     const company = useCompany();
 
     const [step, setStep] = useState(0);
-    const [purpose, setPurpose] = useState<Purpose>('WORKING_CAPITAL');
-    const [amount, setAmount] = useState<number>(3_000_000);
-    const [term, setTerm] = useState<number>(24);
+    // Предварительное предложение с главной передаёт цель, сумму и срок в адресе
+    const [purpose, setPurpose] = useState<Purpose>(() => {
+        const value = params.get('purpose');
+        return isPurpose(value) ? value : 'WORKING_CAPITAL';
+    });
+    const [amount, setAmount] = useState<number>(() => Number(params.get('amount')) || 3_000_000);
+    const [term, setTerm] = useState<number>(() => Number(params.get('term')) || 24);
     const [productCode, setProductCode] = useState<string | null>(null);
     const [aiParsed, setAiParsed] = useState<ParsedNeed | null>(null);
     const initialized = useRef(false);

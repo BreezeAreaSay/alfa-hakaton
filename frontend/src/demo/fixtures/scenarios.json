@@ -1470,14 +1470,6 @@
     },
     "dossier": {
       "sources": {
-        "FNS": {"status":"DONE","error":null,"attempts":1},
-        "SCORING": {"status":"DONE","result":{"score":870,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
-        "POLICY": {
-          "status": "DONE",
-          "result": {"flags":[],"limit":9230000,"outcome":"APPROVE","version":"v1.0","stop_factors":[]},
-          "error": null,
-          "attempts": 1
-        },
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -1494,9 +1486,17 @@
           "attempts": 1
         },
         "EGRUL": {"status":"DONE","error":null,"attempts":1},
+        "FNS": {"status":"DONE","error":null,"attempts":1},
         "GIRBO": {"status":"DONE","error":null,"attempts":1},
         "BKI": {"status":"DONE","error":null,"attempts":1},
-        "BANK": {"status":"DONE","error":null,"attempts":1}
+        "BANK": {"status":"DONE","error":null,"attempts":1},
+        "SCORING": {"status":"DONE","result":{"score":870,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
+        "POLICY": {
+          "status": "DONE",
+          "result": {"flags":[],"limit":9230000,"outcome":"APPROVE","version":"v1.0","stop_factors":[]},
+          "error": null,
+          "attempts": 1
+        }
       },
       "scoring": {
         "score": 870,
@@ -2308,14 +2308,6 @@
     },
     "dossier_issued": {
       "sources": {
-        "FNS": {"status":"DONE","error":null,"attempts":1},
-        "SCORING": {"status":"DONE","result":{"score":870,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
-        "POLICY": {
-          "status": "DONE",
-          "result": {"flags":[],"limit":9230000,"outcome":"APPROVE","version":"v1.0","stop_factors":[]},
-          "error": null,
-          "attempts": 1
-        },
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -2332,9 +2324,17 @@
           "attempts": 1
         },
         "EGRUL": {"status":"DONE","error":null,"attempts":1},
+        "FNS": {"status":"DONE","error":null,"attempts":1},
         "GIRBO": {"status":"DONE","error":null,"attempts":1},
         "BKI": {"status":"DONE","error":null,"attempts":1},
-        "BANK": {"status":"DONE","error":null,"attempts":1}
+        "BANK": {"status":"DONE","error":null,"attempts":1},
+        "SCORING": {"status":"DONE","result":{"score":870,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
+        "POLICY": {
+          "status": "DONE",
+          "result": {"flags":[],"limit":9230000,"outcome":"APPROVE","version":"v1.0","stop_factors":[]},
+          "error": null,
+          "attempts": 1
+        }
       },
       "scoring": {"score":870,"risk_class":"A"},
       "auto_decision": {
@@ -2417,8 +2417,8 @@
           "actor": "CLIENT",
           "user": "Ветров Андрей Сергеевич",
           "details": {
-            "sha256": "c8cd211b5170562484e5fd47d1a53dffa170f567feb64e214a033fe0db3cf8d5",
-            "document": "41e32f9c-3596-46ec-9cda-a6b5ed568a10"
+            "sha256": "674c0d1fc68ad7bb7ea7e7ca7c87a370d10559e30bbf24103f5d8f3ebd8a4017",
+            "document": "e63bfdd8-1c29-46db-9b68-9f5129fdf39b"
           }
         },
         {
@@ -2566,8 +2566,8 @@
           "error": null,
           "attempts": 1
         },
-        "FNS": {"status":"DONE","error":null,"attempts":1},
         "EGRUL": {"status":"DONE","error":null,"attempts":1},
+        "FNS": {"status":"DONE","error":null,"attempts":1},
         "GIRBO": {"status":"SKIPPED","error":null,"attempts":1},
         "BKI": {"status":"DONE","error":null,"attempts":1},
         "BANK": {"status":"DONE","error":null,"attempts":1},
@@ -2944,12 +2944,9 @@
     },
     "dossier": {
       "sources": {
-        "POLICY": {
-          "status": "DONE",
-          "result": {"flags":[],"limit":3200000,"outcome":"COUNTER","version":"v1.0","stop_factors":[]},
-          "error": null,
-          "attempts": 1
-        },
+        "FNS": {"status":"DONE","error":null,"attempts":1},
+        "GIRBO": {"status":"DONE","error":null,"attempts":1},
+        "SCORING": {"status":"DONE","result":{"score":790,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -2966,11 +2963,14 @@
           "attempts": 1
         },
         "EGRUL": {"status":"DONE","error":null,"attempts":1},
-        "FNS": {"status":"DONE","error":null,"attempts":1},
-        "GIRBO": {"status":"DONE","error":null,"attempts":1},
-        "BKI": {"status":"DONE","error":null,"attempts":1},
         "BANK": {"status":"DONE","error":null,"attempts":1},
-        "SCORING": {"status":"DONE","result":{"score":790,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1}
+        "BKI": {"status":"DONE","error":null,"attempts":1},
+        "POLICY": {
+          "status": "DONE",
+          "result": {"flags":[],"limit":3200000,"outcome":"COUNTER","version":"v1.0","stop_factors":[]},
+          "error": null,
+          "attempts": 1
+        }
       },
       "scoring": {
         "score": 790,
@@ -3363,7 +3363,6 @@
     },
     "dossier": {
       "sources": {
-        "FNS": {"status":"DONE","error":null,"attempts":1},
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -3379,8 +3378,10 @@
           "error": null,
           "attempts": 1
         },
-        "GIRBO": {"status":"DONE","error":null,"attempts":1},
         "EGRUL": {"status":"DONE","error":null,"attempts":1},
+        "FNS": {"status":"DONE","error":null,"attempts":1},
+        "BKI": {"status":"DONE","error":null,"attempts":1},
+        "BANK": {"status":"DONE","error":null,"attempts":1},
         "SCORING": {"status":"DONE","result":{"score":790,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
         "POLICY": {
           "status": "DONE",
@@ -3388,8 +3389,7 @@
           "error": null,
           "attempts": 1
         },
-        "BKI": {"status":"DONE","error":null,"attempts":1},
-        "BANK": {"status":"DONE","error":null,"attempts":1}
+        "GIRBO": {"status":"DONE","error":null,"attempts":1}
       },
       "scoring": {
         "score": 790,
@@ -3682,8 +3682,8 @@
           "error": null,
           "attempts": 1
         },
-        "EGRUL": {"status":"DONE","error":null,"attempts":1},
         "FNS": {"status":"DONE","error":null,"attempts":1},
+        "EGRUL": {"status":"DONE","error":null,"attempts":1},
         "GIRBO": {"status":"SKIPPED","error":null,"attempts":1},
         "BKI": {"status":"DONE","error":null,"attempts":1},
         "BANK": {"status":"DONE","error":null,"attempts":1},
@@ -4221,17 +4221,6 @@
     },
     "dossier": {
       "sources": {
-        "SCORING": {"status":"DONE","result":{"score":770,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
-        "FNS": {"status":"DONE","error":null,"attempts":1},
-        "GIRBO": {"status":"SKIPPED","error":null,"attempts":1},
-        "POLICY": {
-          "status": "DONE",
-          "result": {"flags":[],"limit":1700000,"outcome":"APPROVE","version":"v1.0","stop_factors":[]},
-          "error": null,
-          "attempts": 1
-        },
-        "BKI": {"status":"DONE","error":null,"attempts":1},
-        "BANK": {"status":"DONE","error":null,"attempts":1},
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -4247,7 +4236,18 @@
           "error": null,
           "attempts": 1
         },
-        "EGRUL": {"status":"DONE","error":null,"attempts":1}
+        "EGRUL": {"status":"DONE","error":null,"attempts":1},
+        "FNS": {"status":"DONE","error":null,"attempts":1},
+        "GIRBO": {"status":"SKIPPED","error":null,"attempts":1},
+        "BKI": {"status":"DONE","error":null,"attempts":1},
+        "BANK": {"status":"DONE","error":null,"attempts":1},
+        "SCORING": {"status":"DONE","result":{"score":770,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
+        "POLICY": {
+          "status": "DONE",
+          "result": {"flags":[],"limit":1700000,"outcome":"APPROVE","version":"v1.0","stop_factors":[]},
+          "error": null,
+          "attempts": 1
+        }
       },
       "scoring": {
         "score": 770,
@@ -4533,9 +4533,6 @@
     },
     "dossier": {
       "sources": {
-        "EGRUL": {"status":"DONE","error":null,"attempts":1},
-        "GIRBO": {"status":"SKIPPED","error":null,"attempts":1},
-        "SCORING": {"status":"DONE","result":{"score":630,"version":"v1.0","risk_class":"C"},"error":null,"attempts":1},
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -4551,9 +4548,12 @@
           "error": null,
           "attempts": 1
         },
+        "EGRUL": {"status":"DONE","error":null,"attempts":1},
         "FNS": {"status":"DONE","error":null,"attempts":1},
+        "GIRBO": {"status":"SKIPPED","error":null,"attempts":1},
         "BKI": {"status":"DONE","error":null,"attempts":1},
         "BANK": {"status":"DONE","error":null,"attempts":1},
+        "SCORING": {"status":"DONE","result":{"score":630,"version":"v1.0","risk_class":"C"},"error":null,"attempts":1},
         "POLICY": {
           "status": "DONE",
           "result": {"flags":["F03","F07"],"limit":1430000,"outcome":"MANUAL_REVIEW","version":"v1.0","stop_factors":[]},
@@ -4827,9 +4827,6 @@
     },
     "dossier_rejected": {
       "sources": {
-        "EGRUL": {"status":"DONE","error":null,"attempts":1},
-        "GIRBO": {"status":"SKIPPED","error":null,"attempts":1},
-        "SCORING": {"status":"DONE","result":{"score":630,"version":"v1.0","risk_class":"C"},"error":null,"attempts":1},
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -4845,9 +4842,12 @@
           "error": null,
           "attempts": 1
         },
+        "EGRUL": {"status":"DONE","error":null,"attempts":1},
         "FNS": {"status":"DONE","error":null,"attempts":1},
+        "GIRBO": {"status":"SKIPPED","error":null,"attempts":1},
         "BKI": {"status":"DONE","error":null,"attempts":1},
         "BANK": {"status":"DONE","error":null,"attempts":1},
+        "SCORING": {"status":"DONE","result":{"score":630,"version":"v1.0","risk_class":"C"},"error":null,"attempts":1},
         "POLICY": {
           "status": "DONE",
           "result": {"flags":["F03","F07"],"limit":1430000,"outcome":"MANUAL_REVIEW","version":"v1.0","stop_factors":[]},
@@ -5032,18 +5032,18 @@
           "error": null,
           "attempts": 1
         },
-        "BKI": {"status":"DONE","error":null,"attempts":1},
         "EGRUL": {"status":"DONE","error":null,"attempts":1},
         "FNS": {"status":"DONE","error":null,"attempts":1},
         "GIRBO": {"status":"DONE","error":null,"attempts":1},
+        "BKI": {"status":"DONE","error":null,"attempts":1},
+        "BANK": {"status":"DONE","error":null,"attempts":1},
         "SCORING": {"status":"DONE","result":{"score":370,"version":"v1.0","risk_class":"E"},"error":null,"attempts":1},
         "POLICY": {
           "status": "DONE",
           "result": {"flags":[],"limit":null,"outcome":"REJECT","version":"v1.0","stop_factors":["S01","S05"]},
           "error": null,
           "attempts": 1
-        },
-        "BANK": {"status":"DONE","error":null,"attempts":1}
+        }
       },
       "scoring": {
         "score": 370,
@@ -5293,6 +5293,7 @@
     },
     "dossier": {
       "sources": {
+        "EGRUL": {"status":"DONE","error":null,"attempts":1},
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -5308,7 +5309,6 @@
           "error": null,
           "attempts": 1
         },
-        "EGRUL": {"status":"DONE","error":null,"attempts":1},
         "FNS": {"status":"DONE","error":null,"attempts":1},
         "GIRBO": {"status":"DONE","error":null,"attempts":1},
         "BKI": {"status":"DONE","error":null,"attempts":1},
@@ -5911,6 +5911,7 @@
     },
     "waiting_dossier": {
       "sources": {
+        "GIRBO": {"status":"DONE","error":null,"attempts":1},
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -5927,9 +5928,8 @@
           "attempts": 1
         },
         "EGRUL": {"status":"DONE","error":null,"attempts":1},
-        "FNS": {"status":"DONE","error":null,"attempts":1},
-        "GIRBO": {"status":"DONE","error":null,"attempts":1},
         "BKI": {"status":"WAITING","error":"bki: сервис ответил ошибкой 503","attempts":1},
+        "FNS": {"status":"DONE","error":null,"attempts":1},
         "BANK": {"status":"PENDING","error":null,"attempts":0},
         "SCORING": {"status":"PENDING","result":null,"error":null,"attempts":0},
         "POLICY": {"status":"PENDING","result":null,"error":null,"attempts":0}
@@ -6075,6 +6075,7 @@
     },
     "dossier": {
       "sources": {
+        "GIRBO": {"status":"DONE","error":null,"attempts":1},
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -6091,10 +6092,9 @@
           "attempts": 1
         },
         "EGRUL": {"status":"DONE","error":null,"attempts":1},
+        "FNS": {"status":"DONE","error":null,"attempts":1},
         "BKI": {"status":"DONE","error":null,"attempts":3},
         "BANK": {"status":"DONE","error":null,"attempts":1},
-        "FNS": {"status":"DONE","error":null,"attempts":1},
-        "GIRBO": {"status":"DONE","error":null,"attempts":1},
         "SCORING": {"status":"DONE","result":{"score":900,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
         "POLICY": {
           "status": "DONE",

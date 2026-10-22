@@ -1,13 +1,14 @@
 import { Button } from '@alfalab/core-components/button';
 import { Typography } from '@alfalab/core-components/typography';
 import { ChevronRightMIcon } from '@alfalab/icons-glyph/ChevronRightMIcon';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { useApplications, useCompany } from '../../api/hooks';
+import { useApplications, useCompany, useProactiveOffers } from '../../api/hooks';
 import type { ApplicationListItem } from '../../api/types';
 import { useAuth } from '../../auth/AuthContext';
 import { Badge, Empty, ErrorPlate, Loader, SectionTitle, StatusBadge } from '../../components/ui';
-import { date, months, rub } from '../../utils/format';
+import { date, months, percent, rub } from '../../utils/format';
 import { CompanyCard } from './components/CompanyCard';
 
 const HOW_IT_WORKS = [
@@ -15,6 +16,88 @@ const HOW_IT_WORKS = [
     { title: 'Отправьте заявку', text: 'Данные компании подтянем из ЕГРЮЛ, проверка — в среднем несколько минут' },
     { title: 'Подпишите договор', text: 'Подписание и выдача — прямо в кабинете, без визитов и звонков' },
 ];
+
+/**
+ * Предварительные предложения: что банк готов дать по уже известным данным компании, без заявки и кредитной
+ * истории. Одно-два предложения с объяснением; «Скрыть» запоминается в этом браузере.
+ */
+function ProactiveOffersCard({ companyId }: { companyId: string }) {
+    const navigate = useNavigate();
+    const offers = useProactiveOffers();
+    const storageKey = `proactive-hidden:${companyId}`;
+    const [hidden, setHidden] = useState(() => {
+        try {
+            return localStorage.getItem(storageKey) === '1';
+        } catch {
+            return false;
+        }
+    });
+    const hide = () => {
+        setHidden(true);
+        try {
+            localStorage.setItem(storageKey, '1');
+        } catch {
+            // приватное окно: предложение просто вернётся при следующем входе
+        }
+    };
+    const data = offers.data;
+    if (hidden || !data || data.offers.length === 0) return null;
+    return (
+        <section className='card card--tight stack-16' aria-label='Предварительные предложения'>
+            <SectionTitle
+                extra={
+                    <Button view='text' size={32} onClick={hide}>
+                        Скрыть
+                    </Button>
+                }
+            >
+                Вам уже доступно
+            </SectionTitle>
+            <div className='proactive__grid'>
+                {data.offers.map((offer) => (
+                    <div key={offer.product_code} className='tile stack-8'>
+                        <Typography.Text view='primary-small' color='secondary' tag='div'>
+                            {offer.product_name}
+                        </Typography.Text>
+                        <Typography.Title tag='div' view='small' font='system' weight='bold'>
+                            до {rub(offer.amount)}
+                        </Typography.Title>
+                        <Typography.Text view='primary-small' color='secondary' tag='div'>
+                            {offer.kind === 'LOAN'
+                                ? `${months(offer.term_months)} · от ${percent(offer.rate_from)} годовых · ${rub(offer.monthly_payment)} в месяц`
+                                : `от ${percent(offer.rate_from)} годовых · ${rub(offer.monthly_payment)} в месяц при полном использовании лимита`}
+                        </Typography.Text>
+                        <div>
+                            <Button
+                                view='secondary'
+                                size={40}
+                                onClick={() =>
+                                    navigate(
+                                        `/client/new?purpose=${offer.purpose}&amount=${offer.amount}&term=${offer.term_months}`,
+                                    )
+                                }
+                            >
+                                Оформить
+                            </Button>
+                        </div>
+                    </div>
+                ))}
+            </div>
+            {data.facts.length > 0 && (
+                <ul className='proactive__facts'>
+                    {data.facts.map((fact) => (
+                        <li key={fact}>{fact}</li>
+                    ))}
+                </ul>
+            )}
+            {data.note && (
+                <Typography.Text view='primary-small' color='secondary' tag='p'>
+                    {data.note}
+                </Typography.Text>
+            )}
+        </section>
+    );
+}
 
 function greeting(fullName: string | undefined): string {
     const parts = (fullName ?? '').split(' ');
@@ -58,6 +141,7 @@ export function DashboardPage() {
 
             <div className='grid-2'>
                 <div className='stack'>
+                    {user?.company && <ProactiveOffersCard companyId={user.company.id} />}
                     {active.length > 0 && (
                         <section className='card card--tight stack-16'>
                             <SectionTitle>Нужно ваше действие</SectionTitle>
