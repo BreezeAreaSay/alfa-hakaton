@@ -59,6 +59,16 @@ export function LoginPage() {
             <header className='header'>
                 <div className='header__inner'>
                     <Logo home='/login' />
+                    {/*
+                     * Слева, как пункт меню в шапке кабинета. Страницу видят только гости — после входа она ведёт
+                     * в кабинет, где «Получить кредит» есть в шапке. Поэтому здесь кнопка открывает вход,
+                     * а клиент после входа сразу попадает в подбор.
+                     */}
+                    <nav className='nav' aria-label='Разделы'>
+                        <button type='button' className='nav__link login__nav-button' onClick={start}>
+                            Получить кредит
+                        </button>
+                    </nav>
                     <div className='header__right'>
                         {/* Настольный вариант на любой ширине: мобильная главная кнопка чёрная и пропала бы на шапке */}
                         <ButtonDesktop view='primary' size={40} onClick={() => enter(null)}>
