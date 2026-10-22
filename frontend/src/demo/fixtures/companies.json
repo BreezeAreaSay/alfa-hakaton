@@ -1,15 +1,15 @@
 {
-  "captured_at": "2026-10-21T15:09:32.065Z",
-  "captured_on": "2026-10-21",
+  "captured_at": "2026-10-22T14:21:23.442Z",
+  "captured_on": "2026-10-22",
   "companies": {
     "veter": {
       "company": {
-        "id": "cdb14aef-5744-401d-9aa1-b2e0349f3134",
+        "id": "074d7837-e31d-43b1-9898-aea2182e0ace",
         "inn": "0010000017",
         "name": "ООО «Северный ветер»",
         "legal_form": "OOO",
         "ogrn": "1007700000010",
-        "registration_date": "2020-08-21",
+        "registration_date": "2020-08-22",
         "okved": "46.39",
         "okved_name": "Торговля оптовая неспециализированная пищевыми продуктами",
         "address": "г. Москва, Северный проезд, д. 12, офис 4",
@@ -17,10 +17,10 @@
         "status_label": "Действующая",
         "director_name": "Ветров Андрей Сергеевич",
         "is_bank_client": true,
-        "bank_account_opened_at": "2021-10-21",
+        "bank_account_opened_at": "2021-10-22",
         "business_months": 74,
         "account_months": 60,
-        "registry_synced_at": "2026-10-21T15:08:20.514776Z"
+        "registry_synced_at": "2026-10-22T14:21:09.594641Z"
       },
       "sources": {
         "EGRUL": {
@@ -33,10 +33,10 @@
             "okved": "46.39",
             "status": "ACTIVE",
             "address": "г. Москва, Северный проезд, д. 12, офис 4",
-            "director": {"name":"Ветров Андрей Сергеевич","since":"2020-08-21"},
+            "director": {"name":"Ветров Андрей Сергеевич","since":"2020-08-22"},
             "legal_form": "OOO",
             "okved_name": "Торговля оптовая неспециализированная пищевыми продуктами",
-            "registration_date": "2020-08-21"
+            "registration_date": "2020-08-22"
           }
         },
         "FNS": {
@@ -71,7 +71,7 @@
                 "amount": 5000000,
                 "lender": "Банк «Восток»",
                 "balance": 2100000,
-                "opened_at": "2024-04-21",
+                "opened_at": "2024-04-22",
                 "monthly_payment": 150000
               }
             ],
@@ -99,19 +99,19 @@
               {"month":"2026-09","inflow":10000000}
             ],
             "is_client": true,
-            "account_opened_at": "2021-10-21"
+            "account_opened_at": "2021-10-22"
           }
         }
       }
     },
     "smirnova": {
       "company": {
-        "id": "de2a1f60-d5d0-47a2-ada7-0ad52e9f3ded",
+        "id": "4e862f3e-d733-4238-a83b-f9216bf2b0fa",
         "inn": "001000000436",
         "name": "ИП Смирнова Анна Викторовна",
         "legal_form": "IP",
         "ogrn": "310770000000040",
-        "registration_date": "2024-08-21",
+        "registration_date": "2024-08-22",
         "okved": "56.30",
         "okved_name": "Подача напитков",
         "address": "г. Москва, ул. Липовая, д. 7",
@@ -119,10 +119,10 @@
         "status_label": "Действующая",
         "director_name": "Смирнова Анна Викторовна",
         "is_bank_client": true,
-        "bank_account_opened_at": "2024-09-21",
+        "bank_account_opened_at": "2024-09-22",
         "business_months": 26,
         "account_months": 25,
-        "registry_synced_at": "2026-10-21T15:08:24.382368Z"
+        "registry_synced_at": "2026-10-22T14:20:39.465825Z"
       },
       "sources": {
         "EGRUL": {
@@ -135,10 +135,10 @@
             "okved": "56.30",
             "status": "ACTIVE",
             "address": "г. Москва, ул. Липовая, д. 7",
-            "director": {"name":"Смирнова Анна Викторовна","since":"2024-08-21"},
+            "director": {"name":"Смирнова Анна Викторовна","since":"2024-08-22"},
             "legal_form": "IP",
             "okved_name": "Подача напитков",
-            "registration_date": "2024-08-21"
+            "registration_date": "2024-08-22"
           }
         },
         "FNS": {
@@ -185,30 +185,30 @@
               {"month":"2026-09","inflow":1100000}
             ],
             "is_client": true,
-            "account_opened_at": "2024-09-21"
+            "account_opened_at": "2024-09-22"
           }
         }
       }
     },
     "tehnomaster": {
       "company": {
-        "id": "c62e23ac-37a9-4de1-b8e6-89ad1478bf21",
+        "id": "958e40bd-095e-42fe-af35-24b6b4d03727",
         "inn": "0010000024",
         "name": "ООО «ТехноМастер»",
         "legal_form": "OOO",
         "ogrn": "1007700000021",
-        "registration_date": "2022-06-21",
+        "registration_date": "2022-06-22",
         "okved": "25.11",
         "okved_name": "Производство строительных металлических конструкций",
         "address": "Московская обл., г. Подольск, Промышленная ул., д. 3",
         "status": "ACTIVE",
         "status_label": "Действующая",
         "director_name": "Кузнецов Игорь Петрович",
-        "is_bank_client": false,
-        "bank_account_opened_at": null,
+        "is_bank_client": true,
+        "bank_account_opened_at": "2026-06-22",
         "business_months": 52,
-        "account_months": null,
-        "registry_synced_at": "2026-10-21T15:08:28.954035Z"
+        "account_months": 4,
+        "registry_synced_at": "2026-10-22T14:20:42.057406Z"
       },
       "sources": {
         "EGRUL": {
@@ -221,10 +221,10 @@
             "okved": "25.11",
             "status": "ACTIVE",
             "address": "Московская обл., г. Подольск, Промышленная ул., д. 3",
-            "director": {"name":"Кузнецов Игорь Петрович","since":"2022-06-21"},
+            "director": {"name":"Кузнецов Игорь Петрович","since":"2022-06-22"},
             "legal_form": "OOO",
             "okved_name": "Производство строительных металлических конструкций",
-            "registration_date": "2022-06-21"
+            "registration_date": "2022-06-22"
           }
         },
         "FNS": {
@@ -259,7 +259,7 @@
                 "amount": 6000000,
                 "lender": "Банк «Восток»",
                 "balance": 4100000,
-                "opened_at": "2025-04-21",
+                "opened_at": "2025-04-22",
                 "monthly_payment": 180000
               },
               {
@@ -267,7 +267,7 @@
                 "amount": 4000000,
                 "lender": "Лизинговая компания «Опора»",
                 "balance": 2600000,
-                "opened_at": "2025-08-21",
+                "opened_at": "2025-08-22",
                 "monthly_payment": 120000
               }
             ],
@@ -276,28 +276,41 @@
             "max_overdue_days_24m": 0
           }
         },
-        "BANK": {"status":"SKIPPED","result":{"inn":"0010000024","months":[],"is_client":false}}
+        "BANK": {
+          "status": "DONE",
+          "result": {
+            "inn": "0010000024",
+            "months": [
+              {"month":"2026-06","inflow":2250000},
+              {"month":"2026-07","inflow":2600000},
+              {"month":"2026-08","inflow":2450000},
+              {"month":"2026-09","inflow":2650000}
+            ],
+            "is_client": true,
+            "account_opened_at": "2026-06-22"
+          }
+        }
       }
     },
     "orlov": {
       "company": {
-        "id": "e6de8606-655e-4b80-83cb-35b54a94737f",
+        "id": "30be083c-5a76-475d-850a-8457d1a3c32b",
         "inn": "001000001006",
         "name": "ИП Орлов Дмитрий Сергеевич",
         "legal_form": "IP",
         "ogrn": "310770000000103",
-        "registration_date": "2023-08-21",
+        "registration_date": "2023-08-22",
         "okved": "74.10",
         "okved_name": "Деятельность специализированная в области дизайна",
         "address": "г. Москва, ул. Мастеровая, д. 21",
         "status": "ACTIVE",
         "status_label": "Действующая",
         "director_name": "Орлов Дмитрий Сергеевич",
-        "is_bank_client": false,
-        "bank_account_opened_at": null,
+        "is_bank_client": true,
+        "bank_account_opened_at": "2026-08-22",
         "business_months": 38,
-        "account_months": null,
-        "registry_synced_at": "2026-10-21T15:08:33.350937Z"
+        "account_months": 2,
+        "registry_synced_at": "2026-10-22T14:20:46.996289Z"
       },
       "sources": {
         "EGRUL": {
@@ -310,10 +323,10 @@
             "okved": "74.10",
             "status": "ACTIVE",
             "address": "г. Москва, ул. Мастеровая, д. 21",
-            "director": {"name":"Орлов Дмитрий Сергеевич","since":"2023-08-21"},
+            "director": {"name":"Орлов Дмитрий Сергеевич","since":"2023-08-22"},
             "legal_form": "IP",
             "okved_name": "Деятельность специализированная в области дизайна",
-            "registration_date": "2023-08-21"
+            "registration_date": "2023-08-22"
           }
         },
         "FNS": {
@@ -341,7 +354,7 @@
                 "amount": 500000,
                 "lender": "Банк «Восток»",
                 "balance": 300000,
-                "opened_at": "2025-02-21",
+                "opened_at": "2025-02-22",
                 "monthly_payment": 20000
               }
             ],
@@ -350,17 +363,25 @@
             "max_overdue_days_24m": 0
           }
         },
-        "BANK": {"status":"SKIPPED","result":{"inn":"001000001006","months":[],"is_client":false}}
+        "BANK": {
+          "status": "DONE",
+          "result": {
+            "inn": "001000001006",
+            "months": [{"month":"2026-08","inflow":598000},{"month":"2026-09","inflow":702000}],
+            "is_client": true,
+            "account_opened_at": "2026-08-22"
+          }
+        }
       }
     },
     "vektor": {
       "company": {
-        "id": "94589c12-0c94-464b-92be-5269a63d3a0c",
+        "id": "57770bf9-ba7d-4087-b8fd-977ef598cd53",
         "inn": "0010000031",
         "name": "ООО «Вектор Логистик»",
         "legal_form": "OOO",
         "ogrn": "1007700000032",
-        "registration_date": "2023-06-21",
+        "registration_date": "2023-06-22",
         "okved": "49.41",
         "okved_name": "Деятельность автомобильного грузового транспорта",
         "address": "г. Москва, Деловой бульвар, д. 1, офис 315",
@@ -368,10 +389,10 @@
         "status_label": "Действующая",
         "director_name": "Громов Артём Валерьевич",
         "is_bank_client": true,
-        "bank_account_opened_at": "2025-04-21",
+        "bank_account_opened_at": "2025-04-22",
         "business_months": 40,
         "account_months": 18,
-        "registry_synced_at": "2026-10-21T15:09:31.361387Z"
+        "registry_synced_at": "2026-10-22T14:21:22.958047Z"
       },
       "sources": {
         "EGRUL": {
@@ -384,10 +405,10 @@
             "okved": "49.41",
             "status": "ACTIVE",
             "address": "г. Москва, Деловой бульвар, д. 1, офис 315",
-            "director": {"name":"Громов Артём Валерьевич","since":"2023-06-21"},
+            "director": {"name":"Громов Артём Валерьевич","since":"2023-06-22"},
             "legal_form": "OOO",
             "okved_name": "Деятельность автомобильного грузового транспорта",
-            "registration_date": "2023-06-21"
+            "registration_date": "2023-06-22"
           }
         },
         "FNS": {
@@ -422,7 +443,7 @@
                 "amount": 9000000,
                 "lender": "Банк «Восток»",
                 "balance": 5200000,
-                "opened_at": "2024-12-21",
+                "opened_at": "2024-12-22",
                 "monthly_payment": 250000
               }
             ],
@@ -450,19 +471,19 @@
               {"month":"2026-09","inflow":3030000}
             ],
             "is_client": true,
-            "account_opened_at": "2025-04-21"
+            "account_opened_at": "2025-04-22"
           }
         }
       }
     },
     "grand": {
       "company": {
-        "id": "5ee26c2f-ddd3-4309-a016-73a69d3307d1",
+        "id": "054a0455-cb39-4c13-a0c6-5dd8107d6ba7",
         "inn": "0010000063",
         "name": "ООО «Гранд Девелопмент»",
         "legal_form": "OOO",
         "ogrn": "1007700000065",
-        "registration_date": "2018-06-21",
+        "registration_date": "2018-06-22",
         "okved": "41.20",
         "okved_name": "Строительство жилых и нежилых зданий",
         "address": "г. Москва, Набережная ул., д. 8",
@@ -470,10 +491,10 @@
         "status_label": "Действующая",
         "director_name": "Соколов Виктор Андреевич",
         "is_bank_client": true,
-        "bank_account_opened_at": "2023-10-21",
+        "bank_account_opened_at": "2023-10-22",
         "business_months": 100,
         "account_months": 36,
-        "registry_synced_at": "2026-10-21T15:09:31.750457Z"
+        "registry_synced_at": "2026-10-22T14:21:23.238539Z"
       },
       "sources": {
         "EGRUL": {
@@ -486,10 +507,10 @@
             "okved": "41.20",
             "status": "ACTIVE",
             "address": "г. Москва, Набережная ул., д. 8",
-            "director": {"name":"Соколов Виктор Андреевич","since":"2018-06-21"},
+            "director": {"name":"Соколов Виктор Андреевич","since":"2018-06-22"},
             "legal_form": "OOO",
             "okved_name": "Строительство жилых и нежилых зданий",
-            "registration_date": "2018-06-21"
+            "registration_date": "2018-06-22"
           }
         },
         "FNS": {
@@ -524,7 +545,7 @@
                 "amount": 80000000,
                 "lender": "Банк «Восток»",
                 "balance": 52000000,
-                "opened_at": "2024-08-21",
+                "opened_at": "2024-08-22",
                 "monthly_payment": 2500000
               }
             ],
@@ -552,19 +573,19 @@
               {"month":"2026-09","inflow":35000000}
             ],
             "is_client": true,
-            "account_opened_at": "2023-10-21"
+            "account_opened_at": "2023-10-22"
           }
         }
       }
     },
     "start": {
       "company": {
-        "id": "490bc582-98e1-4df1-9c2f-479f299a9c7c",
+        "id": "2ca814dc-cc36-4f46-a029-8c86569e0857",
         "inn": "0010000070",
         "name": "ООО «Новый старт»",
         "legal_form": "OOO",
         "ogrn": "1007700000076",
-        "registration_date": "2026-05-21",
+        "registration_date": "2026-05-22",
         "okved": "62.01",
         "okved_name": "Разработка компьютерного программного обеспечения",
         "address": "г. Москва, ул. Новаторов, д. 2",
@@ -572,10 +593,10 @@
         "status_label": "Действующая",
         "director_name": "Морозова Екатерина Ильинична",
         "is_bank_client": true,
-        "bank_account_opened_at": "2026-05-21",
+        "bank_account_opened_at": "2026-05-22",
         "business_months": 5,
         "account_months": 5,
-        "registry_synced_at": "2026-10-21T15:08:35.320617Z"
+        "registry_synced_at": "2026-10-22T14:20:56.939315Z"
       },
       "sources": {
         "EGRUL": {
@@ -588,10 +609,10 @@
             "okved": "62.01",
             "status": "ACTIVE",
             "address": "г. Москва, ул. Новаторов, д. 2",
-            "director": {"name":"Морозова Екатерина Ильинична","since":"2026-05-21"},
+            "director": {"name":"Морозова Екатерина Ильинична","since":"2026-05-22"},
             "legal_form": "OOO",
             "okved_name": "Разработка компьютерного программного обеспечения",
-            "registration_date": "2026-05-21"
+            "registration_date": "2026-05-22"
           }
         },
         "FNS": {
@@ -628,19 +649,19 @@
               {"month":"2026-09","inflow":650000}
             ],
             "is_client": true,
-            "account_opened_at": "2026-05-21"
+            "account_opened_at": "2026-05-22"
           }
         }
       }
     },
     "altair": {
       "company": {
-        "id": "dcb1a004-9940-4a55-92fb-960381e0de7d",
+        "id": "a301e358-87d3-42dc-9827-6308d95b9e46",
         "inn": "0010000088",
         "name": "ООО «Альтаир»",
         "legal_form": "OOO",
         "ogrn": "1007700000087",
-        "registration_date": "2018-08-21",
+        "registration_date": "2018-08-22",
         "okved": "62.02",
         "okved_name": "Деятельность консультативная в области компьютерных технологий",
         "address": "г. Москва, Звёздный бульвар, д. 19",
@@ -648,10 +669,10 @@
         "status_label": "Действующая",
         "director_name": "Белов Кирилл Андреевич",
         "is_bank_client": true,
-        "bank_account_opened_at": "2022-10-21",
+        "bank_account_opened_at": "2022-10-22",
         "business_months": 98,
         "account_months": 48,
-        "registry_synced_at": "2026-10-21T15:08:45.069576Z"
+        "registry_synced_at": "2026-10-22T14:21:00.458589Z"
       },
       "sources": {
         "EGRUL": {
@@ -664,10 +685,10 @@
             "okved": "62.02",
             "status": "ACTIVE",
             "address": "г. Москва, Звёздный бульвар, д. 19",
-            "director": {"name":"Белов Кирилл Андреевич","since":"2018-08-21"},
+            "director": {"name":"Белов Кирилл Андреевич","since":"2018-08-22"},
             "legal_form": "OOO",
             "okved_name": "Деятельность консультативная в области компьютерных технологий",
-            "registration_date": "2018-08-21"
+            "registration_date": "2018-08-22"
           }
         },
         "FNS": {
@@ -715,30 +736,30 @@
               {"month":"2026-09","inflow":5300000}
             ],
             "is_client": true,
-            "account_opened_at": "2022-10-21"
+            "account_opened_at": "2022-10-22"
           }
         }
       }
     },
     "romashka": {
       "company": {
-        "id": "d372e3b6-a44b-4328-a012-06dbd938e6ce",
+        "id": "2234a746-8152-47fb-a2d5-7fb6c550435c",
         "inn": "0010000056",
         "name": "ООО «Ромашка-Строй»",
         "legal_form": "OOO",
         "ogrn": "1007700000054",
-        "registration_date": "2020-12-21",
+        "registration_date": "2020-12-22",
         "okved": "41.20",
         "okved_name": "Строительство жилых и нежилых зданий",
         "address": "г. Москва, ул. Строителей, д. 5",
         "status": "LIQUIDATING",
         "status_label": "В процессе ликвидации",
         "director_name": "Петров Олег Николаевич",
-        "is_bank_client": false,
-        "bank_account_opened_at": null,
+        "is_bank_client": true,
+        "bank_account_opened_at": "2026-07-22",
         "business_months": 70,
-        "account_months": null,
-        "registry_synced_at": "2026-10-21T15:08:38.287609Z"
+        "account_months": 3,
+        "registry_synced_at": "2026-10-22T14:20:49.109542Z"
       },
       "sources": {
         "EGRUL": {
@@ -751,10 +772,10 @@
             "okved": "41.20",
             "status": "LIQUIDATING",
             "address": "г. Москва, ул. Строителей, д. 5",
-            "director": {"name":"Петров Олег Николаевич","since":"2026-07-21"},
+            "director": {"name":"Петров Олег Николаевич","since":"2026-07-22"},
             "legal_form": "OOO",
             "okved_name": "Строительство жилых и нежилых зданий",
-            "registration_date": "2020-12-21"
+            "registration_date": "2020-12-22"
           }
         },
         "FNS": {
@@ -789,28 +810,40 @@
             "max_overdue_days_24m": 20
           }
         },
-        "BANK": {"status":"SKIPPED","result":{"inn":"0010000056","months":[],"is_client":false}}
+        "BANK": {
+          "status": "DONE",
+          "result": {
+            "inn": "0010000056",
+            "months": [
+              {"month":"2026-07","inflow":700000},
+              {"month":"2026-08","inflow":385000},
+              {"month":"2026-09","inflow":140000}
+            ],
+            "is_client": true,
+            "account_opened_at": "2026-07-22"
+          }
+        }
       }
     },
     "meridian": {
       "company": {
-        "id": "4301de98-be55-45e0-887e-7b6bfacb01b3",
+        "id": "0bddbb46-f410-416f-a253-b5672811e23d",
         "inn": "0010000095",
         "name": "ООО «Меридиан»",
         "legal_form": "OOO",
         "ogrn": "1007700000098",
-        "registration_date": "2023-02-21",
+        "registration_date": "2023-02-22",
         "okved": "47.19",
         "okved_name": "Торговля розничная прочая в неспециализированных магазинах",
         "address": "г. Москва, ул. Торговая, д. 14",
         "status": "ACTIVE",
         "status_label": "Действующая",
         "director_name": "Новиков Сергей Павлович",
-        "is_bank_client": false,
-        "bank_account_opened_at": null,
+        "is_bank_client": true,
+        "bank_account_opened_at": "2026-05-22",
         "business_months": 44,
-        "account_months": null,
-        "registry_synced_at": "2026-10-21T15:08:40.702752Z"
+        "account_months": 5,
+        "registry_synced_at": "2026-10-22T14:20:51.601373Z"
       },
       "sources": {
         "EGRUL": {
@@ -823,10 +856,10 @@
             "okved": "47.19",
             "status": "ACTIVE",
             "address": "г. Москва, ул. Торговая, д. 14",
-            "director": {"name":"Новиков Сергей Павлович","since":"2023-02-21"},
+            "director": {"name":"Новиков Сергей Павлович","since":"2023-02-22"},
             "legal_form": "OOO",
             "okved_name": "Торговля розничная прочая в неспециализированных магазинах",
-            "registration_date": "2023-02-21"
+            "registration_date": "2023-02-22"
           }
         },
         "FNS": {
@@ -861,7 +894,7 @@
                 "amount": 3000000,
                 "lender": "Банк «Восток»",
                 "balance": 1900000,
-                "opened_at": "2025-06-21",
+                "opened_at": "2025-06-22",
                 "monthly_payment": 110000
               }
             ],
@@ -870,7 +903,21 @@
             "max_overdue_days_24m": 47
           }
         },
-        "BANK": {"status":"SKIPPED","result":{"inn":"0010000095","months":[],"is_client":false}}
+        "BANK": {
+          "status": "DONE",
+          "result": {
+            "inn": "0010000095",
+            "months": [
+              {"month":"2026-05","inflow":2080000},
+              {"month":"2026-06","inflow":560000},
+              {"month":"2026-07","inflow":1840000},
+              {"month":"2026-08","inflow":320000},
+              {"month":"2026-09","inflow":1520000}
+            ],
+            "is_client": true,
+            "account_opened_at": "2026-05-22"
+          }
+        }
       }
     }
   }

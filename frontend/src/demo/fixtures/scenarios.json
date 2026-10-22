@@ -83,6 +83,8 @@
     },
     "dossier": {
       "sources": {
+        "BANK": {"status":"DONE","error":null,"attempts":1},
+        "BKI": {"status":"DONE","error":null,"attempts":1},
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -101,15 +103,13 @@
         "EGRUL": {"status":"DONE","error":null,"attempts":1},
         "FNS": {"status":"DONE","error":null,"attempts":1},
         "GIRBO": {"status":"DONE","error":null,"attempts":1},
-        "BKI": {"status":"DONE","error":null,"attempts":1},
-        "BANK": {"status":"DONE","error":null,"attempts":1},
-        "SCORING": {"status":"DONE","result":{"score":720,"version":"v1.0","risk_class":"B"},"error":null,"attempts":1},
         "POLICY": {
           "status": "DONE",
           "result": {"flags":["F01","F02"],"limit":5650000,"outcome":"MANUAL_REVIEW","version":"v1.0","stop_factors":[]},
           "error": null,
           "attempts": 1
-        }
+        },
+        "SCORING": {"status":"DONE","result":{"score":720,"version":"v1.0","risk_class":"B"},"error":null,"attempts":1}
       },
       "scoring": {
         "score": 720,
@@ -392,6 +392,8 @@
     },
     "dossier": {
       "sources": {
+        "BANK": {"status":"DONE","error":null,"attempts":1},
+        "BKI": {"status":"DONE","error":null,"attempts":1},
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -411,15 +413,13 @@
         "EGRUL": {"status":"DONE","error":null,"attempts":1},
         "FNS": {"status":"DONE","error":null,"attempts":1},
         "GIRBO": {"status":"DONE","error":null,"attempts":1},
-        "BKI": {"status":"DONE","error":null,"attempts":1},
-        "BANK": {"status":"DONE","error":null,"attempts":1},
-        "SCORING": {"status":"DONE","result":{"score":830,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
         "POLICY": {
           "status": "DONE",
           "result": {"flags":[],"limit":78570000,"outcome":"MANUAL_REVIEW","version":"v1.0","stop_factors":[]},
           "error": null,
           "attempts": 1
-        }
+        },
+        "SCORING": {"status":"DONE","result":{"score":830,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1}
       },
       "scoring": {
         "score": 830,
@@ -923,6 +923,8 @@
     },
     "dossier": {
       "sources": {
+        "BANK": {"status":"DONE","error":null,"attempts":1},
+        "BKI": {"status":"DONE","error":null,"attempts":1},
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -941,15 +943,13 @@
         "EGRUL": {"status":"DONE","error":null,"attempts":1},
         "FNS": {"status":"DONE","error":null,"attempts":1},
         "GIRBO": {"status":"DONE","error":null,"attempts":1},
-        "BKI": {"status":"DONE","error":null,"attempts":1},
-        "BANK": {"status":"DONE","error":null,"attempts":1},
-        "SCORING": {"status":"DONE","result":{"score":720,"version":"v1.0","risk_class":"B"},"error":null,"attempts":1},
         "POLICY": {
           "status": "DONE",
           "result": {"flags":["F01","F02"],"limit":5650000,"outcome":"MANUAL_REVIEW","version":"v1.0","stop_factors":[]},
           "error": null,
           "attempts": 1
-        }
+        },
+        "SCORING": {"status":"DONE","result":{"score":720,"version":"v1.0","risk_class":"B"},"error":null,"attempts":1}
       },
       "scoring": {"score":720,"risk_class":"B"},
       "auto_decision": {
@@ -1251,6 +1251,8 @@
     },
     "dossier": {
       "sources": {
+        "BANK": {"status":"DONE","error":null,"attempts":1},
+        "BKI": {"status":"DONE","error":null,"attempts":1},
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -1270,15 +1272,13 @@
         "EGRUL": {"status":"DONE","error":null,"attempts":1},
         "FNS": {"status":"DONE","error":null,"attempts":1},
         "GIRBO": {"status":"DONE","error":null,"attempts":1},
-        "BKI": {"status":"DONE","error":null,"attempts":1},
-        "BANK": {"status":"DONE","error":null,"attempts":1},
-        "SCORING": {"status":"DONE","result":{"score":830,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
         "POLICY": {
           "status": "DONE",
           "result": {"flags":[],"limit":78570000,"outcome":"MANUAL_REVIEW","version":"v1.0","stop_factors":[]},
           "error": null,
           "attempts": 1
-        }
+        },
+        "SCORING": {"status":"DONE","result":{"score":830,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1}
       },
       "scoring": {"score":830,"risk_class":"A"},
       "auto_decision": {
@@ -1470,14 +1470,8 @@
     },
     "dossier": {
       "sources": {
-        "FNS": {"status":"DONE","error":null,"attempts":1},
-        "SCORING": {"status":"DONE","result":{"score":870,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
-        "POLICY": {
-          "status": "DONE",
-          "result": {"flags":[],"limit":9230000,"outcome":"APPROVE","version":"v1.0","stop_factors":[]},
-          "error": null,
-          "attempts": 1
-        },
+        "BANK": {"status":"DONE","error":null,"attempts":1},
+        "BKI": {"status":"DONE","error":null,"attempts":1},
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -1494,9 +1488,15 @@
           "attempts": 1
         },
         "EGRUL": {"status":"DONE","error":null,"attempts":1},
+        "FNS": {"status":"DONE","error":null,"attempts":1},
         "GIRBO": {"status":"DONE","error":null,"attempts":1},
-        "BKI": {"status":"DONE","error":null,"attempts":1},
-        "BANK": {"status":"DONE","error":null,"attempts":1}
+        "POLICY": {
+          "status": "DONE",
+          "result": {"flags":[],"limit":9230000,"outcome":"APPROVE","version":"v1.0","stop_factors":[]},
+          "error": null,
+          "attempts": 1
+        },
+        "SCORING": {"status":"DONE","result":{"score":870,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1}
       },
       "scoring": {
         "score": 870,
@@ -1846,7 +1846,7 @@
           "source": "GENERATED",
           "file_name": "Кредитный договор 2026-00003.pdf",
           "content_type": "application/pdf",
-          "size": 53423,
+          "size": 53422,
           "parsed": null,
           "signed_by_client": false,
           "signed_by_bank": false
@@ -1960,7 +1960,7 @@
           "source": "GENERATED",
           "file_name": "Кредитный договор 2026-00003.pdf",
           "content_type": "application/pdf",
-          "size": 53423,
+          "size": 53422,
           "parsed": null,
           "signed_by_client": true,
           "signed_by_bank": true
@@ -2082,7 +2082,7 @@
           "source": "GENERATED",
           "file_name": "Кредитный договор 2026-00003.pdf",
           "content_type": "application/pdf",
-          "size": 53423,
+          "size": 53422,
           "parsed": null,
           "signed_by_client": true,
           "signed_by_bank": true
@@ -2226,7 +2226,7 @@
           "source": "GENERATED",
           "file_name": "Кредитный договор 2026-00003.pdf",
           "content_type": "application/pdf",
-          "size": 53423,
+          "size": 53422,
           "parsed": null,
           "signed_by_client": true,
           "signed_by_bank": true
@@ -2308,14 +2308,8 @@
     },
     "dossier_issued": {
       "sources": {
-        "FNS": {"status":"DONE","error":null,"attempts":1},
-        "SCORING": {"status":"DONE","result":{"score":870,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
-        "POLICY": {
-          "status": "DONE",
-          "result": {"flags":[],"limit":9230000,"outcome":"APPROVE","version":"v1.0","stop_factors":[]},
-          "error": null,
-          "attempts": 1
-        },
+        "BANK": {"status":"DONE","error":null,"attempts":1},
+        "BKI": {"status":"DONE","error":null,"attempts":1},
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -2332,9 +2326,15 @@
           "attempts": 1
         },
         "EGRUL": {"status":"DONE","error":null,"attempts":1},
+        "FNS": {"status":"DONE","error":null,"attempts":1},
         "GIRBO": {"status":"DONE","error":null,"attempts":1},
-        "BKI": {"status":"DONE","error":null,"attempts":1},
-        "BANK": {"status":"DONE","error":null,"attempts":1}
+        "POLICY": {
+          "status": "DONE",
+          "result": {"flags":[],"limit":9230000,"outcome":"APPROVE","version":"v1.0","stop_factors":[]},
+          "error": null,
+          "attempts": 1
+        },
+        "SCORING": {"status":"DONE","result":{"score":870,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1}
       },
       "scoring": {"score":870,"risk_class":"A"},
       "auto_decision": {
@@ -2417,8 +2417,8 @@
           "actor": "CLIENT",
           "user": "Ветров Андрей Сергеевич",
           "details": {
-            "sha256": "9d639f43daa918633648e27d79d4745cb175e0b88fa0ade156771532c267b4c1",
-            "document": "92b9aa26-4598-4ba5-af73-1d9736af9610"
+            "sha256": "eb7046922f48cbdece058841df59f6fb03a43aaf388530640c87c63e33f13c70",
+            "document": "aff7355f-f331-49fb-9976-0ca5ada5c9d8"
           }
         },
         {
@@ -2551,6 +2551,8 @@
     },
     "dossier": {
       "sources": {
+        "BANK": {"status":"DONE","error":null,"attempts":1},
+        "BKI": {"status":"DONE","error":null,"attempts":1},
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -2569,15 +2571,13 @@
         "EGRUL": {"status":"DONE","error":null,"attempts":1},
         "FNS": {"status":"DONE","error":null,"attempts":1},
         "GIRBO": {"status":"SKIPPED","error":null,"attempts":1},
-        "BKI": {"status":"DONE","error":null,"attempts":1},
-        "BANK": {"status":"DONE","error":null,"attempts":1},
-        "SCORING": {"status":"DONE","result":{"score":740,"version":"v1.0","risk_class":"B"},"error":null,"attempts":1},
         "POLICY": {
           "status": "DONE",
           "result": {"flags":[],"limit":440000,"outcome":"COUNTER","version":"v1.0","stop_factors":[]},
           "error": null,
           "attempts": 1
-        }
+        },
+        "SCORING": {"status":"DONE","result":{"score":740,"version":"v1.0","risk_class":"B"},"error":null,"attempts":1}
       },
       "scoring": {
         "score": 740,
@@ -2876,7 +2876,7 @@
         {"step":"FNS","status":"DONE","attempts":1,"waiting_text":null,"error":null},
         {"step":"GIRBO","status":"DONE","attempts":1,"waiting_text":null,"error":null},
         {"step":"BKI","status":"DONE","attempts":1,"waiting_text":null,"error":null},
-        {"step":"BANK","status":"SKIPPED","attempts":1,"waiting_text":null,"error":null},
+        {"step":"BANK","status":"DONE","attempts":1,"waiting_text":null,"error":null},
         {"step":"SCORING","status":"DONE","attempts":1,"waiting_text":null,"error":null},
         {"step":"POLICY","status":"DONE","attempts":1,"waiting_text":null,"error":null}
       ],
@@ -2963,7 +2963,7 @@
         "FNS": {"status":"DONE","error":null,"attempts":1},
         "GIRBO": {"status":"DONE","error":null,"attempts":1},
         "BKI": {"status":"DONE","error":null,"attempts":1},
-        "BANK": {"status":"SKIPPED","error":null,"attempts":1},
+        "BANK": {"status":"DONE","error":null,"attempts":1},
         "SCORING": {"status":"DONE","result":{"score":790,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
         "POLICY": {
           "status": "DONE",
@@ -3016,7 +3016,7 @@
           {
             "code": "ACCOUNT",
             "title": "Поступления на счёт в банке",
-            "value": "не клиент банка",
+            "value": "4 из 12 мес., в среднем 2 487 500 ₽",
             "phrase": null,
             "points": 0
           },
@@ -3042,7 +3042,7 @@
           "margin": 0.15,
           "revenue": 48000000,
           "tax_debt": 0,
-          "inflow_cv": null,
+          "inflow_cv": 0.06256230953763182,
           "legal_form": "OOO",
           "term_months": 24,
           "amount_share": 0.125,
@@ -3052,10 +3052,10 @@
           "sales_profit": 7200000,
           "existing_debt": 6700000,
           "industry_risk": "MEDIUM",
-          "inflow_months": 0,
-          "account_months": 0,
+          "inflow_months": 4,
+          "account_months": 4,
           "company_status": "ACTIVE",
-          "is_bank_client": false,
+          "is_bank_client": true,
           "revenue_growth": 0.06666666666666667,
           "revenue_source": "GIRBO",
           "business_months": 52,
@@ -3063,7 +3063,7 @@
           "industry_margin": 0.12,
           "declared_revenue": null,
           "existing_payments": 300000,
-          "avg_monthly_inflow": null,
+          "avg_monthly_inflow": 2487500,
           "has_credit_history": true,
           "revenue_discrepancy": null,
           "unavailable_sources": [],
@@ -3197,7 +3197,7 @@
         {"step":"FNS","status":"DONE","attempts":1,"waiting_text":null,"error":null},
         {"step":"GIRBO","status":"DONE","attempts":1,"waiting_text":null,"error":null},
         {"step":"BKI","status":"DONE","attempts":1,"waiting_text":null,"error":null},
-        {"step":"BANK","status":"SKIPPED","attempts":1,"waiting_text":null,"error":null},
+        {"step":"BANK","status":"DONE","attempts":1,"waiting_text":null,"error":null},
         {"step":"SCORING","status":"DONE","attempts":1,"waiting_text":null,"error":null},
         {"step":"POLICY","status":"DONE","attempts":1,"waiting_text":null,"error":null}
       ],
@@ -3310,7 +3310,7 @@
         {"step":"FNS","status":"DONE","attempts":1,"waiting_text":null,"error":null},
         {"step":"GIRBO","status":"DONE","attempts":1,"waiting_text":null,"error":null},
         {"step":"BKI","status":"DONE","attempts":1,"waiting_text":null,"error":null},
-        {"step":"BANK","status":"SKIPPED","attempts":1,"waiting_text":null,"error":null},
+        {"step":"BANK","status":"DONE","attempts":1,"waiting_text":null,"error":null},
         {"step":"SCORING","status":"DONE","attempts":1,"waiting_text":null,"error":null},
         {"step":"POLICY","status":"DONE","attempts":1,"waiting_text":null,"error":null}
       ],
@@ -3363,6 +3363,7 @@
     },
     "dossier": {
       "sources": {
+        "GIRBO": {"status":"DONE","error":null,"attempts":1},
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -3379,10 +3380,9 @@
           "attempts": 1
         },
         "EGRUL": {"status":"DONE","error":null,"attempts":1},
-        "FNS": {"status":"DONE","error":null,"attempts":1},
-        "GIRBO": {"status":"DONE","error":null,"attempts":1},
         "BKI": {"status":"DONE","error":null,"attempts":1},
-        "BANK": {"status":"SKIPPED","error":null,"attempts":1},
+        "FNS": {"status":"DONE","error":null,"attempts":1},
+        "BANK": {"status":"DONE","error":null,"attempts":1},
         "SCORING": {"status":"DONE","result":{"score":790,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
         "POLICY": {
           "status": "DONE",
@@ -3435,7 +3435,7 @@
           {
             "code": "ACCOUNT",
             "title": "Поступления на счёт в банке",
-            "value": "не клиент банка",
+            "value": "4 из 12 мес., в среднем 2 487 500 ₽",
             "phrase": null,
             "points": 0
           },
@@ -3461,7 +3461,7 @@
           "margin": 0.15,
           "revenue": 48000000,
           "tax_debt": 0,
-          "inflow_cv": null,
+          "inflow_cv": 0.06256230953763182,
           "legal_form": "OOO",
           "term_months": 18,
           "amount_share": 0.10416666666666667,
@@ -3471,10 +3471,10 @@
           "sales_profit": 7200000,
           "existing_debt": 6700000,
           "industry_risk": "MEDIUM",
-          "inflow_months": 0,
-          "account_months": 0,
+          "inflow_months": 4,
+          "account_months": 4,
           "company_status": "ACTIVE",
-          "is_bank_client": false,
+          "is_bank_client": true,
           "revenue_growth": 0.06666666666666667,
           "revenue_source": "GIRBO",
           "business_months": 52,
@@ -3482,7 +3482,7 @@
           "industry_margin": 0.12,
           "declared_revenue": null,
           "existing_payments": 300000,
-          "avg_monthly_inflow": null,
+          "avg_monthly_inflow": 2487500,
           "has_credit_history": true,
           "revenue_discrepancy": null,
           "unavailable_sources": [],
@@ -3616,7 +3616,7 @@
         {"step":"FNS","status":"DONE","attempts":1,"waiting_text":null,"error":null},
         {"step":"GIRBO","status":"SKIPPED","attempts":1,"waiting_text":null,"error":null},
         {"step":"BKI","status":"DONE","attempts":1,"waiting_text":null,"error":null},
-        {"step":"BANK","status":"SKIPPED","attempts":1,"waiting_text":null,"error":null},
+        {"step":"BANK","status":"DONE","attempts":1,"waiting_text":null,"error":null},
         {"step":"SCORING","status":"DONE","attempts":1,"waiting_text":null,"error":null},
         {"step":"POLICY","status":"DONE","attempts":1,"waiting_text":null,"error":null}
       ],
@@ -3686,7 +3686,7 @@
         "FNS": {"status":"DONE","error":null,"attempts":1},
         "GIRBO": {"status":"SKIPPED","error":null,"attempts":1},
         "BKI": {"status":"DONE","error":null,"attempts":1},
-        "BANK": {"status":"SKIPPED","error":null,"attempts":1},
+        "BANK": {"status":"DONE","error":null,"attempts":1},
         "SCORING": {"status":"DONE","result":{"score":690,"version":"v1.0","risk_class":"B"},"error":null,"attempts":1},
         "POLICY": {
           "status": "DONE",
@@ -3733,7 +3733,7 @@
           {
             "code": "ACCOUNT",
             "title": "Поступления на счёт в банке",
-            "value": "не клиент банка",
+            "value": "2 из 12 мес., в среднем 650 000 ₽",
             "phrase": null,
             "points": 0
           },
@@ -3759,7 +3759,7 @@
           "margin": null,
           "revenue": null,
           "tax_debt": 0,
-          "inflow_cv": null,
+          "inflow_cv": 0.08,
           "legal_form": "IP",
           "term_months": 24,
           "amount_share": null,
@@ -3769,10 +3769,10 @@
           "sales_profit": null,
           "existing_debt": 300000,
           "industry_risk": "MEDIUM",
-          "inflow_months": 0,
-          "account_months": 0,
+          "inflow_months": 2,
+          "account_months": 2,
           "company_status": "ACTIVE",
-          "is_bank_client": false,
+          "is_bank_client": true,
           "revenue_growth": null,
           "revenue_source": null,
           "business_months": 38,
@@ -3780,7 +3780,7 @@
           "industry_margin": 0.2,
           "declared_revenue": null,
           "existing_payments": 20000,
-          "avg_monthly_inflow": null,
+          "avg_monthly_inflow": 650000,
           "has_credit_history": true,
           "revenue_discrepancy": null,
           "unavailable_sources": [],
@@ -3919,7 +3919,7 @@
       "product": "EXPRESS",
       "company": "001000001006",
       "steps": [
-        {"step":"DATA_CHECK","status":"PENDING","attempts":0,"waiting_text":null,"error":null},
+        {"step":"DATA_CHECK","status":"DONE","attempts":1,"waiting_text":null,"error":null},
         {"step":"EGRUL","status":"PENDING","attempts":0,"waiting_text":null,"error":null},
         {"step":"FNS","status":"PENDING","attempts":0,"waiting_text":null,"error":null},
         {"step":"GIRBO","status":"PENDING","attempts":0,"waiting_text":null,"error":null},
@@ -4050,7 +4050,7 @@
         {"step":"FNS","status":"DONE","attempts":1,"waiting_text":null,"error":null},
         {"step":"GIRBO","status":"SKIPPED","attempts":1,"waiting_text":null,"error":null},
         {"step":"BKI","status":"DONE","attempts":1,"waiting_text":null,"error":null},
-        {"step":"BANK","status":"SKIPPED","attempts":1,"waiting_text":null,"error":null},
+        {"step":"BANK","status":"DONE","attempts":1,"waiting_text":null,"error":null},
         {"step":"SCORING","status":"DONE","attempts":1,"waiting_text":null,"error":null},
         {"step":"POLICY","status":"DONE","attempts":1,"waiting_text":null,"error":null}
       ],
@@ -4186,7 +4186,7 @@
         "FNS": {"status":"DONE","error":null,"attempts":1},
         "GIRBO": {"status":"SKIPPED","error":null,"attempts":1},
         "BKI": {"status":"DONE","error":null,"attempts":1},
-        "BANK": {"status":"SKIPPED","error":null,"attempts":1},
+        "BANK": {"status":"DONE","error":null,"attempts":1},
         "SCORING": {"status":"DONE","result":{"score":770,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
         "POLICY": {
           "status": "DONE",
@@ -4233,7 +4233,7 @@
           {
             "code": "ACCOUNT",
             "title": "Поступления на счёт в банке",
-            "value": "не клиент банка",
+            "value": "2 из 12 мес., в среднем 650 000 ₽",
             "phrase": null,
             "points": 0
           },
@@ -4259,7 +4259,7 @@
           "margin": null,
           "revenue": 8400000,
           "tax_debt": 0,
-          "inflow_cv": null,
+          "inflow_cv": 0.08,
           "legal_form": "IP",
           "term_months": 24,
           "amount_share": 0.17857142857142858,
@@ -4269,10 +4269,10 @@
           "sales_profit": null,
           "existing_debt": 300000,
           "industry_risk": "MEDIUM",
-          "inflow_months": 0,
-          "account_months": 0,
+          "inflow_months": 2,
+          "account_months": 2,
           "company_status": "ACTIVE",
-          "is_bank_client": false,
+          "is_bank_client": true,
           "revenue_growth": null,
           "revenue_source": "STATEMENT",
           "business_months": 38,
@@ -4280,7 +4280,7 @@
           "industry_margin": 0.2,
           "declared_revenue": null,
           "existing_payments": 20000,
-          "avg_monthly_inflow": 700000,
+          "avg_monthly_inflow": 650000,
           "has_credit_history": true,
           "revenue_discrepancy": null,
           "unavailable_sources": [],
@@ -4926,7 +4926,7 @@
         {"step":"FNS","status":"DONE","attempts":1,"waiting_text":null,"error":null},
         {"step":"GIRBO","status":"DONE","attempts":1,"waiting_text":null,"error":null},
         {"step":"BKI","status":"DONE","attempts":1,"waiting_text":null,"error":null},
-        {"step":"BANK","status":"SKIPPED","attempts":1,"waiting_text":null,"error":null},
+        {"step":"BANK","status":"DONE","attempts":1,"waiting_text":null,"error":null},
         {"step":"SCORING","status":"DONE","attempts":1,"waiting_text":null,"error":null},
         {"step":"POLICY","status":"DONE","attempts":1,"waiting_text":null,"error":null}
       ],
@@ -4963,16 +4963,6 @@
     },
     "dossier": {
       "sources": {
-        "GIRBO": {"status":"DONE","error":null,"attempts":1},
-        "BKI": {"status":"DONE","error":null,"attempts":1},
-        "BANK": {"status":"SKIPPED","error":null,"attempts":1},
-        "SCORING": {"status":"DONE","result":{"score":370,"version":"v1.0","risk_class":"E"},"error":null,"attempts":1},
-        "POLICY": {
-          "status": "DONE",
-          "result": {"flags":[],"limit":null,"outcome":"REJECT","version":"v1.0","stop_factors":["S01","S05"]},
-          "error": null,
-          "attempts": 1
-        },
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -4988,8 +4978,18 @@
           "error": null,
           "attempts": 1
         },
+        "FNS": {"status":"DONE","error":null,"attempts":1},
+        "GIRBO": {"status":"DONE","error":null,"attempts":1},
+        "BANK": {"status":"DONE","error":null,"attempts":1},
+        "POLICY": {
+          "status": "DONE",
+          "result": {"flags":[],"limit":null,"outcome":"REJECT","version":"v1.0","stop_factors":["S01","S05"]},
+          "error": null,
+          "attempts": 1
+        },
         "EGRUL": {"status":"DONE","error":null,"attempts":1},
-        "FNS": {"status":"DONE","error":null,"attempts":1}
+        "BKI": {"status":"DONE","error":null,"attempts":1},
+        "SCORING": {"status":"DONE","result":{"score":370,"version":"v1.0","risk_class":"E"},"error":null,"attempts":1}
       },
       "scoring": {
         "score": 370,
@@ -5035,7 +5035,7 @@
           {
             "code": "ACCOUNT",
             "title": "Поступления на счёт в банке",
-            "value": "не клиент банка",
+            "value": "3 из 12 мес., в среднем 408 333 ₽",
             "phrase": null,
             "points": 0
           },
@@ -5067,7 +5067,7 @@
           "margin": -0.13333333333333333,
           "revenue": 9000000,
           "tax_debt": 640000,
-          "inflow_cv": null,
+          "inflow_cv": 0.5613395058396715,
           "legal_form": "OOO",
           "term_months": 24,
           "amount_share": 0.2222222222222222,
@@ -5077,10 +5077,10 @@
           "sales_profit": -1200000,
           "existing_debt": 0,
           "industry_risk": "HIGH",
-          "inflow_months": 0,
-          "account_months": 0,
+          "inflow_months": 3,
+          "account_months": 3,
           "company_status": "LIQUIDATING",
-          "is_bank_client": false,
+          "is_bank_client": true,
           "revenue_growth": -0.5714285714285714,
           "revenue_source": "GIRBO",
           "business_months": 70,
@@ -5088,7 +5088,7 @@
           "industry_margin": 0.1,
           "declared_revenue": null,
           "existing_payments": 0,
-          "avg_monthly_inflow": null,
+          "avg_monthly_inflow": 408333.33,
           "has_credit_history": true,
           "revenue_discrepancy": null,
           "unavailable_sources": [],
@@ -5202,7 +5202,7 @@
         {"step":"FNS","status":"DONE","attempts":1,"waiting_text":null,"error":null},
         {"step":"GIRBO","status":"DONE","attempts":1,"waiting_text":null,"error":null},
         {"step":"BKI","status":"DONE","attempts":1,"waiting_text":null,"error":null},
-        {"step":"BANK","status":"SKIPPED","attempts":1,"waiting_text":null,"error":null},
+        {"step":"BANK","status":"DONE","attempts":1,"waiting_text":null,"error":null},
         {"step":"SCORING","status":"DONE","attempts":1,"waiting_text":null,"error":null},
         {"step":"POLICY","status":"DONE","attempts":1,"waiting_text":null,"error":null}
       ],
@@ -5239,12 +5239,6 @@
     },
     "dossier": {
       "sources": {
-        "POLICY": {
-          "status": "DONE",
-          "result": {"flags":[],"limit":null,"outcome":"REJECT","version":"v1.0","stop_factors":["S03","S05"]},
-          "error": null,
-          "attempts": 1
-        },
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -5264,8 +5258,14 @@
         "FNS": {"status":"DONE","error":null,"attempts":1},
         "GIRBO": {"status":"DONE","error":null,"attempts":1},
         "BKI": {"status":"DONE","error":null,"attempts":1},
-        "BANK": {"status":"SKIPPED","error":null,"attempts":1},
-        "SCORING": {"status":"DONE","result":{"score":500,"version":"v1.0","risk_class":"E"},"error":null,"attempts":1}
+        "BANK": {"status":"DONE","error":null,"attempts":1},
+        "SCORING": {"status":"DONE","result":{"score":500,"version":"v1.0","risk_class":"E"},"error":null,"attempts":1},
+        "POLICY": {
+          "status": "DONE",
+          "result": {"flags":[],"limit":null,"outcome":"REJECT","version":"v1.0","stop_factors":["S03","S05"]},
+          "error": null,
+          "attempts": 1
+        }
       },
       "scoring": {
         "score": 500,
@@ -5311,7 +5311,7 @@
           {
             "code": "ACCOUNT",
             "title": "Поступления на счёт в банке",
-            "value": "не клиент банка",
+            "value": "5 из 12 мес., в среднем 1 264 000 ₽",
             "phrase": null,
             "points": 0
           },
@@ -5337,7 +5337,7 @@
           "margin": 0.07307692307692308,
           "revenue": 26000000,
           "tax_debt": 0,
-          "inflow_cv": null,
+          "inflow_cv": 0.5537884266893002,
           "legal_form": "OOO",
           "term_months": 24,
           "amount_share": 0.07692307692307693,
@@ -5347,10 +5347,10 @@
           "sales_profit": 1900000,
           "existing_debt": 1900000,
           "industry_risk": "MEDIUM",
-          "inflow_months": 0,
-          "account_months": 0,
+          "inflow_months": 5,
+          "account_months": 5,
           "company_status": "ACTIVE",
-          "is_bank_client": false,
+          "is_bank_client": true,
           "revenue_growth": -0.10344827586206896,
           "revenue_source": "GIRBO",
           "business_months": 44,
@@ -5358,7 +5358,7 @@
           "industry_margin": 0.08,
           "declared_revenue": null,
           "existing_payments": 110000,
-          "avg_monthly_inflow": null,
+          "avg_monthly_inflow": 1264000,
           "has_credit_history": true,
           "revenue_discrepancy": null,
           "unavailable_sources": [],
@@ -5542,16 +5542,16 @@
         },
         "EGRUL": {"status":"DONE","error":null,"attempts":1},
         "FNS": {"status":"DONE","error":null,"attempts":1},
+        "GIRBO": {"status":"DONE","error":null,"attempts":1},
+        "BKI": {"status":"DONE","error":null,"attempts":1},
+        "BANK": {"status":"DONE","error":null,"attempts":1},
         "SCORING": {"status":"DONE","result":{"score":900,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
         "POLICY": {
           "status": "DONE",
           "result": {"flags":[],"limit":5000000,"outcome":"APPROVE","version":"v1.0","stop_factors":[]},
           "error": null,
           "attempts": 1
-        },
-        "GIRBO": {"status":"DONE","error":null,"attempts":1},
-        "BKI": {"status":"DONE","error":null,"attempts":1},
-        "BANK": {"status":"DONE","error":null,"attempts":1}
+        }
       },
       "scoring": {
         "score": 900,
@@ -5857,9 +5857,6 @@
     },
     "waiting_dossier": {
       "sources": {
-        "BANK": {"status":"PENDING","error":null,"attempts":0},
-        "SCORING": {"status":"PENDING","result":null,"error":null,"attempts":0},
-        "POLICY": {"status":"PENDING","result":null,"error":null,"attempts":0},
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -5878,7 +5875,10 @@
         "EGRUL": {"status":"DONE","error":null,"attempts":1},
         "FNS": {"status":"DONE","error":null,"attempts":1},
         "GIRBO": {"status":"DONE","error":null,"attempts":1},
-        "BKI": {"status":"WAITING","error":"bki: сервис ответил ошибкой 503","attempts":1}
+        "BKI": {"status":"WAITING","error":"bki: сервис ответил ошибкой 503","attempts":1},
+        "BANK": {"status":"PENDING","error":null,"attempts":0},
+        "SCORING": {"status":"PENDING","result":null,"error":null,"attempts":0},
+        "POLICY": {"status":"PENDING","result":null,"error":null,"attempts":0}
       },
       "scoring": null,
       "auto_decision": null,
@@ -6021,6 +6021,7 @@
     },
     "dossier": {
       "sources": {
+        "BANK": {"status":"DONE","error":null,"attempts":1},
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -6046,8 +6047,7 @@
           "result": {"flags":[],"limit":5000000,"outcome":"APPROVE","version":"v1.0","stop_factors":[]},
           "error": null,
           "attempts": 1
-        },
-        "BANK": {"status":"DONE","error":null,"attempts":1}
+        }
       },
       "scoring": {
         "score": 900,

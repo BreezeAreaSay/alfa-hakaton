@@ -976,7 +976,7 @@
     {
       "id": "1eb91b6c-8afa-5735-a896-12fa828ad4f6",
       "name": "2. Запрос информации",
-      "description": "ИП Орлов (`orlov`) не обслуживается в банке и не сдаёт отчётность, поэтому конвейер запрашивает выписку по счёту. Клиент загружает выписку в формате 1С к запросу, отвечает — и заявка автоматически одобряется. Авторизация папки — `Bearer {{orlovToken}}`.\n\nФайл выписки берётся из репозитория: `frontend/public/demo-files/vypiska_orlov_1c.txt`. Путь относительный — запускайте newman из корня репозитория (или с `--working-dir <корень>`), в Postman укажите корень репозитория в Settings → General → Working directory.\n\nЗапрос опрашивает заявку: пока статус промежуточный, тест вызывает `pm.execution.setNextRequest` и запрос повторяется с паузой `pollDelayMs` (до `pollMaxAttempts` раз). Повтор работает в Collection Runner и newman; при ручной отправке просто нажмите Send ещё раз.",
+      "description": "ИП Орлов (`orlov`) не сдаёт отчётность, а счёт в банке открыл два месяца назад — поступлений по нему мало, чтобы оценить выручку, поэтому конвейер запрашивает выписку по счёту. Клиент загружает выписку в формате 1С к запросу, отвечает — и заявка автоматически одобряется. Авторизация папки — `Bearer {{orlovToken}}`.\n\nФайл выписки берётся из репозитория: `frontend/public/demo-files/vypiska_orlov_1c.txt`. Путь относительный — запускайте newman из корня репозитория (или с `--working-dir <корень>`), в Postman укажите корень репозитория в Settings → General → Working directory.\n\nЗапрос опрашивает заявку: пока статус промежуточный, тест вызывает `pm.execution.setNextRequest` и запрос повторяется с паузой `pollDelayMs` (до `pollMaxAttempts` раз). Повтор работает в Collection Runner и newman; при ручной отправке просто нажмите Send ещё раз.",
       "item": [
         {
           "id": "ef303588-b448-56f6-a784-e8e839522ec0",
@@ -1196,7 +1196,7 @@
                   "        pm.expect(infoRequest.items.map((i) => i.code)).to.include('BANK_STATEMENT');",
                   "        pm.expect(infoRequest.due_at).to.be.a('string');",
                   "        pm.expect(app.steps.find((s) => s.step === 'GIRBO').status).to.eql('SKIPPED');",
-                  "        pm.expect(app.steps.find((s) => s.step === 'BANK').status).to.eql('SKIPPED');",
+                  "        pm.expect(app.steps.find((s) => s.step === 'BANK').status).to.eql('DONE');",
                   "    });",
                   "    if (infoRequest) {",
                   "        pm.collectionVariables.set('infoRequestId', infoRequest.id);",
