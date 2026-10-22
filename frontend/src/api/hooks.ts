@@ -5,6 +5,7 @@ import { api, newIdempotencyKey } from './client';
 import { subscribe } from './stream';
 import type {
     AiStatus,
+    AiSummary,
     Application,
     ApplicationListItem,
     AuditRow,
@@ -86,6 +87,20 @@ export const useNotifications = () =>
 
 export const useAiStatus = () =>
     useQuery({ queryKey: keys.ai, queryFn: () => api<AiStatus>('/api/ai/status'), staleTime: 60_000 });
+
+/**
+ * Сводка досье от модели. Ответ модели может идти десятки секунд, поэтому ключ вне ['bank']: события SSE
+ * не перезапускают запрос. Новая сводка — только при новом прогоне проверок или новом решении (revision).
+ */
+export const useAiSummary = (id: string, revision: string, enabled: boolean) =>
+    useQuery({
+        queryKey: ['ai-summary', id, revision],
+        queryFn: () => api<AiSummary>(`/api/bank/applications/${id}/ai-summary`),
+        enabled,
+        retry: false,
+        staleTime: Infinity,
+        refetchOnWindowFocus: false,
+    });
 
 /** Общий хелпер: мутация, после которой обновляем всё, что связано с заявкой. */
 function useAppMutation<TVars, TResult = Application>(fn: (vars: TVars) => Promise<TResult>) {

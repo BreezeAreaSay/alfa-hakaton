@@ -1,11 +1,12 @@
 import { Plate } from '@alfalab/core-components/plate';
 import type { ReactNode } from 'react';
 
+import { useAiStatus, useAiSummary } from '../../../api/hooks';
 import type { DecisionView, Dossier, DocumentItem, InfoRequest, Meta, Offer } from '../../../api/types';
 import { Badge, KeyValue, Metric } from '../../../components/ui';
 import type { StatusColor } from '../../../utils/format';
 import { date, dateTime, months, num, percent, rub } from '../../../utils/format';
-import { CONSTRAINT_LABELS, Card, FLAG_HINTS, OUTCOME_COLORS, OUTCOME_LABELS, Sub } from './common';
+import { CONSTRAINT_LABELS, Card, Check, FLAG_HINTS, OUTCOME_COLORS, OUTCOME_LABELS, Sub } from './common';
 import { type EgrulResult, sourceResult } from './SourcesTab';
 
 const OFFER_STATUS: Record<Offer['status'], { label: string; color: StatusColor }> = {
@@ -130,6 +131,37 @@ function FlagsCard({ data }: { data: Dossier }) {
                             : null}
                     </Plate>
                 )}
+            </div>
+        </Card>
+    );
+}
+
+/**
+ * Подсказка модели: сильные стороны и риски по данным досье. Решения она не принимает — блок помечен и скрыт,
+ * если ИИ выключен или модель не ответила. Запрашивается, когда скоринг уже посчитан.
+ */
+function AiSummaryCard({ data }: { data: Dossier }) {
+    const app = data.application;
+    const status = useAiStatus();
+    const enabled = Boolean(status.data?.enabled && data.scoring);
+    const summary = useAiSummary(app.id, `${app.run_no}:${data.last_decision?.id ?? '-'}`, enabled);
+    if (!enabled || summary.isError) return null;
+    const model = summary.data?.model ?? status.data?.model;
+    return (
+        <Card title='Подсказка ИИ' extra={<Badge color='grey'>не решение</Badge>}>
+            {summary.data ? (
+                <ul className='bank-checks'>
+                    {summary.data.points.map((point, index) => {
+                        const ok = point.startsWith('+ ') ? true : point.startsWith('− ') ? false : null;
+                        return <Check key={index} ok={ok} label={ok === null ? point : point.slice(2)} />;
+                    })}
+                </ul>
+            ) : (
+                <Sub>Модель готовит сводку по данным досье…</Sub>
+            )}
+            <div className='bank-sub bank-ai-note'>
+                Текст сгенерирован моделью{model ? ` ${model}` : ''} по данным досье. Решение принимают скоринговая
+                карта, кредитная политика и аналитик — сверяйте пункты с вкладками досье.
             </div>
         </Card>
     );
@@ -368,6 +400,7 @@ export function SummaryTab({ data, meta }: { data: Dossier; meta: Meta | undefin
         <div className='stack'>
             <ApplicationFacts data={data} meta={meta} />
             <FlagsCard data={data} />
+            <AiSummaryCard data={data} />
             <LimitCard data={data} />
             <TraceCard data={data} meta={meta} />
             {app.offers.length > 0 && <OffersCard offers={app.offers} />}

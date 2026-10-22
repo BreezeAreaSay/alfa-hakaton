@@ -392,6 +392,11 @@ table.simple tr.clickable:focus-visible td {
     margin-top: var(--gap-4);
 }
 
+/* подпись под подсказкой ИИ: чем сгенерирована и что это не решение */
+.bank-ai-note {
+    margin-top: var(--gap-16);
+}
+
 /* проверки с отметками «норма / требует внимания» */
 .bank-checks {
     list-style: none;

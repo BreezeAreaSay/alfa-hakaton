@@ -424,6 +424,12 @@ export interface AiStatus {
     mode: string;
 }
 
+/** Сводка досье от модели: «+ » — сильная сторона, «− » — риск. */
+export interface AiSummary {
+    points: string[];
+    model: string | null;
+}
+
 export interface ParsedNeed {
     purpose: Purpose | null;
     amount: number | null;
