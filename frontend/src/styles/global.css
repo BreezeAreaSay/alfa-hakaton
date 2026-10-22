@@ -601,25 +601,30 @@ table.simple td.num {
     color: var(--color-light-text-primary);
 }
 
-.login {
-    min-height: 100vh;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-}
-
+/* Вход: чёрная шторка с названием, под ней белый лист с формой — как заголовок и лист на страницах кабинета */
 .login__brand {
+    padding: var(--gap-32) var(--gap-24) calc(var(--sheet-radius) + var(--gap-48));
     background: var(--brand-black);
     color: #fff;
-    padding: var(--gap-64) var(--gap-48);
+}
+
+/* шторка и лист в одной колонке: заголовок и форма начинаются с одной линии; ширина — под заголовок в две строки */
+.login__inner {
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+.login__brand .login__inner {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    gap: var(--gap-40);
 }
 
 .login__form {
-    display: grid;
-    place-items: center;
-    padding: var(--gap-48) var(--gap-24);
+    position: relative;
+    margin-top: calc(var(--sheet-radius) * -1);
+    padding: var(--gap-48) var(--gap-24) var(--gap-64);
+    border-radius: var(--sheet-radius) var(--sheet-radius) 0 0;
     background: var(--color-light-base-bg-primary);
 }
 
@@ -651,8 +656,7 @@ table.simple td.num {
 
 @media (max-width: 1023px) {
     .grid-2,
-    .grid-2--bank,
-    .login {
+    .grid-2--bank {
         grid-template-columns: minmax(0, 1fr);
     }
 
@@ -660,13 +664,8 @@ table.simple td.num {
         position: static;
     }
 
-    .purpose-grid,
-    .demo-accounts {
+    .purpose-grid {
         grid-template-columns: minmax(0, 1fr);
-    }
-
-    .login__brand {
-        display: none;
     }
 }
 
@@ -934,5 +933,27 @@ table.simple td.num {
     .footer__grid {
         gap: var(--gap-32) var(--gap-16);
         padding-bottom: var(--gap-32);
+    }
+
+    .login__brand {
+        padding: var(--gap-24) var(--gap-16) calc(var(--sheet-radius) + var(--gap-32));
+    }
+
+    .login__brand .login__inner {
+        gap: var(--gap-32);
+    }
+
+    /* на телефоне в шторке только знак и заголовок, чтобы форма была видна сразу */
+    .login__lead,
+    .login__note {
+        display: none;
+    }
+
+    .login__form {
+        padding: var(--gap-32) var(--gap-16) var(--gap-48);
+    }
+
+    .demo-accounts {
+        grid-template-columns: minmax(0, 1fr);
     }
 }
