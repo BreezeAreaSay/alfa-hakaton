@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 
 import { expect, test, type Page } from '@playwright/test';
 
-import { login, money, PASSWORD, resetDemo } from './helpers';
+import { login, logout, money, PASSWORD, resetDemo } from './helpers';
 
 const DEMO_FILES = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../frontend/public/demo-files');
 
@@ -120,6 +120,20 @@ test('логотип возвращает вошедшего клиента на
     await page.getByRole('link', { name: 'На главную' }).click();
     await page.getByRole('banner').getByRole('button', { name: 'Личный кабинет' }).click();
     await expect(page).toHaveURL(/\/client$/);
+});
+
+test('выход из кабинета — только после подтверждения в окне', async ({ page }) => {
+    await login(page, 'veter');
+    await expect(page).toHaveURL(/\/client$/);
+
+    await page.getByRole('banner').getByRole('button', { name: 'Выйти' }).click();
+    const confirm = page.getByRole('dialog', { name: 'Выйти из кабинета?' });
+    await confirm.getByRole('button', { name: 'Остаться' }).click();
+    await expect(confirm).toHaveCount(0);
+    await expect(page).toHaveURL(/\/client$/);
+
+    await logout(page);
+    await expect(page).toHaveURL(/\/login$/);
 });
 
 test('выписка с кассовым разрывом: прогноз и подсказка лимита овердрафта', async ({ page }) => {
