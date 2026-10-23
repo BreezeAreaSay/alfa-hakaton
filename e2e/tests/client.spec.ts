@@ -22,8 +22,12 @@ async function chooseProduct(page: Page, need: string, product: string): Promise
     await card.getByRole('button', { name: 'Оформить заявку' }).click();
 }
 
-/** Шаги «Данные» и «Проверка и отправка». */
-async function submitApplication(page: Page): Promise<void> {
+/**
+ * Шаги «Данные» и «Проверка и отправка». Выручка обязательна; в тестах — близкая к данным ФНС или оборотам
+ * компании, иначе расхождение больше 30% отправит заявку аналитику (флаг F04) и исход сценария изменится.
+ */
+async function submitApplication(page: Page, revenue: number): Promise<void> {
+    await page.getByLabel('Выручка за последний год, по вашим данным').fill(String(revenue));
     await page.getByRole('button', { name: 'Далее' }).click();
     const consents = [
         'Согласие на запрос кредитной истории в бюро кредитных историй',
@@ -44,7 +48,10 @@ test('ключевой сценарий: подбор, заявка, автоо�
 
     await chooseProduct(page, 'Нужно 3 млн на закупку товара к сезону, верну за 2 года', 'Кредит на развитие бизнеса');
     await expect(page.getByText('Кредит на развитие бизнеса').first()).toBeVisible();
-    await submitApplication(page);
+    // без выручки дальше не пускает
+    await page.getByRole('button', { name: 'Далее' }).click();
+    await expect(page.getByText('Укажите выручку за последний год')).toBeVisible();
+    await submitApplication(page, 120_000_000);
 
     // Конвейер проверок проходит автоматически, статус обновляется без перезагрузки страницы
     await expect(page.getByRole('heading', { name: 'Кредит одобрен' })).toBeVisible();
@@ -70,7 +77,7 @@ test('ключевой сценарий: подбор, заявка, автоо�
 test('банку не хватает данных: клиент загружает выписку и получает предложение', async ({ page }) => {
     await login(page, 'orlov');
     await chooseProduct(page, 'Нужно 1 500 000 на закупку товара на 2 года', 'Экспресс-кредит без залога');
-    await submitApplication(page);
+    await submitApplication(page, 8_400_000);
 
     await expect(page.getByText('Нужна информация').first()).toBeVisible();
     await page
@@ -90,7 +97,7 @@ test('банку не хватает данных: клиент загружае
 test('стоп-фактор: компания в ликвидации получает отказ с понятной причиной', async ({ page }) => {
     await login(page, 'romashka');
     await chooseProduct(page, 'Нужно 2 млн на закупку товара на год', 'Кредит на развитие бизнеса');
-    await submitApplication(page);
+    await submitApplication(page, 9_000_000);
 
     await expect(page.getByRole('heading', { name: 'Банк не может выдать кредит' })).toBeVisible();
     await expect(page.getByText(/ликвидац/i).first()).toBeVisible();
@@ -148,7 +155,7 @@ test('выписка с кассовым разрывом: прогноз и п�
     await expect(page.getByText('возможен кассовый разрыв').first()).toBeVisible();
     await expect(page.getByText(/Подойдёт овердрафт до/).first()).toContainText(money(250_000));
 
-    await submitApplication(page);
+    await submitApplication(page, 13_200_000);
     await expect(page.getByRole('heading', { name: 'Банк предлагает другие условия' })).toBeVisible();
     await expect(page.getByText('возможен кассовый разрыв').first()).toBeVisible();
 });

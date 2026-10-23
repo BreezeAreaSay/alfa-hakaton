@@ -503,6 +503,7 @@ function DetailsStep({
     const needsCollateral = application.product.collateral_required;
     const errors = {
         purpose: purposeText.trim().length < 5 ? 'Опишите цель хотя бы в нескольких словах' : undefined,
+        revenue: !revenue ? 'Укажите выручку за последний год' : undefined,
         collateral:
             needsCollateral && (!collateralType || !collateralValue) ? 'Укажите залог и его стоимость' : undefined,
     };
@@ -519,7 +520,7 @@ function DetailsStep({
 
     const next = async () => {
         setShowErrors(true);
-        if (errors.purpose || errors.collateral) return;
+        if (errors.purpose || errors.revenue || errors.collateral) return;
         await save();
         onNext();
     };
@@ -560,7 +561,8 @@ function DetailsStep({
                                 ₽
                             </Typography.Text>
                         }
-                        hint='Необязательно. Сверим с данными ФНС и оборотами по счёту'
+                        error={showErrors ? errors.revenue : undefined}
+                        hint='Сверим с данными ФНС и оборотами по счёту'
                         inputMode='numeric'
                     />
                     {needsCollateral && (
