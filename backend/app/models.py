@@ -332,6 +332,25 @@ class Message(TimestampMixin, Base):
     author: Mapped[User] = relationship()
 
 
+class SupportMessage(TimestampMixin, Base):
+    """Чат с поддержкой: у каждого клиента одна ветка (client_id), отвечает администратор.
+
+    read_at — когда сообщение прочитала другая сторона; по нему считаются непрочитанные.
+    """
+
+    __tablename__ = "support_messages"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    client_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), index=True)
+    author_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
+    author_role: Mapped[str] = mapped_column(String(16))
+    text: Mapped[str] = mapped_column(Text)
+    read_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+    client: Mapped[User] = relationship(foreign_keys=[client_id])
+    author: Mapped[User] = relationship(foreign_keys=[author_id])
+
+
 class Event(TimestampMixin, Base):
     """Событие для ленты уведомлений и потока SSE."""
 

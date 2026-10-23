@@ -113,6 +113,7 @@ function emptyState(now: number, previous: DemoState | null): DemoState {
         loans: [],
         history: [],
         messages: [],
+        support: [],
         events: [],
         audit: [],
         jobs: [],

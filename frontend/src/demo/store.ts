@@ -25,7 +25,10 @@ function parse(raw: string | null): DemoState | null {
     if (!raw) return null;
     try {
         const parsed = JSON.parse(raw) as DemoState;
-        return parsed.version === STATE_VERSION && parsed.fixtures === FIXTURES_VERSION ? parsed : null;
+        if (parsed.version !== STATE_VERSION || parsed.fixtures !== FIXTURES_VERSION) return null;
+        // Данные, сохранённые до чата с поддержкой: заявки не сбрасываем, просто добавляем пустой чат
+        parsed.support ??= [];
+        return parsed;
     } catch {
         return null;
     }

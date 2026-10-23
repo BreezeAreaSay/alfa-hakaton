@@ -1,0 +1,302 @@
+/*
+ * Поддержка: красная круглая кнопка справа внизу и окно чата над ней. У администратора окно шире —
+ * слева колонка чатов клиентов, справа переписка. Закрытое окно убирается из разметки целиком.
+ */
+
+.support {
+    position: fixed;
+    right: var(--gap-24);
+    bottom: var(--gap-24);
+    z-index: 90;
+}
+
+.support__button {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    /* фирменный красный напрямую: в рабочем месте банка тема дизайн-системы меняет акцентный цвет */
+    background: #ef3124;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 8px 24px -6px rgba(239, 49, 36, 0.6);
+    transition:
+        transform 150ms ease,
+        box-shadow 150ms ease;
+}
+
+.support__button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px -6px rgba(239, 49, 36, 0.7);
+}
+
+.support__button:focus-visible {
+    outline: 3px solid rgba(239, 49, 36, 0.4);
+    outline-offset: 3px;
+}
+
+.support__badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    border-radius: 11px;
+    background: #212124;
+    box-shadow: 0 0 0 2px #fff;
+    color: #fff;
+    font-size: 12px;
+    line-height: 22px;
+    font-weight: 700;
+}
+
+.support__panel {
+    position: absolute;
+    right: 0;
+    bottom: calc(56px + var(--gap-16));
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-12);
+    width: 380px;
+    height: min(560px, calc(100vh - 140px));
+    padding: var(--gap-16) var(--gap-20) var(--gap-20);
+    border-radius: 28px;
+    background: #fff;
+    color: var(--color-light-text-primary);
+    box-shadow: 0 16px 48px -12px rgba(0, 0, 0, 0.35);
+    transform-origin: bottom right;
+    animation: support-in 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* закрытие — 180 мс, как CLOSE_MS в SupportWidget.tsx */
+.support__panel--closing {
+    animation: support-out 180ms ease-in forwards;
+}
+
+@keyframes support-in {
+    from {
+        opacity: 0;
+        transform: translateY(16px) scale(0.96);
+    }
+}
+
+@keyframes support-out {
+    to {
+        opacity: 0;
+        transform: translateY(12px) scale(0.97);
+    }
+}
+
+.support__panel--admin {
+    width: 720px;
+}
+
+.support__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--gap-12);
+}
+
+.support__messages {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-8);
+    overflow-y: auto;
+    padding-right: var(--gap-4);
+}
+
+.support__meta {
+    margin-bottom: var(--gap-4);
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+.support__compose {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--gap-8);
+}
+
+.support__compose > :first-child {
+    flex: 1;
+    min-width: 0;
+}
+
+.support__send {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
+    padding: 0;
+    border: 0;
+    border-radius: 16px;
+    background: #ef3124;
+    color: #fff;
+    cursor: pointer;
+}
+
+.support__send:disabled {
+    background: #f2f3f5;
+    color: rgba(3, 3, 6, 0.3);
+    cursor: default;
+}
+
+/* ---------------------------------------------------------------- колонка чатов у администратора */
+
+.support__inbox {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr);
+    gap: var(--gap-16);
+}
+
+.support__threads {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-4);
+    margin: 0;
+    padding: 0 var(--gap-4) 0 0;
+    overflow-y: auto;
+    list-style: none;
+    border-right: 1px solid #eceef2;
+}
+
+.support__thread {
+    display: grid;
+    gap: 2px;
+    width: 100%;
+    padding: var(--gap-12);
+    border: 0;
+    border-radius: 16px;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.support__thread:hover {
+    background: #f7f7f9;
+}
+
+.support__thread--active,
+.support__thread--active:hover {
+    background: #f2f3f5;
+}
+
+.support__thread-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--gap-8);
+}
+
+.support__thread-name {
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 700;
+}
+
+.support__thread-badge {
+    flex-shrink: 0;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 10px;
+    background: #ef3124;
+    color: #fff;
+    font-size: 12px;
+    line-height: 20px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.support__thread-company,
+.support__thread-text {
+    overflow: hidden;
+    font-size: 13px;
+    line-height: 18px;
+    color: var(--color-light-text-secondary);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.support__chat {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-12);
+    min-height: 0;
+}
+
+.support__chat-head {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-8);
+}
+
+/* «Все чаты» нужна только на телефоне, где колонка и переписка показываются по очереди */
+.support__back {
+    display: none;
+}
+
+.support__empty {
+    padding: var(--gap-12);
+}
+
+.support__empty--center {
+    display: grid;
+    place-items: center;
+    flex: 1;
+    text-align: center;
+}
+
+@media (max-width: 767px) {
+    .support {
+        right: var(--gap-16);
+        bottom: var(--gap-16);
+    }
+
+    .support__panel,
+    .support__panel--admin {
+        width: calc(100vw - var(--gap-32));
+        height: min(560px, calc(100vh - 120px));
+    }
+
+    .support__inbox {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .support__threads {
+        border-right: 0;
+    }
+
+    .support__inbox--selected .support__threads,
+    .support__inbox:not(.support__inbox--selected) .support__chat {
+        display: none;
+    }
+
+    .support__back {
+        display: inline-flex;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .support__panel,
+    .support__panel--closing {
+        animation-duration: 1ms;
+    }
+
+    .support__button {
+        transition: none;
+    }
+}
