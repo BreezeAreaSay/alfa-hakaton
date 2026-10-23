@@ -396,3 +396,32 @@ def test_proactive_offers_follow_company_data():
     assert orlov["offers"] == [] and "выписку" in orlov["note"]
     # Аналитику метод недоступен
     assert Client("analyst").http.get("/api/offers/proactive").status_code == 403
+
+
+def test_support_chat_between_client_and_admin():
+    # Клиент пишет в поддержку, администратор видит его в колонке чатов, читает и отвечает
+    client, admin = Client("tehnomaster"), Client("admin")
+    client_id = client.user["id"]
+    text = f"Не могу найти договор, {uuid.uuid4().hex[:6]}"
+    sent = client.post("/api/support/messages", expect=201, json={"text": text})
+    assert sent["author_role"] == "CLIENT" and sent["text"] == text
+
+    thread = next(t for t in admin.get("/api/support/threads") if t["client_id"] == client_id)
+    assert thread["last_text"] == text and thread["unread"] >= 1
+    assert thread["company_name"] == client.user["company"]["name"]
+    assert admin.get(f"/api/support/threads/{client_id}")["messages"][-1]["text"] == text
+    admin.post(f"/api/support/threads/{client_id}/read", expect=204)
+    assert admin.get(f"/api/support/threads/{client_id}")["unread"] == 0
+
+    admin.post(f"/api/support/threads/{client_id}/messages", expect=201, json={"text": "Договор — в карточке заявки"})
+    mine = client.get("/api/support")
+    assert mine["messages"][-1]["author_role"] == "ADMIN" and mine["unread"] >= 1
+    client.post("/api/support/read", expect=204)
+    assert client.get("/api/support")["unread"] == 0
+
+    # Колонка чатов — только у администратора, писать в поддержку — только клиенту
+    assert Client("analyst").http.get("/api/support/threads").status_code == 403
+    assert client.http.get("/api/support/threads").status_code == 403
+    assert admin.http.post("/api/support/messages", json={"text": "вопрос"}).status_code == 403
+    assert admin.http.post(f"/api/support/threads/{uuid.uuid4()}/messages", json={"text": "ответ"}).status_code == 404
+    assert client.http.post("/api/support/messages", json={"text": ""}).status_code == 422

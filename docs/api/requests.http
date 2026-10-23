@@ -1,4 +1,4 @@
-# Умный кредитный кабинет: ключевой сценарий клиента и решение аналитика
+# Умный кредитный кабинет: ключевой сценарий клиента, решение аналитика и чат с поддержкой
 #
 # Где запускать:
 #   IntelliJ IDEA, PyCharm, WebStorm — встроенный HTTP Client;
@@ -356,5 +356,59 @@ Authorization: Bearer {{grandToken}}
         client.assert(response.status === 200, "HTTP " + response.status);
         client.assert(item !== undefined && item.status === "OFFER", "заявка не в статусе OFFER");
         client.assert(item.needs_action === true, "клиенту не нужно действовать");
+    });
+%}
+
+### 3.1. Клиент пишет в поддержку
+# Чат с поддержкой не привязан к заявке: у клиента одна ветка, отвечает администратор.
+POST {{baseUrl}}/support/messages
+Authorization: Bearer {{grandToken}}
+Content-Type: application/json
+
+{"text": "Как узнать, какой залог подойдёт для кредита?"}
+
+> {%
+    client.test("Сообщение отправлено", () => {
+        client.assert(response.status === 201, "HTTP " + response.status);
+        client.assert(response.body.author_role === "CLIENT", "роль " + response.body.author_role);
+    });
+%}
+
+### 3.2. Колонка чатов администратора
+GET {{baseUrl}}/support/threads
+Authorization: Bearer {{adminToken}}
+
+> {%
+    const thread = response.body.find((t) => t.last_text.startsWith("Как узнать, какой залог"));
+    client.test("Клиент в колонке чатов, сообщение не прочитано", () => {
+        client.assert(response.status === 200, "HTTP " + response.status);
+        client.assert(thread !== undefined && thread.unread > 0, "чата клиента нет или он прочитан");
+    });
+    client.global.set("supportClientId", thread.client_id);
+%}
+
+### 3.3. Ответить клиенту
+POST {{baseUrl}}/support/threads/{{supportClientId}}/messages
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{"text": "Недвижимость, транспорт или оборудование — укажите тип и оценочную стоимость в заявке."}
+
+> {%
+    client.test("Ответ отправлен", () => {
+        client.assert(response.status === 201, "HTTP " + response.status);
+        client.assert(response.body.author_role === "ADMIN", "роль " + response.body.author_role);
+    });
+%}
+
+### 3.4. Клиент видит ответ поддержки
+GET {{baseUrl}}/support
+Authorization: Bearer {{grandToken}}
+
+> {%
+    client.test("Последнее сообщение — ответ поддержки", () => {
+        client.assert(response.status === 200, "HTTP " + response.status);
+        client.assert(response.body.messages[response.body.messages.length - 1].author_role === "ADMIN", "ответа нет");
+        client.assert(response.body.unread > 0, "ответ уже прочитан");
     });
 %}

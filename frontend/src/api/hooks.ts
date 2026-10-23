@@ -25,6 +25,8 @@ import type {
     Purpose,
     QueueItem,
     QuoteItem,
+    SupportChat,
+    SupportThread,
     TermsPreview,
 } from './types';
 
@@ -39,6 +41,8 @@ export const keys = {
     bank: ['bank'] as const,
     dossier: (id: string) => ['bank', 'dossier', id] as const,
     ai: ['ai'] as const,
+    support: ['support'] as const,
+    supportThread: (clientId: string) => ['support', 'thread', clientId] as const,
 };
 
 export const useMeta = () =>
@@ -227,6 +231,48 @@ export const useSendMessage = (id: string) => {
     });
 };
 
+// ---------------------------------------------------------------- поддержка: клиент пишет, администратор отвечает
+
+export const useSupportChat = (enabled: boolean) =>
+    useQuery({ queryKey: keys.support, queryFn: () => api<SupportChat>('/api/support'), enabled });
+
+export const useSupportThreads = (enabled: boolean) =>
+    useQuery({
+        queryKey: [...keys.support, 'threads'],
+        queryFn: () => api<SupportThread[]>('/api/support/threads'),
+        enabled,
+    });
+
+export const useSupportThread = (clientId: string | null) =>
+    useQuery({
+        queryKey: keys.supportThread(clientId ?? ''),
+        queryFn: () => api<SupportChat>(`/api/support/threads/${clientId}`),
+        enabled: clientId !== null,
+    });
+
+/** Отправить в поддержку: клиент — в свой чат, администратор — в чат выбранного клиента. */
+export const useSendSupport = (clientId: string | null) => {
+    const client = useQueryClient();
+    return useMutation({
+        mutationFn: (text: string) =>
+            api<ChatMessage>(clientId ? `/api/support/threads/${clientId}/messages` : '/api/support/messages', {
+                method: 'POST',
+                body: { text },
+            }),
+        onSuccess: () => void client.invalidateQueries({ queryKey: keys.support }),
+    });
+};
+
+/** Отметить входящие прочитанными: клиент — ответы поддержки, администратор — сообщения клиента. */
+export const useReadSupport = (clientId: string | null) => {
+    const client = useQueryClient();
+    return useMutation({
+        mutationFn: () =>
+            api<void>(clientId ? `/api/support/threads/${clientId}/read` : '/api/support/read', { method: 'POST' }),
+        onSuccess: () => void client.invalidateQueries({ queryKey: keys.support }),
+    });
+};
+
 export const useMarkRead = () => {
     const client = useQueryClient();
     return useMutation({
@@ -370,8 +416,11 @@ export function useLiveUpdates(enabled: boolean): void {
         if (!enabled) return undefined;
         let timer: ReturnType<typeof setTimeout> | null = null;
         const pending = new Set<string>();
+        let support = false;
         const flush = () => {
             timer = null;
+            if (support) void client.invalidateQueries({ queryKey: keys.support });
+            support = false;
             void client.invalidateQueries({ queryKey: keys.notifications });
             void client.invalidateQueries({ queryKey: keys.applications });
             void client.invalidateQueries({ queryKey: ['bank', 'summary'] });
@@ -388,6 +437,7 @@ export function useLiveUpdates(enabled: boolean): void {
         };
         return subscribe((event) => {
             if (event.application_id) pending.add(event.application_id);
+            if (event.kind === 'SUPPORT') support = true;
             if (!timer) timer = setTimeout(flush, 250);
         });
     }, [client, enabled]);

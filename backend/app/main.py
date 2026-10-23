@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm.exc import StaleDataError
 
-from app.api import admin, ai, applications, auth, bank, catalog, notifications
+from app.api import admin, ai, applications, auth, bank, catalog, notifications, support
 from app.logging_setup import setup_logging
 from app.services.audit import request_id_var
 from app.services.workflow import TransitionError
@@ -95,6 +95,6 @@ async def stale_data(_: Request, __: StaleDataError) -> JSONResponse:
     return JSONResponse(status_code=409, content={"detail": "Заявка изменилась, обновите страницу"})
 
 
-for module in (auth, catalog, applications, notifications, bank, admin, ai):
+for module in (auth, catalog, applications, notifications, support, bank, admin, ai):
     app.include_router(module.router)
 app.include_router(catalog.service)

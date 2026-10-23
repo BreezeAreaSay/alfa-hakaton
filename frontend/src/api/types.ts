@@ -289,6 +289,23 @@ export interface ChatMessage {
     created_at: string;
 }
 
+/** Чат с поддержкой одного клиента; unread — непрочитанные сообщения от другой стороны. */
+export interface SupportChat {
+    messages: ChatMessage[];
+    unread: number;
+}
+
+/** Строка в колонке чатов у администратора. */
+export interface SupportThread {
+    client_id: string;
+    client_name: string;
+    company_name: string | null;
+    last_text: string;
+    last_author_role: Role;
+    last_at: string;
+    unread: number;
+}
+
 export interface NotificationItem {
     id: number;
     application_id: string | null;

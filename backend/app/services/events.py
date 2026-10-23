@@ -1,5 +1,6 @@
 """События для ленты уведомлений и потока SSE. Пишутся в той же транзакции, что и изменение данных."""
 
+import uuid
 from typing import Any
 
 from sqlalchemy.orm import Session
@@ -18,11 +19,13 @@ def emit(
     body: str | None = None,
     notify: bool = True,
     payload: dict[str, Any] | None = None,
+    company_id: uuid.UUID | None = None,
 ) -> None:
+    """company_id — адресат-компания события без заявки (например, ответ поддержки клиенту)."""
     db.add(
         Event(
             application_id=application.id if application else None,
-            company_id=application.company_id if application else None,
+            company_id=application.company_id if application else company_id,
             audience=audience,
             kind=kind,
             title=title,

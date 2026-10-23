@@ -118,13 +118,21 @@ export function emit(
     state: DemoState,
     app: AppRow | null,
     now: number,
-    event: { audience: Audience; kind: string; title: string; body?: string | null; notify?: boolean },
+    event: {
+        audience: Audience;
+        kind: string;
+        title: string;
+        body?: string | null;
+        notify?: boolean;
+        /** адресат-компания события без заявки (ответ поддержки клиенту) */
+        company_id?: string | null;
+    },
 ): void {
     state.seq.event += 1;
     state.events.push({
         id: state.seq.event,
         app_id: app?.id ?? null,
-        company_id: app?.company_id ?? null,
+        company_id: app?.company_id ?? event.company_id ?? null,
         audience: event.audience,
         kind: event.kind,
         title: event.title,

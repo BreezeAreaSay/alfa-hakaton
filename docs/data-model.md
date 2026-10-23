@@ -40,6 +40,7 @@ erDiagram
     products ||--o{ loans : "продукт"
     loans ||--|{ schedule_items : "график платежей"
     applications ||--o{ messages : "чат"
+    users ||--o{ support_messages : "чат с поддержкой"
     applications |o--o{ events : "события"
     companies |o--o{ events : "лента клиента"
 ```
@@ -285,6 +286,7 @@ erDiagram
 ```mermaid
 erDiagram
     applications ||--o{ messages : "чат"
+    users ||--o{ support_messages : "client_id"
     applications |o--o{ events : "события"
     companies |o--o{ events : "лента клиента"
     messages {
@@ -293,6 +295,14 @@ erDiagram
         uuid author_id FK "users"
         varchar author_role
         text text
+    }
+    support_messages {
+        bigint id PK
+        uuid client_id FK "users — чья ветка"
+        uuid author_id FK "users"
+        varchar author_role
+        text text
+        timestamptz read_at "прочитано другой стороной"
     }
     events {
         bigint id PK
@@ -336,6 +346,7 @@ erDiagram
     users |o--o{ documents : "uploaded_by"
     users |o--o{ signatures : "signer_user_id"
     users ||--o{ messages : "author_id"
+    users ||--o{ support_messages : "author_id"
     users |o--o{ audit_log : "actor_user_id"
     users ||--o{ idempotency_keys : "user_id"
 ```
@@ -344,7 +355,8 @@ erDiagram
 
 - Ключи: `uuid` — у компаний, пользователей, заявок, согласий, предложений, запросов информации, документов,
   подписей и кредитов; автоинкремент `bigint` — у истории статусов, шагов, заданий, результатов скоринга,
-  решений, графика, сообщений, событий, журнала и ключей идемпотентности; у продукта ключ — код.
+  решений, графика, сообщений (в том числе поддержки), событий, журнала и ключей идемпотентности; у продукта
+  ключ — код.
 - Внешние ключи без каскадного удаления (`NO ACTION`): строку, на которую есть ссылки, удалить нельзя.
 - Почти у всех таблиц есть `created_at timestamptz` со значением по умолчанию `now()`; его нет у `products`,
   `pipeline_steps` и `schedule_items`.
@@ -511,6 +523,14 @@ erDiagram
 
 - Индекс по `application_id`.
 - Пишет: API клиента и банка; чат доступен после отправки заявки.
+
+**`support_messages`** — чат с поддержкой, не привязанный к заявке: `client_id` (чья ветка — у каждого
+клиента одна), `author_id`, `author_role`, `text`, `read_at` — когда сообщение прочитала другая сторона;
+по нему считаются непрочитанные у клиента и в колонке чатов администратора.
+
+- Индекс по `client_id`.
+- Пишет: API клиента и администратора ([`api/support.py`](../backend/app/api/support.py)); миграция `0002`.
+- Сброс демо-данных очищает таблицу вместе с заявками.
 
 **`events`** — события для ленты уведомлений и потока SSE (см. ниже): `audience`, `kind`, `title`, `body`,
 `notify`, `payload`.
@@ -685,8 +705,9 @@ erDiagram
 - `companies` — ФИО руководителя; у ИП ещё ИНН, ОГРНИП и адрес, потому что это данные человека;
 - `applications` — ФИО заявителя (`contact_name`), описание цели и исходный текст в `ai_parsed`;
 - `consents` — факт, время и версия текста согласий на обработку персональных данных и запрос в БКИ;
-- `messages`, `info_requests.answer_text`, загруженные файлы (выписки содержат операции и контрагентов),
-  `events.body` (текст сообщений чата и ответов на запросы), `audit_log.details` (имена файлов, причины решений).
+- `messages`, `support_messages`, `info_requests.answer_text`, загруженные файлы (выписки содержат операции
+  и контрагентов), `events.body` (текст сообщений чата, поддержки и ответов на запросы), `audit_log.details`
+  (имена файлов, причины решений).
 
 Как защищены:
 

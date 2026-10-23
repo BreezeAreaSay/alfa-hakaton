@@ -4,6 +4,7 @@ import { useLiveUpdates } from './api/hooks';
 import { isBankRole, useAuth } from './auth/AuthContext';
 import { AppFooter } from './components/AppFooter';
 import { AppHeader } from './components/AppHeader';
+import { SupportWidget } from './components/SupportWidget';
 import { Theme } from './components/Theme';
 import { Loader } from './components/ui';
 import { AuditPage } from './pages/bank/AuditPage';
@@ -35,6 +36,7 @@ function ClientLayout() {
             />
             <Outlet />
             <AppFooter />
+            <SupportWidget admin={false} />
         </div>
     );
 }
@@ -59,6 +61,8 @@ function BankLayout() {
                 ]}
             />
             <Outlet />
+            {/* отвечает на вопросы в поддержку администратор; у аналитика кнопки нет */}
+            {user.role === 'ADMIN' && <SupportWidget admin={true} />}
         </>
     );
 }
