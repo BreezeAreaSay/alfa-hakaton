@@ -1,3 +1,4 @@
+import { ButtonDesktop } from '@alfalab/core-components/button/desktop';
 import { IconButton } from '@alfalab/core-components/icon-button';
 import { Typography } from '@alfalab/core-components/typography';
 import { AlfaBankLIcon } from '@alfalab/icons-logotype/AlfaBankLIcon';
@@ -9,6 +10,7 @@ import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useMarkRead, useNotifications } from '../api/hooks';
 import { useAuth } from '../auth/AuthContext';
 import { dateTime } from '../utils/format';
+import { CenteredModal } from './CenteredModal';
 
 export interface NavItem {
     to: string;
@@ -36,8 +38,8 @@ export function Logo({ home, bank = false }: { home: string; bank?: boolean }) {
 }
 
 export function AppHeader({ nav, home, bank = false }: { nav: NavItem[]; home: string; bank?: boolean }) {
-    const { user, logout } = useAuth();
-    const navigate = useNavigate();
+    const { user } = useAuth();
+    const [confirmExit, setConfirmExit] = useState(false);
     return (
         <header className={`header${bank ? ' header--bank' : ''}`}>
             <div className='header__inner'>
@@ -69,16 +71,41 @@ export function AppHeader({ nav, home, bank = false }: { nav: NavItem[]; home: s
                         className='header__exit'
                         aria-label='Выйти'
                         title='Выйти'
-                        onClick={() => {
-                            logout();
-                            navigate('/login');
-                        }}
+                        onClick={() => setConfirmExit(true)}
                     >
                         <DoorOpenMIcon aria-hidden={true} />
                     </button>
                 </div>
             </div>
+            <ExitConfirm open={confirmExit} onClose={() => setConfirmExit(false)} />
         </header>
+    );
+}
+
+/** Подтверждение выхода — по центру экрана, как окно входа; выход — только по кнопке «Выйти» в окне. */
+function ExitConfirm({ open, onClose }: { open: boolean; onClose: () => void }) {
+    const { logout } = useAuth();
+    const navigate = useNavigate();
+    const exit = () => {
+        logout();
+        navigate('/login');
+    };
+    return (
+        <CenteredModal open={open} title='Выйти из кабинета?' onClose={onClose} className='confirm-modal'>
+            <div className='stack'>
+                <Typography.Text view='primary-medium' color='secondary' tag='p'>
+                    Чтобы вернуться, понадобится снова ввести логин и пароль.
+                </Typography.Text>
+                <div className='confirm-modal__actions'>
+                    <ButtonDesktop view='secondary' size={48} block={true} onClick={onClose}>
+                        Остаться
+                    </ButtonDesktop>
+                    <ButtonDesktop view='primary' size={48} block={true} onClick={exit}>
+                        Выйти
+                    </ButtonDesktop>
+                </div>
+            </div>
+        </CenteredModal>
     );
 }
 

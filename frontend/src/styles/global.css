@@ -723,6 +723,19 @@ table.simple td.num {
     border-radius: 32px;
 }
 
+/* Подтверждение выхода: та же анимация и размытие, но компактное — по размеру содержимого */
+.confirm-modal.confirm-modal {
+    width: min(440px, calc(100vw - var(--gap-32)));
+    border-radius: 32px;
+}
+
+.confirm-modal__actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--gap-12);
+    margin-top: var(--gap-8);
+}
+
 /* отступ окна от краёв экрана меньше стандартного 40 px: на невысоком экране окну нужно место */
 .login-modal__wrapper {
     --modal-vertical-padding: var(--gap-16);
@@ -1164,6 +1177,15 @@ table.simple td.num {
     /* в шапке телефона две кнопки не помещаются рядом с меню — регистрация открывается из окна входа */
     .login .header__right .login__register {
         display: none;
+    }
+
+    /* на телефоне кнопки подтверждения выхода — друг под другом, главная сверху */
+    .confirm-modal__actions {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .confirm-modal__actions > :last-child {
+        order: -1;
     }
 
     /* на телефоне окно почти во весь экран: треть ширины здесь слишком узко */

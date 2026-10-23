@@ -39,6 +39,12 @@ export async function login(page: Page, username: string, password = PASSWORD): 
     await dialog.getByRole('button', { name: 'Войти', exact: true }).click();
 }
 
+/** Выход: кнопка с дверью в шапке и подтверждение в окне по центру. */
+export async function logout(page: Page): Promise<void> {
+    await page.getByRole('banner').getByRole('button', { name: 'Выйти' }).click();
+    await page.getByRole('dialog', { name: 'Выйти из кабинета?' }).getByRole('button', { name: 'Выйти' }).click();
+}
+
 /**
  * Второй участник сценария (например, клиент после решения аналитика): отдельная вкладка с отдельной
  * сессией. В демо-версии данные общие только внутри одного браузера, поэтому там же выходим и входим
@@ -50,7 +56,7 @@ export async function openAs(
     current: Page,
 ): Promise<{ page: Page; close: () => Promise<void> }> {
     if (DEMO) {
-        await current.getByRole('button', { name: 'Выйти' }).click();
+        await logout(current);
         await expect(current).toHaveURL(/\/login$/);
         await login(current, username);
         return { page: current, close: async () => undefined };
