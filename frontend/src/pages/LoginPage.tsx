@@ -1,6 +1,5 @@
 import { ButtonDesktop } from '@alfalab/core-components/button/desktop';
 import { Input } from '@alfalab/core-components/input';
-import { ModalDesktop } from '@alfalab/core-components/modal/desktop';
 import { PasswordInput } from '@alfalab/core-components/password-input';
 import { Typography } from '@alfalab/core-components/typography';
 import { type FormEvent, useRef, useState } from 'react';
@@ -11,8 +10,10 @@ import { AppFooter } from '../components/AppFooter';
 import { Logo } from '../components/AppHeader';
 import { ErrorPlate } from '../components/ui';
 import { HOW_IT_WORKS } from './client/DashboardPage';
+import { AuthModal, AuthSwitch } from './landing/AuthModal';
 import { HeroArt, ProductsBanner, PromoBanners } from './landing/Banners';
 import { Faq } from './landing/Faq';
+import { RegisterWidget } from './landing/RegisterWidget';
 
 const CLIENTS = [
     { login: 'veter', company: 'ООО «Северный ветер»', hint: 'Автоодобрение и выдача' },
@@ -33,19 +34,17 @@ const STAFF = [
     { login: 'admin', company: 'Администратор', hint: 'Сброс демо и сбои' },
 ];
 
-// Длительность выезда окна и размытия фона — совпадает с переходами .login-modal и .login-backdrop в global.css
-const TRANSITION_MS = 320;
-
 /**
  * Стартовая страница: шапка как на alfabank.ru, баннеры о кредитах и ответы на вопросы. Открыта и гостю,
  * и после входа — в неё возвращает логотип в шапке кабинета. Гостю «Получить кредит» и кнопки баннеров
  * открывают окно входа, и после входа клиент попадает сразу в подбор кредита; вошедшему — сразу подбор.
- * guestOnly — для адреса /login: вошедшего он ведёт в кабинет.
+ * Гостю рядом с «Войти» — «Регистрация» (пока только интерфейс). guestOnly — для адреса /login: вошедшего
+ * он ведёт в кабинет.
  */
 export function LoginPage({ guestOnly = false }: { guestOnly?: boolean }) {
     const { user, loading } = useAuth();
     const navigate = useNavigate();
-    const [open, setOpen] = useState(false);
+    const [dialog, setDialog] = useState<'login' | 'register' | null>(null);
     const [next, setNext] = useState<string | null>(null);
 
     const cabinet = user?.role === 'CLIENT' ? '/client' : '/bank';
@@ -53,7 +52,7 @@ export function LoginPage({ guestOnly = false }: { guestOnly?: boolean }) {
 
     const enter = (path: string | null) => {
         setNext(path);
-        setOpen(true);
+        setDialog('login');
     };
     // Сотрудника банка кабинет клиента сам отправит на рабочее место
     const start = () => (user ? navigate('/client/new') : enter('/client/new'));
@@ -80,9 +79,20 @@ export function LoginPage({ guestOnly = false }: { guestOnly?: boolean }) {
                                     {user.role === 'CLIENT' ? 'Личный кабинет' : 'Рабочее место'}
                                 </ButtonDesktop>
                             ) : (
-                                <ButtonDesktop view='primary' size={40} onClick={() => enter(null)}>
-                                    Войти
-                                </ButtonDesktop>
+                                <>
+                                    {/* на телефоне в шапке не помещается — регистрация открывается из окна входа */}
+                                    <ButtonDesktop
+                                        view='primary'
+                                        size={40}
+                                        className='login__register'
+                                        onClick={() => setDialog('register')}
+                                    >
+                                        Регистрация
+                                    </ButtonDesktop>
+                                    <ButtonDesktop view='primary' size={40} onClick={() => enter(null)}>
+                                        Войти
+                                    </ButtonDesktop>
+                                </>
                             ))}
                     </div>
                 </div>
@@ -152,7 +162,13 @@ export function LoginPage({ guestOnly = false }: { guestOnly?: boolean }) {
             </section>
 
             <AppFooter />
-            <LoginWidget open={open} next={next} onClose={() => setOpen(false)} />
+            <LoginWidget
+                open={dialog === 'login'}
+                next={next}
+                onClose={() => setDialog(null)}
+                onRegister={() => setDialog('register')}
+            />
+            <RegisterWidget open={dialog === 'register'} onClose={() => setDialog(null)} onLogin={() => enter(null)} />
         </div>
     );
 }
@@ -162,7 +178,17 @@ export function LoginPage({ guestOnly = false }: { guestOnly?: boolean }) {
  * Состояние формы живёт снаружи окна — после закрытия и повторного открытия введённое не теряется.
  * next — куда вести клиента после входа (с баннера — в подбор кредита); сотрудник банка всегда попадает в очередь.
  */
-function LoginWidget({ open, next, onClose }: { open: boolean; next: string | null; onClose: () => void }) {
+function LoginWidget({
+    open,
+    next,
+    onClose,
+    onRegister,
+}: {
+    open: boolean;
+    next: string | null;
+    onClose: () => void;
+    onRegister: () => void;
+}) {
     const { login } = useAuth();
     const navigate = useNavigate();
     const loginInput = useRef<HTMLInputElement>(null);
@@ -192,70 +218,48 @@ function LoginWidget({ open, next, onClose }: { open: boolean; next: string | nu
     };
 
     return (
-        <ModalDesktop
-            open={open}
-            onClose={onClose}
-            className='login-modal'
-            wrapperClassName='login-modal__wrapper'
-            contentClassName='login-modal__content'
-            scrollHandler='content'
-            wrapperProps={{ 'aria-label': 'Вход' }}
-            transitionProps={{
-                classNames: 'login-modal',
-                timeout: TRANSITION_MS,
-                onEntered: () => loginInput.current?.focus(),
-            }}
-            backdropProps={{
-                className: 'login-backdrop',
-                transitionClassNames: 'login-backdrop',
-                timeout: TRANSITION_MS,
-            }}
-        >
-            <ModalDesktop.Header hasCloser={true} sticky={true} title='Вход' />
-            <ModalDesktop.Content>
-                <div className='stack login-modal__body'>
-                    <form className='stack-16' onSubmit={submit}>
-                        <Input
-                            ref={loginInput}
-                            label='Логин'
-                            labelView='inner'
-                            size={56}
-                            block={true}
-                            value={loginName}
-                            onChange={(e) => setLoginName(e.target.value)}
-                            autoComplete='username'
-                            name='login'
-                        />
-                        <PasswordInput
-                            label='Пароль'
-                            labelView='inner'
-                            size={56}
-                            block={true}
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            autoComplete='current-password'
-                            name='password'
-                        />
-                        <ErrorPlate error={error} title='Не удалось войти' />
-                        {/* та же красная кнопка, что в шапке, на любой ширине */}
-                        <ButtonDesktop view='primary' size={56} block={true} type='submit' loading={busy}>
-                            Войти
-                        </ButtonDesktop>
-                    </form>
+        <AuthModal open={open} title='Вход' onClose={onClose} onEntered={() => loginInput.current?.focus()}>
+            <form className='stack-16' onSubmit={submit}>
+                <Input
+                    ref={loginInput}
+                    label='Логин'
+                    labelView='inner'
+                    size={56}
+                    block={true}
+                    value={loginName}
+                    onChange={(e) => setLoginName(e.target.value)}
+                    autoComplete='username'
+                    name='login'
+                />
+                <PasswordInput
+                    label='Пароль'
+                    labelView='inner'
+                    size={56}
+                    block={true}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    autoComplete='current-password'
+                    name='password'
+                />
+                <ErrorPlate error={error} title='Не удалось войти' />
+                {/* та же красная кнопка, что в шапке, на любой ширине */}
+                <ButtonDesktop view='primary' size={56} block={true} type='submit' loading={busy}>
+                    Войти
+                </ButtonDesktop>
+            </form>
+            <AuthSwitch text='Нет профиля?' action='Создать' onClick={onRegister} />
 
-                    <div className='stack-8'>
-                        <Typography.Text view='primary-medium' weight='bold' tag='div'>
-                            Тестовые учётные записи
-                        </Typography.Text>
-                        <Typography.Text view='primary-small' color='secondary' tag='div'>
-                            Пароль у всех — admin. Нажмите, чтобы войти.
-                        </Typography.Text>
-                        <AccountGroup title='Клиенты' accounts={CLIENTS} onPick={quick} />
-                        <AccountGroup title='Сотрудники банка' accounts={STAFF} onPick={quick} />
-                    </div>
-                </div>
-            </ModalDesktop.Content>
-        </ModalDesktop>
+            <div className='stack-8'>
+                <Typography.Text view='primary-medium' weight='bold' tag='div'>
+                    Тестовые учётные записи
+                </Typography.Text>
+                <Typography.Text view='primary-small' color='secondary' tag='div'>
+                    Пароль у всех — admin. Нажмите, чтобы войти.
+                </Typography.Text>
+                <AccountGroup title='Клиенты' accounts={CLIENTS} onPick={quick} />
+                <AccountGroup title='Сотрудники банка' accounts={STAFF} onPick={quick} />
+            </div>
+        </AuthModal>
     );
 }
 

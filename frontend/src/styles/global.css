@@ -653,6 +653,11 @@ table.simple td.num {
     color: rgba(255, 255, 255, 0.72);
 }
 
+/* «Регистрация» и «Войти» стоят рядом — ближе, чем значки в шапке кабинета */
+.login .header__right {
+    gap: var(--gap-8);
+}
+
 .login__inner {
     max-width: var(--page-max-width);
     margin: 0 auto;
@@ -732,6 +737,30 @@ table.simple td.num {
 /* колонки тестовых учётных записей — по ширине окна, а не экрана */
 .login-modal__body {
     container-type: inline-size;
+}
+
+/* «Нет профиля? Создать» / «Уже есть профиль? Войти» — переход между окнами входа и регистрации */
+.login-modal__switch {
+    text-align: center;
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--color-light-text-secondary);
+}
+
+.login-modal__link {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--color-light-text-primary);
+    font: inherit;
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+}
+
+.login-modal__link:hover {
+    color: var(--color-light-accent-primary, #ef3124);
 }
 
 @container (max-width: 479px) {
@@ -1130,6 +1159,11 @@ table.simple td.num {
 
     .login__step {
         padding: var(--gap-20);
+    }
+
+    /* в шапке телефона две кнопки не помещаются рядом с меню — регистрация открывается из окна входа */
+    .login .header__right .login__register {
+        display: none;
     }
 
     /* на телефоне окно почти во весь экран: треть ширины здесь слишком узко */
