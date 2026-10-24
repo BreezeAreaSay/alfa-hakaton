@@ -95,6 +95,14 @@ export function LoginPage({
                     <Logo home='/' />
                     {/* слева, как пункт меню в шапке кабинета */}
                     <nav className='nav' aria-label='Разделы'>
+                        {/* те же пункты, что в шапке кабинета: вошедшего «Главная» ведёт в кабинет, гостя — сюда */}
+                        <NavLink
+                            to={user ? cabinet : '/'}
+                            end={true}
+                            className={({ isActive }) => `nav__link${isActive ? ' nav__link--active' : ''}`}
+                        >
+                            Главная
+                        </NavLink>
                         <NavLink
                             to='/products'
                             className={({ isActive }) => `nav__link${isActive ? ' nav__link--active' : ''}`}

@@ -110,21 +110,6 @@ const GUIDE: Record<
     },
 };
 
-const ALTERNATIVES = [
-    {
-        title: 'Факторинг',
-        text: 'Деньги сразу за отгрузку, если покупатели платят с отсрочкой. Подойдёт, когда разрыв возникает из-за дебиторки.',
-    },
-    {
-        title: 'Лизинг',
-        text: 'Оборудование или транспорт в пользование с выкупом. Вместо залога — сама техника, нужен аванс.',
-    },
-    {
-        title: 'Льготные программы',
-        text: 'Кредиты с господдержкой и поручительством для малого бизнеса. Ставка ниже, но условий и документов больше.',
-    },
-];
-
 function terms(product: Product): string {
     return product.min_term === product.max_term
         ? months(product.min_term)
@@ -330,29 +315,6 @@ export function ProductsPage({ onCalculate }: { onCalculate: (path: string) => v
                             Ставка — базовая, к ней прибавляется надбавка за риск. Точные условия — в предложении по
                             заявке.
                         </Typography.Text>
-                    </section>
-
-                    <section className='stack'>
-                        <div className='stack-8'>
-                            <Typography.Title tag='h2' view='medium' font='system' weight='bold'>
-                                Что ещё есть
-                            </Typography.Title>
-                            <Typography.Text view='primary-medium' color='secondary' tag='p'>
-                                Не оформляем в кабинете, но подскажем, если кредит — не лучший вариант для вашей задачи
-                            </Typography.Text>
-                        </div>
-                        <ul className='login__steps'>
-                            {ALTERNATIVES.map((item) => (
-                                <li key={item.title} className='login__step'>
-                                    <Typography.Text view='primary-medium' weight='bold' tag='div'>
-                                        {item.title}
-                                    </Typography.Text>
-                                    <Typography.Text view='primary-small' color='secondary' tag='div'>
-                                        {item.text}
-                                    </Typography.Text>
-                                </li>
-                            ))}
-                        </ul>
                     </section>
                 </div>
             </section>

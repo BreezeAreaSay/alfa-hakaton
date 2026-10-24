@@ -1048,23 +1048,6 @@ table.simple td.num {
     list-style: none;
 }
 
-.footer__row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--gap-12) var(--gap-24);
-}
-
-.footer__item {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--gap-8);
-}
-
-.footer__city {
-    font-weight: 700;
-}
-
 .footer__legal {
     display: grid;
     gap: var(--gap-8);

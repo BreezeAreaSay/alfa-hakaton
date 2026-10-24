@@ -1,4 +1,3 @@
-import { LocatorLineMIcon } from '@alfalab/icons-glyph/LocatorLineMIcon';
 import type { ReactNode } from 'react';
 
 interface FooterLink {
@@ -67,26 +66,6 @@ export function AppFooter() {
                             </ul>
                         </section>
                     ))}
-                    <section>
-                        <h2 className='footer__title'>Местоположение</h2>
-                        <span className='footer__item footer__city'>
-                            <LocatorLineMIcon width={16} height={16} aria-hidden={true} />
-                            Москва
-                        </span>
-                    </section>
-                    <section>
-                        <h2 className='footer__title'>Для иностранных клиентов</h2>
-                        <div className='footer__row'>
-                            <ExternalLink href='https://alfabank.ru/corporate/china/' className='footer__item'>
-                                <ChinaFlag />
-                                中文
-                            </ExternalLink>
-                            <ExternalLink href='https://alfabank.ru/en/' className='footer__item'>
-                                <UkFlag />
-                                Eng
-                            </ExternalLink>
-                        </div>
-                    </section>
                 </div>
                 {/* Вместо юридического текста alfabank.ru — честное пояснение: это прототип, а не сайт банка */}
                 <div className='footer__legal'>
@@ -105,56 +84,10 @@ export function AppFooter() {
     );
 }
 
-function ExternalLink({
-    href,
-    label,
-    className,
-    children,
-}: {
-    href: string;
-    label?: string;
-    className?: string;
-    children: ReactNode;
-}) {
+function ExternalLink({ href, children }: { href: string; children: ReactNode }) {
     return (
-        <a href={href} className={className} aria-label={label} target='_blank' rel='noreferrer'>
+        <a href={href} target='_blank' rel='noreferrer'>
             {children}
         </a>
-    );
-}
-
-// Флаги — из набора дизайн-системы (@alfalab/core-components, MIT); весь набор весит 265 КБ, поэтому взяты только два
-function ChinaFlag() {
-    return (
-        <svg width='24' height='24' viewBox='0 0 24 24' aria-hidden={true}>
-            <path
-                fill='#FF4B55'
-                d='M22.2 4.1H1.8C.8 4.1 0 5 0 6v12.2q.2 1.6 1.8 1.8h20.4q1.6-.2 1.8-1.8V5.9q-.2-1.7-1.8-1.8'
-            />
-            <path
-                fill='#FFE15A'
-                d='m4 6.6.4 1.2h1.2q.4 0 .1.3l-1 .7.4 1.2q0 .3-.3.2l-1-.7-1 .7q-.2.1-.2-.2l.3-1.2-1-.7q-.1-.2.1-.3h1.3l.4-1.2q0-.3.3 0m4.5.3.3.4.5-.2v.1l-.3.4.3.4v.1L8.7 8l-.3.3h-.1v-.5l-.5-.1v-.1l.5-.2v-.5h.1ZM6.8 5.7h.5l.2-.3.2.4.5.1V6l-.4.3v.4s0 .1 0 0l-.4-.2-.4.2h-.1l.2-.5-.4-.4Zm.7 4.7-.2.4-.5-.2s-.1 0 0 .1l.2.4-.3.4s0 .1.1 0h.5l.2.3h.2v-.5l.4-.1V11l-.4-.1v-.5zm1.8-1.1h-.5L8.6 9h-.1l-.1.5h-.5v.2l.4.2-.1.5h.1l.4-.3.4.3v-.1L9 9.7z'
-            />
-        </svg>
-    );
-}
-
-function UkFlag() {
-    return (
-        <svg width='24' height='24' viewBox='0 0 24 24' aria-hidden={true}>
-            <path
-                fill='#41479B'
-                d='M22.2 4.1H1.8C.8 4.1 0 5 0 6v12.2q.2 1.6 1.8 1.8h20.4q1.6-.2 1.8-1.8V5.9q-.2-1.7-1.8-1.8'
-            />
-            <path
-                fill='#F5F5F5'
-                d='M24 5.6q-.4-1.3-1.8-1.5h-.5l-7.6 5v-5H9.9v5l-7.6-5h-.5Q.4 4.3 0 5.6L6.6 10H0v4.2h6.6L0 18.4q.5 1.4 1.8 1.5h.5l7.6-5v5h4.2v-5l7.6 5h.5q1.4-.1 1.8-1.5L17.4 14H24V9.9h-6.6z'
-            />
-            <path fill='#FF4B55' d='M13.2 4.1h-2.4v6.7H0v2.4h10.8V20h2.4v-6.7H24v-2.4H13.2z' />
-            <path
-                fill='#FF4B55'
-                d='m1.2 19.7 8.7-5.6H8.4l-8 5.1q.3.4.8.5m15-5.7h-1.5l8.5 5.6.6-.6zM.2 5.1 7.6 10H9L.7 4.5zM15.6 10l8-5.2q-.3-.4-.8-.6L14.1 10z'
-            />
-        </svg>
     );
 }
