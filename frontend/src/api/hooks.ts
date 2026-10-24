@@ -48,7 +48,9 @@ export const keys = {
 export const useMeta = () =>
     useQuery({ queryKey: keys.meta, queryFn: () => api<Meta>('/api/meta'), staleTime: Infinity });
 
-export const useCompany = () => useQuery({ queryKey: keys.company, queryFn: () => api<Company>('/api/company') });
+/** enabled — false, если компании нет (гость или сотрудник банка на общей странице). */
+export const useCompany = (enabled = true) =>
+    useQuery({ queryKey: keys.company, queryFn: () => api<Company>('/api/company'), enabled });
 
 /** Предварительные предложения на главной; сервер кеширует их на 10 минут. */
 export const useProactiveOffers = () =>

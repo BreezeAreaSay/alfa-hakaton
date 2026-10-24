@@ -6,6 +6,8 @@
 
 .landing-sections {
     display: grid;
+    /* колонка не растёт по ширине содержимого: широкая таблица прокручивается в своей обёртке */
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--gap-64);
 }
 
@@ -393,6 +395,96 @@
     color: var(--color-light-accent-primary, #ef3124);
 }
 
+/* ---------------------------------------------------------------- страница «Продукты» */
+
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--gap-16);
+}
+
+/* выбор задачи подсвечивает подходящие карточки и приглушает остальные */
+.products-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-20);
+    padding: var(--gap-24);
+    border: 2px solid transparent;
+    border-radius: 24px;
+    background: #f2f3f5;
+    transition:
+        opacity 200ms ease,
+        border-color 200ms ease;
+}
+
+.products-card--match {
+    border-color: #212124;
+}
+
+.products-card--dim {
+    opacity: 0.4;
+}
+
+.products-card__figures {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--gap-12);
+    margin: 0;
+}
+
+.products-card__figures dt {
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--color-light-text-secondary);
+}
+
+.products-card__figures dd {
+    margin: 0;
+    font-size: 16px;
+    line-height: 22px;
+    font-weight: 700;
+}
+
+.products-card__lists {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--gap-16) var(--gap-24);
+}
+
+.products-card__list {
+    display: grid;
+    gap: var(--gap-8);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 14px;
+    line-height: 20px;
+}
+
+.products-card__list li {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--gap-8);
+}
+
+.products-card__list svg {
+    flex: none;
+    margin-top: 1px;
+    color: var(--color-light-accent-primary, #ef3124);
+}
+
+.products-card__list--bad svg {
+    color: var(--color-light-text-tertiary, #898991);
+}
+
+.products-card__action {
+    margin-top: auto;
+}
+
+.products-table td {
+    vertical-align: top;
+}
+
 /* ---------------------------------------------------------------- ответы на вопросы */
 
 .landing-faq {
@@ -469,6 +561,12 @@
 
     .landing-faq__question {
         padding: var(--gap-16) var(--gap-20);
+    }
+
+    .products-grid,
+    .products-card__lists,
+    .products-card__figures {
+        grid-template-columns: minmax(0, 1fr);
     }
 
     .landing-faq .landing-faq__answer {

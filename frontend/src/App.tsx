@@ -31,6 +31,7 @@ function ClientLayout() {
                 home='/'
                 nav={[
                     { to: '/client', label: 'Главная', end: true },
+                    { to: '/products', label: 'Продукты' },
                     { to: '/client/new', label: 'Получить кредит' },
                 ]}
             />
@@ -84,6 +85,15 @@ export function App() {
                     <>
                         <Theme name='corp' />
                         <LoginPage />
+                    </>
+                }
+            />
+            <Route
+                path='/products'
+                element={
+                    <>
+                        <Theme name='corp' />
+                        <LoginPage page='products' />
                     </>
                 }
             />
