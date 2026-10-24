@@ -223,18 +223,10 @@
     color: rgba(255, 255, 255, 0.8);
 }
 
-/* текст не заходит под шар в правом нижнем углу */
 .landing-product__text {
-    max-width: calc(100% - 72px);
     font-size: 14px;
     line-height: 20px;
     color: rgba(255, 255, 255, 0.6);
-}
-
-.landing-product__art {
-    position: absolute;
-    right: -18px;
-    bottom: -18px;
 }
 
 .landing-feature {
@@ -362,9 +354,14 @@
 
 /* ---------------------------------------------------------------- кому подойдёт кабинет */
 
+/*
+ * Строки трёх карточек выровнены между собой (subgrid): роль, цитата и каждый пункт с галкой стоят
+ * на одном уровне, даже если в соседней карточке текст переносится на две строки.
+ */
 .landing-audience__card {
-    align-content: start;
-    gap: var(--gap-16);
+    grid-row: span 5;
+    grid-template-rows: subgrid;
+    row-gap: var(--gap-16);
 }
 
 .landing-audience__quote {
@@ -374,8 +371,10 @@
 }
 
 .landing-audience__points {
+    grid-row: span 3;
     display: grid;
-    gap: var(--gap-8);
+    grid-template-rows: subgrid;
+    row-gap: var(--gap-8);
     margin: 0;
     padding: 0;
     list-style: none;
@@ -462,7 +461,6 @@
 
     .landing-product {
         min-height: 0;
-        padding-bottom: var(--gap-32);
     }
 
     .landing-feature {
