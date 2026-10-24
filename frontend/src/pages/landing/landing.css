@@ -363,28 +363,8 @@
 /* ---------------------------------------------------------------- кому подойдёт кабинет */
 
 .landing-audience__card {
-    position: relative;
-    overflow: hidden;
     align-content: start;
     gap: var(--gap-16);
-}
-
-/* текст карточки — поверх знака роли */
-.landing-audience__card > :not(.landing-audience__mark) {
-    position: relative;
-}
-
-/* Знак роли: витрина, ручка, график — крупно и полупрозрачно в правой половине карточки, часть под текстом */
-.landing-audience__mark {
-    position: absolute;
-    top: 50%;
-    right: -12px;
-    width: 220px;
-    height: 220px;
-    transform: translateY(-50%);
-    color: var(--color-light-text-primary);
-    opacity: 0.1;
-    pointer-events: none;
 }
 
 .landing-audience__quote {
@@ -491,11 +471,6 @@
 
     .landing-faq__question {
         padding: var(--gap-16) var(--gap-20);
-    }
-
-    .landing-audience__mark {
-        width: 168px;
-        height: 168px;
     }
 
     .landing-faq .landing-faq__answer {

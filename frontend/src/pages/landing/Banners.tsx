@@ -187,89 +187,8 @@ const PROMOS: { title: string; text: string; action: string; icon: Icon; tone: T
     },
 ];
 
-/*
- * Знаки ролей для карточек «Кому подойдёт кабинет»: крупные контурные рисунки, которые лежат полупрозрачным
- * фоном в правой половине карточки. Нарисованы здесь, а не взяты из дизайн-системы: её иконки плоские,
- * а на таком размере нужны детали. Цвет — currentColor, прозрачность задаёт CSS.
- */
-const MARK = {
-    fill: 'none',
-    stroke: 'currentColor',
-    strokeWidth: 5,
-    strokeLinecap: 'round',
-    strokeLinejoin: 'round',
-} as const;
-const SHADE = { fill: 'currentColor', fillOpacity: 0.35 } as const;
-
-/** Собственнику: витрина своего магазина — навес, дверь, окно с полками. */
-function StorefrontMark(props: SVGProps<SVGSVGElement>) {
-    return (
-        <svg viewBox='0 0 200 200' {...props}>
-            <g {...MARK}>
-                <rect x='24' y='26' width='152' height='20' rx='5' {...SHADE} />
-                <path d='M24 46h152v26a15.2 12 0 0 1-30.4 0a15.2 12 0 0 1-30.4 0a15.2 12 0 0 1-30.4 0a15.2 12 0 0 1-30.4 0a15.2 12 0 0 1-30.4 0z' />
-                <path d='M54.4 46v26a15.2 12 0 0 0 30.4 0V46zM115.2 46v26a15.2 12 0 0 0 30.4 0V46z' {...SHADE} />
-                <path d='M32 84v96M168 84v96M12 180h176' />
-                <rect x='44' y='108' width='38' height='72' rx='4' />
-                <rect x='51' y='116' width='24' height='30' rx='3' {...SHADE} />
-                <circle cx='74' cy='156' r='3' fill='currentColor' />
-                <rect x='96' y='104' width='60' height='50' rx='5' />
-                <path d='M96 129h60M126 104v50' />
-                <path d='M104 120h14M134 120h14M104 145h10M134 145h16' strokeWidth='4' />
-                <path d='M100 166h52' strokeWidth='4' />
-            </g>
-        </svg>
-    );
-}
-
-/** Руководителю: перьевая ручка с прорезью пера, кольцами и клипом — и росчерк подписи. */
-function SignatureMark(props: SVGProps<SVGSVGElement>) {
-    return (
-        <svg viewBox='0 0 200 200' {...props}>
-            <g {...MARK}>
-                <g transform='rotate(45 100 100)'>
-                    <path d='M100 186L82 142q18-12 36 0z' {...SHADE} />
-                    <path d='M100 180v-28' />
-                    <circle cx='100' cy='148' r='4' />
-                    <rect x='84' y='118' width='32' height='24' rx='4' />
-                    <path d='M84 126h32M84 134h32' strokeWidth='3' />
-                    <rect x='80' y='38' width='40' height='80' rx='8' />
-                    <path d='M80 58h40M80 66h40' strokeWidth='4' />
-                    <rect x='84' y='20' width='32' height='18' rx='7' {...SHADE} />
-                    <path d='M120 30h6v52a6 6 0 0 1-6 6' />
-                </g>
-                <path d='M39 161c14 14 22-12 36 4s24 10 38-4 26 18 44 6 18-4 24-2' />
-                <path d='M30 188h150' strokeWidth='3' strokeDasharray='6 8' />
-            </g>
-        </svg>
-    );
-}
-
-/** Финансисту: столбчатый график с осями, сеткой и линией роста со стрелкой. */
-function ChartMark(props: SVGProps<SVGSVGElement>) {
-    return (
-        <svg viewBox='0 0 200 200' {...props}>
-            <g {...MARK}>
-                <path d='M24 140h160M24 100h160M24 60h160' strokeWidth='2.5' strokeDasharray='6 8' />
-                <path d='M18 140h6M18 100h6M18 60h6' strokeWidth='3' />
-                <rect x='40' y='128' width='24' height='48' rx='3' {...SHADE} />
-                <rect x='78' y='108' width='24' height='68' rx='3' {...SHADE} />
-                <rect x='116' y='84' width='24' height='92' rx='3' {...SHADE} />
-                <rect x='154' y='58' width='24' height='118' rx='3' {...SHADE} />
-                <path d='M24 16v160h164' />
-                <path d='M52 110l38-20 38-26 38-30 16-14' />
-                <path d='M168 20h14v14' />
-                <circle cx='52' cy='110' r='5' fill='currentColor' />
-                <circle cx='90' cy='90' r='5' fill='currentColor' />
-                <circle cx='128' cy='64' r='5' fill='currentColor' />
-                <circle cx='166' cy='34' r='5' fill='currentColor' />
-            </g>
-        </svg>
-    );
-}
-
 /** Роли из ТЗ (стр. 5): у каждой свой этап пути — решает, следит за заявкой, готовит данные. */
-const AUDIENCE: { title: string; who: string; quote: string; points: string[]; icon: Icon }[] = [
+const AUDIENCE: { title: string; who: string; quote: string; points: string[] }[] = [
     {
         title: 'Собственнику',
         who: 'Владелец бизнеса или ИП',
@@ -279,7 +198,6 @@ const AUDIENCE: { title: string; who: string; quote: string; points: string[]; i
             'Платёж и переплата — ещё до заявки',
             'Если банк не готов дать запрошенное — объяснит почему и предложит другие условия',
         ],
-        icon: StorefrontMark,
     },
     {
         title: 'Руководителю',
@@ -290,7 +208,6 @@ const AUDIENCE: { title: string; who: string; quote: string; points: string[]; i
             'Каждый шаг проверки виден на экране',
             'Подпись договора и выдача — без визита в банк',
         ],
-        icon: SignatureMark,
     },
     {
         title: 'Финансисту',
@@ -301,7 +218,6 @@ const AUDIENCE: { title: string; who: string; quote: string; points: string[]; i
             'Запросы банка и документы — в одном месте',
             'По выписке из 1С — прогноз кассового разрыва на три месяца',
         ],
-        icon: ChartMark,
     },
 ];
 
@@ -320,8 +236,6 @@ export function AudienceSection() {
             <ul className='login__steps'>
                 {AUDIENCE.map((role) => (
                     <li key={role.title} className='login__step landing-audience__card'>
-                        {/* крупный полупрозрачный знак роли в свободном углу карточки — фон, а не иконка */}
-                        <role.icon className='landing-audience__mark' aria-hidden={true} />
                         <div>
                             <Typography.Text view='primary-medium' weight='bold' tag='div'>
                                 {role.title}
