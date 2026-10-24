@@ -120,7 +120,7 @@ test('логотип возвращает вошедшего клиента на
 
     await page.getByRole('link', { name: 'На главную' }).click();
     await expect(page).toHaveURL(/\/$/);
-    await expect(page.getByRole('heading', { name: /Кредиты для бизнеса/ })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: /Кредиты для бизнеса/ })).toBeVisible();
     // вошедшему окно входа не нужно: «Получить кредит» ведёт сразу в подбор
     await page.getByRole('banner').getByRole('button', { name: 'Получить кредит' }).click();
     await expect(page).toHaveURL(/\/client\/new$/);

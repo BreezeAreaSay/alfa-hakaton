@@ -4,7 +4,7 @@ import { CenteredModal } from '../../components/CenteredModal';
 
 /**
  * Окно входа или регистрации: треть ширины и две трети высоты экрана, содержимое прокручивается внутри.
- * wide — широкое окно по высоте содержимого (вход: форма и тестовые учётные записи рядом, без прокрутки).
+ * wide — окно по высоте содержимого без полосы прокрутки (вход: форма по центру сверху, под ней учётные записи).
  */
 export function AuthModal({
     open,
@@ -28,6 +28,7 @@ export function AuthModal({
             onClose={onClose}
             onEntered={onEntered}
             className={wide ? 'login-modal login-modal--wide' : 'login-modal'}
+            titleAlign={wide ? 'center' : 'left'}
             contentClassName='login-modal__content'
         >
             <div className='stack login-modal__body'>{children}</div>
