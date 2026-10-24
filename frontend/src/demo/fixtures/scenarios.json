@@ -36,7 +36,11 @@
         "negative": ["Были небольшие просрочки по кредитам","Есть налоговая задолженность"],
         "limit_phrase": null,
         "rejection": [],
-        "advice": []
+        "advice": [],
+        "next_steps": [],
+        "rate_breakdown": null,
+        "rate_hints": [],
+        "alternatives": []
       },
       "product": "GROWTH",
       "company": "0010000031",
@@ -98,12 +102,12 @@
           "error": null,
           "attempts": 1
         },
-        "EGRUL": {"status":"DONE","error":null,"attempts":1},
-        "FNS": {"status":"DONE","error":null,"attempts":1},
-        "GIRBO": {"status":"DONE","error":null,"attempts":1},
         "BKI": {"status":"DONE","error":null,"attempts":1},
+        "EGRUL": {"status":"DONE","error":null,"attempts":1},
         "BANK": {"status":"DONE","error":null,"attempts":1},
+        "FNS": {"status":"DONE","error":null,"attempts":1},
         "SCORING": {"status":"DONE","result":{"score":720,"version":"v1.0","risk_class":"B"},"error":null,"attempts":1},
+        "GIRBO": {"status":"DONE","error":null,"attempts":1},
         "POLICY": {
           "status": "DONE",
           "result": {"flags":["F01","F02"],"limit":5650000,"outcome":"MANUAL_REVIEW","version":"v1.0","stop_factors":[]},
@@ -345,7 +349,11 @@
         "negative": ["Отрасль с повышенным риском"],
         "limit_phrase": null,
         "rejection": [],
-        "advice": []
+        "advice": [],
+        "next_steps": [],
+        "rate_breakdown": null,
+        "rate_hints": [],
+        "alternatives": []
       },
       "product": "SECURED",
       "company": "0010000063",
@@ -392,6 +400,7 @@
     },
     "dossier": {
       "sources": {
+        "SCORING": {"status":"DONE","result":{"score":830,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -408,18 +417,17 @@
           "error": null,
           "attempts": 1
         },
-        "EGRUL": {"status":"DONE","error":null,"attempts":1},
-        "FNS": {"status":"DONE","error":null,"attempts":1},
-        "GIRBO": {"status":"DONE","error":null,"attempts":1},
-        "BKI": {"status":"DONE","error":null,"attempts":1},
-        "BANK": {"status":"DONE","error":null,"attempts":1},
-        "SCORING": {"status":"DONE","result":{"score":830,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
         "POLICY": {
           "status": "DONE",
           "result": {"flags":[],"limit":78570000,"outcome":"MANUAL_REVIEW","version":"v1.0","stop_factors":[]},
           "error": null,
           "attempts": 1
-        }
+        },
+        "EGRUL": {"status":"DONE","error":null,"attempts":1},
+        "FNS": {"status":"DONE","error":null,"attempts":1},
+        "GIRBO": {"status":"DONE","error":null,"attempts":1},
+        "BKI": {"status":"DONE","error":null,"attempts":1},
+        "BANK": {"status":"DONE","error":null,"attempts":1}
       },
       "scoring": {
         "score": 830,
@@ -630,7 +638,11 @@
         "negative": ["Были небольшие просрочки по кредитам","Есть налоговая задолженность"],
         "limit_phrase": null,
         "rejection": [],
-        "advice": []
+        "advice": [],
+        "next_steps": [],
+        "rate_breakdown": null,
+        "rate_hints": [],
+        "alternatives": []
       },
       "product": "GROWTH",
       "company": "0010000031",
@@ -722,7 +734,11 @@
         "negative": ["Были небольшие просрочки по кредитам","Есть налоговая задолженность"],
         "limit_phrase": null,
         "rejection": [],
-        "advice": []
+        "advice": [],
+        "next_steps": [],
+        "rate_breakdown": null,
+        "rate_hints": [],
+        "alternatives": []
       },
       "product": "GROWTH",
       "company": "0010000031",
@@ -822,7 +838,28 @@
         "negative": ["Были небольшие просрочки по кредитам","Есть налоговая задолженность"],
         "limit_phrase": "Текущие платежи по кредитам и прибыль ограничивают сумму",
         "rejection": [],
-        "advice": []
+        "advice": [],
+        "next_steps": [],
+        "rate_breakdown": {"key_rate":"14.0","product_spread":"5.0","risk_margin":"1.5","adjustment":"0.00","rate":"20.50"},
+        "rate_hints": [
+          {
+            "kind": "product",
+            "text": "Кредит под залог — 17 %: залог недвижимости или оборудования снижает риск банка",
+            "product_code": "SECURED",
+            "product_name": "Кредит под залог",
+            "rate": "17.0",
+            "saving": "762959.16"
+          },
+          {
+            "kind": "risk",
+            "text": "Надбавка за риск 1,5 п.п. станет ниже, когда по кредитам не будет просрочек и будет погашена налоговая задолженность",
+            "product_code": null,
+            "product_name": null,
+            "rate": null,
+            "saving": null
+          }
+        ],
+        "alternatives": []
       },
       "product": "GROWTH",
       "company": "0010000031",
@@ -938,12 +975,12 @@
           "error": null,
           "attempts": 1
         },
-        "EGRUL": {"status":"DONE","error":null,"attempts":1},
-        "FNS": {"status":"DONE","error":null,"attempts":1},
-        "GIRBO": {"status":"DONE","error":null,"attempts":1},
         "BKI": {"status":"DONE","error":null,"attempts":1},
+        "EGRUL": {"status":"DONE","error":null,"attempts":1},
         "BANK": {"status":"DONE","error":null,"attempts":1},
+        "FNS": {"status":"DONE","error":null,"attempts":1},
         "SCORING": {"status":"DONE","result":{"score":720,"version":"v1.0","risk_class":"B"},"error":null,"attempts":1},
+        "GIRBO": {"status":"DONE","error":null,"attempts":1},
         "POLICY": {
           "status": "DONE",
           "result": {"flags":["F01","F02"],"limit":5650000,"outcome":"MANUAL_REVIEW","version":"v1.0","stop_factors":[]},
@@ -1086,7 +1123,11 @@
         "negative": ["Отрасль с повышенным риском"],
         "limit_phrase": "Текущие платежи по кредитам и прибыль ограничивают сумму",
         "rejection": [],
-        "advice": []
+        "advice": [],
+        "next_steps": [],
+        "rate_breakdown": {"key_rate":"14.0","product_spread":"1.5","risk_margin":"0","adjustment":"0.00","rate":"15.50"},
+        "rate_hints": [],
+        "alternatives": []
       },
       "product": "SECURED",
       "company": "0010000063",
@@ -1180,7 +1221,11 @@
         "negative": ["Отрасль с повышенным риском"],
         "limit_phrase": "Текущие платежи по кредитам и прибыль ограничивают сумму",
         "rejection": [],
-        "advice": []
+        "advice": [],
+        "next_steps": [],
+        "rate_breakdown": {"key_rate":"14.0","product_spread":"1.5","risk_margin":"0","adjustment":"0.00","rate":"15.50"},
+        "rate_hints": [],
+        "alternatives": []
       },
       "product": "SECURED",
       "company": "0010000063",
@@ -1251,6 +1296,7 @@
     },
     "dossier": {
       "sources": {
+        "SCORING": {"status":"DONE","result":{"score":830,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -1267,18 +1313,17 @@
           "error": null,
           "attempts": 1
         },
-        "EGRUL": {"status":"DONE","error":null,"attempts":1},
-        "FNS": {"status":"DONE","error":null,"attempts":1},
-        "GIRBO": {"status":"DONE","error":null,"attempts":1},
-        "BKI": {"status":"DONE","error":null,"attempts":1},
-        "BANK": {"status":"DONE","error":null,"attempts":1},
-        "SCORING": {"status":"DONE","result":{"score":830,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
         "POLICY": {
           "status": "DONE",
           "result": {"flags":[],"limit":78570000,"outcome":"MANUAL_REVIEW","version":"v1.0","stop_factors":[]},
           "error": null,
           "attempts": 1
-        }
+        },
+        "EGRUL": {"status":"DONE","error":null,"attempts":1},
+        "FNS": {"status":"DONE","error":null,"attempts":1},
+        "GIRBO": {"status":"DONE","error":null,"attempts":1},
+        "BKI": {"status":"DONE","error":null,"attempts":1},
+        "BANK": {"status":"DONE","error":null,"attempts":1}
       },
       "scoring": {"score":830,"risk_class":"A"},
       "auto_decision": {
@@ -1407,7 +1452,20 @@
         "negative": [],
         "limit_phrase": "Текущие платежи по кредитам и прибыль ограничивают сумму",
         "rejection": [],
-        "advice": []
+        "advice": [],
+        "next_steps": [],
+        "rate_breakdown": {"key_rate":"14.0","product_spread":"5.0","risk_margin":"0","adjustment":"0.00","rate":"19.00"},
+        "rate_hints": [
+          {
+            "kind": "product",
+            "text": "Возобновляемая кредитная линия — 18 %: лимит согласовывается один раз, проценты только на использованную часть",
+            "product_code": "CREDIT_LINE",
+            "product_name": "Возобновляемая кредитная линия",
+            "rate": "18.0",
+            "saving": null
+          }
+        ],
+        "alternatives": []
       },
       "product": "GROWTH",
       "company": "0010000017",
@@ -1713,7 +1771,20 @@
         "negative": [],
         "limit_phrase": "Текущие платежи по кредитам и прибыль ограничивают сумму",
         "rejection": [],
-        "advice": []
+        "advice": [],
+        "next_steps": [],
+        "rate_breakdown": {"key_rate":"14.0","product_spread":"5.0","risk_margin":"0","adjustment":"0.00","rate":"19.00"},
+        "rate_hints": [
+          {
+            "kind": "product",
+            "text": "Возобновляемая кредитная линия — 18 %: лимит согласовывается один раз, проценты только на использованную часть",
+            "product_code": "CREDIT_LINE",
+            "product_name": "Возобновляемая кредитная линия",
+            "rate": "18.0",
+            "saving": null
+          }
+        ],
+        "alternatives": []
       },
       "product": "GROWTH",
       "company": "0010000017",
@@ -1807,7 +1878,20 @@
         "negative": [],
         "limit_phrase": "Текущие платежи по кредитам и прибыль ограничивают сумму",
         "rejection": [],
-        "advice": []
+        "advice": [],
+        "next_steps": [],
+        "rate_breakdown": {"key_rate":"14.0","product_spread":"5.0","risk_margin":"0","adjustment":"0.00","rate":"19.00"},
+        "rate_hints": [
+          {
+            "kind": "product",
+            "text": "Возобновляемая кредитная линия — 18 %: лимит согласовывается один раз, проценты только на использованную часть",
+            "product_code": "CREDIT_LINE",
+            "product_name": "Возобновляемая кредитная линия",
+            "rate": "18.0",
+            "saving": null
+          }
+        ],
+        "alternatives": []
       },
       "product": "GROWTH",
       "company": "0010000017",
@@ -1921,7 +2005,20 @@
         "negative": [],
         "limit_phrase": "Текущие платежи по кредитам и прибыль ограничивают сумму",
         "rejection": [],
-        "advice": []
+        "advice": [],
+        "next_steps": [],
+        "rate_breakdown": {"key_rate":"14.0","product_spread":"5.0","risk_margin":"0","adjustment":"0.00","rate":"19.00"},
+        "rate_hints": [
+          {
+            "kind": "product",
+            "text": "Возобновляемая кредитная линия — 18 %: лимит согласовывается один раз, проценты только на использованную часть",
+            "product_code": "CREDIT_LINE",
+            "product_name": "Возобновляемая кредитная линия",
+            "rate": "18.0",
+            "saving": null
+          }
+        ],
+        "alternatives": []
       },
       "product": "GROWTH",
       "company": "0010000017",
@@ -2043,7 +2140,20 @@
         "negative": [],
         "limit_phrase": "Текущие платежи по кредитам и прибыль ограничивают сумму",
         "rejection": [],
-        "advice": []
+        "advice": [],
+        "next_steps": [],
+        "rate_breakdown": {"key_rate":"14.0","product_spread":"5.0","risk_margin":"0","adjustment":"0.00","rate":"19.00"},
+        "rate_hints": [
+          {
+            "kind": "product",
+            "text": "Возобновляемая кредитная линия — 18 %: лимит согласовывается один раз, проценты только на использованную часть",
+            "product_code": "CREDIT_LINE",
+            "product_name": "Возобновляемая кредитная линия",
+            "rate": "18.0",
+            "saving": null
+          }
+        ],
+        "alternatives": []
       },
       "product": "GROWTH",
       "company": "0010000017",
@@ -2187,7 +2297,20 @@
         "negative": [],
         "limit_phrase": "Текущие платежи по кредитам и прибыль ограничивают сумму",
         "rejection": [],
-        "advice": []
+        "advice": [],
+        "next_steps": [],
+        "rate_breakdown": {"key_rate":"14.0","product_spread":"5.0","risk_margin":"0","adjustment":"0.00","rate":"19.00"},
+        "rate_hints": [
+          {
+            "kind": "product",
+            "text": "Возобновляемая кредитная линия — 18 %: лимит согласовывается один раз, проценты только на использованную часть",
+            "product_code": "CREDIT_LINE",
+            "product_name": "Возобновляемая кредитная линия",
+            "rate": "18.0",
+            "saving": null
+          }
+        ],
+        "alternatives": []
       },
       "product": "GROWTH",
       "company": "0010000017",
@@ -2417,8 +2540,8 @@
           "actor": "CLIENT",
           "user": "Ветров Андрей Сергеевич",
           "details": {
-            "sha256": "12e244d2bfeef058f2240f71f96b5b86f407290872836557b4e13d52df023fe5",
-            "document": "25fa02d7-2cc0-4280-856e-f81bfd71477b"
+            "sha256": "d42742df25afe68b54c970e9bb9598be44b1b7f4faa0811315c60a2e768d0a94",
+            "document": "810c0f5b-3380-42b3-ab1c-64b480a6f2aa"
           }
         },
         {
@@ -2488,7 +2611,28 @@
         "negative": ["Отрасль с повышенным риском"],
         "limit_phrase": "Лимит овердрафта — до 40% среднемесячных поступлений на счёт",
         "rejection": [],
-        "advice": []
+        "advice": [],
+        "next_steps": [],
+        "rate_breakdown": {"key_rate":"14.0","product_spread":"5.0","risk_margin":"1.5","adjustment":"0.00","rate":"20.50"},
+        "rate_hints": [
+          {
+            "kind": "product",
+            "text": "Возобновляемая кредитная линия — 19,5 %: лимит согласовывается один раз, проценты только на использованную часть",
+            "product_code": "CREDIT_LINE",
+            "product_name": "Возобновляемая кредитная линия",
+            "rate": "19.5",
+            "saving": null
+          },
+          {
+            "kind": "risk",
+            "text": "Надбавка за риск 1,5 п.п. снижается по мере роста срока работы бизнеса и накопления кредитной истории без просрочек",
+            "product_code": null,
+            "product_name": null,
+            "rate": null,
+            "saving": null
+          }
+        ],
+        "alternatives": []
       },
       "product": "OVERDRAFT",
       "company": "001000000436",
@@ -2551,6 +2695,16 @@
     },
     "dossier": {
       "sources": {
+        "SCORING": {"status":"DONE","result":{"score":740,"version":"v1.0","risk_class":"B"},"error":null,"attempts":1},
+        "GIRBO": {"status":"SKIPPED","error":null,"attempts":1},
+        "BKI": {"status":"DONE","error":null,"attempts":1},
+        "POLICY": {
+          "status": "DONE",
+          "result": {"flags":[],"limit":440000,"outcome":"COUNTER","version":"v1.0","stop_factors":[]},
+          "error": null,
+          "attempts": 1
+        },
+        "BANK": {"status":"DONE","error":null,"attempts":1},
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -2567,17 +2721,7 @@
           "attempts": 1
         },
         "EGRUL": {"status":"DONE","error":null,"attempts":1},
-        "FNS": {"status":"DONE","error":null,"attempts":1},
-        "GIRBO": {"status":"SKIPPED","error":null,"attempts":1},
-        "BKI": {"status":"DONE","error":null,"attempts":1},
-        "BANK": {"status":"DONE","error":null,"attempts":1},
-        "SCORING": {"status":"DONE","result":{"score":740,"version":"v1.0","risk_class":"B"},"error":null,"attempts":1},
-        "POLICY": {
-          "status": "DONE",
-          "result": {"flags":[],"limit":440000,"outcome":"COUNTER","version":"v1.0","stop_factors":[]},
-          "error": null,
-          "attempts": 1
-        }
+        "FNS": {"status":"DONE","error":null,"attempts":1}
       },
       "scoring": {
         "score": 740,
@@ -2784,7 +2928,11 @@
         "negative": ["Отрасль с повышенным риском"],
         "limit_phrase": "Лимит овердрафта — до 40% среднемесячных поступлений на счёт",
         "rejection": [],
-        "advice": []
+        "advice": [],
+        "next_steps": [],
+        "rate_breakdown": null,
+        "rate_hints": [],
+        "alternatives": []
       },
       "product": "OVERDRAFT",
       "company": "001000000436",
@@ -2866,7 +3014,20 @@
         "negative": [],
         "limit_phrase": "Текущие платежи по кредитам и прибыль ограничивают сумму",
         "rejection": [],
-        "advice": []
+        "advice": [],
+        "next_steps": [],
+        "rate_breakdown": {"key_rate":"14.0","product_spread":"5.0","risk_margin":"0","adjustment":"0.00","rate":"19.00"},
+        "rate_hints": [
+          {
+            "kind": "product",
+            "text": "Возобновляемая кредитная линия — 18 %: лимит согласовывается один раз, проценты только на использованную часть",
+            "product_code": "CREDIT_LINE",
+            "product_name": "Возобновляемая кредитная линия",
+            "rate": "18.0",
+            "saving": null
+          }
+        ],
+        "alternatives": []
       },
       "product": "GROWTH",
       "company": "0010000024",
@@ -2963,8 +3124,8 @@
           "attempts": 1
         },
         "EGRUL": {"status":"DONE","error":null,"attempts":1},
-        "BANK": {"status":"DONE","error":null,"attempts":1},
         "BKI": {"status":"DONE","error":null,"attempts":1},
+        "BANK": {"status":"DONE","error":null,"attempts":1},
         "POLICY": {
           "status": "DONE",
           "result": {"flags":[],"limit":3200000,"outcome":"COUNTER","version":"v1.0","stop_factors":[]},
@@ -3187,7 +3348,20 @@
         "negative": [],
         "limit_phrase": "Текущие платежи по кредитам и прибыль ограничивают сумму",
         "rejection": [],
-        "advice": []
+        "advice": [],
+        "next_steps": [],
+        "rate_breakdown": {"key_rate":"14.0","product_spread":"5.0","risk_margin":"0","adjustment":"0.00","rate":"19.00"},
+        "rate_hints": [
+          {
+            "kind": "product",
+            "text": "Возобновляемая кредитная линия — 18 %: лимит согласовывается один раз, проценты только на использованную часть",
+            "product_code": "CREDIT_LINE",
+            "product_name": "Возобновляемая кредитная линия",
+            "rate": "18.0",
+            "saving": null
+          }
+        ],
+        "alternatives": []
       },
       "product": "GROWTH",
       "company": "0010000024",
@@ -3300,7 +3474,11 @@
         "negative": [],
         "limit_phrase": "Текущие платежи по кредитам и прибыль ограничивают сумму",
         "rejection": [],
-        "advice": []
+        "advice": [],
+        "next_steps": [],
+        "rate_breakdown": {"key_rate":"14.0","product_spread":"4.0","risk_margin":"0","adjustment":"0.00","rate":"18.00"},
+        "rate_hints": [],
+        "alternatives": []
       },
       "product": "CREDIT_LINE",
       "company": "0010000024",
@@ -3363,11 +3541,7 @@
     },
     "dossier": {
       "sources": {
-        "EGRUL": {"status":"DONE","error":null,"attempts":1},
-        "GIRBO": {"status":"DONE","error":null,"attempts":1},
-        "FNS": {"status":"DONE","error":null,"attempts":1},
         "BKI": {"status":"DONE","error":null,"attempts":1},
-        "BANK": {"status":"DONE","error":null,"attempts":1},
         "SCORING": {"status":"DONE","result":{"score":790,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
         "POLICY": {
           "status": "DONE",
@@ -3389,7 +3563,11 @@
           },
           "error": null,
           "attempts": 1
-        }
+        },
+        "EGRUL": {"status":"DONE","error":null,"attempts":1},
+        "FNS": {"status":"DONE","error":null,"attempts":1},
+        "GIRBO": {"status":"DONE","error":null,"attempts":1},
+        "BANK": {"status":"DONE","error":null,"attempts":1}
       },
       "scoring": {
         "score": 790,
@@ -3606,7 +3784,11 @@
         "negative": [],
         "limit_phrase": null,
         "rejection": [],
-        "advice": []
+        "advice": [],
+        "next_steps": [],
+        "rate_breakdown": null,
+        "rate_hints": [],
+        "alternatives": []
       },
       "product": "EXPRESS",
       "company": "001000001006",
@@ -3667,6 +3849,7 @@
     },
     "need_info_dossier": {
       "sources": {
+        "GIRBO": {"status":"SKIPPED","error":null,"attempts":1},
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -3683,9 +3866,8 @@
           "attempts": 1
         },
         "EGRUL": {"status":"DONE","error":null,"attempts":1},
-        "FNS": {"status":"DONE","error":null,"attempts":1},
-        "GIRBO": {"status":"SKIPPED","error":null,"attempts":1},
         "BKI": {"status":"DONE","error":null,"attempts":1},
+        "FNS": {"status":"DONE","error":null,"attempts":1},
         "BANK": {"status":"DONE","error":null,"attempts":1},
         "SCORING": {"status":"DONE","result":{"score":690,"version":"v1.0","risk_class":"B"},"error":null,"attempts":1},
         "POLICY": {
@@ -3932,7 +4114,11 @@
         "negative": [],
         "limit_phrase": null,
         "rejection": [],
-        "advice": []
+        "advice": [],
+        "next_steps": [],
+        "rate_breakdown": null,
+        "rate_hints": [],
+        "alternatives": []
       },
       "product": "EXPRESS",
       "company": "001000001006",
@@ -4076,7 +4262,28 @@
         "negative": [],
         "limit_phrase": "Текущие платежи по кредитам и прибыль ограничивают сумму",
         "rejection": [],
-        "advice": []
+        "advice": [],
+        "next_steps": [],
+        "rate_breakdown": {"key_rate":"14.0","product_spread":"7.0","risk_margin":"0","adjustment":"0.00","rate":"21.00"},
+        "rate_hints": [
+          {
+            "kind": "product",
+            "text": "Возобновляемая кредитная линия — 18 %: лимит согласовывается один раз, проценты только на использованную часть",
+            "product_code": "CREDIT_LINE",
+            "product_name": "Возобновляемая кредитная линия",
+            "rate": "18.0",
+            "saving": null
+          },
+          {
+            "kind": "product",
+            "text": "Кредит на развитие бизнеса — 19 %: обычный кредит без залога на срок до 5 лет",
+            "product_code": "GROWTH",
+            "product_name": "Кредит на развитие бизнеса",
+            "rate": "19.0",
+            "saving": "35173.20"
+          }
+        ],
+        "alternatives": []
       },
       "product": "EXPRESS",
       "company": "001000001006",
@@ -4236,18 +4443,18 @@
           "error": null,
           "attempts": 1
         },
-        "EGRUL": {"status":"DONE","error":null,"attempts":1},
-        "FNS": {"status":"DONE","error":null,"attempts":1},
-        "GIRBO": {"status":"SKIPPED","error":null,"attempts":1},
-        "BKI": {"status":"DONE","error":null,"attempts":1},
-        "BANK": {"status":"DONE","error":null,"attempts":1},
         "SCORING": {"status":"DONE","result":{"score":770,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
+        "EGRUL": {"status":"DONE","error":null,"attempts":1},
+        "GIRBO": {"status":"SKIPPED","error":null,"attempts":1},
         "POLICY": {
           "status": "DONE",
           "result": {"flags":[],"limit":1700000,"outcome":"APPROVE","version":"v1.0","stop_factors":[]},
           "error": null,
           "attempts": 1
-        }
+        },
+        "FNS": {"status":"DONE","error":null,"attempts":1},
+        "BANK": {"status":"DONE","error":null,"attempts":1},
+        "BKI": {"status":"DONE","error":null,"attempts":1}
       },
       "scoring": {
         "score": 770,
@@ -4486,7 +4693,11 @@
         "negative": ["Бизнесу меньше года"],
         "limit_phrase": null,
         "rejection": [],
-        "advice": []
+        "advice": [],
+        "next_steps": [],
+        "rate_breakdown": null,
+        "rate_hints": [],
+        "alternatives": []
       },
       "product": "STARTUP",
       "company": "0010000070",
@@ -4533,6 +4744,18 @@
     },
     "dossier": {
       "sources": {
+        "POLICY": {
+          "status": "DONE",
+          "result": {"flags":["F03","F07"],"limit":1430000,"outcome":"MANUAL_REVIEW","version":"v1.0","stop_factors":[]},
+          "error": null,
+          "attempts": 1
+        },
+        "BKI": {"status":"DONE","error":null,"attempts":1},
+        "SCORING": {"status":"DONE","result":{"score":630,"version":"v1.0","risk_class":"C"},"error":null,"attempts":1},
+        "FNS": {"status":"DONE","error":null,"attempts":1},
+        "EGRUL": {"status":"DONE","error":null,"attempts":1},
+        "GIRBO": {"status":"SKIPPED","error":null,"attempts":1},
+        "BANK": {"status":"DONE","error":null,"attempts":1},
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -4547,19 +4770,7 @@
           },
           "error": null,
           "attempts": 1
-        },
-        "FNS": {"status":"DONE","error":null,"attempts":1},
-        "GIRBO": {"status":"SKIPPED","error":null,"attempts":1},
-        "BKI": {"status":"DONE","error":null,"attempts":1},
-        "BANK": {"status":"DONE","error":null,"attempts":1},
-        "SCORING": {"status":"DONE","result":{"score":630,"version":"v1.0","risk_class":"C"},"error":null,"attempts":1},
-        "POLICY": {
-          "status": "DONE",
-          "result": {"flags":["F03","F07"],"limit":1430000,"outcome":"MANUAL_REVIEW","version":"v1.0","stop_factors":[]},
-          "error": null,
-          "attempts": 1
-        },
-        "EGRUL": {"status":"DONE","error":null,"attempts":1}
+        }
       },
       "scoring": {
         "score": 630,
@@ -4772,7 +4983,13 @@
         "negative": ["Бизнесу меньше года"],
         "limit_phrase": null,
         "rejection": ["Сейчас мы не можем предложить кредит"],
-        "advice": ["Бизнесу меньше года"]
+        "advice": ["Бизнесу меньше года"],
+        "next_steps": [
+          "Оценку повысят погашение просрочек и налоговой задолженности, снижение долговой нагрузки и рост выручки. Начать можно с небольшой суммы через несколько месяцев"
+        ],
+        "rate_breakdown": null,
+        "rate_hints": [],
+        "alternatives": []
       },
       "product": "STARTUP",
       "company": "0010000070",
@@ -4827,6 +5044,18 @@
     },
     "dossier_rejected": {
       "sources": {
+        "POLICY": {
+          "status": "DONE",
+          "result": {"flags":["F03","F07"],"limit":1430000,"outcome":"MANUAL_REVIEW","version":"v1.0","stop_factors":[]},
+          "error": null,
+          "attempts": 1
+        },
+        "BKI": {"status":"DONE","error":null,"attempts":1},
+        "SCORING": {"status":"DONE","result":{"score":630,"version":"v1.0","risk_class":"C"},"error":null,"attempts":1},
+        "FNS": {"status":"DONE","error":null,"attempts":1},
+        "EGRUL": {"status":"DONE","error":null,"attempts":1},
+        "GIRBO": {"status":"SKIPPED","error":null,"attempts":1},
+        "BANK": {"status":"DONE","error":null,"attempts":1},
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -4841,19 +5070,7 @@
           },
           "error": null,
           "attempts": 1
-        },
-        "FNS": {"status":"DONE","error":null,"attempts":1},
-        "GIRBO": {"status":"SKIPPED","error":null,"attempts":1},
-        "BKI": {"status":"DONE","error":null,"attempts":1},
-        "BANK": {"status":"DONE","error":null,"attempts":1},
-        "SCORING": {"status":"DONE","result":{"score":630,"version":"v1.0","risk_class":"C"},"error":null,"attempts":1},
-        "POLICY": {
-          "status": "DONE",
-          "result": {"flags":["F03","F07"],"limit":1430000,"outcome":"MANUAL_REVIEW","version":"v1.0","stop_factors":[]},
-          "error": null,
-          "attempts": 1
-        },
-        "EGRUL": {"status":"DONE","error":null,"attempts":1}
+        }
       },
       "scoring": {"score":630,"risk_class":"C"},
       "auto_decision": {
@@ -4970,7 +5187,14 @@
         "negative": ["Выручка сильно снизилась","Значительная налоговая задолженность"],
         "limit_phrase": null,
         "rejection": ["Мы не выдаём кредиты компаниям в процессе ликвидации, реорганизации или банкротства"],
-        "advice": ["Выручка сильно снизилась","Значительная налоговая задолженность"]
+        "advice": ["Выручка сильно снизилась","Значительная налоговая задолженность"],
+        "next_steps": [
+          "Подать заявку можно после завершения ликвидации, реорганизации или процедуры банкротства",
+          "Оценку повысят погашение просрочек и налоговой задолженности, снижение долговой нагрузки и рост выручки. Начать можно с небольшой суммы через несколько месяцев"
+        ],
+        "rate_breakdown": null,
+        "rate_hints": [],
+        "alternatives": []
       },
       "product": "GROWTH",
       "company": "0010000056",
@@ -5246,7 +5470,14 @@
         "negative": ["Были просрочки по кредитам больше 30 дней","Выручка снизилась"],
         "limit_phrase": null,
         "rejection": ["У компании есть просроченный долг по кредитам. Погасите его и подайте заявку снова"],
-        "advice": ["Были просрочки по кредитам больше 30 дней","Выручка снизилась"]
+        "advice": ["Были просрочки по кредитам больше 30 дней","Выручка снизилась"],
+        "next_steps": [
+          "Погасите просроченный долг: бюро кредитных историй обновляет данные за несколько дней, после этого подайте заявку снова",
+          "Оценку повысят погашение просрочек и налоговой задолженности, снижение долговой нагрузки и рост выручки. Начать можно с небольшой суммы через несколько месяцев"
+        ],
+        "rate_breakdown": null,
+        "rate_hints": [],
+        "alternatives": []
       },
       "product": "GROWTH",
       "company": "0010000095",
@@ -5293,17 +5524,6 @@
     },
     "dossier": {
       "sources": {
-        "EGRUL": {"status":"DONE","error":null,"attempts":1},
-        "GIRBO": {"status":"DONE","error":null,"attempts":1},
-        "BKI": {"status":"DONE","error":null,"attempts":1},
-        "BANK": {"status":"DONE","error":null,"attempts":1},
-        "SCORING": {"status":"DONE","result":{"score":500,"version":"v1.0","risk_class":"E"},"error":null,"attempts":1},
-        "POLICY": {
-          "status": "DONE",
-          "result": {"flags":[],"limit":null,"outcome":"REJECT","version":"v1.0","stop_factors":["S03","S05"]},
-          "error": null,
-          "attempts": 1
-        },
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -5319,7 +5539,18 @@
           "error": null,
           "attempts": 1
         },
-        "FNS": {"status":"DONE","error":null,"attempts":1}
+        "EGRUL": {"status":"DONE","error":null,"attempts":1},
+        "FNS": {"status":"DONE","error":null,"attempts":1},
+        "GIRBO": {"status":"DONE","error":null,"attempts":1},
+        "BKI": {"status":"DONE","error":null,"attempts":1},
+        "BANK": {"status":"DONE","error":null,"attempts":1},
+        "SCORING": {"status":"DONE","result":{"score":500,"version":"v1.0","risk_class":"E"},"error":null,"attempts":1},
+        "POLICY": {
+          "status": "DONE",
+          "result": {"flags":[],"limit":null,"outcome":"REJECT","version":"v1.0","stop_factors":["S03","S05"]},
+          "error": null,
+          "attempts": 1
+        }
       },
       "scoring": {
         "score": 500,
@@ -5516,7 +5747,28 @@
         "negative": [],
         "limit_phrase": "Сумма ограничена максимумом продукта",
         "rejection": [],
-        "advice": []
+        "advice": [],
+        "next_steps": [],
+        "rate_breakdown": {"key_rate":"14.0","product_spread":"7.0","risk_margin":"0","adjustment":"0.00","rate":"21.00"},
+        "rate_hints": [
+          {
+            "kind": "product",
+            "text": "Возобновляемая кредитная линия — 18 %: лимит согласовывается один раз, проценты только на использованную часть",
+            "product_code": "CREDIT_LINE",
+            "product_name": "Возобновляемая кредитная линия",
+            "rate": "18.0",
+            "saving": null
+          },
+          {
+            "kind": "product",
+            "text": "Кредит на развитие бизнеса — 19 %: обычный кредит без залога на срок до 5 лет",
+            "product_code": "GROWTH",
+            "product_name": "Кредит на развитие бизнеса",
+            "rate": "19.0",
+            "saving": "22972.68"
+          }
+        ],
+        "alternatives": []
       },
       "product": "EXPRESS",
       "company": "0010000088",
@@ -5809,7 +6061,17 @@
       "collateral_type": null,
       "collateral_value": null,
       "run_no": 1,
-      "explanation": {"positive":[],"negative":[],"limit_phrase":null,"rejection":[],"advice":[]},
+      "explanation": {
+        "positive": [],
+        "negative": [],
+        "limit_phrase": null,
+        "rejection": [],
+        "advice": [],
+        "next_steps": [],
+        "rate_breakdown": null,
+        "rate_hints": [],
+        "alternatives": []
+      },
       "product": "EXPRESS",
       "company": "0010000088",
       "steps": [
@@ -5867,7 +6129,17 @@
       "collateral_type": null,
       "collateral_value": null,
       "run_no": 1,
-      "explanation": {"positive":[],"negative":[],"limit_phrase":null,"rejection":[],"advice":[]},
+      "explanation": {
+        "positive": [],
+        "negative": [],
+        "limit_phrase": null,
+        "rejection": [],
+        "advice": [],
+        "next_steps": [],
+        "rate_breakdown": null,
+        "rate_hints": [],
+        "alternatives": []
+      },
       "product": "EXPRESS",
       "company": "0010000088",
       "steps": [
@@ -5911,10 +6183,6 @@
     },
     "waiting_dossier": {
       "sources": {
-        "EGRUL": {"status":"DONE","error":null,"attempts":1},
-        "BKI": {"status":"WAITING","error":"bki: сервис ответил ошибкой 503","attempts":1},
-        "BANK": {"status":"PENDING","error":null,"attempts":0},
-        "SCORING": {"status":"PENDING","result":null,"error":null,"attempts":0},
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -5930,8 +6198,12 @@
           "error": null,
           "attempts": 1
         },
+        "EGRUL": {"status":"DONE","error":null,"attempts":1},
         "FNS": {"status":"DONE","error":null,"attempts":1},
         "GIRBO": {"status":"DONE","error":null,"attempts":1},
+        "BKI": {"status":"WAITING","error":"bki: сервис ответил ошибкой 503","attempts":1},
+        "BANK": {"status":"PENDING","error":null,"attempts":0},
+        "SCORING": {"status":"PENDING","result":null,"error":null,"attempts":0},
         "POLICY": {"status":"PENDING","result":null,"error":null,"attempts":0}
       },
       "scoring": null,
@@ -6012,7 +6284,28 @@
         "negative": [],
         "limit_phrase": "Сумма ограничена максимумом продукта",
         "rejection": [],
-        "advice": []
+        "advice": [],
+        "next_steps": [],
+        "rate_breakdown": {"key_rate":"14.0","product_spread":"7.0","risk_margin":"0","adjustment":"0.00","rate":"21.00"},
+        "rate_hints": [
+          {
+            "kind": "product",
+            "text": "Возобновляемая кредитная линия — 18 %: лимит согласовывается один раз, проценты только на использованную часть",
+            "product_code": "CREDIT_LINE",
+            "product_name": "Возобновляемая кредитная линия",
+            "rate": "18.0",
+            "saving": null
+          },
+          {
+            "kind": "product",
+            "text": "Кредит на развитие бизнеса — 19 %: обычный кредит без залога на срок до 5 лет",
+            "product_code": "GROWTH",
+            "product_name": "Кредит на развитие бизнеса",
+            "rate": "19.0",
+            "saving": "22972.68"
+          }
+        ],
+        "alternatives": []
       },
       "product": "EXPRESS",
       "company": "0010000088",
@@ -6076,8 +6369,6 @@
     "dossier": {
       "sources": {
         "BANK": {"status":"DONE","error":null,"attempts":1},
-        "EGRUL": {"status":"DONE","error":null,"attempts":1},
-        "SCORING": {"status":"DONE","result":{"score":900,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -6093,9 +6384,11 @@
           "error": null,
           "attempts": 1
         },
+        "EGRUL": {"status":"DONE","error":null,"attempts":1},
         "FNS": {"status":"DONE","error":null,"attempts":1},
         "GIRBO": {"status":"DONE","error":null,"attempts":1},
         "BKI": {"status":"DONE","error":null,"attempts":3},
+        "SCORING": {"status":"DONE","result":{"score":900,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
         "POLICY": {
           "status": "DONE",
           "result": {"flags":[],"limit":5000000,"outcome":"APPROVE","version":"v1.0","stop_factors":[]},

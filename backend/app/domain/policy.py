@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 from typing import Any
 
-from app.domain.catalog import ProductTerms
+from app.domain.catalog import KEY_RATE, PRODUCTS, ProductTerms
 from app.domain.enums import Outcome
 from app.domain.features import Features
 from app.domain.finance import annuity_payment, max_principal, money, overpayment, round_down
@@ -57,6 +57,56 @@ REASONS: dict[str, tuple[str, str]] = {
     "R05": ("Не предоставлены документы", "Мы не получили документы, необходимые для решения"),
     "R06": ("Не соответствует политике банка", "Заявка не соответствует условиям кредитования"),
     "R07": ("Иное", "Отказ по решению специалиста банка"),
+}
+
+# Что поможет клиенту после отказа — по коду стоп-фактора или причины (docs/credit-policy.md, «Объяснение решения»).
+ADVICE: dict[str, str] = {
+    "S01": "Подать заявку можно после завершения ликвидации, реорганизации или процедуры банкротства",
+    "S02": "Заявку можно подать после снятия дисквалификации или через 6 месяцев после смены руководителя",
+    "S03": (
+        "Погасите просроченный долг: бюро кредитных историй обновляет данные за несколько дней, "
+        "после этого подайте заявку снова"
+    ),
+    "S04": "Подайте заявку, когда с даты регистрации бизнеса пройдёт 3 месяца",
+    "S05": (
+        "Оценку повысят погашение просрочек и налоговой задолженности, снижение долговой нагрузки и рост "
+        "выручки. Начать можно с небольшой суммы через несколько месяцев"
+    ),
+    "R01": (
+        "Оценку повысят погашение просрочек и налоговой задолженности, снижение долговой нагрузки и рост "
+        "выручки. Начать можно с небольшой суммы через несколько месяцев"
+    ),
+    "R02": (
+        "Уменьшите сумму или увеличьте срок, чтобы платёж укладывался в прибыль бизнеса. "
+        "Погашение части текущих кредитов тоже увеличит доступную сумму"
+    ),
+    "R03": "Через 6 месяцев без просрочек по текущим кредитам можно подать заявку снова",
+    "R04": (
+        "Проверьте данные в заявке: выручку мы сверяем с отчётностью и оборотами по счёту. Исправьте и подайте снова"
+    ),
+    "R05": "Приложите запрошенные документы в кабинете и подайте заявку снова",
+    "R06": "Выберите другой продукт: подходящие условия видны на шаге подбора",
+}
+
+# За счёт чего продукт дешевле — для подсказки «как получить ставку ниже».
+CHEAPER_WHY: dict[str, str] = {
+    "SECURED": "залог недвижимости или оборудования снижает риск банка",
+    "CREDIT_LINE": "лимит согласовывается один раз, проценты только на использованную часть",
+    "GROWTH": "обычный кредит без залога на срок до 5 лет",
+    "OVERDRAFT": "лимит к расчётному счёту на короткие разрывы",
+    "EXPRESS": "решение без залога и документов",
+}
+
+# Что снизит надбавку за риск — по коду фактора скоринга с отрицательными баллами.
+FACTOR_ADVICE: dict[str, str] = {
+    "BUSINESS_AGE": "бизнес проработает дольше",
+    "CREDIT_HISTORY": "по кредитам не будет просрочек",
+    "DEBT_LOAD": "снизится долговая нагрузка, например после погашения части кредитов",
+    "REVENUE_TREND": "выручка перестанет снижаться",
+    "MARGIN": "вырастет прибыльность бизнеса",
+    "ACCOUNT": "поступления на счёт в банке станут регулярными",
+    "TAX_DEBT": "будет погашена налоговая задолженность",
+    "AMOUNT_SHARE": "сумма будет меньше относительно годовой выручки",
 }
 
 LIMIT_PHRASES: dict[str, str] = {
@@ -362,6 +412,137 @@ def decide(
         option.note = option.note or f"Вариант {no}"
     d.note("Решение", "контрпредложение", f"вариантов: {len(d.options)}")
     return d
+
+
+def pp(value: Decimal) -> str:
+    """Проценты и процентные пункты по-русски: 1,5 / 0 / 5."""
+    return format(value.normalize(), "f").replace(".", ",")
+
+
+def rate_breakdown(product: ProductTerms, risk_margin: Decimal, *, offer_rate: Decimal | None = None) -> dict[str, Any]:
+    """Из чего складывается ставка: ключевая + спред продукта + надбавка за риск (+ решение аналитика)."""
+    spread = product.base_rate - KEY_RATE
+    policy_rate = product.base_rate + risk_margin
+    adjustment = (offer_rate - policy_rate) if offer_rate is not None else Decimal(0)
+    return {
+        "key_rate": KEY_RATE,
+        "product_spread": spread,
+        "risk_margin": risk_margin,
+        "adjustment": adjustment,
+        "rate": policy_rate + adjustment,
+    }
+
+
+def rate_hints(
+    product: ProductTerms,
+    f: Features,
+    *,
+    risk_margin: Decimal,
+    factors: list[dict[str, Any]],
+    purpose: str | None,
+    rate: Decimal,
+) -> list[dict[str, Any]]:
+    """Как получить ставку ниже: более дешёвые продукты под ту же цель, доступные компании, и что снизит надбавку."""
+    hints: list[dict[str, Any]] = []
+    for other in sorted(PRODUCTS, key=lambda item: item.base_rate):
+        if other.code == product.code:
+            continue
+        other_rate = other.base_rate + risk_margin
+        if other_rate >= rate:
+            continue
+        purposes = {str(getattr(item, "value", item)) for item in other.purposes}
+        if purpose and purposes and purpose not in purposes:
+            continue
+        issues = eligibility_issues(
+            other,
+            business_months=f.business_months,
+            is_bank_client=f.is_bank_client,
+            account_months=f.account_months,
+            amount=f.amount or None,
+        )
+        if issues:
+            continue
+        why = CHEAPER_WHY.get(other.code, "ставка ниже за счёт условий продукта")
+        text = f"{other.name} — {pp(other_rate)} %: {why}"
+        saving: Decimal | None = None
+        if f.term_months and f.term_months > other.max_term:
+            text += f" (срок до {months_text(other.max_term)})"
+        elif f.amount and f.term_months and product.kind not in REVOLVING_KINDS and other.kind not in REVOLVING_KINDS:
+            # Та же сумма и срок: насколько меньше переплата за весь срок (только для кредитов с графиком)
+            _, current = offer_figures(product, f.amount, rate, f.term_months)
+            _, other_over = offer_figures(other, f.amount, other_rate, f.term_months)
+            saving = money(current - other_over) if current > other_over else None
+        hints.append(
+            {
+                "kind": "product",
+                "text": text,
+                "product_code": other.code,
+                "product_name": other.name,
+                "rate": other_rate,
+                "saving": saving,
+            }
+        )
+    if risk_margin > 0:
+        negative = sorted((x for x in factors if x.get("points", 0) < 0), key=lambda x: x["points"])
+        causes = [FACTOR_ADVICE[x["code"]] for x in negative if x.get("code") in FACTOR_ADVICE][:2]
+        if causes:
+            text = f"Надбавка за риск {pp(risk_margin)} п.п. станет ниже, когда {' и '.join(causes)}"
+        else:
+            text = (
+                f"Надбавка за риск {pp(risk_margin)} п.п. снижается по мере роста срока работы бизнеса "
+                "и накопления кредитной истории без просрочек"
+            )
+        hints.append(
+            {"kind": "risk", "text": text, "product_code": None, "product_name": None, "rate": None, "saving": None}
+        )
+    return hints
+
+
+def decline_alternatives(
+    product: ProductTerms,
+    f: Features,
+    *,
+    risk_margin: Decimal,
+    purpose: str | None,
+    term_months: int,
+) -> list[dict[str, Any]]:
+    """«Вам может подойти» после отказа по условиям продукта или лимиту: продукты под ту же цель и доступная сумма."""
+    result: list[dict[str, Any]] = []
+    for other in sorted(PRODUCTS, key=lambda item: item.base_rate):
+        if other.code == product.code or other.collateral_required or other.always_manual:
+            continue
+        purposes = {str(getattr(item, "value", item)) for item in other.purposes}
+        if purpose and purposes and purpose not in purposes:
+            continue
+        if eligibility_issues(
+            other, business_months=f.business_months, is_bank_client=f.is_bank_client, account_months=f.account_months
+        ):
+            continue
+        rate = other.base_rate + risk_margin
+        term = min(max(term_months, other.min_term), other.max_term)
+        limit = compute_limit(other, f, rate=rate, term_months=term, collateral_value=None)
+        if limit.limit is None or limit.limit < other.min_amount:
+            continue
+        result.append(
+            {
+                "product_code": other.code,
+                "product_name": other.name,
+                "max_amount": min(limit.limit, other.max_amount),
+                "term_months": term,
+                "rate": rate,
+            }
+        )
+    return result[:2]
+
+
+def next_steps(stop_factor_codes: list[str], reason_codes: list[str]) -> list[str]:
+    """Что поможет после отказа: по одному совету на код, без повторов."""
+    result: list[str] = []
+    for code in [*stop_factor_codes, *reason_codes]:
+        text = ADVICE.get(code)
+        if text and text not in result:
+            result.append(text)
+    return result
 
 
 def check_analyst_terms(

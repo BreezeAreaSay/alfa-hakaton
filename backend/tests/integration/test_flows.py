@@ -100,7 +100,15 @@ def test_auto_approval_and_issue():
     assert application["status"] == "OFFER"
     [offer] = application["offers"]
     assert offer["kind"] == "AS_REQUESTED"
-    assert application["explanation"]["positive"]
+    explanation = application["explanation"]
+    assert explanation["positive"]
+    # Из чего складывается ставка: ключевая + спред продукта + надбавка за риск = ставка предложения
+    breakdown = explanation["rate_breakdown"]
+    parts = (breakdown["key_rate"], breakdown["product_spread"], breakdown["risk_margin"], breakdown["adjustment"])
+    assert sum(float(x) for x in parts) == pytest.approx(float(offer["rate"]))
+    assert float(breakdown["rate"]) == pytest.approx(float(offer["rate"]))
+    # Как получить ставку ниже: под пополнение оборотки дешевле кредитная линия, она доступна клиенту банка
+    assert any(h["kind"] == "product" and h["product_code"] == "CREDIT_LINE" for h in explanation["rate_hints"])
     issued = accept_sign_issue(client, application)
     assert len(issued["loan"]["schedule"]) == 24
 
@@ -111,6 +119,9 @@ def test_overdraft_counter_offer_limited_by_inflows():
     assert application["status"] == "OFFER"
     assert [float(o["amount"]) for o in application["offers"]] == [440000.0]
     assert application["explanation"]["limit_phrase"]
+    assert float(application["explanation"]["rate_breakdown"]["rate"]) == pytest.approx(
+        float(application["offers"][0]["rate"])
+    )
 
 
 def test_counter_offer_with_two_options():
@@ -146,6 +157,7 @@ def test_liquidating_company_rejected_by_stop_factor():
     application = apply(client, "GROWTH", 2_000_000, 24)
     assert application["status"] == "REJECTED"
     assert "ликвидации" in application["explanation"]["rejection"][0]
+    assert "после завершения ликвидации" in application["explanation"]["next_steps"][0]
 
 
 def test_current_overdue_rejected():

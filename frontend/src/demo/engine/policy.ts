@@ -1,10 +1,10 @@
 // Кредитная политика: допуск, лимит, решение, контрпредложения — порт backend/app/domain/policy.py.
 // Тексты флагов, стоп-факторов и причин берутся из справочника /api/meta (fixtures/meta.json).
 import meta from '../fixtures/meta.json';
-import type { ProductTerms } from './catalog';
+import { PRODUCTS, type ProductTerms, productPurposes } from './catalog';
 import type { Features } from './features';
 import { annuityPayment, maxPrincipal, money, overpayment, roundDown } from './finance';
-import type { ScoreResult } from './scoring';
+import type { Factor, ScoreResult } from './scoring';
 import { monthsText, rub } from './text';
 
 export const POLICY_VERSION = 'v1.0';
@@ -26,6 +26,10 @@ export const FLAGS: Record<string, string> = meta.flags;
 export const STOP_FACTORS: Record<string, string> = meta.stop_factors;
 export const LIMIT_PHRASES: Record<string, string> = meta.limit_phrases;
 export const REASONS: Record<string, { bank: string; client: string }> = meta.reasons;
+export const ADVICE: Record<string, string> = meta.advice;
+export const CHEAPER_WHY: Record<string, string> = meta.cheaper_why;
+export const FACTOR_ADVICE: Record<string, string> = meta.factor_advice;
+export const KEY_RATE: number = meta.key_rate;
 
 export const STATEMENT_REQUEST_ITEM = {
     code: 'BANK_STATEMENT',
@@ -369,6 +373,159 @@ export function decide(
 const rateText = (rate: number): string => rate.toFixed(2);
 
 /** Проверка решения аналитика по границам полномочий. Возвращает список нарушений. */
+/** Проценты и процентные пункты по-русски: 1,5 / 0 / 5 — как `pp` в policy.py. */
+export const pp = (value: number): string => String(value).replace('.', ',');
+
+export interface RateBreakdown {
+    key_rate: number;
+    product_spread: number;
+    risk_margin: number;
+    adjustment: number;
+    rate: number;
+}
+
+export interface RateHint {
+    kind: 'product' | 'risk';
+    text: string;
+    product_code: string | null;
+    product_name: string | null;
+    rate: number | null;
+    saving: number | null;
+}
+
+export interface Alternative {
+    product_code: string;
+    product_name: string;
+    max_amount: number;
+    term_months: number;
+    rate: number;
+}
+
+/** Из чего складывается ставка: ключевая + спред продукта + надбавка за риск (+ решение аналитика). */
+export function rateBreakdown(product: ProductTerms, riskMargin: number, offerRate: number | null): RateBreakdown {
+    const spread = money(product.base_rate - KEY_RATE);
+    const policyRate = money(product.base_rate + riskMargin);
+    const adjustment = offerRate === null ? 0 : money(offerRate - policyRate);
+    return {
+        key_rate: KEY_RATE,
+        product_spread: spread,
+        risk_margin: riskMargin,
+        adjustment,
+        rate: money(policyRate + adjustment),
+    };
+}
+
+const byBaseRate = (): ProductTerms[] => [...PRODUCTS].sort((a, b) => a.base_rate - b.base_rate);
+
+const fitsPurpose = (code: string, purpose: string | null): boolean => {
+    const purposes = productPurposes(code);
+    return !purpose || !purposes.length || purposes.includes(purpose);
+};
+
+/** Как получить ставку ниже: более дешёвые продукты под ту же цель, доступные компании, и что снизит надбавку. */
+export function rateHints(
+    product: ProductTerms,
+    f: Features,
+    {
+        riskMargin,
+        factors,
+        purpose,
+        rate,
+    }: { riskMargin: number; factors: Factor[]; purpose: string | null; rate: number },
+): RateHint[] {
+    const hints: RateHint[] = [];
+    for (const other of byBaseRate()) {
+        if (other.code === product.code) continue;
+        const otherRate = money(other.base_rate + riskMargin);
+        if (otherRate >= rate) continue;
+        if (!fitsPurpose(other.code, purpose)) continue;
+        const issues = eligibilityIssues(other, {
+            business_months: f.business_months,
+            is_bank_client: f.is_bank_client,
+            account_months: f.account_months,
+            amount: f.amount || null,
+        });
+        if (issues.length) continue;
+        const why = CHEAPER_WHY[other.code] ?? 'ставка ниже за счёт условий продукта';
+        let text = `${other.name} — ${pp(otherRate)} %: ${why}`;
+        let saving: number | null = null;
+        if (f.term_months && f.term_months > other.max_term) {
+            text += ` (срок до ${monthsText(other.max_term)})`;
+        } else if (
+            f.amount &&
+            f.term_months &&
+            !REVOLVING_KINDS.has(product.kind) &&
+            !REVOLVING_KINDS.has(other.kind)
+        ) {
+            // Та же сумма и срок: насколько меньше переплата за весь срок (только для кредитов с графиком)
+            const [, current] = offerFigures(product, f.amount, rate, f.term_months);
+            const [, otherOver] = offerFigures(other, f.amount, otherRate, f.term_months);
+            saving = current > otherOver ? money(current - otherOver) : null;
+        }
+        hints.push({
+            kind: 'product',
+            text,
+            product_code: other.code,
+            product_name: other.name,
+            rate: otherRate,
+            saving,
+        });
+    }
+    if (riskMargin > 0) {
+        const negative = factors.filter((x) => x.points < 0).sort((a, b) => a.points - b.points);
+        const causes = negative
+            .filter((x) => x.code in FACTOR_ADVICE)
+            .map((x) => FACTOR_ADVICE[x.code])
+            .slice(0, 2);
+        const text = causes.length
+            ? `Надбавка за риск ${pp(riskMargin)} п.п. станет ниже, когда ${causes.join(' и ')}`
+            : `Надбавка за риск ${pp(riskMargin)} п.п. снижается по мере роста срока работы бизнеса и накопления кредитной истории без просрочек`;
+        hints.push({ kind: 'risk', text, product_code: null, product_name: null, rate: null, saving: null });
+    }
+    return hints;
+}
+
+/** «Вам может подойти» после отказа по условиям продукта или лимиту: продукты под ту же цель и доступная сумма. */
+export function declineAlternatives(
+    product: ProductTerms,
+    f: Features,
+    { riskMargin, purpose, term_months }: { riskMargin: number; purpose: string | null; term_months: number },
+): Alternative[] {
+    const result: Alternative[] = [];
+    for (const other of byBaseRate()) {
+        if (other.code === product.code || other.collateral_required || other.always_manual) continue;
+        if (!fitsPurpose(other.code, purpose)) continue;
+        const issues = eligibilityIssues(other, {
+            business_months: f.business_months,
+            is_bank_client: f.is_bank_client,
+            account_months: f.account_months,
+        });
+        if (issues.length) continue;
+        const rate = money(other.base_rate + riskMargin);
+        const term = Math.min(Math.max(term_months, other.min_term), other.max_term);
+        const limit = computeLimit(other, f, { rate, term_months: term, collateral_value: null });
+        if (limit.limit === null || limit.limit < other.min_amount) continue;
+        result.push({
+            product_code: other.code,
+            product_name: other.name,
+            max_amount: Math.min(limit.limit, other.max_amount),
+            term_months: term,
+            rate,
+        });
+    }
+    return result.slice(0, 2);
+}
+
+/** Что поможет после отказа: по одному совету на код, без повторов. */
+export function nextSteps(stopFactors: string[], reasonCodes: string[]): string[] {
+    const result: string[] = [];
+    for (const code of [...stopFactors, ...reasonCodes]) {
+        const text = ADVICE[code];
+        if (text && !result.includes(text)) result.push(text);
+    }
+    return result;
+}
+
 export function checkAnalystTerms(
     product: ProductTerms,
     {

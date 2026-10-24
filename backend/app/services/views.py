@@ -5,7 +5,7 @@ from datetime import UTC, date, datetime
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.domain.catalog import ProductTerms
+from app.domain.catalog import PRODUCTS, ProductTerms
 from app.domain.enums import (
     PIPELINE_ORDER,
     AppStatus,
@@ -15,9 +15,19 @@ from app.domain.enums import (
     Role,
     StepStatus,
 )
-from app.domain.features import months_between
+from app.domain.features import Features, months_between
 from app.domain.labels import COMPANY_STATUS_LABELS, DOCUMENT_LABELS, PURPOSE_LABELS, STATUS_LABELS, STEP_LABELS
-from app.domain.policy import LIMIT_PHRASES, REASONS, REVOLVING_KINDS, STOP_FACTORS
+from app.domain.policy import (
+    LIMIT_PHRASES,
+    REASONS,
+    REVOLVING_KINDS,
+    STOP_FACTORS,
+    decline_alternatives,
+    next_steps,
+    rate_breakdown,
+    rate_hints,
+)
+from app.domain.scoring import margin_for_class
 from app.models import (
     Application,
     Company,
@@ -33,6 +43,7 @@ from app.models import (
     User,
 )
 from app.schemas import (
+    AlternativeOut,
     ApplicationListItem,
     ApplicationOut,
     CompanyOut,
@@ -43,10 +54,14 @@ from app.schemas import (
     LoanOut,
     OfferOut,
     ProductOut,
+    RateBreakdownOut,
+    RateHintOut,
     StepOut,
     UserOut,
 )
 from app.services.workflow import CANCELLABLE
+
+PRODUCT_TERMS = {p.code: p for p in PRODUCTS}
 
 CLIENT_ACTION_STATUSES = {AppStatus.DRAFT, AppStatus.NEED_INFO, AppStatus.OFFER, AppStatus.SIGNING}
 
@@ -191,7 +206,7 @@ def latest_decision(db: Session, application: Application) -> Decision | None:
     ).first()
 
 
-def explanation(db: Session, application: Application) -> ExplanationOut:
+def explanation(db: Session, application: Application, offer: Offer | None = None) -> ExplanationOut:
     """Что повлияло на решение — простыми словами (docs/credit-policy.md, «Объяснение решения клиенту»)."""
     out = ExplanationOut()
     scoring = latest_scoring(db, application)
@@ -215,6 +230,37 @@ def explanation(db: Session, application: Application) -> ExplanationOut:
             if not out.rejection:
                 out.rejection = [STOP_FACTORS["S05"]]
             out.advice = out.negative or []
+            out.next_steps = next_steps(decision.stop_factors, decision.reason_codes)
+            codes = set(decision.reason_codes)
+            if scoring and not decision.stop_factors and codes and codes <= {"R02", "R06"}:
+                risk_margin = margin_for_class(scoring.risk_class)
+                if risk_margin is not None:
+                    out.alternatives = [
+                        AlternativeOut(**item)
+                        for item in decline_alternatives(
+                            product_terms(application),
+                            Features.from_dict(scoring.features),
+                            risk_margin=risk_margin,
+                            purpose=application.purpose,
+                            term_months=application.term_months,
+                        )
+                    ]
+    if scoring and offer is not None and application.status != AppStatus.REJECTED:
+        risk_margin = margin_for_class(scoring.risk_class)
+        product = PRODUCT_TERMS.get(offer.product_code) or product_terms(application)
+        if risk_margin is not None:
+            out.rate_breakdown = RateBreakdownOut(**rate_breakdown(product, risk_margin, offer_rate=offer.rate))
+            out.rate_hints = [
+                RateHintOut(**hint)
+                for hint in rate_hints(
+                    product,
+                    Features.from_dict(scoring.features),
+                    risk_margin=risk_margin,
+                    factors=scoring.factors,
+                    purpose=application.purpose,
+                    rate=offer.rate,
+                )
+            ]
     return out
 
 
@@ -262,6 +308,7 @@ def application_out(db: Session, application: Application, viewer: User) -> Appl
         submitted_at=application.submitted_at,
         status_changed_at=application.status_changed_at,
         closed_at=application.closed_at,
+        sla_due_at=application.sla_due_at,
         run_no=application.run_no,
         company=company_out(application.company),
         steps=steps_out(db, application, include_errors=viewer.role != Role.CLIENT),
@@ -269,7 +316,7 @@ def application_out(db: Session, application: Application, viewer: User) -> Appl
         info_requests=[InfoRequestOut.model_validate(r) for r in requests],
         documents=documents_out(db, application),
         history=history_out(db, application, viewer.role),
-        explanation=explanation(db, application),
+        explanation=explanation(db, application, offers[0] if offers else None),
         loan=loan_out(db, application),
         ai_parsed=application.ai_parsed,
     )

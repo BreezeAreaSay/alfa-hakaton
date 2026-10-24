@@ -205,12 +205,44 @@ export interface HistoryItem {
     created_at: string;
 }
 
+/** Из чего складывается ставка предложения, в процентных пунктах. */
+export interface RateBreakdown {
+    key_rate: Money;
+    product_spread: Money;
+    risk_margin: Money;
+    adjustment: Money;
+    rate: Money;
+}
+
+/** Как получить ставку ниже: более дешёвый продукт или что снизит надбавку за риск. */
+export interface RateHint {
+    kind: 'product' | 'risk';
+    text: string;
+    product_code: string | null;
+    product_name: string | null;
+    rate: Money | null;
+    saving: Money | null;
+}
+
+/** «Вам может подойти» после отказа: продукт и доступная сумма для этой компании. */
+export interface Alternative {
+    product_code: string;
+    product_name: string;
+    max_amount: Money;
+    term_months: number;
+    rate: Money;
+}
+
 export interface Explanation {
     positive: string[];
     negative: string[];
     limit_phrase: string | null;
     rejection: string[];
     advice: string[];
+    next_steps: string[];
+    rate_breakdown: RateBreakdown | null;
+    rate_hints: RateHint[];
+    alternatives: Alternative[];
 }
 
 export interface ScheduleItem {
@@ -255,6 +287,7 @@ export interface Application {
     submitted_at: string | null;
     status_changed_at: string;
     closed_at: string | null;
+    sla_due_at: string | null;
     run_no: number;
     company: Company;
     steps: Step[];

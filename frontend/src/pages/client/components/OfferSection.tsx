@@ -1,13 +1,15 @@
 import { Button } from '@alfalab/core-components/button';
 import { Typography } from '@alfalab/core-components/typography';
 import { CheckmarkCircleMIcon } from '@alfalab/icons-glyph/CheckmarkCircleMIcon';
+import { ArrowDownCircleMIcon } from '@alfalab/icons-glyph/ArrowDownCircleMIcon';
 import { ExclamationCircleMIcon } from '@alfalab/icons-glyph/ExclamationCircleMIcon';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { useAcceptOffer, useDecline } from '../../../api/hooks';
-import type { Application, Offer } from '../../../api/types';
-import { Badge, ErrorPlate } from '../../../components/ui';
-import { dateTime, months, percent, rub, timeLeft } from '../../../utils/format';
+import type { Application, Money, Offer, RateBreakdown, RateHint } from '../../../api/types';
+import { Badge, ErrorPlate, KeyValue } from '../../../components/ui';
+import { dateTime, months, num, percent, plainNumber, rub, timeLeft } from '../../../utils/format';
 
 export function OfferSection({ application }: { application: Application }) {
     const offers = application.offers.filter((o) => o.status === 'ACTIVE');
@@ -65,6 +67,15 @@ export function OfferSection({ application }: { application: Application }) {
                         ),
                     )}
                 </div>
+            )}
+
+            {explanation.rate_breakdown && offers[0] && (
+                <RateBreakdownCard
+                    breakdown={explanation.rate_breakdown}
+                    hints={explanation.rate_hints}
+                    productName={offers[0].product_name}
+                    compareHref={`/client/new?purpose=${application.purpose}&amount=${num(application.amount)}&term=${application.term_months}`}
+                />
             )}
 
             {offers[0] && (
@@ -162,6 +173,65 @@ function OfferOption({
             <Typography.Text view='primary-small' color='secondary'>
                 Переплата за весь срок — {rub(offer.overpayment)}
             </Typography.Text>
+        </div>
+    );
+}
+
+const pp = (value: Money): string => `${plainNumber(value)} п.п.`;
+
+/** Из чего складывается ставка и как получить её ниже — главный вопрос предпринимателя по исследованию. */
+function RateBreakdownCard({
+    breakdown: b,
+    hints,
+    productName,
+    compareHref,
+}: {
+    breakdown: RateBreakdown;
+    hints: RateHint[];
+    productName: string;
+    compareHref: string;
+}) {
+    const navigate = useNavigate();
+    const adjustment = num(b.adjustment);
+    const rows: [string, string][] = [
+        ['Ключевая ставка Банка России', percent(b.key_rate)],
+        [`Надбавка продукта «${productName}»`, `+${pp(b.product_spread)}`],
+        [
+            'Надбавка за риск по итогам проверки',
+            num(b.risk_margin) > 0 ? `+${pp(b.risk_margin)}` : '0 п.п. — минимальная',
+        ],
+    ];
+    if (adjustment !== 0)
+        rows.push(['Решение специалиста банка', `${adjustment > 0 ? '+' : '−'}${pp(Math.abs(adjustment))}`]);
+    return (
+        <div className='tile stack-8'>
+            <Typography.Text view='primary-medium' weight='bold' tag='div'>
+                Из чего складывается ставка {percent(b.rate)}
+            </Typography.Text>
+            <KeyValue items={rows} />
+            {hints.length > 0 && (
+                <>
+                    <Typography.Text view='primary-medium' weight='bold' tag='div' style={{ marginTop: 8 }}>
+                        Как получить ставку ниже
+                    </Typography.Text>
+                    {hints.map((hint) => (
+                        <div key={hint.text} className='row' style={{ flexWrap: 'nowrap' }}>
+                            <ArrowDownCircleMIcon color='#0cc44d' />
+                            <Typography.Text view='primary-small'>
+                                {hint.text}
+                                {hint.saving ? `. Переплата меньше на ${rub(hint.saving)}` : ''}
+                            </Typography.Text>
+                        </div>
+                    ))}
+                    {hints.some((hint) => hint.kind === 'product') && (
+                        <div>
+                            <Button view='text' size={40} onClick={() => navigate(compareHref)}>
+                                Сравнить продукты в подборе
+                            </Button>
+                        </div>
+                    )}
+                </>
+            )}
         </div>
     );
 }

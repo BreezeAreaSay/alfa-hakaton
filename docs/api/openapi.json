@@ -2149,6 +2149,40 @@
   },
   "components": {
     "schemas": {
+      "AlternativeOut": {
+        "properties": {
+          "product_code": {
+            "type": "string",
+            "title": "Product Code"
+          },
+          "product_name": {
+            "type": "string",
+            "title": "Product Name"
+          },
+          "max_amount": {
+            "type": "string",
+            "title": "Max Amount"
+          },
+          "term_months": {
+            "type": "integer",
+            "title": "Term Months"
+          },
+          "rate": {
+            "type": "string",
+            "title": "Rate"
+          }
+        },
+        "type": "object",
+        "required": [
+          "product_code",
+          "product_name",
+          "max_amount",
+          "term_months",
+          "rate"
+        ],
+        "title": "AlternativeOut",
+        "description": "«Вам может подойти» после отказа: продукт, доступная сумма, срок и ставка для этой компании."
+      },
       "AnalystMetrics": {
         "properties": {
           "name": {
@@ -2505,6 +2539,18 @@
               }
             ],
             "title": "Closed At"
+          },
+          "sla_due_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sla Due At"
           },
           "run_no": {
             "type": "integer",
@@ -3473,6 +3519,40 @@
             },
             "type": "array",
             "title": "Advice",
+            "default": []
+          },
+          "next_steps": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Next Steps",
+            "default": []
+          },
+          "rate_breakdown": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RateBreakdownOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "rate_hints": {
+            "items": {
+              "$ref": "#/components/schemas/RateHintOut"
+            },
+            "type": "array",
+            "title": "Rate Hints",
+            "default": []
+          },
+          "alternatives": {
+            "items": {
+              "$ref": "#/components/schemas/AlternativeOut"
+            },
+            "type": "array",
+            "title": "Alternatives",
             "default": []
           }
         },
@@ -4670,6 +4750,102 @@
           "term_months"
         ],
         "title": "QuoteRequest"
+      },
+      "RateBreakdownOut": {
+        "properties": {
+          "key_rate": {
+            "type": "string",
+            "title": "Key Rate"
+          },
+          "product_spread": {
+            "type": "string",
+            "title": "Product Spread"
+          },
+          "risk_margin": {
+            "type": "string",
+            "title": "Risk Margin"
+          },
+          "adjustment": {
+            "type": "string",
+            "title": "Adjustment"
+          },
+          "rate": {
+            "type": "string",
+            "title": "Rate"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key_rate",
+          "product_spread",
+          "risk_margin",
+          "adjustment",
+          "rate"
+        ],
+        "title": "RateBreakdownOut",
+        "description": "Из чего складывается ставка предложения, в процентных пунктах."
+      },
+      "RateHintOut": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "product_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Code"
+          },
+          "product_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Name"
+          },
+          "rate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rate"
+          },
+          "saving": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Saving"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "text"
+        ],
+        "title": "RateHintOut"
       },
       "ScheduleItemOut": {
         "properties": {

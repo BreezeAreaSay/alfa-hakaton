@@ -57,6 +57,14 @@ export const PURPOSE_PRODUCTS: Record<Purpose, string[]> = {
     EXPANSION: ['GROWTH', 'SECURED'],
 };
 
+/** Цели, для которых продукт предназначен (как `purposes` у продукта на сервере); стартап — для всех целей. */
+export function productPurposes(code: string): string[] {
+    if (code === 'STARTUP') return Object.keys(PURPOSE_PRODUCTS);
+    return Object.entries(PURPOSE_PRODUCTS)
+        .filter(([, codes]) => codes.includes(code))
+        .map(([purpose]) => purpose);
+}
+
 export const YOUNG_BUSINESS_MONTHS = 12;
 
 export function productsForPurpose(purpose: Purpose, businessMonths: number | null): string[] {

@@ -155,6 +155,12 @@ export function riskClassFor(points: number): [string, number | null, number] {
     throw new Error('unreachable');
 }
 
+/** Надбавка к ставке по классу риска; для класса E ставки нет. */
+export function marginForClass(riskClass: string): number | null {
+    for (const [name, , rateMargin] of RISK_CLASSES) if (name === riskClass) return rateMargin;
+    return null;
+}
+
 export function score(features: Features): ScoreResult {
     const factors = FACTORS.map((fn) => fn(features));
     const total = BASE_SCORE + factors.reduce((sum, f) => sum + f.points, 0);

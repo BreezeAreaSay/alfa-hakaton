@@ -196,6 +196,14 @@ def risk_class_for(score: int) -> tuple[str, Decimal | None, Decimal]:
     raise AssertionError("unreachable")
 
 
+def margin_for_class(risk_class: str) -> Decimal | None:
+    """Надбавка к ставке по классу риска; для класса E ставки нет."""
+    for name, _minimum, margin, _pd in RISK_CLASSES:
+        if name == risk_class:
+            return margin
+    return None
+
+
 def score(features: Features) -> ScoreResult:
     factors = [factor(features) for factor in FACTORS]
     total = BASE_SCORE + sum(f.points for f in factors)

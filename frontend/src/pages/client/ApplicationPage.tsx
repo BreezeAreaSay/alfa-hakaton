@@ -9,7 +9,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useApplication, useCancel } from '../../api/hooks';
 import type { Application } from '../../api/types';
 import { ErrorPlate, KeyValue, Loader, StatusBadge, StepList } from '../../components/ui';
-import { dateTime, months, rub } from '../../utils/format';
+import { dateTime, months, num, percent, rub } from '../../utils/format';
 import { ChatCard } from './components/ChatCard';
 import { DocumentList } from './components/DocumentList';
 import { InfoRequestSection } from './components/InfoRequestSection';
@@ -60,6 +60,7 @@ export function ApplicationPage() {
                 </div>
                 <aside className='stack sticky'>
                     <ParametersCard application={application} />
+                    {!FINAL_STATUSES.has(application.status) && <TimelineCard application={application} />}
                     {application.documents.length > 0 && (
                         <section className='card card--tight stack-16'>
                             <Typography.Text view='primary-large' weight='bold' tag='div'>
@@ -138,9 +139,11 @@ function CurrentStage({ application }: { application: Application }) {
                         Заявку рассматривает специалист
                     </Typography.Title>
                     <Typography.Text view='primary-medium' color='secondary' tag='p'>
-                        Автоматическая проверка пройдена, по вашей заявке нужно решение специалиста — ответим в течение
-                        рабочего дня. Если понадобятся документы, запрос появится здесь. Вопрос можно задать в чате
-                        ниже.
+                        Автоматическая проверка пройдена, по вашей заявке нужно решение специалиста —{' '}
+                        {application.sla_due_at
+                            ? `ответим до ${dateTime(application.sla_due_at)}`
+                            : 'ответим в течение рабочего дня'}
+                        . Если понадобятся документы, запрос появится здесь. Вопрос можно задать в чате ниже.
                     </Typography.Text>
                     <StepList steps={application.steps} />
                 </section>
@@ -189,6 +192,53 @@ function CurrentStage({ application }: { application: Application }) {
                             ))}
                         </div>
                     )}
+                    {application.explanation.next_steps.length > 0 && (
+                        <div className='tile stack-8'>
+                            <Typography.Text view='primary-medium' weight='bold' tag='div'>
+                                Что поможет
+                            </Typography.Text>
+                            {application.explanation.next_steps.map((text) => (
+                                <Typography.Text key={text} view='primary-small' tag='div'>
+                                    · {text}
+                                </Typography.Text>
+                            ))}
+                        </div>
+                    )}
+                    {application.explanation.alternatives.length > 0 && (
+                        <div className='stack-8'>
+                            <Typography.Text view='primary-medium' weight='bold' tag='div'>
+                                Вам может подойти
+                            </Typography.Text>
+                            <div className='proactive__grid'>
+                                {application.explanation.alternatives.map((item) => (
+                                    <div key={item.product_code} className='tile stack-8'>
+                                        <Typography.Text view='primary-small' color='secondary' tag='div'>
+                                            {item.product_name}
+                                        </Typography.Text>
+                                        <Typography.Text view='primary-large' weight='bold' tag='div'>
+                                            до {rub(item.max_amount)}
+                                        </Typography.Text>
+                                        <Typography.Text view='primary-small' color='secondary' tag='div'>
+                                            {months(item.term_months)} · от {percent(item.rate)} годовых
+                                        </Typography.Text>
+                                        <div>
+                                            <Button
+                                                view='secondary'
+                                                size={40}
+                                                onClick={() =>
+                                                    navigate(
+                                                        `/client/new?purpose=${application.purpose}&amount=${num(item.max_amount)}&term=${item.term_months}`,
+                                                    )
+                                                }
+                                            >
+                                                Оформить
+                                            </Button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                     <div>
                         <Button view='secondary' size={48} onClick={() => navigate('/client/new')}>
                             Подобрать другой продукт
@@ -213,6 +263,38 @@ function CurrentStage({ application }: { application: Application }) {
                 </section>
             );
     }
+}
+
+const FINAL_STATUSES = new Set(['DRAFT', 'ISSUED', 'REJECTED', 'DECLINED', 'CANCELLED', 'EXPIRED']);
+
+/** Сколько ждать до денег: ожидаемое время этапов и живые сроки из таймеров процесса. */
+function TimelineCard({ application }: { application: Application }) {
+    const status = application.status;
+    const openRequest = application.info_requests.find((r) => r.status === 'OPEN');
+    const activeOffer = application.offers.find((o) => o.status === 'ACTIVE');
+    const items: [string, string][] = [
+        [
+            'Автоматическая проверка',
+            status === 'SUBMITTED' || status === 'IN_PROCESSING' ? 'идёт сейчас, обычно пара минут' : 'несколько минут',
+        ],
+        [
+            'Решение специалиста',
+            status === 'MANUAL_REVIEW' && application.sla_due_at
+                ? `до ${dateTime(application.sla_due_at)}`
+                : 'если понадобится — до одного рабочего дня',
+        ],
+        ['Ответ на запрос банка', openRequest ? `до ${dateTime(openRequest.due_at)}` : 'если понадобится — 3 дня'],
+        ['Предложение действует', activeOffer ? `до ${dateTime(activeOffer.valid_until)}` : '7 дней'],
+        ['Деньги на счёте', 'в день подписания договора'],
+    ];
+    return (
+        <section className='card card--tight stack-16'>
+            <Typography.Text view='primary-large' weight='bold' tag='div'>
+                Сколько это занимает
+            </Typography.Text>
+            <KeyValue items={items} />
+        </section>
+    );
 }
 
 function ParametersCard({ application }: { application: Application }) {

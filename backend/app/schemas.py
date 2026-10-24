@@ -219,12 +219,45 @@ class HistoryOut(BaseModel):
     created_at: datetime
 
 
+class RateBreakdownOut(BaseModel):
+    """Из чего складывается ставка предложения, в процентных пунктах."""
+
+    key_rate: Decimal
+    product_spread: Decimal
+    risk_margin: Decimal
+    adjustment: Decimal
+    rate: Decimal
+
+
+class RateHintOut(BaseModel):
+    kind: str  # product — более дешёвый продукт, risk — что снизит надбавку за риск
+    text: str
+    product_code: str | None = None
+    product_name: str | None = None
+    rate: Decimal | None = None
+    saving: Decimal | None = None  # на сколько меньше переплата при той же сумме и сроке
+
+
+class AlternativeOut(BaseModel):
+    """«Вам может подойти» после отказа: продукт, доступная сумма, срок и ставка для этой компании."""
+
+    product_code: str
+    product_name: str
+    max_amount: Decimal
+    term_months: int
+    rate: Decimal
+
+
 class ExplanationOut(BaseModel):
     positive: list[str] = []
     negative: list[str] = []
     limit_phrase: str | None = None
     rejection: list[str] = []
     advice: list[str] = []
+    next_steps: list[str] = []
+    rate_breakdown: RateBreakdownOut | None = None
+    rate_hints: list[RateHintOut] = []
+    alternatives: list[AlternativeOut] = []
 
 
 class ScheduleItemOut(Model):
@@ -283,6 +316,7 @@ class ApplicationOut(BaseModel):
     submitted_at: datetime | None
     status_changed_at: datetime
     closed_at: datetime | None
+    sla_due_at: datetime | None = None
     run_no: int
     company: CompanyOut
     steps: list[StepOut]

@@ -8,7 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.db import get_db
-from app.domain.catalog import ProductTerms, products_for_purpose
+from app.domain.catalog import KEY_RATE, ProductTerms, products_for_purpose
 from app.domain.enums import Role
 from app.domain.features import build_features
 from app.domain.labels import (
@@ -19,7 +19,17 @@ from app.domain.labels import (
     STATUS_LABELS,
     STEP_LABELS,
 )
-from app.domain.policy import FLAGS, LIMIT_PHRASES, REASONS, STOP_FACTORS, eligibility_issues, offer_figures
+from app.domain.policy import (
+    ADVICE,
+    CHEAPER_WHY,
+    FACTOR_ADVICE,
+    FLAGS,
+    LIMIT_PHRASES,
+    REASONS,
+    STOP_FACTORS,
+    eligibility_issues,
+    offer_figures,
+)
 from app.domain.proactive import TYPICAL_TERM, proactive_facts, proactive_note, proactive_offers
 from app.integrations.simulator import SourceNotFound, SourceUnavailable, external_systems
 from app.models import Company, Product, User
@@ -44,6 +54,10 @@ def meta() -> dict:
         "flags": FLAGS,
         "stop_factors": STOP_FACTORS,
         "limit_phrases": LIMIT_PHRASES,
+        "advice": ADVICE,
+        "cheaper_why": CHEAPER_WHY,
+        "factor_advice": FACTOR_ADVICE,
+        "key_rate": float(KEY_RATE),
     }
 
 

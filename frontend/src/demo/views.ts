@@ -30,7 +30,7 @@ import type {
 import { META, USERS, companyProfile, sourceSnapshot, userName } from './data';
 import { PRODUCTS, productRow, productTerms } from './engine/catalog';
 import { todayUtc } from './engine/dates';
-import { buildFeatures } from './engine/features';
+import { type Features, buildFeatures } from './engine/features';
 import { paymentSchedule } from './engine/finance';
 import { TYPICAL_TERM, proactiveFacts, proactiveNote, proactiveOffers } from './engine/proactive';
 import {
@@ -40,12 +40,16 @@ import {
     STOP_FACTORS,
     checkAnalystTerms,
     computeLimit,
+    declineAlternatives,
     eligibilityIssues,
+    nextSteps,
     offerFigures,
     paymentLabel,
+    rateBreakdown,
     rateFor,
+    rateHints,
 } from './engine/policy';
-import { score } from './engine/scoring';
+import { marginForClass, score } from './engine/scoring';
 import { HttpError } from './http';
 import {
     CANCELLABLE,
@@ -56,9 +60,9 @@ import {
     type DemoState,
     type DemoUser,
     type EventRow,
+    type OfferRow,
 } from './model';
 import { collectInputs, runSteps } from './pipeline';
-
 /** Деньги в ответах — строкой с копейками, как Decimal из базы. */
 export const money = (value: number): string => value.toFixed(2);
 const moneyOrNull = (value: number | null): string | null => (value === null ? null : money(value));
@@ -181,8 +185,18 @@ function historyOut(state: DemoState, app: AppRow, viewer: DemoUser): HistoryIte
 }
 
 /** Что повлияло на решение — простыми словами (docs/credit-policy.md, «Объяснение решения клиенту»). */
-export function explanation(state: DemoState, app: AppRow): Explanation {
-    const out: Explanation = { positive: [], negative: [], limit_phrase: null, rejection: [], advice: [] };
+export function explanation(state: DemoState, app: AppRow, offer: OfferRow | null = null): Explanation {
+    const out: Explanation = {
+        positive: [],
+        negative: [],
+        limit_phrase: null,
+        rejection: [],
+        advice: [],
+        next_steps: [],
+        rate_breakdown: null,
+        rate_hints: [],
+        alternatives: [],
+    };
     const scoring = latestScoring(state, app);
     const decision = latestDecision(state, app);
     if (scoring) {
@@ -202,6 +216,49 @@ export function explanation(state: DemoState, app: AppRow): Explanation {
             }
             if (!out.rejection.length) out.rejection = [STOP_FACTORS.S05];
             out.advice = out.negative;
+            out.next_steps = nextSteps(decision.stop_factors, decision.reason_codes);
+            const codes = decision.reason_codes;
+            if (
+                scoring &&
+                !decision.stop_factors.length &&
+                codes.length &&
+                codes.every((c) => c === 'R02' || c === 'R06')
+            ) {
+                const riskMargin = marginForClass(scoring.risk_class);
+                const product = productTerms(app.product_code);
+                if (riskMargin !== null && product) {
+                    out.alternatives = declineAlternatives(product, scoring.features as unknown as Features, {
+                        riskMargin,
+                        purpose: app.purpose,
+                        term_months: app.term_months,
+                    }).map((item) => ({ ...item, max_amount: money(item.max_amount), rate: rate(item.rate) }));
+                }
+            }
+        }
+    }
+    if (scoring && offer && app.status !== 'REJECTED') {
+        const riskMargin = marginForClass(scoring.risk_class);
+        const product = productTerms(offer.product_code) ?? productTerms(app.product_code);
+        if (riskMargin !== null && product) {
+            // Деньги и ставки — строками, как Decimal с сервера
+            const b = rateBreakdown(product, riskMargin, offer.rate);
+            out.rate_breakdown = {
+                key_rate: rate(b.key_rate),
+                product_spread: rate(b.product_spread),
+                risk_margin: rate(b.risk_margin),
+                adjustment: rate(b.adjustment),
+                rate: rate(b.rate),
+            };
+            out.rate_hints = rateHints(product, scoring.features as unknown as Features, {
+                riskMargin,
+                factors: scoring.factors,
+                purpose: app.purpose,
+                rate: offer.rate,
+            }).map((hint) => ({
+                ...hint,
+                rate: hint.rate === null ? null : rate(hint.rate),
+                saving: moneyOrNull(hint.saving),
+            }));
         }
     }
     return out;
@@ -275,6 +332,7 @@ export function applicationOut(state: DemoState, app: AppRow, viewer: DemoUser, 
         submitted_at: app.submitted_at,
         status_changed_at: app.status_changed_at,
         closed_at: app.closed_at,
+        sla_due_at: app.sla_due_at,
         run_no: app.run_no,
         company: companyOut(state, app.company_id, now),
         steps: stepsOut(state, app, !isClient(viewer)),
@@ -285,7 +343,7 @@ export function applicationOut(state: DemoState, app: AppRow, viewer: DemoUser, 
             .map(infoRequestOut),
         documents: documentsOut(state, app),
         history: historyOut(state, app, viewer),
-        explanation: explanation(state, app),
+        explanation: explanation(state, app, offers[0] ?? null),
         loan: loanOut(state, app),
         ai_parsed: app.ai_parsed,
     };

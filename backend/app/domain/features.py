@@ -1,7 +1,7 @@
 """Признаки для скоринга и политики из нормализованных ответов источников (docs/credit-policy.md)."""
 
 import statistics
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, fields
 from datetime import date
 from decimal import Decimal
 from typing import Any
@@ -110,6 +110,19 @@ class Features:
             if isinstance(value, Decimal):
                 result[key] = float(value)
         return result
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "Features":
+        """Обратно из сохранённого скоринга: суммы снова становятся Decimal."""
+        kwargs: dict[str, Any] = {}
+        for item in fields(cls):
+            if item.name not in data:
+                continue
+            value = data[item.name]
+            if value is not None and "Decimal" in str(item.type):
+                value = Decimal(str(value))
+            kwargs[item.name] = value
+        return cls(**kwargs)
 
 
 def _inflow_stats(months: list[dict[str, Any]]) -> tuple[int, float | None, Decimal | None, Decimal | None]:
