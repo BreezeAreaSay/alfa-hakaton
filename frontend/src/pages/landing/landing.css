@@ -372,8 +372,27 @@
 /* ---------------------------------------------------------------- кому подойдёт кабинет */
 
 .landing-audience__card {
+    position: relative;
+    overflow: hidden;
     align-content: start;
     gap: var(--gap-16);
+}
+
+/* текст карточки — поверх знака роли */
+.landing-audience__card > :not(.landing-audience__mark) {
+    position: relative;
+}
+
+/* Знак роли: звезда, перо, график — крупно и полупрозрачно в правом верхнем углу, как водяной знак */
+.landing-audience__mark {
+    position: absolute;
+    top: var(--gap-16);
+    right: var(--gap-24);
+    width: 104px;
+    height: 104px;
+    color: var(--color-light-text-primary);
+    opacity: 0.08;
+    pointer-events: none;
 }
 
 .landing-audience__quote {
@@ -480,6 +499,11 @@
 
     .landing-faq__question {
         padding: var(--gap-16) var(--gap-20);
+    }
+
+    .landing-audience__mark {
+        width: 72px;
+        height: 72px;
     }
 
     .landing-faq .landing-faq__answer {

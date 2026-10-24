@@ -188,7 +188,7 @@ const PROMOS: { title: string; text: string; action: string; icon: Icon; tone: T
 ];
 
 /** Роли из ТЗ (стр. 5): у каждой свой этап пути — решает, следит за заявкой, готовит данные. */
-const AUDIENCE: { title: string; who: string; quote: string; points: string[]; icon: Icon; tone: Tone }[] = [
+const AUDIENCE: { title: string; who: string; quote: string; points: string[]; icon: Icon }[] = [
     {
         title: 'Собственнику',
         who: 'Владелец бизнеса или ИП',
@@ -199,7 +199,6 @@ const AUDIENCE: { title: string; who: string; quote: string; points: string[]; i
             'Если банк не готов дать запрошенное — объяснит почему и предложит другие условия',
         ],
         icon: StarMIcon,
-        tone: 'orange',
     },
     {
         title: 'Руководителю',
@@ -211,7 +210,6 @@ const AUDIENCE: { title: string; who: string; quote: string; points: string[]; i
             'Подпись договора и выдача — без визита в банк',
         ],
         icon: PenNibMIcon,
-        tone: 'red',
     },
     {
         title: 'Финансисту',
@@ -223,7 +221,6 @@ const AUDIENCE: { title: string; who: string; quote: string; points: string[]; i
             'По выписке из 1С — прогноз кассового разрыва на три месяца',
         ],
         icon: ChartColumnThreeAscMIcon,
-        tone: 'violet',
     },
 ];
 
@@ -242,7 +239,8 @@ export function AudienceSection() {
             <ul className='login__steps'>
                 {AUDIENCE.map((role) => (
                     <li key={role.title} className='login__step landing-audience__card'>
-                        <Orb icon={role.icon} tone={role.tone} size={56} />
+                        {/* крупный полупрозрачный знак роли в свободном углу карточки — фон, а не иконка */}
+                        <role.icon className='landing-audience__mark' aria-hidden={true} />
                         <div>
                             <Typography.Text view='primary-medium' weight='bold' tag='div'>
                                 {role.title}

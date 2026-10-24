@@ -238,48 +238,55 @@ function LoginWidget({
     };
 
     return (
-        <AuthModal open={open} title='Вход' onClose={onClose} onEntered={() => loginInput.current?.focus()}>
-            <form className='stack-16' onSubmit={submit}>
-                <Input
-                    ref={loginInput}
-                    label='Логин'
-                    labelView='inner'
-                    size={56}
-                    block={true}
-                    value={loginName}
-                    onChange={(e) => setLoginName(e.target.value)}
-                    autoComplete='username'
-                    name='login'
-                />
-                <PasswordInput
-                    label='Пароль'
-                    labelView='inner'
-                    size={56}
-                    block={true}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    autoComplete='current-password'
-                    name='password'
-                />
-                <ErrorPlate error={error} title='Не удалось войти' />
-                {/* та же красная кнопка, что в шапке, на любой ширине */}
-                <ButtonDesktop view='primary' size={56} block={true} type='submit' loading={busy}>
-                    Войти
-                </ButtonDesktop>
-            </form>
-            <AuthSwitch text='Нет профиля?' action='Создать' onClick={onRegister} />
+        <AuthModal open={open} title='Вход' wide={true} onClose={onClose} onEntered={() => loginInput.current?.focus()}>
+            {/* форма слева, тестовые учётные записи справа — всё видно сразу, без прокрутки */}
+            <div className='login-modal__columns'>
+                <div className='stack-16'>
+                    <form className='stack-16' onSubmit={submit}>
+                        <Input
+                            ref={loginInput}
+                            label='Логин'
+                            labelView='inner'
+                            size={56}
+                            block={true}
+                            value={loginName}
+                            onChange={(e) => setLoginName(e.target.value)}
+                            autoComplete='username'
+                            name='login'
+                        />
+                        <PasswordInput
+                            label='Пароль'
+                            labelView='inner'
+                            size={56}
+                            block={true}
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            autoComplete='current-password'
+                            name='password'
+                        />
+                        <ErrorPlate error={error} title='Не удалось войти' />
+                        {/* та же красная кнопка, что в шапке, на любой ширине — по размеру надписи */}
+                        <div>
+                            <ButtonDesktop view='primary' size={48} type='submit' loading={busy}>
+                                Войти
+                            </ButtonDesktop>
+                        </div>
+                    </form>
+                    <AuthSwitch text='Нет профиля?' action='Создать' onClick={onRegister} />
+                </div>
 
-            <div className='stack-8'>
-                <Typography.Text view='primary-medium' weight='bold' tag='div'>
-                    Тестовые учётные записи
-                </Typography.Text>
-                <Typography.Text view='primary-small' color='secondary' tag='div'>
-                    Пароль у всех — admin. Нажмите, чтобы войти.
-                </Typography.Text>
-                {CLIENT_GROUPS.map((group) => (
-                    <AccountGroup key={group.title} title={group.title} accounts={group.accounts} onPick={quick} />
-                ))}
-                <AccountGroup title='Сотрудники банка' accounts={STAFF} onPick={quick} />
+                <div className='stack-8 login-modal__accounts'>
+                    <Typography.Text view='primary-medium' weight='bold' tag='div'>
+                        Тестовые учётные записи
+                    </Typography.Text>
+                    <Typography.Text view='primary-small' color='secondary' tag='div'>
+                        Пароль у всех — admin. Нажмите, чтобы войти.
+                    </Typography.Text>
+                    {CLIENT_GROUPS.map((group) => (
+                        <AccountGroup key={group.title} title={group.title} accounts={group.accounts} onPick={quick} />
+                    ))}
+                    <AccountGroup title='Сотрудники банка' accounts={STAFF} onPick={quick} />
+                </div>
             </div>
         </AuthModal>
     );
