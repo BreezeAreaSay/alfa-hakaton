@@ -35,6 +35,8 @@ import { CompanyCard } from './components/CompanyCard';
 import { DocumentList } from './components/DocumentList';
 import { UploadButton } from './components/UploadButton';
 
+const STEP_TITLES = ['Подбор продукта', 'Данные заявки', 'Проверка и отправка'];
+
 const PURPOSES: { code: Purpose; title: string; text: string; icon: ReactNode }[] = [
     {
         code: 'WORKING_CAPITAL',
@@ -130,11 +132,25 @@ export function NewApplicationPage() {
                 subtitle='Подберём продукт под задачу, данные компании подтянем из ЕГРЮЛ — заполнять почти ничего не нужно'
             />
             <div className='card card--tight steps-card' style={{ marginBottom: 24 }}>
-                <Steps activeStep={step + 1} isMarkCompletedSteps={true} ordered={true} interactive={false}>
-                    <span>Подбор продукта</span>
-                    <span>Данные заявки</span>
-                    <span>Проверка и отправка</span>
-                </Steps>
+                <div className='steps-card__full'>
+                    <Steps activeStep={step + 1} isMarkCompletedSteps={true} ordered={true} interactive={false}>
+                        {STEP_TITLES.map((title) => (
+                            <span key={title}>{title}</span>
+                        ))}
+                    </Steps>
+                </div>
+                {/* на телефоне горизонтальные шаги не помещаются — компактный индикатор */}
+                <div className='steps-card__compact' aria-label={`Шаг ${step + 1} из ${STEP_TITLES.length}`}>
+                    <Typography.Text view='primary-small' color='secondary' tag='div'>
+                        Шаг {step + 1} из {STEP_TITLES.length}
+                    </Typography.Text>
+                    <Typography.Text view='primary-medium' weight='bold' tag='div'>
+                        {STEP_TITLES[step]}
+                    </Typography.Text>
+                    <div className='steps-card__bar'>
+                        <span style={{ width: `${((step + 1) / STEP_TITLES.length) * 100}%` }} />
+                    </div>
+                </div>
             </div>
             {step === 0 && (
                 <SelectionStep

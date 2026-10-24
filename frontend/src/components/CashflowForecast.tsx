@@ -101,28 +101,32 @@ export function CashflowForecast({ forecast: f, compact = false }: { forecast: F
                     {trendText(f.trend_inflow, 'Поступления')}, {trendText(f.trend_outflow, 'списания').toLowerCase()}.
                 </Typography.Text>
             )}
-            <div className='table-wrap'>
-                <table className='simple cashflow__table'>
-                    <thead>
-                        <tr>
-                            <th>Месяц</th>
-                            <th className='num'>Поступления</th>
-                            <th className='num'>Списания</th>
-                            <th className='num'>{f.balance_known ? 'Остаток' : 'Накопленный поток'}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {f.months.map((m) => (
-                            <tr key={m.month}>
-                                <td>{monthName(m.month)}</td>
-                                <td className='num'>{rub(m.inflow)}</td>
-                                <td className='num'>{rub(m.outflow)}</td>
-                                <td className={`num${m.balance < 0 ? ' cashflow__negative' : ''}`}>{rub(m.balance)}</td>
+            {!compact && (
+                <div className='table-wrap'>
+                    <table className='simple cashflow__table'>
+                        <thead>
+                            <tr>
+                                <th>Месяц</th>
+                                <th className='num'>Поступления</th>
+                                <th className='num'>Списания</th>
+                                <th className='num'>{f.balance_known ? 'Остаток' : 'Накопленный поток'}</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody>
+                            {f.months.map((m) => (
+                                <tr key={m.month}>
+                                    <td>{monthName(m.month)}</td>
+                                    <td className='num'>{rub(m.inflow)}</td>
+                                    <td className='num'>{rub(m.outflow)}</td>
+                                    <td className={`num${m.balance < 0 ? ' cashflow__negative' : ''}`}>
+                                        {rub(m.balance)}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
             {!compact && (
                 <Typography.Text view='primary-small' color='secondary' tag='p'>
                     Как считаем: базовый уровень — среднее за последние три месяца, тренд — по всем месяцам выписки,

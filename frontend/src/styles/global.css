@@ -590,6 +590,11 @@ table.simple td.num {
     font-variant-numeric: tabular-nums;
 }
 
+/* статус не обрезается: при нехватке места переносится соседний текст */
+table.simple td.col-status {
+    white-space: nowrap;
+}
+
 .back-link {
     gap: var(--gap-4);
     margin-bottom: var(--gap-8);
@@ -702,9 +707,48 @@ table.simple td.num {
     grid-template-columns: minmax(0, 440px) minmax(0, 1fr);
 }
 
-/* шаги мастера не влезают на узкий экран — прокрутка внутри карточки */
-.steps-card {
-    overflow-x: auto;
+/* шаги мастера: на телефоне вместо горизонтальных шагов — компактный индикатор */
+.steps-card__compact {
+    display: none;
+}
+
+.steps-card__bar {
+    height: 4px;
+    margin-top: var(--gap-8);
+    border-radius: 2px;
+    background: var(--color-light-neutral-translucent-200);
+    overflow: hidden;
+}
+
+.steps-card__bar > span {
+    display: block;
+    height: 100%;
+    border-radius: 2px;
+    background: var(--color-light-accent-primary, #ef3124);
+}
+
+.nav__label--short {
+    display: none;
+}
+
+.mobile-only {
+    display: none !important;
+}
+
+/* документ в списке: иконка, описание и кнопки; на узком экране кнопки уходят на отдельную строку */
+.doc-item {
+    flex-wrap: wrap;
+}
+
+.doc-item__body {
+    flex: 1 1 240px;
+    min-width: 0;
+}
+
+.doc-item__actions {
+    display: flex;
+    gap: var(--gap-4);
+    margin-left: auto;
 }
 
 @media (max-width: 1023px) {
@@ -744,6 +788,54 @@ table.simple td.num {
     .nav__link {
         padding: 8px var(--gap-12);
         white-space: nowrap;
+    }
+
+    .nav__label {
+        display: none;
+    }
+
+    .nav__label--short {
+        display: inline;
+    }
+
+    .steps-card__full {
+        display: none;
+    }
+
+    .steps-card__compact {
+        display: block;
+    }
+
+    /* узкие таблицы: второстепенные колонки графика скрыты, прогноз мельче */
+    .col-detail {
+        display: none;
+    }
+
+    .mobile-only {
+        display: block !important;
+        white-space: normal;
+    }
+
+    table.simple {
+        font-size: 13px;
+    }
+
+    table.simple th {
+        padding: 6px;
+    }
+
+    table.simple td {
+        padding: var(--gap-8) 6px;
+    }
+
+    table.simple.cashflow__table {
+        font-size: 13px;
+    }
+
+    table.simple.cashflow__table td,
+    table.simple.cashflow__table th {
+        padding-left: 4px;
+        padding-right: 4px;
     }
 
     .header__right {

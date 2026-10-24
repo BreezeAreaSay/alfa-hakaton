@@ -45,22 +45,22 @@ export function LoanSection({ loan }: { loan: Loan }) {
                 <table className='simple'>
                     <thead>
                         <tr>
-                            <th>№</th>
+                            <th className='col-detail'>№</th>
                             <th>Дата</th>
                             <th className='num'>Платёж</th>
-                            <th className='num'>Основной долг</th>
-                            <th className='num'>Проценты</th>
+                            <th className='num col-detail'>Основной долг</th>
+                            <th className='num col-detail'>Проценты</th>
                             <th className='num'>Остаток</th>
                         </tr>
                     </thead>
                     <tbody>
                         {rows.map((row) => (
                             <tr key={row.n}>
-                                <td>{row.n}</td>
+                                <td className='col-detail'>{row.n}</td>
                                 <td>{date(row.due_date)}</td>
                                 <td className='num'>{rub(row.payment)}</td>
-                                <td className='num'>{rub(row.principal)}</td>
-                                <td className='num'>{rub(row.interest)}</td>
+                                <td className='num col-detail'>{rub(row.principal)}</td>
+                                <td className='num col-detail'>{rub(row.interest)}</td>
                                 <td className='num'>{rub(row.balance)}</td>
                             </tr>
                         ))}

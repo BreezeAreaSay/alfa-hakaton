@@ -13,6 +13,8 @@ import { dateTime } from '../utils/format';
 export interface NavItem {
     to: string;
     label: string;
+    /** короткая подпись для телефона, где полная не помещается */
+    short?: string;
     end?: boolean;
 }
 
@@ -43,7 +45,14 @@ export function AppHeader({ nav, home, bank = false }: { nav: NavItem[]; home: s
                             end={item.end}
                             className={({ isActive }) => `nav__link${isActive ? ' nav__link--active' : ''}`}
                         >
-                            {item.label}
+                            {item.short ? (
+                                <>
+                                    <span className='nav__label'>{item.label}</span>
+                                    <span className='nav__label--short'>{item.short}</span>
+                                </>
+                            ) : (
+                                item.label
+                            )}
                         </NavLink>
                     ))}
                 </nav>

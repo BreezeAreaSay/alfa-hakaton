@@ -184,7 +184,7 @@ export function DashboardPage() {
                                     <thead>
                                         <tr>
                                             <th>Заявка</th>
-                                            <th>Продукт</th>
+                                            <th className='col-detail'>Продукт</th>
                                             <th className='num'>Сумма и срок</th>
                                             <th>Статус</th>
                                         </tr>
@@ -199,8 +199,16 @@ export function DashboardPage() {
                                                     <Typography.Text view='primary-small' color='secondary' tag='div'>
                                                         {date(item.status_changed_at)}
                                                     </Typography.Text>
+                                                    <Typography.Text
+                                                        view='primary-small'
+                                                        color='secondary'
+                                                        tag='div'
+                                                        className='mobile-only'
+                                                    >
+                                                        {item.product_name}
+                                                    </Typography.Text>
                                                 </td>
-                                                <td>{item.product_name}</td>
+                                                <td className='col-detail'>{item.product_name}</td>
                                                 <td className='num'>
                                                     <Typography.Text view='primary-small' weight='medium' tag='div'>
                                                         {rub(item.amount)}
@@ -209,7 +217,7 @@ export function DashboardPage() {
                                                         {months(item.term_months)}
                                                     </Typography.Text>
                                                 </td>
-                                                <td>
+                                                <td className='col-status'>
                                                     <div className='stack-8' style={{ alignItems: 'flex-start' }}>
                                                         <StatusBadge status={item.status} label={item.status_label} />
                                                         {item.needs_action && item.status !== 'DRAFT' && (

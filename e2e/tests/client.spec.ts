@@ -59,7 +59,7 @@ test('ключевой сценарий: подбор, заявка, автоо�
     await dialog.getByRole('button', { name: 'Подписать', exact: true }).click();
 
     await expect(page.getByText('Кредит выдан').first()).toBeVisible();
-    await expect(page.getByRole('columnheader', { name: 'Основной долг' })).toBeVisible();
+    await expect(page.getByRole('columnheader', { name: 'Остаток' })).toBeVisible();
     await expect(page.getByText('Ближайший платёж')).toBeVisible();
 
     // В списке заявок на главной — выданный кредит

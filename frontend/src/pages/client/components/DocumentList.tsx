@@ -22,9 +22,9 @@ export function DocumentList({
     return (
         <div className='stack-8'>
             {documents.map((doc) => (
-                <div key={doc.id} className='tile row' style={{ flexWrap: 'nowrap', padding: '12px 16px' }}>
+                <div key={doc.id} className='tile row doc-item' style={{ padding: '12px 16px' }}>
                     {doc.content_type === 'application/pdf' ? <DocumentPdfMIcon /> : <DocumentTxtMIcon />}
-                    <div style={{ flex: 1, minWidth: 0 }}>
+                    <div className='doc-item__body'>
                         <Typography.Text
                             view='primary-small'
                             weight='medium'
@@ -54,20 +54,22 @@ export function DocumentList({
                             </div>
                         )}
                     </div>
-                    <IconButton
-                        icon={EyeMIcon}
-                        aria-label='Открыть'
-                        title='Открыть'
-                        onClick={() => void openInNewTab(`/api/documents/${doc.id}/download`)}
-                    />
-                    {onDelete && doc.source === 'CLIENT' && (
+                    <div className='doc-item__actions'>
                         <IconButton
-                            icon={TrashCanLineMIcon}
-                            aria-label='Удалить'
-                            title='Удалить'
-                            onClick={() => onDelete(doc)}
+                            icon={EyeMIcon}
+                            aria-label='Открыть'
+                            title='Открыть'
+                            onClick={() => void openInNewTab(`/api/documents/${doc.id}/download`)}
                         />
-                    )}
+                        {onDelete && doc.source === 'CLIENT' && (
+                            <IconButton
+                                icon={TrashCanLineMIcon}
+                                aria-label='Удалить'
+                                title='Удалить'
+                                onClick={() => onDelete(doc)}
+                            />
+                        )}
+                    </div>
                 </div>
             ))}
         </div>

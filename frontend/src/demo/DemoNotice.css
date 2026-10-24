@@ -31,3 +31,14 @@
 .demo-notice ~ .login {
     min-height: calc(100vh - var(--demo-notice-height));
 }
+
+/* на телефоне хватает первой фразы */
+@media (max-width: 767px) {
+    .demo-notice {
+        padding: var(--gap-8) var(--gap-16);
+    }
+
+    .demo-notice__hint {
+        display: none;
+    }
+}

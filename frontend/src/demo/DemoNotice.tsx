@@ -11,7 +11,9 @@ export default function DemoNotice() {
                 <Typography.Text view='primary-small' weight='medium' color='primary-inverted'>
                     Демо-версия без сервера: данные хранятся в этом браузере.
                 </Typography.Text>{' '}
-                Сбросить их можно под учётной записью admin на странице «Конвейер и сбои».
+                <span className='demo-notice__hint'>
+                    Сбросить их можно под учётной записью admin на странице «Конвейер и сбои».
+                </span>
             </Typography.Text>
         </div>
     );

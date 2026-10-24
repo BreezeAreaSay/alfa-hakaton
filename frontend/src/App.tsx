@@ -28,7 +28,7 @@ function ClientLayout() {
                 home='/client'
                 nav={[
                     { to: '/client', label: 'Главная', end: true },
-                    { to: '/client/new', label: 'Получить кредит' },
+                    { to: '/client/new', label: 'Получить кредит', short: 'Заявка' },
                 ]}
             />
             <Outlet />
