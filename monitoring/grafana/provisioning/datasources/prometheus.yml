@@ -1,0 +1,15 @@
+# Источник данных для Grafana: Prometheus из того же профиля monitoring (docker-compose.yml).
+# Файл читается при старте контейнера; в интерфейсе источник не редактируется.
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    uid: prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: false
+    jsonData:
+      # Шаг сбора из monitoring/prometheus.yml: по нему Grafana считает $__rate_interval
+      timeInterval: 10s

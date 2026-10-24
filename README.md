@@ -77,7 +77,7 @@ docker compose up -d --build --wait   # или make up
 docker compose --profile monitoring up -d --build --wait
 ```
 
-Prometheus открывается на <http://localhost:9090> (порт меняется через `PROMETHEUS_PORT`). Полезные запросы:
+Prometheus открывается на <http://localhost:9090> (порт меняется через `PROMETHEUS_PORT`), Grafana с готовой панелью «Кредитный конвейер» — на <http://localhost:3000> (`GRAFANA_PORT`): запросы и время ответа API, задания и шаги конвейера, сбои внешних систем и circuit breaker, решения, очередь. Смотреть можно без входа; для правок — логин `admin`, пароль `demo` (меняется через `GRAFANA_PASSWORD`). Панель и источник данных задаются файлами в [monitoring/grafana](monitoring/grafana). Полезные запросы к Prometheus:
 
 | Что | PromQL |
 |---|---|
