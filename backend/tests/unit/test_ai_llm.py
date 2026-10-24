@@ -52,6 +52,31 @@ def test_model_answer_is_used(llm):
     assert sent[0]["response_format"] == {"type": "json_object"}
 
 
+def test_json_mode_is_retried_without_response_format_when_provider_rejects_it(monkeypatch):
+    """Провайдер отвечает 400 на response_format — второй запрос идёт без него, JSON берётся из текста."""
+    settings = get_settings().model_copy(update={"ai_enabled": True, "llm_model": "test-model"})
+    monkeypatch.setattr(ai, "get_settings", lambda: settings)
+    sent: list[dict] = []
+
+    def fake_post(url, json=None, headers=None, timeout=None):  # noqa: A002 — как у httpx.post
+        sent.append(dict(json))  # копия: клиент убирает response_format из того же словаря перед повтором
+        request = httpx.Request("POST", url)
+        if "response_format" in json:
+            return httpx.Response(400, json={"error": {"message": "response_format is not supported"}}, request=request)
+        content = 'Вот ответ: {"purpose": "EQUIPMENT", "amount": 7500000, "term_months": 60, "summary": "Экскаватор"}'
+        return httpx.Response(200, json={"choices": [{"message": {"content": content}}]}, request=request)
+
+    monkeypatch.setattr(ai.httpx, "post", fake_post)
+    result = ai.parse_need("Планируем купить экскаватор за 7.5 млн, кредит на 60 месяцев")
+    assert [("response_format" in body) for body in sent] == [True, False]
+    assert (result["purpose"], result["amount"], result["term_months"], result["source"]) == (
+        "EQUIPMENT",
+        7_500_000,
+        60,
+        "llm",
+    )
+
+
 def test_invalid_model_values_are_replaced_by_rules(llm):
     llm(json.dumps({"purpose": "LOTTERY", "amount": 5, "term_months": 999, "summary": None}))
     result = ai.parse_need(TEXT)

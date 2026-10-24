@@ -193,13 +193,14 @@ def chat(messages: list[dict[str, str]], *, json_mode: bool = False, max_tokens:
     }
     if json_mode:
         payload["response_format"] = {"type": "json_object"}
+    url = f"{settings.llm_base_url.rstrip('/')}/chat/completions"
     try:
-        response = httpx.post(
-            f"{settings.llm_base_url.rstrip('/')}/chat/completions",
-            json=payload,
-            headers=headers,
-            timeout=settings.llm_timeout_seconds,
-        )
+        response = httpx.post(url, json=payload, headers=headers, timeout=settings.llm_timeout_seconds)
+        if response.status_code == 400 and json_mode:
+            # Не каждый сервис с API в формате OpenAI принимает response_format (часть моделей у провайдеров,
+            # старые сборки vLLM). Повторяем без него: JSON всё равно извлекается из текста ответа
+            payload.pop("response_format")
+            response = httpx.post(url, json=payload, headers=headers, timeout=settings.llm_timeout_seconds)
         response.raise_for_status()
         content = response.json()["choices"][0]["message"]["content"] or ""
     except (httpx.HTTPError, KeyError, IndexError, ValueError) as error:
