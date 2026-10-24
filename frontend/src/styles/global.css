@@ -464,6 +464,24 @@ a {
     flex: none;
 }
 
+/* «Я понял так»: результат разбора описания — что нашли, по каким словам, «Изменить» */
+.understood {
+    padding: var(--gap-16);
+    border-radius: 16px;
+    background: var(--color-light-base-bg-primary);
+}
+
+.understood__row {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr) auto;
+    align-items: start;
+    gap: var(--gap-12);
+}
+
+.understood__label {
+    padding-top: 2px;
+}
+
 .offer-card {
     background: var(--color-light-base-bg-secondary);
     border-radius: 20px;
