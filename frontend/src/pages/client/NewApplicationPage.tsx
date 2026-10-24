@@ -994,6 +994,9 @@ function ReviewStep({ application, onBack }: { application: Application; onBack:
                         size={24}
                         block={true}
                     />
+                    <Typography.Text view='primary-small' color='secondary' tag='p'>
+                        Прототип: согласия фиксируются отметкой в кабинете, без электронной подписи.
+                    </Typography.Text>
                 </div>
                 <Plate view='common' rounded={true} limitContentWidth={false} title='Что будет дальше'>
                     Проверим данные в ЕГРЮЛ, ФНС, бюро кредитных историй и оценим риск — обычно это несколько минут.
