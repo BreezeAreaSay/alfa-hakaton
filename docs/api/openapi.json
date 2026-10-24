@@ -12,6 +12,7 @@
           "Вход"
         ],
         "summary": "Вход по логину и паролю",
+        "description": "После `LOGIN_ATTEMPTS` неверных паролей (по умолчанию 5) логин блокируется с этого адреса\nна `LOGIN_WINDOW_SECONDS` (5 минут). Неудачные попытки записываются в журнал действий.",
         "operationId": "login_api_auth_login_post",
         "requestBody": {
           "content": {
@@ -33,6 +34,12 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Неверный логин или пароль"
+          },
+          "429": {
+            "description": "Слишком много неверных паролей: логин с этого адреса временно заблокирован, Retry-After"
           },
           "422": {
             "description": "Validation Error",

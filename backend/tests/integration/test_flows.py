@@ -446,3 +446,23 @@ def test_preliminary_offers_by_statement():
     assert result["facts"][0].startswith("По выписке")
     bad = client.http.post("/api/offers/preliminary", files={"file": ("x.csv", b"not a statement", "text/csv")})
     assert bad.status_code == 422
+
+
+def test_login_is_blocked_after_repeated_wrong_passwords():
+    """Перебор паролей: после пяти неверных паролей логин с этого адреса блокируется на 5 минут — 429 и Retry-After."""
+    http = httpx.Client(base_url=API, timeout=30)
+    statuses = []
+    for _ in range(7):
+        response = http.post("/api/auth/login", json={"login": "nobody", "password": "wrong"})
+        statuses.append(response.status_code)
+        if response.status_code == 429:
+            assert int(response.headers["Retry-After"]) > 0
+            assert response.json()["detail"].startswith("Слишком много попыток входа. Повторите через")
+            break
+    assert statuses[-1] == 429 and statuses.count(401) <= 5, statuses
+    # другие пользователи входят как обычно
+    assert Client("analyst").user["role"] == "UNDERWRITER"
+    # неудачные попытки видны в журнале действий
+    rows = Client("admin").get("/api/admin/audit")
+    failed = [r for r in rows if r["action"] == "LOGIN_FAILED" and r["details"].get("login") == "nobody"]
+    assert failed and failed[0]["details"]["blocked_seconds"] and failed[0]["actor"] == "SYSTEM"

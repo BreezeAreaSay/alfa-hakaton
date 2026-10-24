@@ -10,6 +10,9 @@ class Settings(BaseSettings):
     simulator_url: str = "http://localhost:8100"
     jwt_secret: str = "change-me-in-production"
     jwt_ttl_minutes: int = 12 * 60
+    # Неверных паролей по логину с одного адреса до блокировки и её длительность (docs/architecture.md, «Безопасность»)
+    login_attempts: int = 5
+    login_window_seconds: int = 300
     files_dir: str = "/data/files"
     max_upload_mb: int = 10
 

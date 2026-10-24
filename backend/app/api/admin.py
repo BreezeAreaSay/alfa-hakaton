@@ -12,6 +12,7 @@ from app.schemas import FaultIn
 from app.security import admin_only, bank_staff
 from app.seed.demo import reset_demo
 from app.services.audit import audit
+from app.services.login_limiter import login_limiter
 
 router = APIRouter(prefix="/api/admin", tags=["Администрирование демо"])
 
@@ -28,6 +29,7 @@ SOURCE_TITLES = {
 @router.post("/demo/reset", summary="Сбросить демо-данные: удалить заявки и вернуть исходное состояние")
 def reset(user: User = Depends(admin_only), db: Session = Depends(get_db)) -> dict:
     created = reset_demo(db)
+    login_limiter().clear()  # вместе с данными снимаются и блокировки входа
     audit(db, actor=Actor.ADMIN, user=user, action="DEMO_RESET", entity_type="system", entity_id="demo")
     db.commit()
     return {"status": "ok", "preseeded": created}

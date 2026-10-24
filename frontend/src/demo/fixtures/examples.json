@@ -23,7 +23,7 @@
       "bank_account_opened_at": "2021-10-24",
       "business_months": 74,
       "account_months": 60,
-      "registry_synced_at": "2026-10-24T18:35:03.090184Z"
+      "registry_synced_at": "2026-10-24T18:51:51.077638Z"
     }
   },
   "proactive": {
@@ -59,7 +59,7 @@
         "Поступления на счёт — в среднем 10 000 000 ₽ в месяц"
       ],
       "note": "Предварительно, без учёта кредитной истории. Точные условия — после проверки по заявке.",
-      "computed_at": "2026-10-24T18:35:15.555191Z"
+      "computed_at": "2026-10-24T18:53:05.207971Z"
     },
     "smirnova": {
       "offers": [
@@ -88,7 +88,7 @@
       ],
       "facts": ["Бизнес работает 2 года 2 мес.","Поступления на счёт — в среднем 1 100 000 ₽ в месяц"],
       "note": "Предварительно, без учёта кредитной истории. Точные условия — после проверки по заявке.",
-      "computed_at": "2026-10-24T18:35:16.349877Z"
+      "computed_at": "2026-10-24T18:53:06.017123Z"
     },
     "tehnomaster": {
       "offers": [
@@ -111,13 +111,13 @@
         "Поступления на счёт — в среднем 2 487 500 ₽ в месяц"
       ],
       "note": "Предварительно, без учёта кредитной истории. Точные условия — после проверки по заявке.",
-      "computed_at": "2026-10-24T18:35:16.801057Z"
+      "computed_at": "2026-10-24T18:53:06.540455Z"
     },
     "orlov": {
       "offers": [],
       "facts": ["Бизнес работает 3 года 2 мес."],
       "note": "Чтобы рассчитать предложение заранее, нужна отчётность или поступления на счёт за три месяца и больше. Подайте заявку — приложите выписку из другого банка, и мы оценим выручку по ней.",
-      "computed_at": "2026-10-24T18:35:17.679916Z"
+      "computed_at": "2026-10-24T18:53:07.409096Z"
     },
     "vektor": {
       "offers": [
@@ -151,7 +151,7 @@
         "Поступления на счёт — в среднем 3 000 000 ₽ в месяц"
       ],
       "note": "Предварительно, без учёта кредитной истории. Точные условия — после проверки по заявке.",
-      "computed_at": "2026-10-24T18:35:18.250280Z"
+      "computed_at": "2026-10-24T18:53:07.811559Z"
     },
     "grand": {
       "offers": [
@@ -185,13 +185,13 @@
         "Поступления на счёт — в среднем 35 000 000 ₽ в месяц"
       ],
       "note": "Предварительно, без учёта кредитной истории. Точные условия — после проверки по заявке.",
-      "computed_at": "2026-10-24T18:35:19.138450Z"
+      "computed_at": "2026-10-24T18:53:08.668764Z"
     },
     "start": {
       "offers": [],
       "facts": ["Бизнес работает 5 мес.","Поступления на счёт — в среднем 504 000 ₽ в месяц"],
       "note": null,
-      "computed_at": "2026-10-24T18:35:20.059709Z"
+      "computed_at": "2026-10-24T18:53:09.387542Z"
     },
     "altair": {
       "offers": [
@@ -225,7 +225,7 @@
         "Поступления на счёт — в среднем 5 300 000 ₽ в месяц"
       ],
       "note": "Предварительно, без учёта кредитной истории. Точные условия — после проверки по заявке.",
-      "computed_at": "2026-10-24T18:35:20.786264Z"
+      "computed_at": "2026-10-24T18:53:10.252324Z"
     },
     "romashka": {
       "offers": [],
@@ -236,7 +236,7 @@
         "Поступления на счёт — в среднем 408 333 ₽ в месяц"
       ],
       "note": null,
-      "computed_at": "2026-10-24T18:35:21.694584Z"
+      "computed_at": "2026-10-24T18:53:11.283041Z"
     },
     "meridian": {
       "offers": [
@@ -259,7 +259,7 @@
         "Поступления на счёт — в среднем 1 264 000 ₽ в месяц"
       ],
       "note": "Предварительно, без учёта кредитной истории. Точные условия — после проверки по заявке.",
-      "computed_at": "2026-10-24T18:35:22.517561Z"
+      "computed_at": "2026-10-24T18:53:12.076105Z"
     }
   },
   "preliminary": {
@@ -293,7 +293,7 @@
       "Счёт в банке: 2 года 1 мес."
     ],
     "note": "Предварительно, по выписке и данным ЕГРЮЛ/ЕГРИП, без кредитной истории. Точные условия — после проверки по заявке; эту выписку можно приложить к ней.",
-    "computed_at": "2026-10-24T18:35:23.310623Z",
+    "computed_at": "2026-10-24T18:53:12.837215Z",
     "statement": {
       "source": "CSV",
       "account": null,
@@ -412,30 +412,7 @@
   ],
   "queue": [
     {
-      "id": "52208233-41f3-4615-b062-e520ce5f1b3e",
-      "number": "2026-00002",
-      "company_name": "ООО «Гранд Девелопмент»",
-      "inn": "0010000063",
-      "legal_form": "OOO",
-      "product_code": "SECURED",
-      "product_name": "Кредит под залог",
-      "amount": "60000000.00",
-      "term_months": 84,
-      "status": "MANUAL_REVIEW",
-      "status_label": "Ручное рассмотрение",
-      "risk_class": "A",
-      "score": 830,
-      "flags": [],
-      "assignee_name": null,
-      "assignee_is_me": false,
-      "sla_due_at": "2026-10-25T18:35:18.065207Z",
-      "overdue": false,
-      "submitted_at": "2026-10-24T18:35:14.325593Z",
-      "status_changed_at": "2026-10-24T18:35:18.065207Z",
-      "waiting_source": null
-    },
-    {
-      "id": "162381f1-0467-4d7f-8a70-9b04bdd16a08",
+      "id": "8e89af6a-1573-4ba8-a37a-1ea6a5b93eeb",
       "number": "2026-00001",
       "company_name": "ООО «Вектор Логистик»",
       "inn": "0010000031",
@@ -451,10 +428,33 @@
       "flags": ["F01","F02"],
       "assignee_name": null,
       "assignee_is_me": false,
-      "sla_due_at": "2026-10-25T18:35:18.109604Z",
+      "sla_due_at": "2026-10-25T18:53:06.259286Z",
       "overdue": false,
-      "submitted_at": "2026-10-24T18:35:14.294813Z",
-      "status_changed_at": "2026-10-24T18:35:18.109604Z",
+      "submitted_at": "2026-10-24T18:53:03.869141Z",
+      "status_changed_at": "2026-10-24T18:53:06.259286Z",
+      "waiting_source": null
+    },
+    {
+      "id": "46cbdfa9-9828-44af-ba95-3f4956aba20d",
+      "number": "2026-00002",
+      "company_name": "ООО «Гранд Девелопмент»",
+      "inn": "0010000063",
+      "legal_form": "OOO",
+      "product_code": "SECURED",
+      "product_name": "Кредит под залог",
+      "amount": "60000000.00",
+      "term_months": 84,
+      "status": "MANUAL_REVIEW",
+      "status_label": "Ручное рассмотрение",
+      "risk_class": "A",
+      "score": 830,
+      "flags": [],
+      "assignee_name": null,
+      "assignee_is_me": false,
+      "sla_due_at": "2026-10-25T18:53:06.343798Z",
+      "overdue": false,
+      "submitted_at": "2026-10-24T18:53:03.894612Z",
+      "status_changed_at": "2026-10-24T18:53:06.343798Z",
       "waiting_source": null
     }
   ],
@@ -470,8 +470,8 @@
   },
   "metrics": {
     "period_days": 30,
-    "since": "2026-09-24T18:35:24.254057Z",
-    "until": "2026-10-24T18:35:24.254057Z",
+    "since": "2026-09-24T18:53:14.013117Z",
+    "until": "2026-10-24T18:53:14.013117Z",
     "submitted": 2,
     "in_progress": 2,
     "decided": 0,
@@ -554,7 +554,7 @@
   },
   "dossier": {
     "application": {
-      "id": "162381f1-0467-4d7f-8a70-9b04bdd16a08",
+      "id": "8e89af6a-1573-4ba8-a37a-1ea6a5b93eeb",
       "number": "2026-00001",
       "status": "MANUAL_REVIEW",
       "status_label": "Ручное рассмотрение",
@@ -585,11 +585,11 @@
       "declared_revenue": "36000000.00",
       "collateral_type": null,
       "collateral_value": null,
-      "created_at": "2026-10-24T18:35:14.078876Z",
-      "submitted_at": "2026-10-24T18:35:14.294813Z",
-      "status_changed_at": "2026-10-24T18:35:18.109604Z",
+      "created_at": "2026-10-24T18:53:03.666327Z",
+      "submitted_at": "2026-10-24T18:53:03.869141Z",
+      "status_changed_at": "2026-10-24T18:53:06.259286Z",
       "closed_at": null,
-      "sla_due_at": "2026-10-25T18:35:18.109604Z",
+      "sla_due_at": "2026-10-25T18:53:06.259286Z",
       "run_no": 1,
       "company": {
         "id": "4c937c05-da1c-4df0-945a-b944c412f0fa",
@@ -608,7 +608,7 @@
         "bank_account_opened_at": "2025-04-24",
         "business_months": 40,
         "account_months": 18,
-        "registry_synced_at": "2026-10-24T18:35:16.637382Z"
+        "registry_synced_at": "2026-10-24T18:53:04.601773Z"
       },
       "steps": [
         {
@@ -616,8 +616,8 @@
           "title": "Проверка данных заявки",
           "status": "DONE",
           "attempts": 1,
-          "started_at": "2026-10-24T18:35:16.101086Z",
-          "finished_at": "2026-10-24T18:35:16.112851Z",
+          "started_at": "2026-10-24T18:53:03.945492Z",
+          "finished_at": "2026-10-24T18:53:03.962108Z",
           "next_retry_at": null,
           "waiting_text": null,
           "error": null
@@ -627,8 +627,8 @@
           "title": "Сведения из ЕГРЮЛ / ЕГРИП",
           "status": "DONE",
           "attempts": 1,
-          "started_at": "2026-10-24T18:35:16.134884Z",
-          "finished_at": "2026-10-24T18:35:16.637513Z",
+          "started_at": "2026-10-24T18:53:03.982796Z",
+          "finished_at": "2026-10-24T18:53:04.601824Z",
           "next_retry_at": null,
           "waiting_text": null,
           "error": null
@@ -638,8 +638,8 @@
           "title": "Проверка в ФНС",
           "status": "DONE",
           "attempts": 1,
-          "started_at": "2026-10-24T18:35:16.655531Z",
-          "finished_at": "2026-10-24T18:35:16.944085Z",
+          "started_at": "2026-10-24T18:53:04.619084Z",
+          "finished_at": "2026-10-24T18:53:04.912827Z",
           "next_retry_at": null,
           "waiting_text": null,
           "error": null
@@ -649,8 +649,8 @@
           "title": "Бухгалтерская отчётность",
           "status": "DONE",
           "attempts": 1,
-          "started_at": "2026-10-24T18:35:16.960158Z",
-          "finished_at": "2026-10-24T18:35:17.219924Z",
+          "started_at": "2026-10-24T18:53:04.926196Z",
+          "finished_at": "2026-10-24T18:53:05.293565Z",
           "next_retry_at": null,
           "waiting_text": null,
           "error": null
@@ -660,8 +660,8 @@
           "title": "Кредитная история",
           "status": "DONE",
           "attempts": 1,
-          "started_at": "2026-10-24T18:35:17.240964Z",
-          "finished_at": "2026-10-24T18:35:17.861041Z",
+          "started_at": "2026-10-24T18:53:05.307526Z",
+          "finished_at": "2026-10-24T18:53:06.000392Z",
           "next_retry_at": null,
           "waiting_text": null,
           "error": null
@@ -671,8 +671,8 @@
           "title": "Обороты по счёту в банке",
           "status": "DONE",
           "attempts": 1,
-          "started_at": "2026-10-24T18:35:17.874385Z",
-          "finished_at": "2026-10-24T18:35:18.074783Z",
+          "started_at": "2026-10-24T18:53:06.018960Z",
+          "finished_at": "2026-10-24T18:53:06.214871Z",
           "next_retry_at": null,
           "waiting_text": null,
           "error": null
@@ -682,8 +682,8 @@
           "title": "Оценка риска",
           "status": "DONE",
           "attempts": 1,
-          "started_at": "2026-10-24T18:35:18.086436Z",
-          "finished_at": "2026-10-24T18:35:18.090032Z",
+          "started_at": "2026-10-24T18:53:06.228129Z",
+          "finished_at": "2026-10-24T18:53:06.234658Z",
           "next_retry_at": null,
           "waiting_text": null,
           "error": null
@@ -693,8 +693,8 @@
           "title": "Кредитное решение",
           "status": "DONE",
           "attempts": 1,
-          "started_at": "2026-10-24T18:35:18.102024Z",
-          "finished_at": "2026-10-24T18:35:18.109853Z",
+          "started_at": "2026-10-24T18:53:06.250151Z",
+          "finished_at": "2026-10-24T18:53:06.259613Z",
           "next_retry_at": null,
           "waiting_text": null,
           "error": null
@@ -711,7 +711,7 @@
           "actor": "CLIENT",
           "actor_name": "Лебедева Марина Олеговна",
           "reason": null,
-          "created_at": "2026-10-24T18:35:14.078876Z"
+          "created_at": "2026-10-24T18:53:03.666327Z"
         },
         {
           "from_status": "SUBMITTED",
@@ -720,7 +720,7 @@
           "actor": "SYSTEM",
           "actor_name": null,
           "reason": null,
-          "created_at": "2026-10-24T18:35:16.083678Z"
+          "created_at": "2026-10-24T18:53:03.919172Z"
         },
         {
           "from_status": "IN_PROCESSING",
@@ -729,7 +729,7 @@
           "actor": "SYSTEM",
           "actor_name": null,
           "reason": "F01 Адрес массовой регистрации, F02 Есть налоговая задолженность",
-          "created_at": "2026-10-24T18:35:18.099552Z"
+          "created_at": "2026-10-24T18:53:06.247775Z"
         }
       ],
       "explanation": {
@@ -765,7 +765,7 @@
         },
         "error": null,
         "attempts": 1,
-        "finished_at": "2026-10-24T18:35:16.112851Z"
+        "finished_at": "2026-10-24T18:53:03.962108Z"
       },
       "EGRUL": {
         "status": "DONE",
@@ -784,7 +784,7 @@
         },
         "error": null,
         "attempts": 1,
-        "finished_at": "2026-10-24T18:35:16.637513Z"
+        "finished_at": "2026-10-24T18:53:04.601824Z"
       },
       "FNS": {
         "status": "DONE",
@@ -798,7 +798,7 @@
         },
         "error": null,
         "attempts": 1,
-        "finished_at": "2026-10-24T18:35:16.944085Z"
+        "finished_at": "2026-10-24T18:53:04.912827Z"
       },
       "GIRBO": {
         "status": "DONE",
@@ -812,7 +812,7 @@
         },
         "error": null,
         "attempts": 1,
-        "finished_at": "2026-10-24T18:35:17.219924Z"
+        "finished_at": "2026-10-24T18:53:05.293565Z"
       },
       "BKI": {
         "status": "DONE",
@@ -834,7 +834,7 @@
         },
         "error": null,
         "attempts": 1,
-        "finished_at": "2026-10-24T18:35:17.861041Z"
+        "finished_at": "2026-10-24T18:53:06.000392Z"
       },
       "BANK": {
         "status": "DONE",
@@ -859,21 +859,21 @@
         },
         "error": null,
         "attempts": 1,
-        "finished_at": "2026-10-24T18:35:18.074783Z"
+        "finished_at": "2026-10-24T18:53:06.214871Z"
       },
       "SCORING": {
         "status": "DONE",
         "result": {"score":720,"version":"v1.0","risk_class":"B"},
         "error": null,
         "attempts": 1,
-        "finished_at": "2026-10-24T18:35:18.090032Z"
+        "finished_at": "2026-10-24T18:53:06.234658Z"
       },
       "POLICY": {
         "status": "DONE",
         "result": {"flags":["F01","F02"],"limit":5650000,"outcome":"MANUAL_REVIEW","version":"v1.0","stop_factors":[]},
         "error": null,
         "attempts": 1,
-        "finished_at": "2026-10-24T18:35:18.109853Z"
+        "finished_at": "2026-10-24T18:53:06.259613Z"
       }
     },
     "scoring": {
@@ -972,7 +972,7 @@
       }
     },
     "auto_decision": {
-      "id": 133,
+      "id": 150,
       "kind": "AUTO",
       "outcome": "MANUAL_REVIEW",
       "policy_version": "v1.0",
@@ -997,10 +997,10 @@
       ],
       "comment": null,
       "decided_by": null,
-      "created_at": "2026-10-24T18:35:18.099552Z"
+      "created_at": "2026-10-24T18:53:06.247775Z"
     },
     "last_decision": {
-      "id": 133,
+      "id": 150,
       "kind": "AUTO",
       "outcome": "MANUAL_REVIEW",
       "policy_version": "v1.0",
@@ -1025,7 +1025,7 @@
       ],
       "comment": null,
       "decided_by": null,
-      "created_at": "2026-10-24T18:35:18.099552Z"
+      "created_at": "2026-10-24T18:53:06.247775Z"
     },
     "limit": {
       "limit": 5650000,
@@ -1040,7 +1040,7 @@
     },
     "assignee": null,
     "assignee_is_me": false,
-    "sla_due_at": "2026-10-25T18:35:18.109604Z",
+    "sla_due_at": "2026-10-25T18:53:06.259286Z",
     "audit": [
       {
         "action": "STATUS_CHANGED",
@@ -1051,21 +1051,21 @@
           "from": "IN_PROCESSING",
           "reason": "F01 Адрес массовой регистрации, F02 Есть налоговая задолженность"
         },
-        "created_at": "2026-10-24T18:35:18.099552Z"
+        "created_at": "2026-10-24T18:53:06.247775Z"
       },
       {
         "action": "STATUS_CHANGED",
         "actor": "SYSTEM",
         "user": null,
         "details": {"to":"IN_PROCESSING","from":"SUBMITTED","reason":null},
-        "created_at": "2026-10-24T18:35:16.083678Z"
+        "created_at": "2026-10-24T18:53:03.919172Z"
       },
       {
         "action": "STATUS_CHANGED",
         "actor": "CLIENT",
         "user": "Лебедева Марина Олеговна",
         "details": {"to":"SUBMITTED","from":"DRAFT","reason":null},
-        "created_at": "2026-10-24T18:35:14.078876Z"
+        "created_at": "2026-10-24T18:53:03.666327Z"
       }
     ],
     "info_item_presets": [
@@ -1100,22 +1100,22 @@
   },
   "messages": [
     {
-      "id": 5,
+      "id": 7,
       "author_name": "Соколов Виктор Андреевич",
       "author_role": "CLIENT",
       "text": "Когда ждать решения?",
-      "created_at": "2026-10-24T18:35:24.866350Z"
+      "created_at": "2026-10-24T18:53:14.670854Z"
     },
     {
-      "id": 6,
+      "id": 8,
       "author_name": "Иванова Ольга Дмитриевна",
       "author_role": "UNDERWRITER",
       "text": "Сегодня, документы в порядке",
-      "created_at": "2026-10-24T18:35:24.880275Z"
+      "created_at": "2026-10-24T18:53:14.687403Z"
     }
   ],
   "draft": {
-    "id": "f554ddbe-6f6d-4ec6-9429-9edd0938cb22",
+    "id": "a090b100-e265-44e7-9e63-f51b99d91ef1",
     "number": "2026-00003",
     "status": "DRAFT",
     "status_label": "Черновик",
@@ -1146,9 +1146,9 @@
     "declared_revenue": null,
     "collateral_type": null,
     "collateral_value": null,
-    "created_at": "2026-10-24T18:35:25.038571Z",
+    "created_at": "2026-10-24T18:53:14.850396Z",
     "submitted_at": null,
-    "status_changed_at": "2026-10-24T18:35:25.038571Z",
+    "status_changed_at": "2026-10-24T18:53:14.850396Z",
     "closed_at": null,
     "sla_due_at": null,
     "run_no": 0,
@@ -1169,7 +1169,7 @@
       "bank_account_opened_at": "2021-10-24",
       "business_months": 74,
       "account_months": 60,
-      "registry_synced_at": "2026-10-24T18:35:03.090184Z"
+      "registry_synced_at": "2026-10-24T18:51:51.077638Z"
     },
     "steps": [],
     "offers": [],
@@ -1198,7 +1198,7 @@
     }
   },
   "submitted": {
-    "id": "f554ddbe-6f6d-4ec6-9429-9edd0938cb22",
+    "id": "a090b100-e265-44e7-9e63-f51b99d91ef1",
     "number": "2026-00003",
     "status": "SUBMITTED",
     "status_label": "Заявка отправлена",
@@ -1229,9 +1229,9 @@
     "declared_revenue": null,
     "collateral_type": null,
     "collateral_value": null,
-    "created_at": "2026-10-24T18:35:25.038571Z",
-    "submitted_at": "2026-10-24T18:35:25.096453Z",
-    "status_changed_at": "2026-10-24T18:35:25.096453Z",
+    "created_at": "2026-10-24T18:53:14.850396Z",
+    "submitted_at": "2026-10-24T18:53:14.910807Z",
+    "status_changed_at": "2026-10-24T18:53:14.910807Z",
     "closed_at": null,
     "sla_due_at": null,
     "run_no": 1,
@@ -1252,7 +1252,7 @@
       "bank_account_opened_at": "2021-10-24",
       "business_months": 74,
       "account_months": 60,
-      "registry_synced_at": "2026-10-24T18:35:03.090184Z"
+      "registry_synced_at": "2026-10-24T18:51:51.077638Z"
     },
     "steps": [
       {
@@ -1355,7 +1355,7 @@
         "actor": "CLIENT",
         "actor_name": "Ветров Андрей Сергеевич",
         "reason": null,
-        "created_at": "2026-10-24T18:35:25.088995Z"
+        "created_at": "2026-10-24T18:53:14.903672Z"
       }
     ],
     "explanation": {
@@ -1380,7 +1380,7 @@
     }
   },
   "application_offer": {
-    "id": "f554ddbe-6f6d-4ec6-9429-9edd0938cb22",
+    "id": "a090b100-e265-44e7-9e63-f51b99d91ef1",
     "number": "2026-00003",
     "status": "OFFER",
     "status_label": "Предложение готово",
@@ -1411,9 +1411,9 @@
     "declared_revenue": null,
     "collateral_type": null,
     "collateral_value": null,
-    "created_at": "2026-10-24T18:35:25.038571Z",
-    "submitted_at": "2026-10-24T18:35:25.096453Z",
-    "status_changed_at": "2026-10-24T18:35:27.236759Z",
+    "created_at": "2026-10-24T18:53:14.850396Z",
+    "submitted_at": "2026-10-24T18:53:14.910807Z",
+    "status_changed_at": "2026-10-24T18:53:16.895359Z",
     "closed_at": null,
     "sla_due_at": null,
     "run_no": 1,
@@ -1434,7 +1434,7 @@
       "bank_account_opened_at": "2021-10-24",
       "business_months": 74,
       "account_months": 60,
-      "registry_synced_at": "2026-10-24T18:35:25.546421Z"
+      "registry_synced_at": "2026-10-24T18:53:15.261199Z"
     },
     "steps": [
       {
@@ -1442,8 +1442,8 @@
         "title": "Проверка данных заявки",
         "status": "DONE",
         "attempts": 1,
-        "started_at": "2026-10-24T18:35:25.150318Z",
-        "finished_at": "2026-10-24T18:35:25.155180Z",
+        "started_at": "2026-10-24T18:53:14.942112Z",
+        "finished_at": "2026-10-24T18:53:14.946662Z",
         "next_retry_at": null,
         "waiting_text": null,
         "error": null
@@ -1453,8 +1453,8 @@
         "title": "Сведения из ЕГРЮЛ / ЕГРИП",
         "status": "DONE",
         "attempts": 1,
-        "started_at": "2026-10-24T18:35:25.175672Z",
-        "finished_at": "2026-10-24T18:35:25.546471Z",
+        "started_at": "2026-10-24T18:53:14.971153Z",
+        "finished_at": "2026-10-24T18:53:15.261255Z",
         "next_retry_at": null,
         "waiting_text": null,
         "error": null
@@ -1464,8 +1464,8 @@
         "title": "Проверка в ФНС",
         "status": "DONE",
         "attempts": 1,
-        "started_at": "2026-10-24T18:35:25.562049Z",
-        "finished_at": "2026-10-24T18:35:25.835114Z",
+        "started_at": "2026-10-24T18:53:15.277471Z",
+        "finished_at": "2026-10-24T18:53:15.518497Z",
         "next_retry_at": null,
         "waiting_text": null,
         "error": null
@@ -1475,8 +1475,8 @@
         "title": "Бухгалтерская отчётность",
         "status": "DONE",
         "attempts": 1,
-        "started_at": "2026-10-24T18:35:25.849358Z",
-        "finished_at": "2026-10-24T18:35:26.165112Z",
+        "started_at": "2026-10-24T18:53:15.536364Z",
+        "finished_at": "2026-10-24T18:53:15.925590Z",
         "next_retry_at": null,
         "waiting_text": null,
         "error": null
@@ -1486,8 +1486,8 @@
         "title": "Кредитная история",
         "status": "DONE",
         "attempts": 1,
-        "started_at": "2026-10-24T18:35:26.184984Z",
-        "finished_at": "2026-10-24T18:35:26.940006Z",
+        "started_at": "2026-10-24T18:53:15.941433Z",
+        "finished_at": "2026-10-24T18:53:16.660532Z",
         "next_retry_at": null,
         "waiting_text": null,
         "error": null
@@ -1497,8 +1497,8 @@
         "title": "Обороты по счёту в банке",
         "status": "DONE",
         "attempts": 1,
-        "started_at": "2026-10-24T18:35:26.953249Z",
-        "finished_at": "2026-10-24T18:35:27.194360Z",
+        "started_at": "2026-10-24T18:53:16.675017Z",
+        "finished_at": "2026-10-24T18:53:16.858772Z",
         "next_retry_at": null,
         "waiting_text": null,
         "error": null
@@ -1508,8 +1508,8 @@
         "title": "Оценка риска",
         "status": "DONE",
         "attempts": 1,
-        "started_at": "2026-10-24T18:35:27.210829Z",
-        "finished_at": "2026-10-24T18:35:27.214491Z",
+        "started_at": "2026-10-24T18:53:16.870181Z",
+        "finished_at": "2026-10-24T18:53:16.873411Z",
         "next_retry_at": null,
         "waiting_text": null,
         "error": null
@@ -1519,8 +1519,8 @@
         "title": "Кредитное решение",
         "status": "DONE",
         "attempts": 1,
-        "started_at": "2026-10-24T18:35:27.228785Z",
-        "finished_at": "2026-10-24T18:35:27.237037Z",
+        "started_at": "2026-10-24T18:53:16.887147Z",
+        "finished_at": "2026-10-24T18:53:16.895603Z",
         "next_retry_at": null,
         "waiting_text": null,
         "error": null
@@ -1528,7 +1528,7 @@
     ],
     "offers": [
       {
-        "id": "30b39e2b-51d7-4a26-af6a-787d39984d38",
+        "id": "949abdb5-c1fc-453b-919e-94eae26df2a0",
         "option_no": 1,
         "kind": "AS_REQUESTED",
         "product_code": "GROWTH",
@@ -1540,7 +1540,7 @@
         "monthly_payment": "151225.85",
         "overpayment": "629420.40",
         "payment_label": "Ежемесячный платёж",
-        "valid_until": "2026-10-31T18:35:27.236572Z",
+        "valid_until": "2026-10-31T18:53:16.895149Z",
         "status": "ACTIVE",
         "note": null
       }
@@ -1555,7 +1555,7 @@
         "actor": "CLIENT",
         "actor_name": "Ветров Андрей Сергеевич",
         "reason": null,
-        "created_at": "2026-10-24T18:35:25.088995Z"
+        "created_at": "2026-10-24T18:53:14.903672Z"
       },
       {
         "from_status": "SUBMITTED",
@@ -1564,7 +1564,7 @@
         "actor": "SYSTEM",
         "actor_name": null,
         "reason": null,
-        "created_at": "2026-10-24T18:35:25.138876Z"
+        "created_at": "2026-10-24T18:53:14.932361Z"
       },
       {
         "from_status": "IN_PROCESSING",
@@ -1573,7 +1573,7 @@
         "actor": "SYSTEM",
         "actor_name": null,
         "reason": null,
-        "created_at": "2026-10-24T18:35:27.226149Z"
+        "created_at": "2026-10-24T18:53:16.884722Z"
       }
     ],
     "explanation": {
@@ -1611,7 +1611,7 @@
     }
   },
   "application_issued": {
-    "id": "f554ddbe-6f6d-4ec6-9429-9edd0938cb22",
+    "id": "a090b100-e265-44e7-9e63-f51b99d91ef1",
     "number": "2026-00003",
     "status": "ISSUED",
     "status_label": "Кредит выдан",
@@ -1642,10 +1642,10 @@
     "declared_revenue": null,
     "collateral_type": null,
     "collateral_value": null,
-    "created_at": "2026-10-24T18:35:25.038571Z",
-    "submitted_at": "2026-10-24T18:35:25.096453Z",
-    "status_changed_at": "2026-10-24T18:35:28.869074Z",
-    "closed_at": "2026-10-24T18:35:28.869074Z",
+    "created_at": "2026-10-24T18:53:14.850396Z",
+    "submitted_at": "2026-10-24T18:53:14.910807Z",
+    "status_changed_at": "2026-10-24T18:53:18.536285Z",
+    "closed_at": "2026-10-24T18:53:18.536285Z",
     "sla_due_at": null,
     "run_no": 1,
     "company": {
@@ -1665,7 +1665,7 @@
       "bank_account_opened_at": "2021-10-24",
       "business_months": 74,
       "account_months": 60,
-      "registry_synced_at": "2026-10-24T18:35:25.546421Z"
+      "registry_synced_at": "2026-10-24T18:53:15.261199Z"
     },
     "steps": [
       {
@@ -1673,8 +1673,8 @@
         "title": "Проверка данных заявки",
         "status": "DONE",
         "attempts": 1,
-        "started_at": "2026-10-24T18:35:25.150318Z",
-        "finished_at": "2026-10-24T18:35:25.155180Z",
+        "started_at": "2026-10-24T18:53:14.942112Z",
+        "finished_at": "2026-10-24T18:53:14.946662Z",
         "next_retry_at": null,
         "waiting_text": null,
         "error": null
@@ -1684,8 +1684,8 @@
         "title": "Сведения из ЕГРЮЛ / ЕГРИП",
         "status": "DONE",
         "attempts": 1,
-        "started_at": "2026-10-24T18:35:25.175672Z",
-        "finished_at": "2026-10-24T18:35:25.546471Z",
+        "started_at": "2026-10-24T18:53:14.971153Z",
+        "finished_at": "2026-10-24T18:53:15.261255Z",
         "next_retry_at": null,
         "waiting_text": null,
         "error": null
@@ -1695,8 +1695,8 @@
         "title": "Проверка в ФНС",
         "status": "DONE",
         "attempts": 1,
-        "started_at": "2026-10-24T18:35:25.562049Z",
-        "finished_at": "2026-10-24T18:35:25.835114Z",
+        "started_at": "2026-10-24T18:53:15.277471Z",
+        "finished_at": "2026-10-24T18:53:15.518497Z",
         "next_retry_at": null,
         "waiting_text": null,
         "error": null
@@ -1706,8 +1706,8 @@
         "title": "Бухгалтерская отчётность",
         "status": "DONE",
         "attempts": 1,
-        "started_at": "2026-10-24T18:35:25.849358Z",
-        "finished_at": "2026-10-24T18:35:26.165112Z",
+        "started_at": "2026-10-24T18:53:15.536364Z",
+        "finished_at": "2026-10-24T18:53:15.925590Z",
         "next_retry_at": null,
         "waiting_text": null,
         "error": null
@@ -1717,8 +1717,8 @@
         "title": "Кредитная история",
         "status": "DONE",
         "attempts": 1,
-        "started_at": "2026-10-24T18:35:26.184984Z",
-        "finished_at": "2026-10-24T18:35:26.940006Z",
+        "started_at": "2026-10-24T18:53:15.941433Z",
+        "finished_at": "2026-10-24T18:53:16.660532Z",
         "next_retry_at": null,
         "waiting_text": null,
         "error": null
@@ -1728,8 +1728,8 @@
         "title": "Обороты по счёту в банке",
         "status": "DONE",
         "attempts": 1,
-        "started_at": "2026-10-24T18:35:26.953249Z",
-        "finished_at": "2026-10-24T18:35:27.194360Z",
+        "started_at": "2026-10-24T18:53:16.675017Z",
+        "finished_at": "2026-10-24T18:53:16.858772Z",
         "next_retry_at": null,
         "waiting_text": null,
         "error": null
@@ -1739,8 +1739,8 @@
         "title": "Оценка риска",
         "status": "DONE",
         "attempts": 1,
-        "started_at": "2026-10-24T18:35:27.210829Z",
-        "finished_at": "2026-10-24T18:35:27.214491Z",
+        "started_at": "2026-10-24T18:53:16.870181Z",
+        "finished_at": "2026-10-24T18:53:16.873411Z",
         "next_retry_at": null,
         "waiting_text": null,
         "error": null
@@ -1750,8 +1750,8 @@
         "title": "Кредитное решение",
         "status": "DONE",
         "attempts": 1,
-        "started_at": "2026-10-24T18:35:27.228785Z",
-        "finished_at": "2026-10-24T18:35:27.237037Z",
+        "started_at": "2026-10-24T18:53:16.887147Z",
+        "finished_at": "2026-10-24T18:53:16.895603Z",
         "next_retry_at": null,
         "waiting_text": null,
         "error": null
@@ -1759,7 +1759,7 @@
     ],
     "offers": [
       {
-        "id": "30b39e2b-51d7-4a26-af6a-787d39984d38",
+        "id": "949abdb5-c1fc-453b-919e-94eae26df2a0",
         "option_no": 1,
         "kind": "AS_REQUESTED",
         "product_code": "GROWTH",
@@ -1771,7 +1771,7 @@
         "monthly_payment": "151225.85",
         "overpayment": "629420.40",
         "payment_label": "Ежемесячный платёж",
-        "valid_until": "2026-10-31T18:35:27.236572Z",
+        "valid_until": "2026-10-31T18:53:16.895149Z",
         "status": "ACCEPTED",
         "note": null
       }
@@ -1779,15 +1779,15 @@
     "info_requests": [],
     "documents": [
       {
-        "id": "25182929-152d-498a-a13a-62a5c9b1cb4d",
+        "id": "cd4aa3c6-113f-491c-9882-af3afa290036",
         "kind": "AGREEMENT",
         "kind_label": "Кредитный договор",
         "source": "GENERATED",
         "file_name": "Кредитный договор 2026-00003.pdf",
         "content_type": "application/pdf",
         "size": 53422,
-        "sha256": "7f17a21022f69e428837d9330aea47988cb1df5f7c17ea4b49f80dbd5df2d602",
-        "created_at": "2026-10-24T18:35:27.713308Z",
+        "sha256": "88bb15365a655981b7f85f8379d5ce22ce2e9012a8074ec138c851a271f155c1",
+        "created_at": "2026-10-24T18:53:17.366629Z",
         "info_request_id": null,
         "parsed": null,
         "signed_by_client": true,
@@ -1802,7 +1802,7 @@
         "actor": "CLIENT",
         "actor_name": "Ветров Андрей Сергеевич",
         "reason": null,
-        "created_at": "2026-10-24T18:35:25.088995Z"
+        "created_at": "2026-10-24T18:53:14.903672Z"
       },
       {
         "from_status": "SUBMITTED",
@@ -1811,7 +1811,7 @@
         "actor": "SYSTEM",
         "actor_name": null,
         "reason": null,
-        "created_at": "2026-10-24T18:35:25.138876Z"
+        "created_at": "2026-10-24T18:53:14.932361Z"
       },
       {
         "from_status": "IN_PROCESSING",
@@ -1820,7 +1820,7 @@
         "actor": "SYSTEM",
         "actor_name": null,
         "reason": null,
-        "created_at": "2026-10-24T18:35:27.226149Z"
+        "created_at": "2026-10-24T18:53:16.884722Z"
       },
       {
         "from_status": "OFFER",
@@ -1829,7 +1829,7 @@
         "actor": "CLIENT",
         "actor_name": "Ветров Андрей Сергеевич",
         "reason": null,
-        "created_at": "2026-10-24T18:35:27.626657Z"
+        "created_at": "2026-10-24T18:53:17.290532Z"
       },
       {
         "from_status": "ACCEPTED",
@@ -1838,7 +1838,7 @@
         "actor": "SYSTEM",
         "actor_name": null,
         "reason": null,
-        "created_at": "2026-10-24T18:35:27.713308Z"
+        "created_at": "2026-10-24T18:53:17.366629Z"
       },
       {
         "from_status": "SIGNING",
@@ -1847,7 +1847,7 @@
         "actor": "CLIENT",
         "actor_name": "Ветров Андрей Сергеевич",
         "reason": null,
-        "created_at": "2026-10-24T18:35:28.241146Z"
+        "created_at": "2026-10-24T18:53:17.930040Z"
       },
       {
         "from_status": "SIGNED",
@@ -1856,7 +1856,7 @@
         "actor": "SYSTEM",
         "actor_name": null,
         "reason": null,
-        "created_at": "2026-10-24T18:35:28.356683Z"
+        "created_at": "2026-10-24T18:53:18.031362Z"
       }
     ],
     "explanation": {
@@ -1884,14 +1884,14 @@
       "alternatives": []
     },
     "loan": {
-      "id": "7e67eb51-1d5f-444a-96df-e40ee292b39c",
+      "id": "20581926-3611-44a9-81b8-ac1dc9bd0065",
       "product_code": "GROWTH",
       "account_number": "45207810000202600003",
       "amount": "3000000.00",
       "rate": "19.00",
       "term_months": 24,
       "monthly_payment": "151225.85",
-      "issued_at": "2026-10-24T18:35:28.862747Z",
+      "issued_at": "2026-10-24T18:53:18.528902Z",
       "schedule": [
         {
           "n": 1,
@@ -1921,14 +1921,14 @@
     }
   },
   "loan": {
-    "id": "7e67eb51-1d5f-444a-96df-e40ee292b39c",
+    "id": "20581926-3611-44a9-81b8-ac1dc9bd0065",
     "product_code": "GROWTH",
     "account_number": "45207810000202600003",
     "amount": "3000000.00",
     "rate": "19.00",
     "term_months": 24,
     "monthly_payment": "151225.85",
-    "issued_at": "2026-10-24T18:35:28.862747Z",
+    "issued_at": "2026-10-24T18:53:18.528902Z",
     "schedule": [
       {
         "n": 1,
@@ -1949,7 +1949,7 @@
     ]
   },
   "document": {
-    "id": "1b9c473b-63c8-4c2f-a2db-c6fb15969088",
+    "id": "3297b09a-37c2-470d-bbcf-c0ae9fa4a4e6",
     "kind": "BANK_STATEMENT",
     "kind_label": "Выписка по расчётному счёту",
     "source": "CLIENT",
@@ -1957,8 +1957,8 @@
     "content_type": "text/plain",
     "size": 22459,
     "sha256": "eeda7e2f5c6ea328bea86f01ea77b8fef22f87dc7975d2643dbcbef0e70d24fd",
-    "created_at": "2026-10-24T18:35:37.446209Z",
-    "info_request_id": "6c97b604-3222-4154-85e9-73fb31866c05",
+    "created_at": "2026-10-24T18:53:28.135816Z",
+    "info_request_id": "2d6e7e02-c225-4790-be31-5e05226ab6dd",
     "parsed": {
       "source": "1C",
       "account": "40802810000000001006",
@@ -2005,7 +2005,7 @@
   },
   "pipeline_issues": [
     {
-      "application_id": "5bc87412-d6fe-44ec-b260-0153b151c9e8",
+      "application_id": "f666faef-fe6e-4e2b-8f51-c356c683b709",
       "number": "2026-00013",
       "company_name": "ООО «Альтаир»",
       "status": "IN_PROCESSING",
@@ -2014,12 +2014,12 @@
       "step_status": "WAITING",
       "attempts": 1,
       "error": "bki: сервис ответил ошибкой 503",
-      "waiting_since": "2026-10-24T18:35:49.721566Z",
-      "next_retry_at": "2026-10-24T18:35:51.721632Z"
+      "waiting_since": "2026-10-24T18:53:39.949255Z",
+      "next_retry_at": "2026-10-24T18:53:41.949316Z"
     }
   ],
   "application_waiting": {
-    "id": "5bc87412-d6fe-44ec-b260-0153b151c9e8",
+    "id": "f666faef-fe6e-4e2b-8f51-c356c683b709",
     "number": "2026-00013",
     "status": "IN_PROCESSING",
     "status_label": "Проверяем заявку",
@@ -2050,9 +2050,9 @@
     "declared_revenue": null,
     "collateral_type": null,
     "collateral_value": null,
-    "created_at": "2026-10-24T18:35:48.618183Z",
-    "submitted_at": "2026-10-24T18:35:48.646515Z",
-    "status_changed_at": "2026-10-24T18:35:48.729115Z",
+    "created_at": "2026-10-24T18:53:38.832522Z",
+    "submitted_at": "2026-10-24T18:53:38.862305Z",
+    "status_changed_at": "2026-10-24T18:53:38.965803Z",
     "closed_at": null,
     "sla_due_at": null,
     "run_no": 1,
@@ -2073,7 +2073,7 @@
       "bank_account_opened_at": "2022-10-24",
       "business_months": 98,
       "account_months": 48,
-      "registry_synced_at": "2026-10-24T18:35:49.103172Z"
+      "registry_synced_at": "2026-10-24T18:53:39.229235Z"
     },
     "steps": [
       {
@@ -2081,8 +2081,8 @@
         "title": "Проверка данных заявки",
         "status": "DONE",
         "attempts": 1,
-        "started_at": "2026-10-24T18:35:48.734302Z",
-        "finished_at": "2026-10-24T18:35:48.737721Z",
+        "started_at": "2026-10-24T18:53:38.971210Z",
+        "finished_at": "2026-10-24T18:53:38.974915Z",
         "next_retry_at": null,
         "waiting_text": null,
         "error": null
@@ -2092,8 +2092,8 @@
         "title": "Сведения из ЕГРЮЛ / ЕГРИП",
         "status": "DONE",
         "attempts": 1,
-        "started_at": "2026-10-24T18:35:48.749434Z",
-        "finished_at": "2026-10-24T18:35:49.103216Z",
+        "started_at": "2026-10-24T18:53:38.990093Z",
+        "finished_at": "2026-10-24T18:53:39.229290Z",
         "next_retry_at": null,
         "waiting_text": null,
         "error": null
@@ -2103,8 +2103,8 @@
         "title": "Проверка в ФНС",
         "status": "DONE",
         "attempts": 1,
-        "started_at": "2026-10-24T18:35:49.118619Z",
-        "finished_at": "2026-10-24T18:35:49.406215Z",
+        "started_at": "2026-10-24T18:53:39.245195Z",
+        "finished_at": "2026-10-24T18:53:39.533289Z",
         "next_retry_at": null,
         "waiting_text": null,
         "error": null
@@ -2114,8 +2114,8 @@
         "title": "Бухгалтерская отчётность",
         "status": "DONE",
         "attempts": 1,
-        "started_at": "2026-10-24T18:35:49.422855Z",
-        "finished_at": "2026-10-24T18:35:49.700632Z",
+        "started_at": "2026-10-24T18:53:39.549362Z",
+        "finished_at": "2026-10-24T18:53:39.933048Z",
         "next_retry_at": null,
         "waiting_text": null,
         "error": null
@@ -2125,9 +2125,9 @@
         "title": "Кредитная история",
         "status": "WAITING",
         "attempts": 1,
-        "started_at": "2026-10-24T18:35:49.716656Z",
+        "started_at": "2026-10-24T18:53:39.944800Z",
         "finished_at": null,
-        "next_retry_at": "2026-10-24T18:35:51.721632Z",
+        "next_retry_at": "2026-10-24T18:53:41.949316Z",
         "waiting_text": "Ждём ответа бюро кредитных историй",
         "error": null
       },
@@ -2176,7 +2176,7 @@
         "actor": "CLIENT",
         "actor_name": "Белов Кирилл Андреевич",
         "reason": null,
-        "created_at": "2026-10-24T18:35:48.642565Z"
+        "created_at": "2026-10-24T18:53:38.856320Z"
       },
       {
         "from_status": "SUBMITTED",
@@ -2185,7 +2185,7 @@
         "actor": "SYSTEM",
         "actor_name": null,
         "reason": null,
-        "created_at": "2026-10-24T18:35:48.728232Z"
+        "created_at": "2026-10-24T18:53:38.964488Z"
       }
     ],
     "explanation": {
@@ -2206,45 +2206,45 @@
     "unread": 4,
     "items": [
       {
-        "id": 1911,
-        "application_id": "f554ddbe-6f6d-4ec6-9429-9edd0938cb22",
+        "id": 2143,
+        "application_id": "a090b100-e265-44e7-9e63-f51b99d91ef1",
         "kind": "STATUS_ISSUED",
         "title": "Кредит по заявке № 2026-00003 выдан",
         "body": "Деньги поступили на счёт. График платежей — в кабинете.",
-        "created_at": "2026-10-24T18:35:28.356683Z",
+        "created_at": "2026-10-24T18:53:18.031362Z",
         "unread": true
       },
       {
-        "id": 1908,
-        "application_id": "f554ddbe-6f6d-4ec6-9429-9edd0938cb22",
+        "id": 2140,
+        "application_id": "a090b100-e265-44e7-9e63-f51b99d91ef1",
         "kind": "STATUS_SIGNING",
         "title": "Документы по заявке № 2026-00003 готовы",
         "body": "Проверьте и подпишите договор в кабинете.",
-        "created_at": "2026-10-24T18:35:27.713308Z",
+        "created_at": "2026-10-24T18:53:17.366629Z",
         "unread": true
       }
     ]
   },
   "audit": [
     {
-      "id": 856,
+      "id": 975,
       "action": "DRAFT_DELETED",
       "actor": "CLIENT",
       "user": "Соколов Виктор Андреевич",
       "entity_type": "application",
-      "entity_id": "f256d4ef-a466-4a49-bcec-18100f40fe05",
+      "entity_id": "7c9efecd-30e2-498d-9fec-bf0a22adf700",
       "details": {},
-      "created_at": "2026-10-24T18:35:56.021046Z"
+      "created_at": "2026-10-24T18:53:46.730639Z"
     },
     {
-      "id": 855,
+      "id": 974,
       "action": "DRAFT_CREATED",
       "actor": "CLIENT",
       "user": "Соколов Виктор Андреевич",
       "entity_type": "application",
-      "entity_id": "f256d4ef-a466-4a49-bcec-18100f40fe05",
+      "entity_id": "7c9efecd-30e2-498d-9fec-bf0a22adf700",
       "details": {"amount":10000000,"product":"SECURED"},
-      "created_at": "2026-10-24T18:35:55.989379Z"
+      "created_at": "2026-10-24T18:53:46.689113Z"
     }
   ],
   "audit_actions": [
@@ -2252,6 +2252,7 @@
     "DRAFT_CREATED",
     "DRAFT_DELETED",
     "DRAFT_CREATED",
+    "LOGIN_FAILED",
     "STATUS_CHANGED",
     "PIPELINE_RETRY",
     "FAULTS_RESET",
@@ -2286,8 +2287,7 @@
     "DOCUMENT_UPLOADED",
     "STATUS_CHANGED",
     "STATUS_CHANGED",
-    "STATUS_CHANGED",
-    "DRAFT_CREATED"
+    "STATUS_CHANGED"
   ],
   "queue_closed": [
     {
@@ -2371,8 +2371,8 @@
   },
   "metrics_end": {
     "period_days": 30,
-    "since": "2026-09-24T18:35:56.243598Z",
-    "until": "2026-10-24T18:35:56.243598Z",
+    "since": "2026-09-24T18:53:46.958709Z",
+    "until": "2026-10-24T18:53:46.958709Z",
     "submitted": 12,
     "in_progress": 6,
     "decided": 12,
@@ -2388,8 +2388,8 @@
       {"code":"COUNTER","title":"Контрпредложение","count":4},
       {"code":"REJECT","title":"Отказ","count":3}
     ],
-    "to_decision_median_seconds": 2.101391,
-    "to_decision_p95_seconds": 10.463969,
+    "to_decision_median_seconds": 2.078366,
+    "to_decision_p95_seconds": 10.684544,
     "to_issue_median_hours": 0,
     "info_response_median_hours": 0,
     "review_median_hours": 0,

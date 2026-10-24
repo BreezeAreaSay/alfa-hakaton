@@ -7,6 +7,7 @@ import { todayUtc } from './engine/dates';
 import { type PolicyDecision, eligibilityIssues, newDecision, note, offerFigures, paymentLabel } from './engine/policy';
 import { NOTE_STATEMENT_NONE } from './engine/proactive';
 import { StatementError, parseStatement } from './engine/statements';
+import { plural } from './engine/text';
 import aiStatusFixture from './fixtures/ai-status.json';
 import { type Body, HttpError, Validator, json, noContent } from './http';
 import { type AppRow, type DemoState, type DemoUser, type FaultMode, iso, uuid } from './model';
@@ -119,13 +120,80 @@ function remember(state: DemoState, key: string | null, scope: string): void {
 
 // ---------------------------------------------------------------- вход и справочники
 
+// Защита от перебора паролей как на сервере: пять неверных паролей по логину — блокировка на пять минут.
+// В браузере адреса нет, поэтому счёт ведётся только по логину; хранится в sessionStorage — до закрытия вкладки.
+const LOGIN_ATTEMPTS = 5;
+const LOGIN_WINDOW_MS = 5 * 60 * 1000;
+const FAILURES_KEY = 'demo.login-failures';
+type Failures = Record<string, { first: number; count: number; blockedUntil: number }>;
+let failuresCache: Failures | null = null;
+
+function loginFailures(): Failures {
+    if (!failuresCache) {
+        try {
+            failuresCache = JSON.parse(sessionStorage.getItem(FAILURES_KEY) ?? '{}') as Failures;
+        } catch {
+            failuresCache = {}; // хранилище недоступно (приватный режим, Node) — счёт живёт в памяти
+        }
+    }
+    return failuresCache;
+}
+
+function saveLoginFailures(failures: Failures): void {
+    failuresCache = failures;
+    try {
+        sessionStorage.setItem(FAILURES_KEY, JSON.stringify(failures));
+    } catch {
+        // без хранилища счёт сбросится при перезагрузке страницы
+    }
+}
+
+function tooManyAttempts(ms: number): string {
+    const seconds = Math.ceil(ms / 1000);
+    const minutes = Math.ceil(seconds / 60);
+    const wait =
+        seconds >= 60
+            ? `${minutes} ${plural(minutes, 'минуту', 'минуты', 'минут')}`
+            : `${seconds} ${plural(seconds, 'секунду', 'секунды', 'секунд')}`;
+    return `Слишком много попыток входа. Повторите через ${wait}`;
+}
+
 function login(ctx: Ctx) {
     const v = new Validator(ctx.body);
     const name = v.string('login', { required: true });
     const password = v.string('password', { required: true });
     v.done();
-    const user = userByLogin(String(name).trim().toLowerCase());
-    if (!user || password !== DEMO_PASSWORD) throw new HttpError(401, 'Неверный логин или пароль');
+    const loginName = String(name).trim().toLowerCase();
+    const failures = loginFailures();
+    const entry = failures[loginName];
+    if (entry && entry.blockedUntil > ctx.now) throw new HttpError(429, tooManyAttempts(entry.blockedUntil - ctx.now));
+    const user = userByLogin(loginName);
+    if (!user || password !== DEMO_PASSWORD) {
+        const stale = !entry || entry.blockedUntil > 0 || ctx.now - entry.first > LOGIN_WINDOW_MS;
+        const next = stale ? { first: ctx.now, count: 1, blockedUntil: 0 } : { ...entry, count: entry.count + 1 };
+        if (next.count >= LOGIN_ATTEMPTS) next.blockedUntil = ctx.now + LOGIN_WINDOW_MS;
+        saveLoginFailures({ ...failures, [loginName]: next });
+        transact((state) =>
+            audit(state, ctx.now, {
+                actor: 'SYSTEM',
+                user: null,
+                action: 'LOGIN_FAILED',
+                entity_type: 'user',
+                entity_id: user?.id ?? loginName,
+                details: {
+                    login: loginName,
+                    ip: '—',
+                    blocked_seconds: next.blockedUntil ? LOGIN_WINDOW_MS / 1000 : null,
+                },
+            }),
+        );
+        if (next.blockedUntil) throw new HttpError(429, tooManyAttempts(LOGIN_WINDOW_MS));
+        throw new HttpError(401, 'Неверный логин или пароль');
+    }
+    if (entry) {
+        const { [loginName]: _cleared, ...rest } = failures;
+        saveLoginFailures(rest);
+    }
     return transact((state) => {
         audit(state, ctx.now, { actor: actorOf(user), user, action: 'LOGIN', entity_type: 'user', entity_id: user.id });
         return { token: tokenFor(user), user: userOut(state, user, ctx.now) };
@@ -1038,6 +1106,7 @@ function demoReset(ctx: Ctx) {
     const { state, preseeded } = resetState(getState(), ctx.now);
     audit(state, ctx.now, { actor: 'ADMIN', user, action: 'DEMO_RESET', entity_type: 'system', entity_id: 'demo' });
     resetBreakers();
+    saveLoginFailures({}); // вместе с данными снимаются и блокировки входа
     replaceState(state);
     kick();
     return { status: 'ok', preseeded };

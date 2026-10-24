@@ -2,11 +2,12 @@ import type { ReactNode } from 'react';
 
 import type { AppStatus, Meta, Product } from '../../../api/types';
 import type { StatusColor } from '../../../utils/format';
-import { rub } from '../../../utils/format';
+import { plural, rub } from '../../../utils/format';
 import { FAULT_MODES, FAULT_SOURCE_TITLES } from './common';
 
 export const ACTION_LABELS: Record<string, string> = {
     LOGIN: 'Вход',
+    LOGIN_FAILED: 'Неудачный вход',
     STATUS_CHANGED: 'Смена статуса',
     DRAFT_CREATED: 'Создан черновик',
     DRAFT_DELETED: 'Удалён черновик',
@@ -21,6 +22,7 @@ export const ACTION_LABELS: Record<string, string> = {
 
 export const ACTION_COLORS: Record<string, StatusColor> = {
     LOGIN: 'grey',
+    LOGIN_FAILED: 'orange',
     STATUS_CHANGED: 'blue',
     DRAFT_CREATED: 'grey',
     DRAFT_DELETED: 'grey',
@@ -71,6 +73,15 @@ export function auditDetails(
         case 'DOCUMENT_UPLOADED': {
             const kind = typeof d.kind === 'string' ? (meta?.documents[d.kind] ?? d.kind) : 'Документ';
             return `${kind} · ${plainValue(d.file)}`;
+        }
+        case 'LOGIN_FAILED': {
+            const seconds = typeof d.blocked_seconds === 'number' ? d.blocked_seconds : 0;
+            const minutes = Math.ceil(seconds / 60);
+            const blocked = seconds
+                ? ` · вход заблокирован на ${minutes} ${plural(minutes, 'минуту', 'минуты', 'минут')}`
+                : '';
+            const ip = typeof d.ip === 'string' && d.ip !== '—' ? ` · адрес ${d.ip}` : '';
+            return `Логин ${plainValue(d.login)}${ip}${blocked}`;
         }
         case 'AGREEMENT_SIGNED': {
             const hash = typeof d.sha256 === 'string' ? ` · SHA-256 ${d.sha256.slice(0, 12)}…` : '';

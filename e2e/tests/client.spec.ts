@@ -100,6 +100,16 @@ test('вход с неверным паролем и разграничение 
     await login(page, 'veter', 'wrong-password');
     await expect(page.getByText('Не удалось войти')).toBeVisible();
 
+    // Перебор паролей: после пяти неверных паролей логин блокируется на 5 минут (блокировка могла
+    // остаться от предыдущего прогона, поэтому останавливаемся, как только она показана)
+    const blocked = page.getByText(/Слишком много попыток входа/);
+    for (let attempt = 1; attempt <= 5 && !(await blocked.isVisible()); attempt++) {
+        await login(page, 'nobody', 'wrong-password');
+        await expect(page.getByText('Не удалось войти')).toBeVisible();
+    }
+    await expect(blocked).toBeVisible();
+
+    // другие пользователи входят как обычно
     await login(page, 'veter');
     await expect(page).toHaveURL(/\/client$/);
     await page.goto('/bank');
