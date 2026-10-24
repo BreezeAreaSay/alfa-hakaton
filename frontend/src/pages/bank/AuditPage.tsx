@@ -12,6 +12,17 @@ import './bank.css';
 
 type Group = 'all' | 'applications' | 'documents' | 'admin' | 'login';
 
+/** Кто или что за объектом журнала: логин пользователя или название компании вместо внутреннего id. */
+function entityName(row: AuditRow): string | null {
+    const details = row.details ?? {};
+    if (row.entity_type === 'user') {
+        if (typeof details.login === 'string') return details.login;
+        if (row.action === 'LOGIN' && row.user) return row.user;
+    }
+    if (row.entity_type === 'company' && typeof details.name === 'string') return details.name;
+    return null;
+}
+
 const GROUPS: { key: Group; label: string; test: (row: AuditRow) => boolean }[] = [
     { key: 'all', label: 'Все действия', test: () => true },
     {
@@ -23,14 +34,14 @@ const GROUPS: { key: Group; label: string; test: (row: AuditRow) => boolean }[] 
     {
         key: 'documents',
         label: 'Документы и подписи',
-        test: (row) => ['DOCUMENT_UPLOADED', 'AGREEMENT_SIGNED'].includes(row.action),
+        test: (row) => ['DOCUMENT_UPLOADED', 'AGREEMENT_SIGNED', 'JUSTIFICATION_GENERATED'].includes(row.action),
     },
     {
         key: 'admin',
         label: 'Сбои и администрирование',
-        test: (row) => ['FAULT_SET', 'DEMO_RESET'].includes(row.action),
+        test: (row) => ['FAULT_SET', 'FAULTS_RESET', 'DEMO_RESET', 'COMPANY_CREATED'].includes(row.action),
     },
-    { key: 'login', label: 'Входы', test: (row) => row.action === 'LOGIN' },
+    { key: 'login', label: 'Входы', test: (row) => ['LOGIN', 'LOGIN_FAILED'].includes(row.action) },
 ];
 
 const PAGE_SIZE = 50;
@@ -131,7 +142,7 @@ export function AuditPage() {
                                                       row.entity_type === 'system' ? (
                                                         row.entity_id
                                                     ) : (
-                                                        `id ${shortId(row.entity_id)}`
+                                                        (entityName(row) ?? `id ${shortId(row.entity_id)}`)
                                                     )}
                                                 </div>
                                             </td>

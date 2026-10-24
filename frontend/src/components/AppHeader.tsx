@@ -141,8 +141,18 @@ function NotificationsBell() {
         const close = (event: MouseEvent) => {
             if (ref.current && !ref.current.contains(event.target as Node)) setOpen(false);
         };
+        // Escape закрывает панель, как остальные окна, и возвращает фокус на колокольчик
+        const onKey = (event: KeyboardEvent) => {
+            if (event.key !== 'Escape') return;
+            setOpen(false);
+            ref.current?.querySelector<HTMLButtonElement>('button')?.focus();
+        };
         document.addEventListener('mousedown', close);
-        return () => document.removeEventListener('mousedown', close);
+        document.addEventListener('keydown', onKey);
+        return () => {
+            document.removeEventListener('mousedown', close);
+            document.removeEventListener('keydown', onKey);
+        };
     }, [open]);
 
     const toggle = () => {

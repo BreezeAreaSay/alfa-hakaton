@@ -340,6 +340,11 @@ a {
     flex-wrap: wrap;
 }
 
+/* иконка в строке с длинным текстом не сжимается, когда текст переносится */
+.row > svg {
+    flex-shrink: 0;
+}
+
 .row--between {
     justify-content: space-between;
 }
@@ -453,6 +458,12 @@ a {
 .purpose--active {
     border-color: #212124;
     background: var(--color-light-base-bg-primary);
+}
+
+/* фокус с клавиатуры — синим контуром снаружи, чтобы не путать с выбором (тёмная рамка) */
+.purpose:focus-visible {
+    outline: 2px solid var(--color-light-status-info, #2288fa);
+    outline-offset: 2px;
 }
 
 .purpose__icon {
@@ -628,6 +639,16 @@ table.simple tr.clickable {
 }
 
 table.simple tr.clickable:hover td {
+    background: var(--color-light-base-bg-secondary);
+}
+
+/* строки-ссылки доступны с клавиатуры: Tab, затем Enter или пробел */
+table.simple tr.clickable:focus-visible {
+    outline: 2px solid var(--color-light-status-info, #2288fa);
+    outline-offset: -2px;
+}
+
+table.simple tr.clickable:focus-visible td {
     background: var(--color-light-base-bg-secondary);
 }
 
@@ -1003,6 +1024,20 @@ table.simple td.col-status {
     background: var(--color-light-accent-primary, #ef3124);
 }
 
+/* строка черновика под шагами: «сохранён» и удаление */
+.steps-card__draft {
+    display: grid;
+    gap: var(--gap-8);
+    margin-top: var(--gap-12);
+    padding-top: var(--gap-12);
+    border-top: 1px solid var(--color-light-neutral-translucent-200, #edeef0);
+}
+
+.steps-card__draft > .row {
+    justify-content: space-between;
+    gap: var(--gap-8) var(--gap-16);
+}
+
 .nav__label--short {
     display: none;
 }
@@ -1171,6 +1206,13 @@ table.simple td.col-status {
         white-space: normal;
     }
 
+    .mobile-only.apps__status {
+        display: flex !important;
+        flex-wrap: wrap;
+        gap: var(--gap-4) var(--gap-8);
+        margin-top: var(--gap-8);
+    }
+
     table.simple {
         font-size: 13px;
     }
@@ -1201,8 +1243,14 @@ table.simple td.col-status {
         display: none;
     }
 
+    /* на телефоне колокольчик не у края экрана: панель привязана к окну с отступами 16 px, а не к кнопке */
     .notifications {
-        width: min(380px, calc(100vw - 32px)) !important;
+        position: fixed !important;
+        top: 64px !important;
+        left: var(--gap-16) !important;
+        right: var(--gap-16) !important;
+        width: auto !important;
+        max-height: calc(100vh - 96px) !important;
     }
 
     .page {
@@ -1274,6 +1322,11 @@ table.simple td.col-status {
 
     /* в шапке телефона две кнопки не помещаются рядом с меню — регистрация открывается из окна входа */
     .login .header__right .login__register {
+        display: none;
+    }
+
+    /* «Получить кредит» на телефоне не помещается в шапку — то же действие есть на баннере под ней */
+    .login .login__nav-button {
         display: none;
     }
 

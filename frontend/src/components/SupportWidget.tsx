@@ -43,6 +43,24 @@ export function SupportWidget({ admin }: { admin: boolean }) {
     }, [phase]);
 
     const close = () => setPhase('closing');
+    const panel = useRef<HTMLElement>(null);
+    const toggleButton = useRef<HTMLButtonElement>(null);
+
+    // Открытое окно получает фокус (поле сообщения, у администратора — первый чат), Escape закрывает его
+    // и возвращает фокус на кнопку поддержки — как у остальных окон
+    useEffect(() => {
+        if (!open) return undefined;
+        const target = panel.current?.querySelector<HTMLElement>('textarea, .support__threads button');
+        target?.focus();
+        const onKey = (event: globalThis.KeyboardEvent) => {
+            if (event.key !== 'Escape') return;
+            setPhase('closing');
+            toggleButton.current?.focus();
+        };
+        document.addEventListener('keydown', onKey);
+        return () => document.removeEventListener('keydown', onKey);
+    }, [open]);
+
     const draft = {
         drafts,
         onDraft: (key: string, text: string) => setDrafts((current) => ({ ...current, [key]: text })),
@@ -52,6 +70,7 @@ export function SupportWidget({ admin }: { admin: boolean }) {
         <div className='support'>
             {phase !== 'closed' && (
                 <section
+                    ref={panel}
                     className={`support__panel${admin ? ' support__panel--admin' : ''}${open ? '' : ' support__panel--closing'}`}
                     aria-label='Поддержка'
                     role='dialog'
@@ -76,6 +95,7 @@ export function SupportWidget({ admin }: { admin: boolean }) {
             )}
 
             <button
+                ref={toggleButton}
                 type='button'
                 className='support__button'
                 aria-label={open ? 'Закрыть поддержку' : 'Поддержка'}

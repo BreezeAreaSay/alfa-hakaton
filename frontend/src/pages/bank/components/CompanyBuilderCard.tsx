@@ -234,7 +234,7 @@ export function CompanyBuilderCard() {
                             hint={
                                 okved
                                     ? `Отраслевой риск ${RISK_LABELS[okved.industry_risk]}, типичная рентабельность ` +
-                                      `${percentText(okved.typical_margin)} %`
+                                      `${percentText(okved.typical_margin)}\u00a0%`
                                     : 'По коду считаются отраслевой риск и типичная рентабельность'
                             }
                         />
@@ -301,7 +301,7 @@ export function CompanyBuilderCard() {
                         <MoneyInput
                             label='Выручка за последний год'
                             value={form.revenue}
-                            hint='Лимит без залога — до 50 % выручки; сумма больше половины выручки снижает балл'
+                            hint={'Лимит без залога — до 50\u00a0% выручки; сумма больше половины выручки снижает балл'}
                             onChange={(value) => set({ revenue: value })}
                         />
                         <div className='company-builder__pair'>
@@ -314,7 +314,7 @@ export function CompanyBuilderCard() {
                                 onChange={(e) => setGrowth(e.target.value)}
                                 rightAddons={<Unit>%</Unit>}
                                 error={tried && growthValue === null ? 'Укажите число' : undefined}
-                                hint='Отрицательное — снижение; падение больше 10 % снимает баллы'
+                                hint={'Отрицательное — снижение; падение больше 10\u00a0% снимает баллы'}
                                 inputMode='decimal'
                             />
                             <Input

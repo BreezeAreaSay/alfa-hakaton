@@ -1,4 +1,5 @@
 import { Button } from '@alfalab/core-components/button';
+import { ButtonDesktop } from '@alfalab/core-components/button/desktop';
 import { Typography } from '@alfalab/core-components/typography';
 import { ChevronRightMIcon } from '@alfalab/icons-glyph/ChevronRightMIcon';
 import { useState } from 'react';
@@ -97,7 +98,7 @@ function OfferTile({ offer }: { offer: ProactiveOffer }) {
                     size={40}
                     onClick={() =>
                         navigate(
-                            `/client/new?purpose=${offer.purpose}&amount=${offer.amount}&term=${offer.term_months}`,
+                            `/client/new?purpose=${offer.purpose}&amount=${offer.amount}&term=${offer.term_months}&product=${offer.product_code}`,
                         )
                     }
                 >
@@ -158,6 +159,21 @@ function StatementCheckCard() {
     );
 }
 
+function ApplicationBadges({ item }: { item: ApplicationListItem }) {
+    return (
+        <>
+            <StatusBadge status={item.status} label={item.status_label} />
+            {item.needs_action && item.status !== 'DRAFT' && <Badge color='orange'>нужно действие</Badge>}
+        </>
+    );
+}
+
+/** «Должность · компания»; у ИП должность повторяла бы название («Индивидуальный предприниматель · ИП …»). */
+function roleLine(position: string | null | undefined, company: string | null | undefined): string {
+    if (company?.startsWith('ИП ') && position === 'Индивидуальный предприниматель') return company;
+    return [position, company].filter(Boolean).join(' · ');
+}
+
 function greeting(fullName: string | undefined): string {
     const parts = (fullName ?? '').split(' ');
     return parts.length >= 3 ? `${parts[1]} ${parts[2]}` : (fullName ?? '');
@@ -180,7 +196,7 @@ export function DashboardPage() {
                 <div className='stack'>
                     <div className='stack-8'>
                         <Typography.Text view='primary-medium' color='secondary'>
-                            {user?.position} · {user?.company?.name}
+                            {roleLine(user?.position, user?.company?.name)}
                         </Typography.Text>
                         <Typography.TitleResponsive tag='h1' view='xlarge' font='system' weight='bold'>
                             Добрый день, {greeting(user?.full_name)}
@@ -191,9 +207,10 @@ export function DashboardPage() {
                         </Typography.Text>
                     </div>
                     <div>
-                        <Button view='primary' size={56} onClick={() => navigate('/client/new')}>
+                        {/* как на стартовой странице: мобильный вариант кнопки на тёмной шапке почти не виден */}
+                        <ButtonDesktop view='primary' size={56} onClick={() => navigate('/client/new')}>
                             Подобрать кредит
-                        </Button>
+                        </ButtonDesktop>
                     </div>
                 </div>
             </div>
@@ -209,8 +226,12 @@ export function DashboardPage() {
                                 <button key={item.id} type='button' className='purpose' onClick={() => open(item)}>
                                     <div style={{ flex: 1 }}>
                                         <Typography.Text view='primary-medium' weight='medium' tag='div'>
-                                            {item.status === 'DRAFT' ? 'Черновик заявки' : `Заявка № ${item.number}`} ·{' '}
-                                            {item.product_name}
+                                            {item.status === 'DRAFT' ? (
+                                                'Черновик заявки'
+                                            ) : (
+                                                <span className='nowrap'>Заявка № {item.number}</span>
+                                            )}{' '}
+                                            · {item.product_name}
                                         </Typography.Text>
                                         <Typography.Text view='primary-small' color='secondary' tag='div'>
                                             {rub(item.amount)} · {months(item.term_months)}
@@ -246,12 +267,23 @@ export function DashboardPage() {
                                             <th>Заявка</th>
                                             <th className='col-detail'>Продукт</th>
                                             <th className='num'>Сумма и срок</th>
-                                            <th>Статус</th>
+                                            <th className='col-detail'>Статус</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {applications.data.map((item) => (
-                                            <tr key={item.id} className='clickable' onClick={() => open(item)}>
+                                            <tr
+                                                key={item.id}
+                                                className='clickable'
+                                                tabIndex={0}
+                                                onClick={() => open(item)}
+                                                onKeyDown={(event) => {
+                                                    if (event.key === 'Enter' || event.key === ' ') {
+                                                        event.preventDefault();
+                                                        open(item);
+                                                    }
+                                                }}
+                                            >
                                                 <td className='nowrap'>
                                                     <Typography.Text view='primary-small' weight='medium' tag='div'>
                                                         № {item.number}
@@ -267,6 +299,10 @@ export function DashboardPage() {
                                                     >
                                                         {item.product_name}
                                                     </Typography.Text>
+                                                    {/* на телефоне статус под продуктом: в отдельной колонке бейдж обрезается */}
+                                                    <div className='mobile-only apps__status'>
+                                                        <ApplicationBadges item={item} />
+                                                    </div>
                                                 </td>
                                                 <td className='col-detail'>{item.product_name}</td>
                                                 <td className='num'>
@@ -277,12 +313,9 @@ export function DashboardPage() {
                                                         {months(item.term_months)}
                                                     </Typography.Text>
                                                 </td>
-                                                <td className='col-status'>
+                                                <td className='col-status col-detail'>
                                                     <div className='stack-8' style={{ alignItems: 'flex-start' }}>
-                                                        <StatusBadge status={item.status} label={item.status_label} />
-                                                        {item.needs_action && item.status !== 'DRAFT' && (
-                                                            <Badge color='orange'>нужно действие</Badge>
-                                                        )}
+                                                        <ApplicationBadges item={item} />
                                                     </div>
                                                 </td>
                                             </tr>

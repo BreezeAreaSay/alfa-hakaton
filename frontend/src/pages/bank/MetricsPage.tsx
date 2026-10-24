@@ -12,7 +12,7 @@ type Period = (typeof PERIODS)[number];
 const PLOT_HEIGHT = 120;
 const ruNumber = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 1 });
 
-const sharePercent = (value: number | null): string => (value === null ? '—' : `${Math.round(value * 100)} %`);
+const sharePercent = (value: number | null): string => (value === null ? '—' : `${Math.round(value * 100)}\u00a0%`);
 
 /** Длительность словами: секунды — до минуты, минуты — до часа, часы — до двух суток, дальше дни. */
 function duration(seconds: number | null): string {
@@ -50,10 +50,13 @@ function CountRows({ rows, empty }: { rows: MetricCount[]; empty: string }) {
             {rows.map((row) => (
                 <li key={row.code} className='metric-row'>
                     <span>
-                        {row.title} <span className='bank-sub'>{row.code}</span>
+                        {row.title}
+                        {/* коды политики (S01, R02) аналитику знакомы, служебные коды исходов не показываем */}
+                        {/^[SR]\d{2}$/.test(row.code) && <span className='bank-sub'> {row.code}</span>}
                     </span>
                     <span className='metric-row__count'>
-                        {row.count} · {Math.round((row.count / total) * 100)} %
+                        {row.count} · {Math.round((row.count / total) * 100)}
+                        {'\u00a0'}%
                     </span>
                     <span className='metric-row__bar' aria-hidden={true}>
                         <span className='metric-row__fill' style={{ width: `${(row.count / max) * 100}%` }} />
@@ -124,7 +127,7 @@ function Tiles({ m }: { m: BankMetrics }) {
             <Tile
                 label='До решения, медиана'
                 value={duration(m.to_decision_median_seconds)}
-                hint={`95 % заявок — ${duration(m.to_decision_p95_seconds)}`}
+                hint={`95\u00a0% заявок — ${duration(m.to_decision_p95_seconds)}`}
             />
             <Tile
                 label='Предложение → принято'
@@ -200,7 +203,7 @@ export function MetricsPage() {
                             <KeyValue
                                 items={[
                                     ['До первого решения, медиана', duration(m.to_decision_median_seconds)],
-                                    ['До решения, 95 % заявок', duration(m.to_decision_p95_seconds)],
+                                    ['До решения, 95\u00a0% заявок', duration(m.to_decision_p95_seconds)],
                                     ['От подачи до выдачи, медиана', hoursText(m.to_issue_median_hours)],
                                     ['Ответ клиента на запрос, медиана', hoursText(m.info_response_median_hours)],
                                     ['Рассмотрение аналитиком, медиана', hoursText(m.review_median_hours)],
@@ -224,7 +227,8 @@ export function MetricsPage() {
                             />
                             <Sub>
                                 Считается по заявкам: у контрпредложения может быть два варианта, принять можно один.
-                                Заявка со срочными предложениями учитывается в «заявках с предложением» сразу.
+                                Заявка попадает в «заявки с предложением», как только банк выдал предложение, ещё до
+                                ответа клиента.
                             </Sub>
                         </Card>
                         <Card title='Продукты'>

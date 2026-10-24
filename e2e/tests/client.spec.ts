@@ -28,7 +28,7 @@ async function chooseProduct(page: Page, need: string, product: string): Promise
  * компании, иначе расхождение больше 30% отправит заявку аналитику (флаг F04) и исход сценария изменится.
  */
 async function submitApplication(page: Page, revenue: number): Promise<void> {
-    await page.getByLabel('Выручка за последний год, по вашим данным').fill(String(revenue));
+    await page.getByLabel('Выручка за последний год').fill(String(revenue));
     await page.getByRole('button', { name: 'Далее' }).click();
     const consents = [
         'Согласие на запрос кредитной истории в бюро кредитных историй',
@@ -60,19 +60,24 @@ test('ключевой сценарий: подбор, заявка, автоо�
     await expect(page.getByText('Что повлияло на условия')).toBeVisible();
     await page.getByRole('button', { name: 'Принять предложение' }).click();
 
-    // Договор формируется автоматически, затем подписание паролем от кабинета
+    // Договор формируется автоматически, затем подписание паролем от кабинета: фокус сразу в поле, Enter подписывает
     await page.getByRole('button', { name: 'Подписать договор' }).click();
-    const dialog = page.getByRole('dialog');
-    await dialog.locator('input[type="password"]').fill(PASSWORD);
-    await dialog.getByRole('button', { name: 'Подписать', exact: true }).click();
+    const password = page.getByRole('dialog').locator('input[type="password"]');
+    await expect(password).toBeFocused();
+    await page.keyboard.type(PASSWORD);
+    await page.keyboard.press('Enter');
 
     await expect(page.getByText('Кредит выдан').first()).toBeVisible();
     await expect(page.getByRole('columnheader', { name: 'Остаток' })).toBeVisible();
     await expect(page.getByText('Ближайший платёж')).toBeVisible();
 
-    // В списке заявок на главной — выданный кредит
+    // В списке заявок на главной — выданный кредит; строка открывается с клавиатуры
     await page.goto('/client');
     await expect(page.locator('table')).toContainText('Кредит выдан');
+    await page.getByRole('row', { name: /Кредит выдан/ }).focus();
+    await page.keyboard.press('Enter');
+    await expect(page).toHaveURL(/\/client\/applications\/[0-9a-f-]+$/);
+    await expect(page.getByText('Ближайший платёж')).toBeVisible();
 });
 
 test('банку не хватает данных: клиент загружает выписку и получает предложение', async ({ page }) => {
@@ -102,6 +107,8 @@ test('стоп-фактор: компания в ликвидации получ
 
     await expect(page.getByRole('heading', { name: 'Банк не может выдать кредит' })).toBeVisible();
     await expect(page.getByText(/ликвидац/i).first()).toBeVisible();
+    // Стоп-фактор не зависит от продукта: подбор другого продукта не предлагаем
+    await expect(page.getByRole('button', { name: 'Подобрать другой продукт' })).toHaveCount(0);
 });
 
 test('вход с неверным паролем и разграничение доступа по ролям', async ({ page }) => {
@@ -131,12 +138,20 @@ test('логотип возвращает вошедшего клиента на
     await page.getByRole('link', { name: 'На главную' }).click();
     await expect(page).toHaveURL(/\/$/);
     await expect(page.getByRole('heading', { level: 1, name: /Кредиты для бизнеса/ })).toBeVisible();
-    // вошедшему окно входа не нужно: «Получить кредит» ведёт сразу в подбор
-    await page.getByRole('banner').getByRole('button', { name: 'Получить кредит' }).click();
+    // вошедшему окно входа не нужно: «Получить кредит» ведёт сразу в подбор. На телефоне этой кнопки в шапке нет —
+    // то же действие у «Оформить заявку» на баннере, а «Личный кабинет» подписан коротко: «Кабинет»
+    const phone = test.info().project.name === 'mobile-client';
+    const start = phone
+        ? page.getByRole('button', { name: 'Оформить заявку' })
+        : page.getByRole('banner').getByRole('button', { name: 'Получить кредит' });
+    await start.click();
     await expect(page).toHaveURL(/\/client\/new$/);
 
     await page.getByRole('link', { name: 'На главную' }).click();
-    await page.getByRole('banner').getByRole('button', { name: 'Личный кабинет' }).click();
+    await page
+        .getByRole('banner')
+        .getByRole('button', { name: phone ? 'Кабинет' : 'Личный кабинет', exact: true })
+        .click();
     await expect(page).toHaveURL(/\/client$/);
 });
 

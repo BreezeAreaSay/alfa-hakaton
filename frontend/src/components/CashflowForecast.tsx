@@ -59,11 +59,18 @@ export function forecastVerdict(f: Forecast): { color: 'green' | 'orange'; label
 
 export function recommendationText(f: Forecast): string | null {
     const r = f.recommendation;
+    // База расчёта — именно эта выписка: предложение банка может быть больше, если обороты по счёту в банке выше
     if (r.reason === 'GAP_COVERED_BY_OVERDRAFT') {
-        return `Подойдёт овердрафт до ${rub(r.amount)} — в пределах 40 % среднемесячных поступлений (${rub(f.overdraft_cap)}).`;
+        return (
+            `Подойдёт овердрафт до ${rub(r.amount)} — в пределах 40\u00a0% среднемесячных поступлений по этой выписке ` +
+            `(до ${rub(f.overdraft_cap)}). Итоговый лимит банк считает по всем данным, включая обороты по счёту.`
+        );
     }
     if (r.reason === 'GAP_ABOVE_OVERDRAFT_LIMIT') {
-        return `Разрыв больше лимита овердрафта (${rub(f.overdraft_cap)}) — подойдёт кредитная линия до ${rub(r.amount)}.`;
+        return (
+            `Разрыв больше лимита овердрафта по этой выписке (${rub(f.overdraft_cap)}) — подойдёт кредитная линия ` +
+            `до ${rub(r.amount)}.`
+        );
     }
     return null;
 }

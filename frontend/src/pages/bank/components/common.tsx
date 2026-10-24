@@ -9,9 +9,9 @@ import { RISK_COLORS, type StatusColor } from '../../../utils/format';
 export const CONSTRAINT_LABELS: Record<string, string> = {
     PRODUCT_MAX: 'Максимум продукта',
     REVENUE: 'По выручке',
-    COLLATERAL: 'По залогу (80%)',
+    COLLATERAL: 'По залогу (80\u00a0%)',
     DSCR: 'По платёжеспособности (DSCR ≥ 1,3)',
-    OVERDRAFT: '40% поступлений на счёт',
+    OVERDRAFT: '40\u00a0% поступлений на счёт',
 };
 
 export const OUTCOME_LABELS: Record<string, string> = {

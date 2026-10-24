@@ -93,6 +93,8 @@ export function auditDetails(
             if (d.from) return `Передана от ${plainValue(d.from)} к ${to}`;
             return d.to ? `Взята в работу: ${to}` : 'Взята в работу';
         }
+        case 'COMPANY_CREATED':
+            return `${plainValue(d.name)} · ИНН ${plainValue(d.inn)} · логин ${plainValue(d.login)}`;
         case 'AGREEMENT_SIGNED': {
             const hash = typeof d.sha256 === 'string' ? ` · SHA-256 ${d.sha256.slice(0, 12)}…` : '';
             return `Договор подписан простой электронной подписью${hash}`;

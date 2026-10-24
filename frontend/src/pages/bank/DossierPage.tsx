@@ -1,4 +1,5 @@
 import { Button } from '@alfalab/core-components/button';
+import { Plate } from '@alfalab/core-components/plate';
 import { PrimaryTabListResponsive } from '@alfalab/core-components/tabs';
 import { Typography } from '@alfalab/core-components/typography';
 import { ArrowLeftMIcon } from '@alfalab/icons-glyph/ArrowLeftMIcon';
@@ -7,7 +8,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 
-import { openInNewTab } from '../../api/client';
+import { ApiError, openInNewTab } from '../../api/client';
 import { keys, useAssign, useDossier, useMessages, useMeta, useProducts } from '../../api/hooks';
 import type { Dossier } from '../../api/types';
 import { ErrorPlate, Loader, StatusBadge } from '../../components/ui';
@@ -78,7 +79,14 @@ function JustificationButton({ data }: { data: Dossier }) {
             >
                 Скачать обоснование
             </Button>
-            <ErrorPlate error={error} title='Не удалось сформировать обоснование' />
+            {error instanceof ApiError && error.status === 501 ? (
+                // демо-версия без сервера: функции нет, это справка, а не сбой
+                <Plate view='common' rounded={true} limitContentWidth={false}>
+                    {error.message}
+                </Plate>
+            ) : (
+                <ErrorPlate error={error} title='Не удалось сформировать обоснование' />
+            )}
         </>
     );
 }

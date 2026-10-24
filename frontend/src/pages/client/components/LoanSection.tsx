@@ -4,7 +4,7 @@ import { CheckmarkCircleMIcon } from '@alfalab/icons-glyph/CheckmarkCircleMIcon'
 import { useState } from 'react';
 
 import type { Loan } from '../../../api/types';
-import { date, months, percent, rub } from '../../../utils/format';
+import { date, months, percent, plural, rub } from '../../../utils/format';
 
 export function LoanSection({ loan }: { loan: Loan }) {
     const [all, setAll] = useState(false);
@@ -70,7 +70,9 @@ export function LoanSection({ loan }: { loan: Loan }) {
             {loan.schedule.length > 6 && (
                 <div>
                     <Button view='secondary' size={40} onClick={() => setAll(!all)}>
-                        {all ? 'Свернуть график' : `Весь график — ${loan.schedule.length} платежей`}
+                        {all
+                            ? 'Свернуть график'
+                            : `Весь график — ${loan.schedule.length} ${plural(loan.schedule.length, 'платёж', 'платежа', 'платежей')}`}
                     </Button>
                 </div>
             )}

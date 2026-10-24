@@ -6,8 +6,8 @@ import { ArrowLeftMIcon } from '@alfalab/icons-glyph/ArrowLeftMIcon';
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
-import { useApplication, useCancel } from '../../api/hooks';
-import type { Application } from '../../api/types';
+import { useApplication, useCancel, useMeta } from '../../api/hooks';
+import type { Application, Meta } from '../../api/types';
 import { ErrorPlate, KeyValue, Loader, StatusBadge, StepList } from '../../components/ui';
 import { dateTime, months, num, percent, rub } from '../../utils/format';
 import { ChatCard } from './components/ChatCard';
@@ -42,7 +42,7 @@ export function ApplicationPage() {
                     </Link>
                     <div className='row'>
                         <Typography.TitleResponsive tag='h1' view='large' font='system' weight='bold'>
-                            Заявка № {application.number}
+                            Заявка <span className='nowrap'>№ {application.number}</span>
                         </Typography.TitleResponsive>
                         <StatusBadge status={application.status} label={application.status_label} size={32} />
                     </div>
@@ -75,8 +75,18 @@ export function ApplicationPage() {
     );
 }
 
+/** Стоп-факторы S01–S04 не зависят от продукта: другой продукт банк тоже не выдаст, пока причина не устранена. */
+const PRODUCT_INDEPENDENT_STOP_FACTORS = ['S01', 'S02', 'S03', 'S04'];
+
+function blockedForAnyProduct(application: Application, meta: Meta | undefined): boolean {
+    if (!meta) return true;
+    const texts = new Set(PRODUCT_INDEPENDENT_STOP_FACTORS.map((code) => meta.stop_factors[code]));
+    return application.explanation.rejection.some((text) => texts.has(text));
+}
+
 function CurrentStage({ application }: { application: Application }) {
     const navigate = useNavigate();
+    const { data: meta } = useMeta();
     const openRequest = application.info_requests.find((r) => r.status === 'OPEN');
 
     switch (application.status) {
@@ -157,7 +167,7 @@ function CurrentStage({ application }: { application: Application }) {
                     <div className='row' style={{ flexWrap: 'nowrap' }}>
                         <Spinner visible={true} size={24} lineWidth={3} />
                         <Typography.Title tag='h2' view='small' font='system' weight='bold'>
-                            {application.status === 'ACCEPTED' ? 'Готовим договор' : 'Перечисляем деньги'}
+                            {application.status === 'ACCEPTED' ? 'Готовим документы' : 'Перечисляем деньги'}
                         </Typography.Title>
                     </div>
                     <Typography.Text view='primary-medium' color='secondary' tag='p'>
@@ -227,7 +237,7 @@ function CurrentStage({ application }: { application: Application }) {
                                                 size={40}
                                                 onClick={() =>
                                                     navigate(
-                                                        `/client/new?purpose=${application.purpose}&amount=${num(item.max_amount)}&term=${item.term_months}`,
+                                                        `/client/new?purpose=${application.purpose}&amount=${num(item.max_amount)}&term=${item.term_months}&product=${item.product_code}`,
                                                     )
                                                 }
                                             >
@@ -239,11 +249,13 @@ function CurrentStage({ application }: { application: Application }) {
                             </div>
                         </div>
                     )}
-                    <div>
-                        <Button view='secondary' size={48} onClick={() => navigate('/client/new')}>
-                            Подобрать другой продукт
-                        </Button>
-                    </div>
+                    {!blockedForAnyProduct(application, meta) && (
+                        <div>
+                            <Button view='secondary' size={48} onClick={() => navigate('/client/new')}>
+                                Подобрать другой продукт
+                            </Button>
+                        </div>
+                    )}
                 </section>
             );
         default:
@@ -275,7 +287,9 @@ function TimelineCard({ application }: { application: Application }) {
     const items: [string, string][] = [
         [
             'Автоматическая проверка',
-            status === 'SUBMITTED' || status === 'IN_PROCESSING' ? 'идёт сейчас, обычно пара минут' : 'несколько минут',
+            status === 'SUBMITTED' || status === 'IN_PROCESSING'
+                ? 'идёт сейчас, обычно несколько минут'
+                : 'несколько минут',
         ],
         [
             'Решение специалиста',

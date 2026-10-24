@@ -138,15 +138,6 @@ table.simple tr.bank-total td {
     border-top: 1px solid var(--color-light-neutral-translucent-300, #dbdde2);
 }
 
-table.simple tr.clickable:focus-visible {
-    outline: 2px solid var(--color-light-status-info, #2288fa);
-    outline-offset: -2px;
-}
-
-table.simple tr.clickable:focus-visible td {
-    background: var(--color-light-base-bg-secondary);
-}
-
 /* ---------------------------------------------------------------- очередь */
 
 .bank-tiles {

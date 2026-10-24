@@ -572,6 +572,17 @@
     .landing-faq .landing-faq__answer {
         padding: 0 var(--gap-20) var(--gap-20);
     }
+
+    /* таблица сравнения шире экрана: название продукта остаётся на месте при прокрутке вбок */
+    .products-table th:first-child,
+    .products-table td:first-child {
+        position: sticky;
+        left: 0;
+        z-index: 1;
+        min-width: 128px;
+        background: #fff;
+        box-shadow: 8px 0 8px -8px rgba(0, 0, 0, 0.16);
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {

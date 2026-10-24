@@ -126,7 +126,7 @@ async function pickProduct(page: Page): Promise<void> {
 
 /** Шаг 3 «Проверка и отправка»: выручка за последний год обязательна, берём близкую к отчётности компании. */
 async function goToReview(page: Page): Promise<void> {
-    await page.getByLabel('Выручка за последний год, по вашим данным').fill('120000000');
+    await page.getByLabel('Выручка за последний год').fill('120000000');
     await page.getByRole('button', { name: 'Далее' }).click();
     await expect(page.getByRole('heading', { name: 'Проверьте заявку' })).toBeVisible();
 }

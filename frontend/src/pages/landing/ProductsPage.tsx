@@ -280,6 +280,9 @@ export function ProductsPage({ onCalculate }: { onCalculate: (path: string) => v
                         <Typography.Title tag='h2' view='medium' font='system' weight='bold'>
                             Сравнение продуктов
                         </Typography.Title>
+                        <Typography.Text view='primary-small' color='secondary' tag='p' className='mobile-only'>
+                            Таблица шире экрана — прокрутите её вбок, название продукта останется на месте
+                        </Typography.Text>
                         <div className='table-wrap'>
                             <table className='simple products-table'>
                                 <thead>

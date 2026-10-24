@@ -1,4 +1,5 @@
-import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 
 import { useLiveUpdates } from './api/hooks';
 import { isBankRole, useAuth } from './auth/AuthContext';
@@ -75,50 +76,62 @@ function Home() {
     return <Navigate to={user.role === 'CLIENT' ? '/client' : '/bank'} replace={true} />;
 }
 
+/** Новый экран открывается с начала страницы: браузер в одностраничном приложении сам этого не делает. */
+function ScrollToTop() {
+    const { pathname } = useLocation();
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [pathname]);
+    return null;
+}
+
 export function App() {
     return (
-        <Routes>
-            {/* Стартовая страница с баннерами открыта всем; /login — она же, но вошедших ведёт в кабинет */}
-            <Route
-                path='/'
-                element={
-                    <>
-                        <Theme name='corp' />
-                        <LoginPage />
-                    </>
-                }
-            />
-            <Route
-                path='/products'
-                element={
-                    <>
-                        <Theme name='corp' />
-                        <LoginPage page='products' />
-                    </>
-                }
-            />
-            <Route
-                path='/login'
-                element={
-                    <>
-                        <Theme name='corp' />
-                        <LoginPage guestOnly={true} />
-                    </>
-                }
-            />
-            <Route path='/client' element={<ClientLayout />}>
-                <Route index={true} element={<DashboardPage />} />
-                <Route path='new' element={<NewApplicationPage />} />
-                <Route path='applications/:id' element={<ApplicationPage />} />
-            </Route>
-            <Route path='/bank' element={<BankLayout />}>
-                <Route index={true} element={<QueuePage />} />
-                <Route path='applications/:id' element={<DossierPage />} />
-                <Route path='metrics' element={<MetricsPage />} />
-                <Route path='pipeline' element={<PipelinePage />} />
-                <Route path='audit' element={<AuditPage />} />
-            </Route>
-            <Route path='*' element={<Home />} />
-        </Routes>
+        <>
+            <ScrollToTop />
+            <Routes>
+                {/* Стартовая страница с баннерами открыта всем; /login — она же, но вошедших ведёт в кабинет */}
+                <Route
+                    path='/'
+                    element={
+                        <>
+                            <Theme name='corp' />
+                            <LoginPage />
+                        </>
+                    }
+                />
+                <Route
+                    path='/products'
+                    element={
+                        <>
+                            <Theme name='corp' />
+                            <LoginPage page='products' />
+                        </>
+                    }
+                />
+                <Route
+                    path='/login'
+                    element={
+                        <>
+                            <Theme name='corp' />
+                            <LoginPage guestOnly={true} />
+                        </>
+                    }
+                />
+                <Route path='/client' element={<ClientLayout />}>
+                    <Route index={true} element={<DashboardPage />} />
+                    <Route path='new' element={<NewApplicationPage />} />
+                    <Route path='applications/:id' element={<ApplicationPage />} />
+                </Route>
+                <Route path='/bank' element={<BankLayout />}>
+                    <Route index={true} element={<QueuePage />} />
+                    <Route path='applications/:id' element={<DossierPage />} />
+                    <Route path='metrics' element={<MetricsPage />} />
+                    <Route path='pipeline' element={<PipelinePage />} />
+                    <Route path='audit' element={<AuditPage />} />
+                </Route>
+                <Route path='*' element={<Home />} />
+            </Routes>
+        </>
     );
 }

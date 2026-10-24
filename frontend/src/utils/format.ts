@@ -6,11 +6,12 @@ const numberFormat = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 2 }
 export const num = (value: Money | null | undefined): number =>
     value === null || value === undefined ? 0 : Number(value);
 
-export const rub = (value: Money | null | undefined): string => `${rubFormat.format(Math.round(num(value)))} ₽`;
+// Неразрывный пробел (\u00a0) перед знаком: на узком экране «₽» и «%» не отрываются от числа
+export const rub = (value: Money | null | undefined): string => `${rubFormat.format(Math.round(num(value)))}\u00a0₽`;
 
 export const plainNumber = (value: Money | null | undefined): string => numberFormat.format(num(value));
 
-export const percent = (value: Money | null | undefined): string => `${numberFormat.format(num(value))}%`;
+export const percent = (value: Money | null | undefined): string => `${numberFormat.format(num(value))}\u00a0%`;
 
 export function plural(n: number, one: string, few: string, many: string): string {
     const abs = Math.abs(n);
@@ -23,15 +24,15 @@ export function months(n: number): string {
     const years = Math.floor(n / 12);
     const rest = n % 12;
     const parts: string[] = [];
-    if (years) parts.push(`${years} ${plural(years, 'год', 'года', 'лет')}`);
-    if (rest || !years) parts.push(`${rest} мес.`);
+    if (years) parts.push(`${years}\u00a0${plural(years, 'год', 'года', 'лет')}`);
+    if (rest || !years) parts.push(`${rest}\u00a0мес.`);
     return parts.join(' ');
 }
 
 export function shortAmount(value: number): string {
-    if (value >= 1_000_000) return `${numberFormat.format(value / 1_000_000)} млн ₽`;
-    if (value >= 1_000) return `${numberFormat.format(value / 1_000)} тыс ₽`;
-    return `${value} ₽`;
+    if (value >= 1_000_000) return `${numberFormat.format(value / 1_000_000)}\u00a0млн\u00a0₽`;
+    if (value >= 1_000) return `${numberFormat.format(value / 1_000)}\u00a0тыс.\u00a0₽`;
+    return `${value}\u00a0₽`;
 }
 
 export const date = (iso: string | null | undefined): string =>

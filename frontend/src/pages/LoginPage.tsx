@@ -121,7 +121,11 @@ export function LoginPage({
                         {!loading &&
                             (user ? (
                                 <ButtonDesktop view='primary' size={40} onClick={() => navigate(cabinet)}>
-                                    {user.role === 'CLIENT' ? 'Личный кабинет' : 'Рабочее место'}
+                                    {/* на телефоне — короткая подпись, иначе «Продукты» в меню обрезаются */}
+                                    <span className='nav__label'>
+                                        {user.role === 'CLIENT' ? 'Личный кабинет' : 'Рабочее место'}
+                                    </span>
+                                    <span className='nav__label--short'>Кабинет</span>
                                 </ButtonDesktop>
                             ) : (
                                 <>
@@ -319,10 +323,11 @@ function LoginWidget({
                     <Typography.Text view='primary-small' color='secondary' tag='div'>
                         Пароль у всех — admin. Нажмите, чтобы войти.
                     </Typography.Text>
+                    {/* сотрудники банка — первой строкой: на экране ноутбука список клиентов ниже не помещается в окно */}
+                    <AccountGroup title='Сотрудники банка' accounts={STAFF} onPick={quick} />
                     {CLIENT_GROUPS.map((group) => (
                         <AccountGroup key={group.title} title={group.title} accounts={group.accounts} onPick={quick} />
                     ))}
-                    <AccountGroup title='Сотрудники банка' accounts={STAFF} onPick={quick} />
                 </div>
             </div>
         </AuthModal>

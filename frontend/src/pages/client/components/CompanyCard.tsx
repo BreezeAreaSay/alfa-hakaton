@@ -52,6 +52,7 @@ export function CompanyCard({ company, refreshable = false }: { company: Company
                     ],
                     ['Вид деятельности', company.okved ? `${company.okved} ${company.okved_name ?? ''}` : '—'],
                     ['Руководитель', company.director_name ?? '—'],
+                    ['Адрес', company.address ?? '—'],
                     [
                         'Счёт в банке',
                         company.is_bank_client

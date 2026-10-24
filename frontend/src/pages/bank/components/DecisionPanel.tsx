@@ -141,7 +141,7 @@ function ApproveForm({ app, onDone, onCounter }: { app: Application; onDone: () 
             )}
             {overLimit && !errors.length && (
                 <Plate view='attention' rounded={true} limitContentWidth={false} title='Сумма выше расчётного лимита'>
-                    Превышение до 20% допустимо — добавьте комментарий с обоснованием.
+                    Превышение до 20{'\u00a0'}% допустимо — добавьте комментарий с обоснованием.
                 </Plate>
             )}
             <Textarea
@@ -290,7 +290,7 @@ function CounterForm({ data, onDone }: { data: Dossier; onDone: () => void }) {
             <PreviewErrors errors={errors} />
             {overLimit && !errors.length && (
                 <Plate view='attention' rounded={true} limitContentWidth={false} title='Сумма выше расчётного лимита'>
-                    Превышение до 20% допустимо — добавьте комментарий с обоснованием.
+                    Превышение до 20{'\u00a0'}% допустимо — добавьте комментарий с обоснованием.
                 </Plate>
             )}
             <Textarea

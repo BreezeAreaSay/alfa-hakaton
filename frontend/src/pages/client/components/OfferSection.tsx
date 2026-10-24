@@ -177,7 +177,7 @@ function OfferOption({
     );
 }
 
-const pp = (value: Money): string => `${plainNumber(value)} п.п.`;
+const pp = (value: Money): string => `${plainNumber(value)}\u00a0п.п.`;
 
 /** Из чего складывается ставка и как получить её ниже — главный вопрос предпринимателя по исследованию. */
 function RateBreakdownCard({
@@ -198,7 +198,7 @@ function RateBreakdownCard({
         [`Надбавка продукта «${productName}»`, `+${pp(b.product_spread)}`],
         [
             'Надбавка за риск по итогам проверки',
-            num(b.risk_margin) > 0 ? `+${pp(b.risk_margin)}` : '0 п.п. — минимальная',
+            num(b.risk_margin) > 0 ? `+${pp(b.risk_margin)}` : '0\u00a0п.п. — минимальная',
         ],
     ];
     if (adjustment !== 0)

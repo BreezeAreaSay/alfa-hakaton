@@ -23,6 +23,7 @@ import {
     useApplication,
     useCompany,
     useCreateDraft,
+    useDeleteDraft,
     useDeleteDocument,
     useParseNeed,
     useQuote,
@@ -206,6 +207,18 @@ export function NewApplicationPage() {
     const company = useCompany();
 
     const [step, setStep] = useState(0);
+    // шаги мастера меняются без смены адреса: каждый шаг открываем с начала страницы
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [step]);
+    // Steps дизайн-системы рисует каждый шаг кнопкой с фокусом, даже неинтерактивный: убираем пустые остановки Tab
+    const stepsRef = useRef<HTMLDivElement>(null);
+    useEffect(() => {
+        stepsRef.current?.querySelectorAll('[role="button"]').forEach((element) => {
+            element.removeAttribute('role');
+            element.removeAttribute('tabindex');
+        });
+    }, [step]);
     // Предварительное предложение с главной передаёт цель, сумму и срок в адресе
     const [purpose, setPurpose] = useState<Purpose>(() => {
         const value = params.get('purpose');
@@ -240,7 +253,7 @@ export function NewApplicationPage() {
                 subtitle='Подберём продукт под задачу, данные компании подтянем из ЕГРЮЛ — заполнять почти ничего не нужно'
             />
             <div className='card card--tight steps-card' style={{ marginBottom: 24 }}>
-                <div className='steps-card__full'>
+                <div className='steps-card__full' ref={stepsRef}>
                     <Steps activeStep={step + 1} isMarkCompletedSteps={true} ordered={true} interactive={false}>
                         {STEP_TITLES.map((title) => (
                             <span key={title}>{title}</span>
@@ -259,6 +272,7 @@ export function NewApplicationPage() {
                         <span style={{ width: `${((step + 1) / STEP_TITLES.length) * 100}%` }} />
                     </div>
                 </div>
+                {draft.data?.status === 'DRAFT' && <DraftActions application={draft.data} />}
             </div>
             {step === 0 && (
                 <SelectionStep
@@ -296,6 +310,45 @@ export function NewApplicationPage() {
 
 // ---------------------------------------------------------------- шаг 1: подбор
 
+/** Черновик сохраняется сам; здесь его можно удалить, чтобы он не висел в «Нужно ваше действие». */
+function DraftActions({ application }: { application: Application }) {
+    const navigate = useNavigate();
+    const remove = useDeleteDraft();
+    const [confirm, setConfirm] = useState(false);
+    const destroy = async () => {
+        try {
+            await remove.mutateAsync(application.id);
+            navigate('/client', { replace: true });
+        } catch {
+            // текст ошибки показывает плашка ниже
+        }
+    };
+    return (
+        <div className='steps-card__draft'>
+            <div className='row'>
+                <Typography.Text view='primary-small' color='secondary'>
+                    Черновик сохранён — вернуться к нему можно с главной
+                </Typography.Text>
+                {confirm ? (
+                    <div className='row' style={{ gap: 8 }}>
+                        <Button view='secondary' size={32} loading={remove.isPending} onClick={() => void destroy()}>
+                            Да, удалить
+                        </Button>
+                        <Button view='text' size={32} disabled={remove.isPending} onClick={() => setConfirm(false)}>
+                            Отмена
+                        </Button>
+                    </div>
+                ) : (
+                    <Button view='text' size={32} onClick={() => setConfirm(true)}>
+                        Удалить черновик
+                    </Button>
+                )}
+            </div>
+            <ErrorPlate error={remove.error} title='Черновик не удалён' />
+        </div>
+    );
+}
+
 function SelectionStep({
     company,
     purpose,
@@ -322,6 +375,9 @@ function SelectionStep({
     onChosen: (application: Application) => void;
 }) {
     const [need, setNeed] = useState('');
+    // Продукт, который банк предложил на главной или после отказа: отмечаем его в списке подбора
+    const [searchParams] = useSearchParams();
+    const suggested = searchParams.get('product');
     const [task, setTask] = useState(() => taskFor(purpose).key);
     const [showText, setShowText] = useState(false);
     // Что дал разбор на правилах и по каким словам — для блока «Я понял так»
@@ -481,6 +537,7 @@ function SelectionStep({
                                     rules={understood.rules}
                                     evidence={understood.evidence}
                                     taskTitle={aiParsed.purpose ? taskFor(aiParsed.purpose, need).title : null}
+                                    selectedTaskTitle={currentTask.title}
                                     onEditTask={() => focusField(tasksRef)}
                                     onEditAmount={() => focusField(amountRef)}
                                     onEditTerm={() => focusField(termRef)}
@@ -588,6 +645,7 @@ function SelectionStep({
                                 index === 0 && item.eligible && (quote.data?.filter((i) => i.eligible).length ?? 0) > 1
                             }
                             why={item.product.code === 'STARTUP' ? STARTUP_WHY : advice.why[item.product.code]}
+                            suggested={item.product.code === suggested}
                             onChoose={() => void choose(item)}
                             busy={create.isPending || update.isPending}
                         />
@@ -622,6 +680,7 @@ function Understood({
     rules,
     evidence,
     taskTitle,
+    selectedTaskTitle,
     onEditTask,
     onEditAmount,
     onEditTerm,
@@ -630,6 +689,8 @@ function Understood({
     rules: ParsedNeed;
     evidence: NeedEvidence;
     taskTitle: string | null;
+    /** Задача, выбранная сейчас в карточках: если текст её не назвал, заявка уйдёт с ней */
+    selectedTaskTitle: string;
     onEditTask: () => void;
     onEditAmount: () => void;
     onEditTerm: () => void;
@@ -644,7 +705,7 @@ function Understood({
             label: 'Задача',
             value: taskTitle,
             basis: basis(parsed.purpose === rules.purpose, evidence.purpose),
-            missing: 'не определили — выберите выше',
+            missing: `по тексту не определили — оставили «${selectedTaskTitle}», поменяйте выше, если задача другая`,
             onEdit: onEditTask,
         },
         {
@@ -703,12 +764,15 @@ function Understood({
 function QuoteCard({
     item,
     cheapest = false,
+    suggested = false,
     why,
     onChoose,
     busy,
 }: {
     item: QuoteItem;
     cheapest?: boolean;
+    /** Этот продукт банк предложил клиенту — на главной или вместо отказа */
+    suggested?: boolean;
     /** Почему продукт подходит под выбранную задачу */
     why?: string;
     onChoose: () => void;
@@ -724,6 +788,7 @@ function QuoteCard({
                             {product.name}
                         </Typography.Title>
                         {cheapest && <Badge color='green'>самая низкая ставка</Badge>}
+                        {suggested && <Badge color='blue'>предложение банка</Badge>}
                     </div>
                     <Typography.Text view='primary-small' color='secondary' tag='p'>
                         {product.description}
@@ -847,7 +912,7 @@ function DetailsStep({
                         hint='Например: закупка партии товара к новогоднему сезону'
                     />
                     <Input
-                        label='Выручка за последний год, по вашим данным'
+                        label='Выручка за последний год'
                         labelView='inner'
                         size={56}
                         block={true}
@@ -859,7 +924,7 @@ function DetailsStep({
                             </Typography.Text>
                         }
                         error={showErrors ? errors.revenue : undefined}
-                        hint='Сверим с данными ФНС и оборотами по счёту'
+                        hint='По вашим данным — сверим их с ФНС и оборотами по счёту'
                         inputMode='numeric'
                     />
                     {needsCollateral && (
@@ -887,7 +952,7 @@ function DetailsStep({
                                     </Typography.Text>
                                 }
                                 error={showErrors && !collateralValue ? errors.collateral : undefined}
-                                hint='Сумма кредита — до 80% стоимости залога'
+                                hint={'Сумма кредита — до 80\u00a0% стоимости залога'}
                                 inputMode='numeric'
                             />
                         </div>

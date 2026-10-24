@@ -3,9 +3,9 @@ import { Modal } from '@alfalab/core-components/modal';
 import { PasswordInput } from '@alfalab/core-components/password-input';
 import { Typography } from '@alfalab/core-components/typography';
 import { DocumentPdfMIcon } from '@alfalab/icons-glyph/DocumentPdfMIcon';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
-import { openInNewTab } from '../../../api/client';
+import { DEMO_MODE, openInNewTab } from '../../../api/client';
 import { useSign } from '../../../api/hooks';
 import type { Application } from '../../../api/types';
 import { useAuth } from '../../../auth/AuthContext';
@@ -16,6 +16,8 @@ export function SigningSection({ application }: { application: Application }) {
     const { user } = useAuth();
     const [open, setOpen] = useState(false);
     const [password, setPassword] = useState('');
+    // окно дизайн-системы после открытия ставит фокус на себя, поэтому в поле пароля переводим его по onMount
+    const passwordRef = useRef<HTMLInputElement>(null);
     const sign = useSign();
     const agreement = application.documents.find((d) => d.kind === 'AGREEMENT');
     const offer = application.offers.find((o) => o.status === 'ACCEPTED');
@@ -60,7 +62,9 @@ export function SigningSection({ application }: { application: Application }) {
                             {agreement.file_name}
                         </Typography.Text>
                         <Typography.Text view='primary-small' color='secondary' tag='div'>
-                            Договор и график платежей
+                            {DEMO_MODE
+                                ? 'Образец: в демо-версии без сервера договор не заполняется данными заявки'
+                                : 'Договор и график платежей'}
                         </Typography.Text>
                     </div>
                     <Button
@@ -83,7 +87,7 @@ export function SigningSection({ application }: { application: Application }) {
                     Подписать договор
                 </Button>
             </div>
-            <Modal open={open} onClose={() => setOpen(false)} size={500}>
+            <Modal open={open} onClose={() => setOpen(false)} size={500} onMount={() => passwordRef.current?.focus()}>
                 <Modal.Header hasCloser={true} title='Подписание договора' />
                 <Modal.Content>
                     <div className='stack-16'>
@@ -92,13 +96,16 @@ export function SigningSection({ application }: { application: Application }) {
                             сохранятся время, пользователь и отпечаток документа.
                         </Typography.Text>
                         <PasswordInput
+                            ref={passwordRef}
                             label='Пароль'
                             labelView='inner'
                             size={56}
                             block={true}
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            autoFocus={true}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && password && !sign.isPending) submit();
+                            }}
                         />
                         <ErrorPlate error={sign.error} title='Не подписано' />
                     </div>
