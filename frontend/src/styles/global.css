@@ -159,6 +159,11 @@ a {
     position: relative;
 }
 
+/* колокольчик дизайн-системы нарисован с наклоном 45° — в шапке ставим его ровно */
+.bell > button svg {
+    transform: rotate(-45deg);
+}
+
 /* выпадающий список уведомлений светлый, хотя лежит внутри тёмной шапки */
 .notifications {
     --color-light-text-primary: rgba(3, 3, 6, 0.88);
