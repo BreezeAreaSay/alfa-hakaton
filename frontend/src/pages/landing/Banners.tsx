@@ -227,9 +227,7 @@ const AUDIENCE: { title: string; who: string; quote: string; points: string[]; i
     },
 ];
 
-const TERMS = ['ИП и ООО', 'Счёт в Альфа-Банке', 'Бизнесу от 3 месяцев'];
-
-/** Для кого кабинет: малый и микробизнес, роли из ТЗ и условия — те же, что в ответах на вопросы. */
+/** Для кого кабинет: малый и микробизнес и роли из ТЗ. */
 export function AudienceSection() {
     return (
         <section className='stack'>
@@ -265,19 +263,6 @@ export function AudienceSection() {
                     </li>
                 ))}
             </ul>
-            <div className='stack-8'>
-                <ul className='landing-audience__terms'>
-                    {TERMS.map((term) => (
-                        <li key={term}>
-                            <CheckmarkCircleMIcon width={20} height={20} aria-hidden={true} />
-                            <span>{term}</span>
-                        </li>
-                    ))}
-                </ul>
-                <Typography.Text view='primary-small' color='secondary' tag='p'>
-                    Не подойдёт тем, кто только планирует открыть бизнес, и компаниям в ликвидации.
-                </Typography.Text>
-            </div>
         </section>
     );
 }

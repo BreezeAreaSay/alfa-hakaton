@@ -382,8 +382,7 @@
     font-style: italic;
 }
 
-.landing-audience__points,
-.landing-audience__terms {
+.landing-audience__points {
     display: grid;
     gap: var(--gap-8);
     margin: 0;
@@ -393,25 +392,15 @@
     line-height: 20px;
 }
 
-.landing-audience__points li,
-.landing-audience__terms li {
+.landing-audience__points li {
     display: flex;
     align-items: flex-start;
     gap: var(--gap-8);
 }
 
-.landing-audience__points svg,
-.landing-audience__terms svg {
+.landing-audience__points svg {
     flex: none;
     color: var(--color-light-accent-primary, #ef3124);
-}
-
-.landing-audience__terms {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--gap-8) var(--gap-24);
-    font-size: 16px;
-    font-weight: 500;
 }
 
 /* ---------------------------------------------------------------- ответы на вопросы */
