@@ -2,9 +2,13 @@ import { Button } from '@alfalab/core-components/button';
 import { PrimaryTabListResponsive } from '@alfalab/core-components/tabs';
 import { Typography } from '@alfalab/core-components/typography';
 import { ArrowLeftMIcon } from '@alfalab/icons-glyph/ArrowLeftMIcon';
+import { DocumentLinesMIcon } from '@alfalab/icons-glyph/DocumentLinesMIcon';
+import { useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 
-import { useAssign, useDossier, useMessages, useMeta, useProducts } from '../../api/hooks';
+import { openInNewTab } from '../../api/client';
+import { keys, useAssign, useDossier, useMessages, useMeta, useProducts } from '../../api/hooks';
 import type { Dossier } from '../../api/types';
 import { ErrorPlate, Loader, StatusBadge } from '../../components/ui';
 import { dateTime, legalFormLabel, months, rub, timeLeft } from '../../utils/format';
@@ -34,9 +38,48 @@ const isTab = (value: string | null): value is TabId => TABS.some((tab) => tab.i
 function BackLink() {
     return (
         <Link to='/bank' className='bank-back'>
-            <ArrowLeftMIcon width={20} height={20} />
+            <ArrowLeftMIcon width={20} height={20} aria-hidden={true} />
             Очередь заявок
         </Link>
+    );
+}
+
+/** PDF для аудита: входные данные, скоринг, правила политики и решения людей. Есть, когда есть что обосновывать. */
+function JustificationButton({ data }: { data: Dossier }) {
+    const app = data.application;
+    const client = useQueryClient();
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<unknown>(null);
+    if (!data.scoring && !data.last_decision) return null;
+
+    const open = async () => {
+        setError(null);
+        setLoading(true);
+        try {
+            await openInNewTab(`/api/bank/applications/${app.id}/justification.pdf`);
+            // формирование попадает в журнал действий — обновляем досье, чтобы запись появилась в «Истории»
+            void client.invalidateQueries({ queryKey: keys.dossier(app.id) });
+        } catch (e) {
+            setError(e);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <>
+            <Button
+                view='secondary'
+                size={40}
+                block={true}
+                leftAddons={<DocumentLinesMIcon width={20} height={20} aria-hidden={true} />}
+                loading={loading}
+                onClick={() => void open()}
+            >
+                Скачать обоснование
+            </Button>
+            <ErrorPlate error={error} title='Не удалось сформировать обоснование' />
+        </>
     );
 }
 
@@ -108,6 +151,7 @@ function Header({ data }: { data: Dossier }) {
                     </Button>
                 )}
                 <ErrorPlate error={assign.error} title='Не удалось взять в работу' />
+                <JustificationButton data={data} />
             </div>
         </section>
     );

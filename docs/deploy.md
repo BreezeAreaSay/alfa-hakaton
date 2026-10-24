@@ -51,6 +51,31 @@ flowchart LR
    Первая сборка занимает 5–10 минут.
 5. Проверьте: `https://<DOMAIN>/api/health` отвечает `{"status":"ok"}`, на `https://<DOMAIN>` открывается страница входа.
 
+## Маленький сервер: 1 ядро, 2 ГБ памяти
+
+Стенд помещается и на минимальный тариф (все сервисы вместе занимают около 500 МБ памяти), но сборка образов
+на такой машине требует подготовки:
+
+1. Включите файл подкачки на 2 ГБ — сборка фронтенда (`npm ci` и Vite) без него может упасть по памяти:
+   ```bash
+   sudo fallocate -l 2G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile
+   echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+   ```
+2. Собирайте образы по одному, а не параллельно, и только потом запускайте:
+   ```bash
+   docker compose -f docker-compose.yml -f deploy/docker-compose.prod.yml build simulator
+   docker compose -f docker-compose.yml -f deploy/docker-compose.prod.yml build api
+   docker compose -f docker-compose.yml -f deploy/docker-compose.prod.yml build frontend
+   docker compose -f docker-compose.yml -f deploy/docker-compose.prod.yml up -d --wait
+   ```
+   На одном ядре это 10–15 минут. Образы `api` и `worker` одинаковые, второй соберётся из кеша.
+3. В `.env` оставьте `WORKER_CONCURRENCY=2`: четыре потока обработчика на одном ядре только мешают друг другу.
+4. ИИ-помощника на таком сервере не включайте (`AI_ENABLED=false`, значение по умолчанию): даже самая маленькая
+   модель займёт 600 МБ и единственное ядро, а основной сценарий от модели не зависит. Жюри может включить
+   помощника у себя по [ai.md](ai.md). Профиль `monitoring` (Prometheus и Grafana) тоже лучше не поднимать.
+5. После запуска проверьте память: `free -m` и `docker stats --no-stream` — в сумме сервисы должны занимать
+   меньше 1 ГБ, остальное остаётся системе и сборкам при обновлении.
+
 ## Перед показом
 
 - Сбросьте демо-данные: `make reset` на сервере или кнопка «Сбросить демо-данные» на странице «Конвейер и сбои» под `admin`.

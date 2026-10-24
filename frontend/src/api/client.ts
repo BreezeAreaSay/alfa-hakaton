@@ -90,11 +90,24 @@ export function newIdempotencyKey(): string {
     return crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
-export async function download(path: string, fileName: string): Promise<void> {
+/** Файл с сервера по токену. При ошибке — текст ответа, как в api(), иначе запасное сообщение. */
+async function fetchBlob(path: string, fallback: string): Promise<Blob> {
     const token = getToken();
     const response = await apiFetch(path, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
-    if (!response.ok) throw new ApiError(response.status, 'Не удалось скачать файл');
-    const blob = await response.blob();
+    if (!response.ok) {
+        let data: unknown = null;
+        try {
+            data = await response.json();
+        } catch {
+            // ответ без тела
+        }
+        throw new ApiError(response.status, data ? errorMessage(data, response.status) : fallback);
+    }
+    return response.blob();
+}
+
+export async function download(path: string, fileName: string): Promise<void> {
+    const blob = await fetchBlob(path, 'Не удалось скачать файл');
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -104,9 +117,6 @@ export async function download(path: string, fileName: string): Promise<void> {
 }
 
 export async function openInNewTab(path: string): Promise<void> {
-    const token = getToken();
-    const response = await apiFetch(path, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
-    if (!response.ok) throw new ApiError(response.status, 'Не удалось открыть файл');
-    const blob = await response.blob();
+    const blob = await fetchBlob(path, 'Не удалось открыть файл');
     window.open(URL.createObjectURL(blob), '_blank', 'noopener');
 }

@@ -1,10 +1,12 @@
 """Рабочее место кредитного аналитика: очередь, досье, решение, запрос информации."""
 
+import hashlib
 import uuid
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
+from urllib.parse import quote
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
@@ -49,6 +51,7 @@ from app.schemas import (
 )
 from app.security import bank_staff
 from app.services.audit import audit
+from app.services.justification import justification_pdf
 from app.services.metrics import bank_metrics
 from app.services.views import application_out, latest_decision, latest_scoring, payment_label
 from app.services.workflow import transition
@@ -577,3 +580,33 @@ def pipeline_issues(user: User = Depends(bank_staff), db: Session = Depends(get_
             }
         )
     return issues
+
+
+@router.get(
+    "/applications/{application_id}/justification.pdf",
+    summary="Обоснование решения по заявке для аудита (PDF)",
+    response_class=Response,
+    responses={200: {"content": {"application/pdf": {}}, "description": "PDF с обоснованием решения"}},
+)
+def justification(
+    application_id: uuid.UUID, user: User = Depends(bank_staff), db: Session = Depends(get_db)
+) -> Response:
+    """Входные данные источников, скоринг, правила политики, решения людей, предложения, подписание и выдача —
+    по сохранённым данным заявки. Формирование записывается в журнал действий."""
+    application = load(db, application_id)
+    pdf, file_name = justification_pdf(db, application, user)
+    audit(
+        db,
+        actor=Actor(user.role),
+        user=user,
+        action="JUSTIFICATION_GENERATED",
+        entity_type="application",
+        entity_id=application.id,
+        details={"file": file_name, "sha256": hashlib.sha256(pdf).hexdigest()},
+    )
+    db.commit()
+    return Response(
+        content=pdf,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename*=UTF-8''{quote(file_name)}"},
+    )
