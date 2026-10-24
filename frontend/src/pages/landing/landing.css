@@ -445,6 +445,38 @@
     font-weight: 700;
 }
 
+/* раскрытая карточка не растягивает соседнюю в том же ряду */
+.products-grid {
+    align-items: start;
+}
+
+.products-card__more summary {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--gap-4);
+    list-style: none;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.products-card__more summary::-webkit-details-marker {
+    display: none;
+}
+
+.products-card__more summary svg {
+    transition: transform 200ms ease;
+}
+
+.products-card__more[open] summary svg {
+    transform: rotate(180deg);
+}
+
+.products-card__more .products-card__lists {
+    margin-top: var(--gap-16);
+}
+
 .products-card__lists {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
