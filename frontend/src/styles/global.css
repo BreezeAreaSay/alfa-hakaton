@@ -22,6 +22,7 @@ body {
     padding: 0;
 }
 
+/* Токены цвета текста для контраста по WCAG AA переопределены в components/Theme.tsx — после темы дизайн-системы */
 body {
     font-family: var(--font-family-system);
     color: var(--color-light-text-primary);
@@ -130,7 +131,7 @@ a {
 /* выпадающий список уведомлений светлый, хотя лежит внутри тёмной шапки */
 .notifications {
     --color-light-text-primary: rgba(3, 3, 6, 0.88);
-    --color-light-text-secondary: rgba(4, 4, 19, 0.55);
+    --color-light-text-secondary: rgba(4, 4, 19, 0.6);
 
     color: var(--color-light-text-primary);
 }

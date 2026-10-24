@@ -21,19 +21,25 @@ export interface NavItem {
 export function AppHeader({ nav, home, bank = false }: { nav: NavItem[]; home: string; bank?: boolean }) {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
+    const brand = 'Альфа-Банк';
+    const title = bank ? 'Кредитный конвейер' : 'Кредитный кабинет';
+    const subtitle = bank ? 'Рабочее место аналитика' : 'для бизнеса';
     return (
         <header className={`header${bank ? ' header--bank' : ''}`}>
             <div className='header__inner'>
-                <Link to={home} className='logo' aria-label='На главную'>
+                {/* Имя ссылки: знак банка, весь видимый текст и назначение (WCAG 2.5.3 «Метка в имени»). Сам знак
+                    скрыт от вспомогательных технологий: его подпись склеивалась бы с текстом ссылки без пробела. */}
+                <Link to={home} className='logo' aria-label={`${brand} ${title} ${subtitle} — на главную`}>
                     <span className='logo__mark'>
-                        <AlfaBankLIcon width={21} height={32} aria-label='Альфа-Банк' />
+                        <AlfaBankLIcon width={21} height={32} aria-hidden={true} />
                     </span>
                     <span>
+                        {/* пробел между строками: без него их текст склеивается в одно слово при чтении вслух и копировании */}
                         <Typography.Text view='primary-medium' weight='bold' tag='div'>
-                            {bank ? 'Кредитный конвейер' : 'Кредитный кабинет'}
-                        </Typography.Text>
+                            {title}
+                        </Typography.Text>{' '}
                         <Typography.Text view='primary-small' color='secondary' tag='div'>
-                            {bank ? 'Рабочее место аналитика' : 'для бизнеса'}
+                            {subtitle}
                         </Typography.Text>
                     </span>
                 </Link>
@@ -67,7 +73,7 @@ export function AppHeader({ nav, home, bank = false }: { nav: NavItem[]; home: s
                         </Typography.Text>
                     </div>
                     <IconButton
-                        icon={PowerButtonMIcon}
+                        icon={<PowerButtonMIcon aria-hidden={true} />}
                         colors='inverted'
                         aria-label='Выйти'
                         title='Выйти'
@@ -109,7 +115,7 @@ function NotificationsBell() {
     return (
         <div className='bell' ref={ref}>
             <IconButton
-                icon={BellMIcon}
+                icon={<BellMIcon aria-hidden={true} />}
                 colors='inverted'
                 aria-label='Уведомления'
                 title='Уведомления'
@@ -166,7 +172,7 @@ function NotificationsBell() {
                                     {item.body}
                                 </Typography.Text>
                             )}
-                            <Typography.Text view='primary-small' color='tertiary' tag='div'>
+                            <Typography.Text view='primary-small' color='secondary' tag='div'>
                                 {dateTime(item.created_at)}
                             </Typography.Text>
                         </button>

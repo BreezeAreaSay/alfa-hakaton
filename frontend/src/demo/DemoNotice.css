@@ -18,7 +18,8 @@
 .demo-notice__badge {
     padding: 2px var(--gap-8);
     border-radius: 6px;
-    background: var(--color-light-accent-primary, #ef3124);
+    /* темнее фирменного красного: белый текст 11px на #ef3124 даёт 4,1:1, на #d61f10 — 5,2:1 (WCAG AA) */
+    background: #d61f10;
     color: #fff;
     font-size: 11px;
     line-height: 16px;

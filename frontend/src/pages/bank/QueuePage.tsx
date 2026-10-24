@@ -185,7 +185,14 @@ export function QueuePage() {
                                 placeholder='Компания, ИНН или номер'
                                 size={48}
                                 block={true}
-                                leftAddons={<MagnifierMIcon width={20} height={20} className='bank-search__icon' />}
+                                leftAddons={
+                                    <MagnifierMIcon
+                                        width={20}
+                                        height={20}
+                                        className='bank-search__icon'
+                                        aria-hidden={true}
+                                    />
+                                }
                                 clear={true}
                                 value={search}
                                 onChange={(_, { value }) => setSearch(value)}
@@ -195,6 +202,7 @@ export function QueuePage() {
                         </div>
                         <div className='bank-product'>
                             <Select
+                                label='Продукт'
                                 size={48}
                                 block={true}
                                 options={[

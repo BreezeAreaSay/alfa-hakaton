@@ -32,7 +32,7 @@ export function UploadButton({
             <Button
                 view={view}
                 size={48}
-                leftAddons={<PaperclipMIcon />}
+                leftAddons={<PaperclipMIcon aria-hidden={true} />}
                 loading={loading}
                 onClick={() => input.current?.click()}
             >

@@ -4,6 +4,10 @@ import { defineConfig, devices } from '@playwright/test';
 const demo = process.env.E2E_DEMO === '1';
 const demoUrl = 'http://localhost:4173';
 
+// Аудит доступности (tests/a11y.spec.ts) — отдельный проект, который включается только явно (E2E_A11Y=1,
+// npm run test:a11y), чтобы не удваивать прогон сценариев в test, test:demo и CI.
+const a11y = process.env.E2E_A11Y === '1';
+
 // Тесты идут по общим демо-данным (перед каждым тестом — сброс), поэтому строго последовательно.
 export default defineConfig({
     testDir: './tests',
@@ -36,6 +40,7 @@ export default defineConfig({
     projects: [
         {
             name: 'chromium',
+            testIgnore: /a11y\.spec\.ts/,
             use: {
                 ...devices['Desktop Chrome'],
                 viewport: { width: 1440, height: 900 },
@@ -53,5 +58,20 @@ export default defineConfig({
                 launchOptions: process.env.PW_CHROMIUM_PATH ? { executablePath: process.env.PW_CHROMIUM_PATH } : {},
             },
         },
+        ...(a11y
+            ? [
+                  {
+                      name: 'a11y',
+                      testMatch: /a11y\.spec\.ts/,
+                      use: {
+                          ...devices['Desktop Chrome'],
+                          viewport: { width: 1440, height: 900 },
+                          launchOptions: process.env.PW_CHROMIUM_PATH
+                              ? { executablePath: process.env.PW_CHROMIUM_PATH }
+                              : {},
+                      },
+                  },
+              ]
+            : []),
     ],
 });

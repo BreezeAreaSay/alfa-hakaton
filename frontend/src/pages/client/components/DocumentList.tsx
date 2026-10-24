@@ -23,7 +23,11 @@ export function DocumentList({
         <div className='stack-8'>
             {documents.map((doc) => (
                 <div key={doc.id} className='tile row doc-item' style={{ padding: '12px 16px' }}>
-                    {doc.content_type === 'application/pdf' ? <DocumentPdfMIcon /> : <DocumentTxtMIcon />}
+                    {doc.content_type === 'application/pdf' ? (
+                        <DocumentPdfMIcon aria-hidden={true} />
+                    ) : (
+                        <DocumentTxtMIcon aria-hidden={true} />
+                    )}
                     <div className='doc-item__body'>
                         <Typography.Text
                             view='primary-small'
@@ -56,14 +60,14 @@ export function DocumentList({
                     </div>
                     <div className='doc-item__actions'>
                         <IconButton
-                            icon={EyeMIcon}
+                            icon={<EyeMIcon aria-hidden={true} />}
                             aria-label='Открыть'
                             title='Открыть'
                             onClick={() => void openInNewTab(`/api/documents/${doc.id}/download`)}
                         />
                         {onDelete && doc.source === 'CLIENT' && (
                             <IconButton
-                                icon={TrashCanLineMIcon}
+                                icon={<TrashCanLineMIcon aria-hidden={true} />}
                                 aria-label='Удалить'
                                 title='Удалить'
                                 onClick={() => onDelete(doc)}

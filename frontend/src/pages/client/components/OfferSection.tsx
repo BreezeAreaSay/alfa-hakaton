@@ -54,14 +54,14 @@ export function OfferSection({ application }: { application: Application }) {
                     </Typography.Text>
                     {explanation.positive.map((text) => (
                         <div key={text} className='row' style={{ flexWrap: 'nowrap' }}>
-                            <CheckmarkCircleMIcon color='#0cc44d' />
+                            <CheckmarkCircleMIcon color='#0cc44d' aria-label='Положительный фактор' />
                             <Typography.Text view='primary-small'>{text}</Typography.Text>
                         </div>
                     ))}
                     {[...explanation.negative, ...(explanation.limit_phrase ? [explanation.limit_phrase] : [])].map(
                         (text) => (
                             <div key={text} className='row' style={{ flexWrap: 'nowrap' }}>
-                                <ExclamationCircleMIcon color='#f7a600' />
+                                <ExclamationCircleMIcon color='#f7a600' aria-label='Ограничение' />
                                 <Typography.Text view='primary-small'>{text}</Typography.Text>
                             </div>
                         ),
@@ -216,7 +216,7 @@ function RateBreakdownCard({
                     </Typography.Text>
                     {hints.map((hint) => (
                         <div key={hint.text} className='row' style={{ flexWrap: 'nowrap' }}>
-                            <ArrowDownCircleMIcon color='#0cc44d' />
+                            <ArrowDownCircleMIcon color='#0cc44d' aria-hidden={true} />
                             <Typography.Text view='primary-small'>
                                 {hint.text}
                                 {hint.saving ? `. Переплата меньше на ${rub(hint.saving)}` : ''}

@@ -35,7 +35,7 @@ export function ApplicationPage() {
             <div className='page-head'>
                 <div className='stack-8'>
                     <Link to='/client' className='row back-link'>
-                        <ArrowLeftMIcon />
+                        <ArrowLeftMIcon aria-hidden={true} />
                         <Typography.Text view='primary-medium' color='secondary'>
                             Все заявки
                         </Typography.Text>

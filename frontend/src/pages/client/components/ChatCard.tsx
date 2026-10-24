@@ -59,6 +59,7 @@ export function ChatCard({
             </div>
             <Textarea
                 label='Сообщение'
+                aria-label='Сообщение'
                 labelView='inner'
                 size={56}
                 block={true}

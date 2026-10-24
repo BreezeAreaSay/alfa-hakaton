@@ -131,11 +131,11 @@ export function Metric({ label, value, hint }: { label: ReactNode; value: ReactN
 }
 
 const STEP_ICON: Record<Step['status'], ReactNode> = {
-    DONE: <CheckmarkMIcon width={16} height={16} />,
-    SKIPPED: <CheckmarkMIcon width={16} height={16} />,
-    RUNNING: <ClockMIcon width={16} height={16} />,
-    WAITING: <ExclamationMIcon width={16} height={16} />,
-    FAILED: <CrossMIcon width={16} height={16} />,
+    DONE: <CheckmarkMIcon width={16} height={16} aria-label='Выполнено' />,
+    SKIPPED: <CheckmarkMIcon width={16} height={16} aria-label='Пропущено' />,
+    RUNNING: <ClockMIcon width={16} height={16} aria-label='Выполняется' />,
+    WAITING: <ExclamationMIcon width={16} height={16} aria-label='Ожидание' />,
+    FAILED: <CrossMIcon width={16} height={16} aria-label='Ошибка' />,
     PENDING: null,
 };
 

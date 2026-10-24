@@ -61,7 +61,8 @@
 }
 
 .bank-link {
-    color: var(--color-light-text-link, #2a77ef);
+    /* токен ссылки #2a77ef на серой панели даёт 3,8:1, для WCAG AA нужно не меньше 4,5:1 */
+    color: #1d64d6;
     text-decoration: none;
     font-weight: 500;
 }
@@ -761,7 +762,7 @@ table.simple tr.clickable:focus-visible td {
 .bank-scale__tick {
     font-size: 12px;
     line-height: 18px;
-    color: var(--color-light-text-tertiary, #a2a3ab);
+    color: var(--color-light-text-secondary);
 }
 
 /* скоринг: расходящиеся полосы вклада факторов, центр — ноль */

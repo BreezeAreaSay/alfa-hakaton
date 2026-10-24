@@ -42,25 +42,25 @@ const PURPOSES: { code: Purpose; title: string; text: string; icon: ReactNode }[
         code: 'WORKING_CAPITAL',
         title: 'Пополнить оборотку',
         text: 'Закупить товар, сырьё, подготовиться к сезону',
-        icon: <BanknoteStackMIcon />,
+        icon: <BanknoteStackMIcon aria-hidden={true} />,
     },
     {
         code: 'CASH_GAP',
         title: 'Закрыть кассовый разрыв',
         text: 'Оплатить поставщикам, пока не пришли деньги от покупателей',
-        icon: <ClockCoinMIcon />,
+        icon: <ClockCoinMIcon aria-hidden={true} />,
     },
     {
         code: 'EQUIPMENT',
         title: 'Купить оборудование',
         text: 'Станки, транспорт, технику',
-        icon: <BriefcaseGearMIcon />,
+        icon: <BriefcaseGearMIcon aria-hidden={true} />,
     },
     {
         code: 'EXPANSION',
         title: 'Расширить бизнес',
         text: 'Открыть новую точку, склад или цех',
-        icon: <ChartLineAscMIcon />,
+        icon: <ChartLineAscMIcon aria-hidden={true} />,
     },
 ];
 
@@ -79,6 +79,23 @@ function useDebounced<T>(value: T, delay = 350): T {
         return () => clearTimeout(timer);
     }, [value, delay]);
     return debounced;
+}
+
+/**
+ * У SliderInput дизайн-системы ползунок — <div role="slider"> от noUiSlider без доступного имени, а пропса,
+ * чтобы его подписать, нет. Подписываем сами после монтирования: имя берём из data-slider-label обёртки.
+ * Эффект без зависимостей выполняется после каждого рендера, но это два обращения к DOM.
+ */
+function LabelledSlider({ label, children }: { label: string; children: ReactNode }) {
+    const ref = useRef<HTMLDivElement>(null);
+    useEffect(() => {
+        ref.current?.querySelectorAll('.noUi-handle').forEach((handle) => handle.setAttribute('aria-label', label));
+    });
+    return (
+        <div ref={ref} data-slider-label={label}>
+            {children}
+        </div>
+    );
 }
 
 const toNumber = (value: string): number | null => {
@@ -285,6 +302,7 @@ function SelectionStep({
                         </Typography.Text>
                         <Textarea
                             label='Ваша задача'
+                            aria-label='Ваша задача'
                             labelView='inner'
                             size={56}
                             block={true}
@@ -298,7 +316,7 @@ function SelectionStep({
                             <Button
                                 view='secondary'
                                 size={40}
-                                leftAddons={<MagicWandMIcon />}
+                                leftAddons={<MagicWandMIcon aria-hidden={true} />}
                                 onClick={runParse}
                                 loading={parse.isPending}
                                 disabled={need.trim().length < 3}
@@ -350,52 +368,58 @@ function SelectionStep({
                         </div>
                     </div>
 
-                    <SliderInput
-                        label='Сумма кредита'
-                        labelView='inner'
-                        size={56}
-                        block={true}
-                        value={formatDigits(amount)}
-                        sliderValue={Math.min(Math.max(amount, MIN_AMOUNT), MAX_AMOUNT)}
-                        min={MIN_AMOUNT}
-                        max={MAX_AMOUNT}
-                        step={50_000}
-                        rightAddons={
-                            <Typography.Text view='primary-medium' color='secondary'>
-                                ₽
-                            </Typography.Text>
-                        }
-                        pips={{
-                            mode: 'values',
-                            values: [MIN_AMOUNT, 15_000_000, MAX_AMOUNT],
-                            format: { to: shortAmount },
-                        }}
-                        onChange={(_, payload) => {
-                            const value =
-                                typeof payload.value === 'number' ? payload.value : toNumber(String(payload.value));
-                            onAmount(value ?? 0);
-                        }}
-                    />
-                    <SliderInput
-                        label='Срок'
-                        labelView='inner'
-                        size={56}
-                        block={true}
-                        value={months(term)}
-                        sliderValue={term}
-                        min={6}
-                        max={120}
-                        step={6}
-                        pips={{ mode: 'values', values: [6, 60, 120], format: { to: (v: number) => months(v) } }}
-                        onChange={(_, payload) => {
-                            if (typeof payload.value === 'number') onTerm(payload.value);
-                        }}
-                    />
+                    <LabelledSlider label='Сумма кредита'>
+                        <SliderInput
+                            label='Сумма кредита'
+                            labelView='inner'
+                            size={56}
+                            block={true}
+                            value={formatDigits(amount)}
+                            sliderValue={Math.min(Math.max(amount, MIN_AMOUNT), MAX_AMOUNT)}
+                            min={MIN_AMOUNT}
+                            max={MAX_AMOUNT}
+                            step={50_000}
+                            rightAddons={
+                                <Typography.Text view='primary-medium' color='secondary'>
+                                    ₽
+                                </Typography.Text>
+                            }
+                            pips={{
+                                mode: 'values',
+                                values: [MIN_AMOUNT, 15_000_000, MAX_AMOUNT],
+                                format: { to: shortAmount },
+                            }}
+                            onChange={(_, payload) => {
+                                const value =
+                                    typeof payload.value === 'number' ? payload.value : toNumber(String(payload.value));
+                                onAmount(value ?? 0);
+                            }}
+                        />
+                    </LabelledSlider>
+                    <LabelledSlider label='Срок'>
+                        <SliderInput
+                            label='Срок'
+                            labelView='inner'
+                            size={56}
+                            block={true}
+                            value={months(term)}
+                            sliderValue={term}
+                            min={6}
+                            max={120}
+                            step={6}
+                            pips={{ mode: 'values', values: [6, 60, 120], format: { to: (v: number) => months(v) } }}
+                            onChange={(_, payload) => {
+                                if (typeof payload.value === 'number') onTerm(payload.value);
+                            }}
+                        />
+                    </LabelledSlider>
                     {company && (
                         <Plate
                             view='common'
                             rounded={true}
-                            leftAddons={<InformationCircleMIcon color='var(--color-light-status-info)' />}
+                            leftAddons={
+                                <InformationCircleMIcon color='var(--color-light-status-info)' aria-hidden={true} />
+                            }
                             limitContentWidth={false}
                             title={facts.join(' · ')}
                         >
@@ -419,7 +443,7 @@ function SelectionStep({
                             busy={create.isPending || update.isPending}
                         />
                     ))}
-                    <Typography.Text view='primary-small' color='tertiary' tag='p'>
+                    <Typography.Text view='primary-small' color='secondary' tag='p'>
                         Расчёт предварительный, по базовой ставке. Точные условия — после проверки заявки.
                     </Typography.Text>
                 </section>
@@ -553,6 +577,7 @@ function DetailsStep({
                     </Typography.Title>
                     <Textarea
                         label='Цель кредита'
+                        aria-label='Цель кредита'
                         labelView='inner'
                         size={56}
                         block={true}

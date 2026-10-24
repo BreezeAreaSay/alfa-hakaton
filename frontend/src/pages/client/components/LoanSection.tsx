@@ -12,7 +12,7 @@ export function LoanSection({ loan }: { loan: Loan }) {
     return (
         <section className='card stack'>
             <div className='row' style={{ flexWrap: 'nowrap' }}>
-                <CheckmarkCircleMIcon color='#0cc44d' width={32} height={32} />
+                <CheckmarkCircleMIcon color='#0cc44d' width={32} height={32} aria-hidden={true} />
                 <div>
                     <Typography.Title tag='h2' view='small' font='system' weight='bold'>
                         Кредит выдан — деньги на счёте
