@@ -20,6 +20,7 @@ import type {
     Notifications,
     ParsedNeed,
     PipelineIssue,
+    PreliminaryOffers,
     ProactiveOffers,
     Product,
     Purpose,
@@ -52,6 +53,16 @@ export const useProactiveOffers = () =>
         queryKey: ['proactive'],
         queryFn: () => api<ProactiveOffers>('/api/offers/proactive'),
         staleTime: 10 * 60_000,
+    });
+
+/** Предварительный лимит по выписке без заявки: файл уходит на расчёт и не сохраняется. */
+export const usePreliminaryOffers = () =>
+    useMutation({
+        mutationFn: (file: File) => {
+            const form = new FormData();
+            form.append('file', file);
+            return api<PreliminaryOffers>('/api/offers/preliminary', { method: 'POST', form });
+        },
     });
 
 export const useProducts = () =>

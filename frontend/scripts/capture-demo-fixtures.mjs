@@ -284,6 +284,16 @@ async function main() {
     for (const login of CLIENTS) companies[login] = await sessions[login].get('/api/company');
     examples.proactive = {};
     for (const login of CLIENTS) examples.proactive[login] = await sessions[login].get('/api/offers/proactive');
+    // Предварительный лимит по выписке без заявки (ИП Смирнова, выписка с кассовым разрывом)
+    const preliminaryForm = new FormData();
+    preliminaryForm.append(
+        'file',
+        new Blob([await readFile(join(DEMO_FILES, 'vypiska_smirnova.csv'))], { type: 'text/csv' }),
+        'vypiska_smirnova.csv',
+    );
+    examples.preliminary = (
+        await call('POST', '/api/offers/preliminary', { token: sessions.smirnova.token, form: preliminaryForm })
+    ).data;
     const faultsInitial = await admin.get('/api/admin/simulator/faults');
     const aiStatus = await sessions.veter.get('/api/ai/status');
 

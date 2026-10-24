@@ -193,6 +193,53 @@
         ]
       }
     },
+    "/api/offers/preliminary": {
+      "post": {
+        "tags": [
+          "Каталог и справочники"
+        ],
+        "summary": "Предварительный лимит по выписке без заявки",
+        "description": "Клиент загружает выписку из любого банка (1С или CSV) — считаем, что банк готов дать по ней и данным\nЕГРЮЛ/ЕГРИП, и строим прогноз кассового разрыва. Файл не сохраняется и заявкой не становится.",
+        "operationId": "preliminary_api_offers_preliminary_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_preliminary_api_offers_preliminary_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreliminaryOffers"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/api/company": {
       "get": {
         "tags": [
@@ -1789,6 +1836,51 @@
         ]
       }
     },
+    "/api/bank/applications/{application_id}/justification.pdf": {
+      "get": {
+        "tags": [
+          "Рабочее место банка"
+        ],
+        "summary": "Обоснование решения по заявке для аудита (PDF)",
+        "description": "Входные данные источников, скоринг, правила политики, решения людей, предложения, подписание и выдача —\nпо сохранённым данным заявки. Формирование записывается в журнал действий.",
+        "operationId": "justification_api_bank_applications__application_id__justification_pdf_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "application_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Application Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF с обоснованием решения",
+            "content": {
+              "application/pdf": {}
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/admin/demo/reset": {
       "post": {
         "tags": [
@@ -3025,6 +3117,20 @@
         ],
         "title": "BankSummary"
       },
+      "Body_preliminary_api_offers_preliminary_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_preliminary_api_offers_preliminary_post"
+      },
       "Body_upload_api_applications__application_id__documents_post": {
         "properties": {
           "file": {
@@ -4218,6 +4324,55 @@
           "source"
         ],
         "title": "ParsedNeed"
+      },
+      "PreliminaryOffers": {
+        "properties": {
+          "offers": {
+            "items": {
+              "$ref": "#/components/schemas/ProactiveOffer"
+            },
+            "type": "array",
+            "title": "Offers"
+          },
+          "facts": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Facts"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "computed_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Computed At"
+          },
+          "statement": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Statement"
+          }
+        },
+        "type": "object",
+        "required": [
+          "offers",
+          "facts",
+          "note",
+          "computed_at",
+          "statement"
+        ],
+        "title": "PreliminaryOffers",
+        "description": "Предварительный лимит по выписке без заявки: предложения, на чём основаны, и разбор выписки с прогнозом."
       },
       "ProactiveOffer": {
         "properties": {

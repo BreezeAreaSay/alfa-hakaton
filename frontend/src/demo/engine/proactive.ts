@@ -3,7 +3,7 @@
  * Те же правила политики, что и лимит в заявке, но без кредитной истории и без заявки.
  */
 import { PRODUCTS } from './catalog';
-import type { Features } from './features';
+import { type Features, type FeatureInputs, buildFeatures } from './features';
 import { roundDown } from './finance';
 import { computeLimit, eligibilityIssues, offerFigures } from './policy';
 import { monthsText, rub } from './text';
@@ -22,6 +22,13 @@ export const NOTE_PRELIMINARY =
 export const NOTE_NO_DATA =
     'Чтобы рассчитать предложение заранее, нужна отчётность или поступления на счёт за три месяца и больше. ' +
     'Подайте заявку — приложите выписку из другого банка, и мы оценим выручку по ней.';
+
+export const NOTE_STATEMENT =
+    'Предварительно, по выписке и данным ЕГРЮЛ/ЕГРИП, без кредитной истории. ' +
+    'Точные условия — после проверки по заявке; эту выписку можно приложить к ней.';
+export const NOTE_STATEMENT_NONE =
+    'По этой выписке предложить продукт заранее не получилось: поступлений слишком мало или компания не ' +
+    'действует. Подайте заявку — её рассмотрит специалист.';
 
 export interface ProactiveOfferRow {
     product_code: string;
@@ -95,4 +102,50 @@ export function proactiveNote(f: Features, offers: ProactiveOfferRow[]): string 
     if (offers.length) return NOTE_PRELIMINARY;
     if (f.company_status === 'ACTIVE' && f.revenue === null) return NOTE_NO_DATA;
     return null;
+}
+
+type Json = FeatureInputs['statement'];
+
+/**
+ * Признаки «по выписке»: поступления и выручка — из выписки клиента, допуск к продуктам — по счёту в банке.
+ * Выписка подставляется вместо оборотов по счёту; отчётность и кредитная история не участвуют.
+ */
+export function statementFeatures({
+    today,
+    egrul,
+    bank,
+    statement,
+}: {
+    today: string;
+    egrul: Json;
+    bank: Json;
+    statement: NonNullable<Json>;
+}): Features {
+    const bankView =
+        bank && bank.is_client
+            ? { is_client: true, account_opened_at: bank.account_opened_at, months: statement.months ?? [] }
+            : null;
+    return buildFeatures({
+        today,
+        amount: 0,
+        term_months: TYPICAL_TERM,
+        declared_revenue: null,
+        egrul,
+        fns: null,
+        girbo: null,
+        bki: null,
+        bank: bankView,
+        statement,
+    });
+}
+
+/** На чём основан расчёт по выписке. */
+export function statementFacts(f: Features, statement: NonNullable<Json>): string[] {
+    const months = (statement.months ?? []) as unknown[];
+    const facts = [
+        `По выписке: ${months.length} мес., в среднем ${rub(Number(statement.avg_monthly_inflow ?? 0))} поступлений в месяц`,
+    ];
+    if (f.business_months !== null) facts.push(`Бизнес работает ${monthsText(f.business_months)}`);
+    if (f.is_bank_client && f.account_months > 0) facts.push(`Счёт в банке: ${monthsText(f.account_months)}`);
+    return facts;
 }

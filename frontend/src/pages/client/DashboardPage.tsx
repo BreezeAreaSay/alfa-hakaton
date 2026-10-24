@@ -4,12 +4,14 @@ import { ChevronRightMIcon } from '@alfalab/icons-glyph/ChevronRightMIcon';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { useApplications, useCompany, useProactiveOffers } from '../../api/hooks';
-import type { ApplicationListItem } from '../../api/types';
+import { useApplications, useCompany, usePreliminaryOffers, useProactiveOffers } from '../../api/hooks';
+import type { ApplicationListItem, ProactiveOffer } from '../../api/types';
 import { useAuth } from '../../auth/AuthContext';
 import { Badge, Empty, ErrorPlate, Loader, SectionTitle, StatusBadge } from '../../components/ui';
 import { date, months, percent, rub } from '../../utils/format';
+import { CashflowForecast } from '../../components/CashflowForecast';
 import { CompanyCard } from './components/CompanyCard';
+import { UploadButton } from './components/UploadButton';
 
 const HOW_IT_WORKS = [
     { title: 'Подберите кредит', text: 'Расскажите, на что нужны деньги, — покажем подходящие продукты и платёж' },
@@ -22,7 +24,6 @@ const HOW_IT_WORKS = [
  * истории. Одно-два предложения с объяснением; «Скрыть» запоминается в этом браузере.
  */
 function ProactiveOffersCard({ companyId }: { companyId: string }) {
-    const navigate = useNavigate();
     const offers = useProactiveOffers();
     const storageKey = `proactive-hidden:${companyId}`;
     const [hidden, setHidden] = useState(() => {
@@ -55,32 +56,7 @@ function ProactiveOffersCard({ companyId }: { companyId: string }) {
             </SectionTitle>
             <div className='proactive__grid'>
                 {data.offers.map((offer) => (
-                    <div key={offer.product_code} className='tile stack-8'>
-                        <Typography.Text view='primary-small' color='secondary' tag='div'>
-                            {offer.product_name}
-                        </Typography.Text>
-                        <Typography.Title tag='div' view='small' font='system' weight='bold'>
-                            до {rub(offer.amount)}
-                        </Typography.Title>
-                        <Typography.Text view='primary-small' color='secondary' tag='div'>
-                            {offer.kind === 'LOAN'
-                                ? `${months(offer.term_months)} · от ${percent(offer.rate_from)} годовых · ${rub(offer.monthly_payment)} в месяц`
-                                : `от ${percent(offer.rate_from)} годовых · ${rub(offer.monthly_payment)} в месяц при полном использовании лимита`}
-                        </Typography.Text>
-                        <div>
-                            <Button
-                                view='secondary'
-                                size={40}
-                                onClick={() =>
-                                    navigate(
-                                        `/client/new?purpose=${offer.purpose}&amount=${offer.amount}&term=${offer.term_months}`,
-                                    )
-                                }
-                            >
-                                Оформить
-                            </Button>
-                        </div>
-                    </div>
+                    <OfferTile key={offer.product_code} offer={offer} />
                 ))}
             </div>
             {data.facts.length > 0 && (
@@ -94,6 +70,89 @@ function ProactiveOffersCard({ companyId }: { companyId: string }) {
                 <Typography.Text view='primary-small' color='secondary' tag='p'>
                     {data.note}
                 </Typography.Text>
+            )}
+        </section>
+    );
+}
+
+/** Плитка предварительного предложения: продукт, сумма, условия и переход в заявку с этими параметрами. */
+function OfferTile({ offer }: { offer: ProactiveOffer }) {
+    const navigate = useNavigate();
+    return (
+        <div className='tile stack-8'>
+            <Typography.Text view='primary-small' color='secondary' tag='div'>
+                {offer.product_name}
+            </Typography.Text>
+            <Typography.Title tag='div' view='small' font='system' weight='bold'>
+                до {rub(offer.amount)}
+            </Typography.Title>
+            <Typography.Text view='primary-small' color='secondary' tag='div'>
+                {offer.kind === 'LOAN'
+                    ? `${months(offer.term_months)} · от ${percent(offer.rate_from)} годовых · ${rub(offer.monthly_payment)} в месяц`
+                    : `от ${percent(offer.rate_from)} годовых · ${rub(offer.monthly_payment)} в месяц при полном использовании лимита`}
+            </Typography.Text>
+            <div>
+                <Button
+                    view='secondary'
+                    size={40}
+                    onClick={() =>
+                        navigate(
+                            `/client/new?purpose=${offer.purpose}&amount=${offer.amount}&term=${offer.term_months}`,
+                        )
+                    }
+                >
+                    Оформить
+                </Button>
+            </div>
+        </div>
+    );
+}
+
+/**
+ * «Сколько одобрят по выписке»: клиент загружает выписку из любого банка и за секунды видит предварительный
+ * лимит и прогноз кассового разрыва — без анкеты. Файл не сохраняется, результат живёт, пока открыта страница.
+ */
+function StatementCheckCard() {
+    const check = usePreliminaryOffers();
+    const data = check.data;
+    return (
+        <section className='card card--tight stack-16' aria-label='Предварительный лимит по выписке'>
+            <SectionTitle>Сколько одобрят по выписке</SectionTitle>
+            <Typography.Text view='primary-small' color='secondary' tag='p'>
+                Загрузите выписку по счёту из любого банка в формате 1С или CSV — за несколько секунд покажем
+                предварительный лимит и прогноз денежного потока на три месяца. Файл не сохраняется и заявкой не
+                становится.{' '}
+                <a href={`${import.meta.env.BASE_URL}demo-files/vypiska_smirnova.csv`} download={true}>
+                    Тестовая выписка
+                </a>
+            </Typography.Text>
+            <div className='row'>
+                <UploadButton accept='.txt,.csv' loading={check.isPending} onFile={(file) => check.mutate(file)}>
+                    Загрузить выписку
+                </UploadButton>
+            </div>
+            <ErrorPlate error={check.error} />
+            {data && (
+                <>
+                    {data.offers.length > 0 && (
+                        <div className='proactive__grid'>
+                            {data.offers.map((offer) => (
+                                <OfferTile key={offer.product_code} offer={offer} />
+                            ))}
+                        </div>
+                    )}
+                    <ul className='proactive__facts'>
+                        {data.facts.map((fact) => (
+                            <li key={fact}>{fact}</li>
+                        ))}
+                    </ul>
+                    {data.note && (
+                        <Typography.Text view='primary-small' color='secondary' tag='p'>
+                            {data.note}
+                        </Typography.Text>
+                    )}
+                    <CashflowForecast forecast={data.statement.forecast} compact={true} />
+                </>
             )}
         </section>
     );
@@ -142,6 +201,7 @@ export function DashboardPage() {
             <div className='grid-2'>
                 <div className='stack'>
                     {user?.company && <ProactiveOffersCard companyId={user.company.id} />}
+                    {user?.company && <StatementCheckCard />}
                     {active.length > 0 && (
                         <section className='card card--tight stack-16'>
                             <SectionTitle>Нужно ваше действие</SectionTitle>

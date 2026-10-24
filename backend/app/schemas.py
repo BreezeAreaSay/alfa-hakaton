@@ -121,6 +121,12 @@ class ProactiveOffers(BaseModel):
 # ---------------------------------------------------------------- заявка
 
 
+class PreliminaryOffers(ProactiveOffers):
+    """Предварительный лимит по выписке без заявки: предложения, на чём основаны, и разбор выписки с прогнозом."""
+
+    statement: dict[str, Any]
+
+
 class ApplicationCreate(BaseModel):
     product_code: str
     purpose: Purpose

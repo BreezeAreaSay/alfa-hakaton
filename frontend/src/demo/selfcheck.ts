@@ -756,6 +756,17 @@ export async function run(io: SelfcheckIo): Promise<boolean> {
         ),
     );
     check.same('прогноз кассового разрыва по выписке', (statements as J)['vypiska_smirnova.csv'], gapUploaded.parsed);
+    // Предварительный лимит по выписке без заявки — тот же файл, что в снимке examples.preliminary
+    const preliminaryForm = new FormData();
+    preliminaryForm.append(
+        'file',
+        new Blob([(await io.readFile('public/demo-files/vypiska_smirnova.csv')) as BlobPart], { type: 'text/csv' }),
+        'vypiska_smirnova.csv',
+    );
+    const preliminary = await sessions.smirnova.post('/api/offers/preliminary', preliminaryForm);
+    check.same('предварительный лимит по выписке без заявки', (examples as J).preliminary, preliminary, [
+        'computed_at',
+    ]);
     await orlov.del(`/api/documents/${gapUploaded.id}`);
     await orlov.del(`/api/applications/${csvDraft.id}`);
     errorsSeen.deleted_draft = await orlov.error('GET', `/api/applications/${csvDraft.id}`);

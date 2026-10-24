@@ -408,3 +408,41 @@ def test_proactive_offers_follow_company_data():
     assert orlov["offers"] == [] and "выписку" in orlov["note"]
     # Аналитику метод недоступен
     assert Client("analyst").http.get("/api/offers/proactive").status_code == 403
+
+
+def test_justification_pdf_for_analyst_queue_application():
+    # Обоснование решения для аудита: берём заявку из очереди аналитика, у которой уже есть результат скоринга
+    analyst = Client("analyst")
+    deadline = time.monotonic() + 60
+    while True:
+        rows = analyst.get("/api/bank/applications", params={"include_closed": "true"})
+        scored = [r for r in rows if r["score"] is not None]
+        if scored:
+            break
+        assert time.monotonic() < deadline, "в очереди нет заявок с результатом скоринга"
+        time.sleep(0.5)
+    scored.sort(key=lambda r: r["status"] != "MANUAL_REVIEW")
+    application = scored[0]
+    response = analyst.http.get(f"/api/bank/applications/{application['id']}/justification.pdf")
+    assert response.status_code == 200, response.text
+    assert response.headers["content-type"] == "application/pdf"
+    assert response.headers["content-disposition"].startswith("attachment; filename*=UTF-8''")
+    assert response.content.startswith(b"%PDF") and len(response.content) > 2048
+    dossier = analyst.get(f"/api/bank/applications/{application['id']}/dossier")
+    assert any(row["action"] == "JUSTIFICATION_GENERATED" for row in dossier["audit"])
+    # Администратору обоснование доступно, клиенту — нет
+    assert Client("admin").http.get(f"/api/bank/applications/{application['id']}/justification.pdf").status_code == 200
+    assert Client("veter").http.get(f"/api/bank/applications/{application['id']}/justification.pdf").status_code == 403
+
+
+def test_preliminary_offers_by_statement():
+    # «Сколько одобрят по выписке» на главной: файл разбирается, заявка не создаётся
+    client = Client("smirnova")
+    with open(DEMO_FILES / "vypiska_smirnova.csv", "rb") as file:
+        result = client.post("/api/offers/preliminary", files={"file": ("vypiska_smirnova.csv", file, "text/csv")})
+    assert result["statement"]["forecast"]["gap"] > 0
+    overdraft = next(o for o in result["offers"] if o["product_code"] == "OVERDRAFT")
+    assert float(overdraft["amount"]) <= float(result["statement"]["avg_monthly_inflow"]) * 0.4
+    assert result["facts"][0].startswith("По выписке")
+    bad = client.http.post("/api/offers/preliminary", files={"file": ("x.csv", b"not a statement", "text/csv")})
+    assert bad.status_code == 422

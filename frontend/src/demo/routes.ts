@@ -5,6 +5,7 @@ import { parseNeedRules } from './engine/ai';
 import { PRODUCT_ROWS, productRow, productTerms, productsForPurpose } from './engine/catalog';
 import { todayUtc } from './engine/dates';
 import { type PolicyDecision, eligibilityIssues, newDecision, note, offerFigures, paymentLabel } from './engine/policy';
+import { NOTE_STATEMENT_NONE } from './engine/proactive';
 import { StatementError, parseStatement } from './engine/statements';
 import aiStatusFixture from './fixtures/ai-status.json';
 import { type Body, HttpError, Validator, json, noContent } from './http';
@@ -32,6 +33,7 @@ import {
     queueItems,
     termsFor,
     userOut,
+    preliminaryOffersOut,
     proactiveOffersOut,
 } from './views';
 import { audit, emit, refresh, transition } from './workflow';
@@ -734,6 +736,35 @@ function summary(ctx: Ctx) {
     return bankSummary(getState(), bankStaff(ctx), ctx.now);
 }
 
+/** Предварительный лимит по выписке: файл разбирается и не сохраняется, как на сервере. */
+async function preliminary(ctx: Ctx) {
+    const user = clientOnly(ctx);
+    const form = ctx.form ?? new FormData();
+    const file = form.get('file');
+    if (!(file instanceof Blob)) {
+        throw new HttpError(422, [{ type: 'missing', loc: ['body', 'file'], msg: 'Field required', input: null }]);
+    }
+    const data = new Uint8Array(await file.arrayBuffer());
+    if (data.length === 0) throw new HttpError(422, 'Файл пустой');
+    if (data.length > MAX_UPLOAD_MB * 1024 * 1024) throw new HttpError(422, `Файл больше ${MAX_UPLOAD_MB} МБ`);
+    let parsed;
+    try {
+        parsed = parseStatement((file as File).name || 'statement', data);
+    } catch (error) {
+        if (error instanceof StatementError) throw new HttpError(422, `Не удалось разобрать выписку: ${error.message}`);
+        throw error;
+    }
+    const state = getState();
+    const companyId = user.company_id as string;
+    // Источники недоступны — сервер считает только по выписке, без данных реестра и счёта
+    const sources = ['egrul', 'bank'].every((source) => available(state, source));
+    if (!sources) {
+        const bare = preliminaryOffersOut(companyId, parsed, ctx.now);
+        return { ...bare, offers: [], facts: bare.facts.slice(0, 1), note: NOTE_STATEMENT_NONE };
+    }
+    return preliminaryOffersOut(companyId, parsed, ctx.now);
+}
+
 function proactive(ctx: Ctx) {
     const user = clientOnly(ctx);
     const state = getState();
@@ -983,6 +1014,16 @@ function aiSummary(ctx: Ctx) {
     throw new HttpError(404, 'ИИ-функции выключены');
 }
 
+// PDF собирает ReportLab на сервере; в браузере его нет, поэтому отвечаем понятной ошибкой, как у ИИ-сводки
+const JUSTIFICATION_UNAVAILABLE =
+    'В демо-версии без сервера обоснование не формируется — доступно на стенде docker compose';
+
+function justification(ctx: Ctx) {
+    bankStaff(ctx);
+    loadForBank(getState(), ctx.params.id);
+    throw new HttpError(501, JUSTIFICATION_UNAVAILABLE);
+}
+
 // ---------------------------------------------------------------- администрирование демо
 
 const faultList = (state: DemoState) =>
@@ -1092,6 +1133,7 @@ export const ROUTES: Route[] = [
     route('POST', '/api/calculator/quote', quote),
     route('GET', '/api/company', company),
     route('GET', '/api/offers/proactive', proactive),
+    route('POST', '/api/offers/preliminary', preliminary),
     route('GET', '/api/applications', myApplications),
     route('POST', '/api/applications', createDraft),
     route('GET', '/api/applications/{id}', getApplication),
@@ -1123,6 +1165,7 @@ export const ROUTES: Route[] = [
     route('POST', '/api/bank/applications/{id}/restart', restart),
     route('POST', '/api/bank/applications/{id}/pipeline/retry', retryNow),
     route('GET', '/api/bank/applications/{id}/ai-summary', aiSummary),
+    route('GET', '/api/bank/applications/{id}/justification.pdf', justification),
     route('GET', '/api/bank/pipeline/issues', issues),
     route('POST', '/api/admin/demo/reset', demoReset),
     route('GET', '/api/admin/simulator/faults', faults),

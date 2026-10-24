@@ -3,10 +3,11 @@ import uuid
 from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.config import get_settings
 from app.db import get_db
 from app.domain.catalog import KEY_RATE, ProductTerms, products_for_purpose
 from app.domain.enums import Role
@@ -30,11 +31,29 @@ from app.domain.policy import (
     eligibility_issues,
     offer_figures,
 )
-from app.domain.proactive import TYPICAL_TERM, proactive_facts, proactive_note, proactive_offers
+from app.domain.proactive import (
+    NOTE_STATEMENT,
+    NOTE_STATEMENT_NONE,
+    TYPICAL_TERM,
+    proactive_facts,
+    proactive_note,
+    proactive_offers,
+    statement_facts,
+    statement_features,
+)
 from app.integrations.simulator import SourceNotFound, SourceUnavailable, external_systems
 from app.models import Company, Product, User
-from app.schemas import CompanyOut, ProactiveOffer, ProactiveOffers, ProductOut, QuoteItem, QuoteRequest
+from app.schemas import (
+    CompanyOut,
+    PreliminaryOffers,
+    ProactiveOffer,
+    ProactiveOffers,
+    ProductOut,
+    QuoteItem,
+    QuoteRequest,
+)
 from app.security import require_roles
+from app.services.statements import StatementError, parse_statement
 from app.services.views import company_out, payment_label
 
 router = APIRouter(prefix="/api", tags=["Каталог и справочники"])
@@ -152,6 +171,44 @@ def proactive(user: User = Depends(require_roles(Role.CLIENT)), db: Session = De
     )
     _proactive_cache[company.id] = (time.monotonic(), result)
     return result
+
+
+@router.post(
+    "/offers/preliminary", response_model=PreliminaryOffers, summary="Предварительный лимит по выписке без заявки"
+)
+async def preliminary(
+    file: UploadFile = File(...),
+    user: User = Depends(require_roles(Role.CLIENT)),
+    db: Session = Depends(get_db),
+) -> PreliminaryOffers:
+    """Клиент загружает выписку из любого банка (1С или CSV) — считаем, что банк готов дать по ней и данным
+    ЕГРЮЛ/ЕГРИП, и строим прогноз кассового разрыва. Файл не сохраняется и заявкой не становится."""
+    data = await file.read()
+    if not data:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "Файл пустой")
+    if len(data) > get_settings().max_upload_mb * 1024 * 1024:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, f"Файл больше {get_settings().max_upload_mb} МБ")
+    try:
+        parsed = parse_statement(file.filename or "statement", data)
+    except StatementError as error:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, f"Не удалось разобрать выписку: {error}") from None
+    computed_at = datetime.now(UTC)
+    systems = external_systems()
+    try:
+        egrul: dict | None = {"found": True, **systems.egrul(user.company.inn)}
+        bank: dict | None = systems.bank(user.company.inn)
+    except (SourceUnavailable, SourceNotFound):
+        egrul, bank = None, None  # источники недоступны — считаем только по выписке
+    features = statement_features(today=computed_at.date(), egrul=egrul, bank=bank, statement=parsed)
+    catalog = {p.code: ProductTerms.from_model(p) for p in db.scalars(select(Product).where(Product.active))}
+    offers = proactive_offers(catalog, features)
+    return PreliminaryOffers(
+        offers=[ProactiveOffer(**offer, payment_label=payment_label(offer["kind"])) for offer in offers],
+        facts=statement_facts(features, parsed),
+        note=NOTE_STATEMENT if offers else NOTE_STATEMENT_NONE,
+        computed_at=computed_at,
+        statement=parsed,
+    )
 
 
 def refresh_company(db: Session, company: Company) -> None:

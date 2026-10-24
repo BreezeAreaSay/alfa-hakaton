@@ -89,6 +89,11 @@ export interface ProactiveOffers {
     computed_at: string;
 }
 
+/** Предварительный лимит по выписке без заявки: предложения, на чём основаны, разбор выписки с прогнозом. */
+export interface PreliminaryOffers extends ProactiveOffers {
+    statement: StatementSummary;
+}
+
 export interface QuoteItem {
     product: Product;
     eligible: boolean;

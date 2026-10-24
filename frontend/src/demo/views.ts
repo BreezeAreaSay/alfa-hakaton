@@ -1,17 +1,13 @@
 // Ответы API из данных имитации — порт backend/app/services/views.py и сборки ответов в api/*.py.
 import type {
+    AnalystMetrics,
     Application,
     ApplicationListItem,
     AuditRow,
-    AnalystMetrics,
     BankMetrics,
     BankSummary,
-    DailyMetrics,
-    MetricCount,
-    ProactiveOffers,
-    ProductMetrics,
-    Purpose,
     Company,
+    DailyMetrics,
     DecisionView,
     DocumentItem,
     Dossier,
@@ -19,10 +15,16 @@ import type {
     HistoryItem,
     InfoRequest,
     Loan,
+    MetricCount,
     Notifications,
     Offer,
     PipelineIssue,
+    PreliminaryOffers,
+    ProactiveOffers,
+    ProductMetrics,
+    Purpose,
     QueueItem,
+    StatementSummary,
     Step,
     TermsPreview,
     User,
@@ -32,7 +34,16 @@ import { PRODUCTS, productRow, productTerms } from './engine/catalog';
 import { todayUtc } from './engine/dates';
 import { type Features, buildFeatures } from './engine/features';
 import { paymentSchedule } from './engine/finance';
-import { TYPICAL_TERM, proactiveFacts, proactiveNote, proactiveOffers } from './engine/proactive';
+import {
+    NOTE_STATEMENT,
+    NOTE_STATEMENT_NONE,
+    TYPICAL_TERM,
+    proactiveFacts,
+    proactiveNote,
+    proactiveOffers,
+    statementFacts,
+    statementFeatures,
+} from './engine/proactive';
 import {
     LIMIT_PHRASES,
     type LimitResult,
@@ -900,6 +911,23 @@ export function bankMetrics(state: DemoState, now: number, days: number): BankMe
 // ---------------------------------------------------------------- предварительные предложения (backend/app/api/catalog.py)
 
 export const PROACTIVE_UNAVAILABLE = 'Внешние источники сейчас недоступны — попробуйте позже';
+
+/** Предварительный лимит по выписке без заявки — порт обработчика /api/offers/preliminary. */
+export function preliminaryOffersOut(companyId: string, parsed: StatementSummary, now: number): PreliminaryOffers {
+    const today = todayUtc(now);
+    const egrul = sourceSnapshot(companyId, 'EGRUL', today)?.result ?? null;
+    const bank = sourceSnapshot(companyId, 'BANK', today)?.result ?? null;
+    const statement = parsed as unknown as NonNullable<Parameters<typeof statementFeatures>[0]['statement']>;
+    const f = statementFeatures({ today, egrul, bank, statement });
+    const offers = proactiveOffers(f);
+    return {
+        offers: offers.map((o) => ({ ...o, purpose: o.purpose as Purpose, payment_label: paymentLabel(o.kind) })),
+        facts: statementFacts(f, statement),
+        note: offers.length ? NOTE_STATEMENT : NOTE_STATEMENT_NONE,
+        computed_at: iso(now),
+        statement: parsed,
+    };
+}
 
 export function proactiveOffersOut(companyId: string, now: number): ProactiveOffers {
     const today = todayUtc(now);
