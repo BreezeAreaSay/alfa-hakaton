@@ -10,7 +10,9 @@ import { Typography } from '@alfalab/core-components/typography';
 import { BanknoteStackMIcon } from '@alfalab/icons-glyph/BanknoteStackMIcon';
 import { BriefcaseGearMIcon } from '@alfalab/icons-glyph/BriefcaseGearMIcon';
 import { ChartLineAscMIcon } from '@alfalab/icons-glyph/ChartLineAscMIcon';
+import { BrushMIcon } from '@alfalab/icons-glyph/BrushMIcon';
 import { ClockCoinMIcon } from '@alfalab/icons-glyph/ClockCoinMIcon';
+import { DocumentPercentMIcon } from '@alfalab/icons-glyph/DocumentPercentMIcon';
 import { InformationCircleMIcon } from '@alfalab/icons-glyph/InformationCircleMIcon';
 import { MagicWandMIcon } from '@alfalab/icons-glyph/MagicWandMIcon';
 import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
@@ -30,37 +32,126 @@ import {
 } from '../../api/hooks';
 import type { Application, Company, ParsedNeed, Purpose, QuoteItem } from '../../api/types';
 import { Badge, ErrorPlate, KeyValue, Loader, PageHead } from '../../components/ui';
+// Разбор на правилах — тот же, что на сервере (backend/app/services/ai.py): по нему показываем, на каких словах основан вывод
+import { explainNeed, type NeedEvidence, parseNeedRules } from '../../demo/engine/ai';
 import { months, num, percent, rub, shortAmount } from '../../utils/format';
 import { CompanyCard } from './components/CompanyCard';
 import { DocumentList } from './components/DocumentList';
 import { UploadButton } from './components/UploadButton';
 
-const PURPOSES: { code: Purpose; title: string; text: string; icon: ReactNode }[] = [
+/**
+ * Задачи бизнеса — главный вход в подбор: клиент мыслит задачей, а не продуктом. Задач больше, чем целей
+ * кредита на сервере (Purpose): ремонт — это расширение, налоги и зарплата — кассовый разрыв.
+ * hints — слова, по которым из описания своими словами выбирается задача внутри одной цели.
+ */
+type Task = { key: string; purpose: Purpose; title: string; icon: ReactNode; hints?: string[] };
+
+const TASKS: Task[] = [
     {
-        code: 'WORKING_CAPITAL',
-        title: 'Пополнить оборотку',
-        text: 'Закупить товар, сырьё, подготовиться к сезону',
+        key: 'stock',
+        purpose: 'WORKING_CAPITAL',
+        title: 'Закупка товара',
         icon: <BanknoteStackMIcon />,
     },
     {
-        code: 'CASH_GAP',
-        title: 'Закрыть кассовый разрыв',
-        text: 'Оплатить поставщикам, пока не пришли деньги от покупателей',
-        icon: <ClockCoinMIcon />,
-    },
-    {
-        code: 'EQUIPMENT',
-        title: 'Купить оборудование',
-        text: 'Станки, транспорт, технику',
+        key: 'equipment',
+        purpose: 'EQUIPMENT',
+        title: 'Оборудование',
         icon: <BriefcaseGearMIcon />,
     },
     {
-        code: 'EXPANSION',
-        title: 'Расширить бизнес',
-        text: 'Открыть новую точку, склад или цех',
+        key: 'gap',
+        purpose: 'CASH_GAP',
+        title: 'Кассовый разрыв',
+        icon: <ClockCoinMIcon />,
+    },
+    {
+        key: 'expansion',
+        purpose: 'EXPANSION',
+        title: 'Расширение',
         icon: <ChartLineAscMIcon />,
     },
+    {
+        key: 'repair',
+        purpose: 'EXPANSION',
+        title: 'Ремонт помещения',
+        icon: <BrushMIcon />,
+        hints: ['ремонт'],
+    },
+    {
+        key: 'taxes',
+        purpose: 'CASH_GAP',
+        title: 'Налоги и зарплата',
+        icon: <DocumentPercentMIcon />,
+        hints: ['налог', 'зарплат'],
+    },
 ];
+
+function taskFor(purpose: Purpose, text = ''): Task {
+    const lowered = text.toLowerCase();
+    const candidates = TASKS.filter((task) => task.purpose === purpose);
+    return candidates.find((task) => task.hints?.some((hint) => lowered.includes(hint))) ?? candidates[0];
+}
+
+/**
+ * Почему продукт подходит под цель и какие похожие продукты не подойдут. Только факты каталога
+ * (backend/app/domain/catalog.py): суммы, сроки, залог. Набор продуктов по цели — PURPOSE_PRODUCTS там же.
+ */
+const PURPOSE_ADVICE: Record<Purpose, { why: Record<string, string>; not: { name: string; reason: string }[] }> = {
+    WORKING_CAPITAL: {
+        why: {
+            GROWTH: 'Без залога, срок до 5 лет — закупку можно вернуть из выручки по частям',
+            EXPRESS: 'Быстрое решение без залога, если закупка небольшая — до 5 млн ₽',
+            CREDIT_LINE: 'Закупаетесь регулярно — берёте деньги частями, проценты только на использованную часть',
+        },
+        not: [
+            {
+                name: 'Овердрафт',
+                reason: 'лимит даётся на год и рассчитан на короткие разрывы — закупку с возвратом за несколько лет он не закроет',
+            },
+            { name: 'Кредит под залог', reason: 'для крупных вложений на годы — для закупки товара залог не нужен' },
+        ],
+    },
+    CASH_GAP: {
+        why: {
+            OVERDRAFT: 'Проценты только за дни, когда пользуетесь деньгами, — удобно для разрыва на дни и недели',
+            CREDIT_LINE: 'Разрывы повторяются — берёте нужную часть лимита, когда понадобится',
+            EXPRESS: 'Разовая сумма, если разрыв затянулся, — вернёте по графику до 3 лет',
+        },
+        not: [
+            {
+                name: 'Кредит на развитие',
+                reason: 'от 1 млн ₽ и от года — для разрыва в несколько недель переплатите за деньги, которые лежат без дела',
+            },
+            { name: 'Кредит под залог', reason: 'оформление с оценкой залога дольше, чем длится разрыв' },
+        ],
+    },
+    EQUIPMENT: {
+        why: {
+            SECURED: 'Ставка ниже за счёт залога, срок до 10 лет — в залог можно оставить само оборудование',
+            GROWTH: 'Без залога, срок до 5 лет — если оборудование стоит до 30 млн ₽',
+        },
+        not: [
+            { name: 'Овердрафт', reason: 'лимит на год для текущих платежей — оборудование окупается дольше' },
+            {
+                name: 'Кредитная линия',
+                reason: 'для оборотных нужд на 1–2 года, а не для покупки оборудования',
+            },
+        ],
+    },
+    EXPANSION: {
+        why: {
+            GROWTH: 'Без залога, срок до 5 лет — новая точка успеет выйти на окупаемость',
+            SECURED: 'Сумма до 150 млн ₽ по ставке ниже, если есть что оставить в залог',
+        },
+        not: [
+            { name: 'Овердрафт', reason: 'лимит на год для текущих платежей — расширение окупается дольше' },
+            { name: 'Экспресс-кредит', reason: 'до 5 млн ₽ и до 3 лет — для новой точки или ремонта обычно мало' },
+        ],
+    },
+};
+
+const STARTUP_WHY = 'Единственный продукт для бизнеса младше года';
 
 const COLLATERAL_TYPES = ['Коммерческая недвижимость', 'Жилая недвижимость', 'Транспорт', 'Оборудование'].map((v) => ({
     key: v,
@@ -86,7 +177,7 @@ const toNumber = (value: string): number | null => {
 
 const formatDigits = (value: number | null): string => (value ? new Intl.NumberFormat('ru-RU').format(value) : '');
 
-const isPurpose = (value: string | null): value is Purpose => PURPOSES.some((p) => p.code === value);
+const isPurpose = (value: string | null): value is Purpose => TASKS.some((task) => task.purpose === value);
 
 export function NewApplicationPage() {
     const navigate = useNavigate();
@@ -198,6 +289,14 @@ function SelectionStep({
     onChosen: (application: Application) => void;
 }) {
     const [need, setNeed] = useState('');
+    const [task, setTask] = useState(() => taskFor(purpose).key);
+    const [showText, setShowText] = useState(false);
+    // Что дал разбор на правилах и по каким словам — для блока «Я понял так»
+    const [understood, setUnderstood] = useState<{ rules: ParsedNeed; evidence: NeedEvidence } | null>(null);
+    const [missing, setMissing] = useState({ amount: false, term: false });
+    const tasksRef = useRef<HTMLDivElement>(null);
+    const amountRef = useRef<HTMLDivElement>(null);
+    const termRef = useRef<HTMLDivElement>(null);
     const parse = useParseNeed();
     const create = useCreateDraft();
     const update = useUpdateDraft();
@@ -221,13 +320,39 @@ function SelectionStep({
     );
     const quote = useQuote(quoteParams);
 
+    const pickTask = (next: Task) => {
+        setTask(next.key);
+        onPurpose(next.purpose);
+    };
+    const changeAmount = (value: number) => {
+        setMissing((current) => ({ ...current, amount: false }));
+        onAmount(value);
+    };
+    const changeTerm = (value: number) => {
+        setMissing((current) => ({ ...current, term: false }));
+        onTerm(value);
+    };
+
     const runParse = async () => {
         const result = await parse.mutateAsync(need);
         onAiParsed(result);
-        if (result.purpose) onPurpose(result.purpose);
+        setUnderstood({ rules: parseNeedRules(need), evidence: explainNeed(need) });
+        if (result.purpose) pickTask(taskFor(result.purpose, need));
         if (result.amount) onAmount(result.amount);
         if (result.term_months) onTerm(result.term_months);
+        // Чего нет в тексте — не угадываем: просим указать
+        setMissing({ amount: !result.amount, term: !result.term_months });
     };
+
+    // «Изменить» в блоке «Я понял так»: прокрутить к полю и поставить в него фокус
+    const focusField = (ref: React.RefObject<HTMLDivElement | null>) => {
+        ref.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        ref.current?.querySelector<HTMLElement>('[aria-pressed="true"], input')?.focus({ preventScroll: true });
+    };
+
+    const currentTask = TASKS.find((item) => item.key === task) ?? taskFor(purpose);
+    // В «не подойдёт» — продукты, которых нет в PURPOSE_PRODUCTS для этой цели, поэтому со списком подбора они не пересекаются
+    const advice = PURPOSE_ADVICE[purpose];
 
     const choose = async (item: QuoteItem) => {
         const product = item.product;
@@ -238,7 +363,8 @@ function SelectionStep({
             purpose,
             amount: clampedAmount,
             term_months: clampedTerm,
-            purpose_text: aiParsed?.summary ?? (need.trim() || null),
+            // Без описания своими словами цель заявки — название задачи: на шаге «Данные» её можно уточнить
+            purpose_text: aiParsed?.summary ?? (need.trim() || currentTask.title),
             ai_parsed: aiParsed ? { ...aiParsed, text: need } : null,
         };
         const application = draft
@@ -263,118 +389,134 @@ function SelectionStep({
             </Typography.Title>
             <div className='grid-2 grid-2--calculator'>
                 <div className='stack'>
-                    <div className='tile stack-16'>
-                        <Typography.Text view='primary-medium' weight='medium' tag='div'>
-                            Опишите задачу своими словами
-                        </Typography.Text>
-                        <Textarea
-                            label='Ваша задача'
-                            labelView='inner'
-                            size={56}
-                            block={true}
-                            minRows={2}
-                            maxLength={500}
-                            value={need}
-                            onChange={(e) => setNeed(e.target.value)}
-                            hint='Например: нужно закупить товар к сезону на 3 млн, верну за полгода'
-                        />
-                        <div className='row'>
-                            <Button
-                                view='secondary'
-                                size={40}
-                                leftAddons={<MagicWandMIcon />}
-                                onClick={runParse}
-                                loading={parse.isPending}
-                                disabled={need.trim().length < 3}
-                            >
-                                Подобрать по описанию
-                            </Button>
-                            {aiParsed && (
-                                <Typography.Text view='primary-small' color='secondary'>
-                                    Распознали:{' '}
-                                    {[
-                                        aiParsed.purpose &&
-                                            PURPOSES.find((p) => p.code === aiParsed.purpose)?.title.toLowerCase(),
-                                        aiParsed.amount && rub(aiParsed.amount),
-                                        aiParsed.term_months && months(aiParsed.term_months),
-                                    ]
-                                        .filter(Boolean)
-                                        .join(' · ') || 'параметры не найдены'}
-                                    . Проверьте ниже.
-                                </Typography.Text>
-                            )}
-                        </div>
-                        <ErrorPlate error={parse.error} />
-                    </div>
-
-                    <div className='stack-8'>
+                    <div className='stack-8' ref={tasksRef}>
                         <Typography.Text view='primary-medium' color='secondary'>
                             На что нужны деньги
                         </Typography.Text>
-                        <div className='purpose-grid purpose-grid--list'>
-                            {PURPOSES.map((p) => (
+                        <div className='purpose-grid'>
+                            {TASKS.map((item) => (
                                 <button
-                                    key={p.code}
+                                    key={item.key}
                                     type='button'
-                                    className={`purpose${purpose === p.code ? ' purpose--active' : ''}`}
-                                    onClick={() => onPurpose(p.code)}
-                                    aria-pressed={purpose === p.code}
+                                    className={`purpose${task === item.key ? ' purpose--active' : ''}`}
+                                    onClick={() => pickTask(item)}
+                                    aria-pressed={task === item.key}
                                 >
-                                    <span className='purpose__icon'>{p.icon}</span>
-                                    <span>
-                                        <Typography.Text view='primary-small' weight='bold' tag='div'>
-                                            {p.title}
-                                        </Typography.Text>
-                                        <Typography.Text view='primary-small' color='secondary' tag='div'>
-                                            {p.text}
-                                        </Typography.Text>
-                                    </span>
+                                    <span className='purpose__icon'>{item.icon}</span>
+                                    <Typography.Text view='primary-small' weight='bold'>
+                                        {item.title}
+                                    </Typography.Text>
                                 </button>
                             ))}
                         </div>
                     </div>
 
-                    <SliderInput
-                        label='Сумма кредита'
-                        labelView='inner'
-                        size={56}
-                        block={true}
-                        value={formatDigits(amount)}
-                        sliderValue={Math.min(Math.max(amount, MIN_AMOUNT), MAX_AMOUNT)}
-                        min={MIN_AMOUNT}
-                        max={MAX_AMOUNT}
-                        step={50_000}
-                        rightAddons={
-                            <Typography.Text view='primary-medium' color='secondary'>
-                                ₽
+                    {/* Описание своими словами — второй, необязательный путь: спрос на него пока не подтверждён */}
+                    {showText ? (
+                        <div className='tile stack-16'>
+                            <Typography.Text view='primary-medium' weight='medium' tag='div'>
+                                Опишите задачу своими словами
                             </Typography.Text>
-                        }
-                        pips={{
-                            mode: 'values',
-                            values: [MIN_AMOUNT, 15_000_000, MAX_AMOUNT],
-                            format: { to: shortAmount },
-                        }}
-                        onChange={(_, payload) => {
-                            const value =
-                                typeof payload.value === 'number' ? payload.value : toNumber(String(payload.value));
-                            onAmount(value ?? 0);
-                        }}
-                    />
-                    <SliderInput
-                        label='Срок'
-                        labelView='inner'
-                        size={56}
-                        block={true}
-                        value={months(term)}
-                        sliderValue={term}
-                        min={6}
-                        max={120}
-                        step={6}
-                        pips={{ mode: 'values', values: [6, 60, 120], format: { to: (v: number) => months(v) } }}
-                        onChange={(_, payload) => {
-                            if (typeof payload.value === 'number') onTerm(payload.value);
-                        }}
-                    />
+                            <Textarea
+                                label='Ваша задача'
+                                labelView='inner'
+                                size={56}
+                                block={true}
+                                minRows={2}
+                                maxLength={500}
+                                value={need}
+                                onChange={(e) => setNeed(e.target.value)}
+                                hint='Например: нужно закупить товар к сезону на 3 млн, верну за полгода'
+                            />
+                            <div className='row'>
+                                <Button
+                                    view='secondary'
+                                    size={40}
+                                    leftAddons={<MagicWandMIcon />}
+                                    onClick={runParse}
+                                    loading={parse.isPending}
+                                    disabled={need.trim().length < 3}
+                                >
+                                    Подобрать по описанию
+                                </Button>
+                            </div>
+                            <ErrorPlate error={parse.error} />
+                            {aiParsed && understood && (
+                                <Understood
+                                    parsed={aiParsed}
+                                    rules={understood.rules}
+                                    evidence={understood.evidence}
+                                    taskTitle={aiParsed.purpose ? taskFor(aiParsed.purpose, need).title : null}
+                                    onEditTask={() => focusField(tasksRef)}
+                                    onEditAmount={() => focusField(amountRef)}
+                                    onEditTerm={() => focusField(termRef)}
+                                />
+                            )}
+                        </div>
+                    ) : (
+                        <div>
+                            <Button
+                                view='text'
+                                size={32}
+                                leftAddons={<MagicWandMIcon />}
+                                onClick={() => setShowText(true)}
+                            >
+                                Или опишите задачу своими словами
+                            </Button>
+                        </div>
+                    )}
+
+                    <div ref={amountRef}>
+                        <SliderInput
+                            label='Сумма кредита'
+                            labelView='inner'
+                            size={56}
+                            block={true}
+                            hint={missing.amount ? 'В описании суммы не было — укажите, сколько нужно' : undefined}
+                            value={formatDigits(amount)}
+                            sliderValue={Math.min(Math.max(amount, MIN_AMOUNT), MAX_AMOUNT)}
+                            min={MIN_AMOUNT}
+                            max={MAX_AMOUNT}
+                            step={50_000}
+                            rightAddons={
+                                <Typography.Text view='primary-medium' color='secondary'>
+                                    ₽
+                                </Typography.Text>
+                            }
+                            pips={{
+                                mode: 'values',
+                                values: [MIN_AMOUNT, 15_000_000, MAX_AMOUNT],
+                                format: { to: shortAmount },
+                            }}
+                            onChange={(_, payload) => {
+                                const value =
+                                    typeof payload.value === 'number' ? payload.value : toNumber(String(payload.value));
+                                changeAmount(value ?? 0);
+                            }}
+                        />
+                    </div>
+                    <div ref={termRef}>
+                        <SliderInput
+                            label='Срок'
+                            labelView='inner'
+                            size={56}
+                            block={true}
+                            hint={
+                                missing.term
+                                    ? 'В описании срока не было — укажите, за сколько планируете вернуть'
+                                    : undefined
+                            }
+                            value={months(term)}
+                            sliderValue={term}
+                            min={6}
+                            max={120}
+                            step={6}
+                            pips={{ mode: 'values', values: [6, 60, 120], format: { to: (v: number) => months(v) } }}
+                            onChange={(_, payload) => {
+                                if (typeof payload.value === 'number') changeTerm(payload.value);
+                            }}
+                        />
+                    </div>
                     {company && (
                         <Plate
                             view='common'
@@ -399,10 +541,23 @@ function SelectionStep({
                             cheapest={
                                 index === 0 && item.eligible && (quote.data?.filter((i) => i.eligible).length ?? 0) > 1
                             }
+                            why={item.product.code === 'STARTUP' ? STARTUP_WHY : advice.why[item.product.code]}
                             onChoose={() => void choose(item)}
                             busy={create.isPending || update.isPending}
                         />
                     ))}
+                    {quote.data && (
+                        <div className='tile stack-8'>
+                            <Typography.Text view='primary-medium' weight='bold' tag='div'>
+                                Не подойдёт для задачи «{currentTask.title.toLowerCase()}»
+                            </Typography.Text>
+                            {advice.not.map((item) => (
+                                <Typography.Text key={item.name} view='primary-small' tag='p'>
+                                    <b>{item.name}:</b> {item.reason}
+                                </Typography.Text>
+                            ))}
+                        </div>
+                    )}
                     <Typography.Text view='primary-small' color='tertiary' tag='p'>
                         Расчёт предварительный, по базовой ставке. Точные условия — после проверки заявки.
                     </Typography.Text>
@@ -412,14 +567,104 @@ function SelectionStep({
     );
 }
 
+/**
+ * «Я понял так»: что разбор нашёл в описании и по каким словам. Чего в тексте нет — не угадываем, а просим
+ * указать. Слова показываем, только если значение совпало с разбором на правилах; иначе его дала модель.
+ */
+function Understood({
+    parsed,
+    rules,
+    evidence,
+    taskTitle,
+    onEditTask,
+    onEditAmount,
+    onEditTerm,
+}: {
+    parsed: ParsedNeed;
+    rules: ParsedNeed;
+    evidence: NeedEvidence;
+    taskTitle: string | null;
+    onEditTask: () => void;
+    onEditAmount: () => void;
+    onEditTerm: () => void;
+}) {
+    const basis = (sameAsRules: boolean, words: (string | null)[]) => {
+        const found = words.filter((word): word is string => Boolean(word));
+        if (!sameAsRules) return 'по оценке модели';
+        return found.length ? `по словам: ${found.map((word) => `«${word}»`).join(', ')}` : null;
+    };
+    const rows = [
+        {
+            label: 'Задача',
+            value: taskTitle,
+            basis: basis(parsed.purpose === rules.purpose, evidence.purpose),
+            missing: 'не определили — выберите выше',
+            onEdit: onEditTask,
+        },
+        {
+            label: 'Сумма',
+            value: parsed.amount ? rub(parsed.amount) : null,
+            basis: basis(parsed.amount === rules.amount, [evidence.amount]),
+            missing: 'в тексте не нашли — укажите ниже',
+            onEdit: onEditAmount,
+        },
+        {
+            label: 'Срок',
+            value: parsed.term_months ? months(parsed.term_months) : null,
+            basis: basis(parsed.term_months === rules.term_months, [evidence.term]),
+            missing: 'в тексте не нашли — укажите ниже',
+            onEdit: onEditTerm,
+        },
+    ];
+    return (
+        <div className='understood stack-8' role='status'>
+            <Typography.Text view='primary-medium' weight='bold' tag='div'>
+                Я понял так
+            </Typography.Text>
+            {rows.map((row) => (
+                <div key={row.label} className='understood__row'>
+                    <Typography.Text view='primary-small' color='secondary' tag='div' className='understood__label'>
+                        {row.label}
+                    </Typography.Text>
+                    <div>
+                        {row.value ? (
+                            <Typography.Text view='primary-small' weight='bold' tag='div'>
+                                {row.value}
+                            </Typography.Text>
+                        ) : (
+                            <Typography.Text view='primary-small' color='attention' tag='div'>
+                                {row.missing}
+                            </Typography.Text>
+                        )}
+                        {row.value && row.basis && (
+                            <Typography.Text view='primary-small' color='secondary' tag='div'>
+                                {row.basis}
+                            </Typography.Text>
+                        )}
+                    </div>
+                    <Button view='text' size={32} onClick={row.onEdit}>
+                        Изменить
+                    </Button>
+                </div>
+            ))}
+            <Typography.Text view='primary-small' color='secondary' tag='p'>
+                Верно? Если нет — поправьте: заявку оформим по значениям в полях ниже.
+            </Typography.Text>
+        </div>
+    );
+}
+
 function QuoteCard({
     item,
     cheapest = false,
+    why,
     onChoose,
     busy,
 }: {
     item: QuoteItem;
     cheapest?: boolean;
+    /** Почему продукт подходит под выбранную задачу */
+    why?: string;
     onChoose: () => void;
     busy: boolean;
 }) {
@@ -437,6 +682,11 @@ function QuoteCard({
                     <Typography.Text view='primary-small' color='secondary' tag='p'>
                         {product.description}
                     </Typography.Text>
+                    {why && item.eligible && (
+                        <Typography.Text view='primary-small' tag='p'>
+                            <b>Почему подходит:</b> {why}
+                        </Typography.Text>
+                    )}
                 </div>
             </div>
             <div className='metrics'>
