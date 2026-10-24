@@ -519,7 +519,9 @@
     border-spacing: 0;
     border: 1px solid #dbdde2;
     border-radius: 16px;
-    overflow: hidden;
+    /* clip, а не hidden: обрезает углы, но не делает таблицу областью прокрутки — иначе на телефоне не держится
+       закреплённый столбец с названием продукта */
+    overflow: clip;
 }
 
 .products-table th,
@@ -646,15 +648,23 @@
         padding: 0 var(--gap-20) var(--gap-20);
     }
 
-    /* таблица сравнения шире экрана: название продукта остаётся на месте при прокрутке вбок */
+    /* таблица сравнения шире экрана: название продукта остаётся на месте при прокрутке вбок; фон ячейки
+       непрозрачный и тот же, что у строки (шапка серая, строки чередуются) */
     .products-table th:first-child,
     .products-table td:first-child {
         position: sticky;
         left: 0;
         z-index: 1;
         min-width: 128px;
-        background: #fff;
         box-shadow: 8px 0 8px -8px rgba(0, 0, 0, 0.16);
+    }
+
+    .products-table td:first-child {
+        background: #fff;
+    }
+
+    .products-table tbody tr:nth-child(even) td:first-child {
+        background: #fafafb;
     }
 }
 
