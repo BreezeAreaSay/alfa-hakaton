@@ -93,26 +93,28 @@ export function LoginPage({
             <header className='header'>
                 <div className='header__inner'>
                     <Logo home='/' />
-                    {/* слева, как пункт меню в шапке кабинета */}
-                    <nav className='nav' aria-label='Разделы'>
-                        {/* те же пункты, что в шапке кабинета: вошедшего «Главная» ведёт в кабинет, гостя — сюда */}
-                        <NavLink
-                            to={user ? cabinet : '/'}
-                            end={true}
-                            className={({ isActive }) => `nav__link${isActive ? ' nav__link--active' : ''}`}
-                        >
-                            Главная
-                        </NavLink>
-                        <NavLink
-                            to='/products'
-                            className={({ isActive }) => `nav__link${isActive ? ' nav__link--active' : ''}`}
-                        >
-                            Продукты
-                        </NavLink>
-                        <button type='button' className='nav__link login__nav-button' onClick={start}>
-                            Получить кредит
-                        </button>
-                    </nav>
+                    {/* меню — только вошедшему клиенту, как в шапке кабинета; гостю — логотип и вход */}
+                    {user?.role === 'CLIENT' && (
+                        <nav className='nav' aria-label='Разделы'>
+                            {/* те же пункты, что в шапке кабинета: «Главная» ведёт в кабинет */}
+                            <NavLink
+                                to={cabinet}
+                                end={true}
+                                className={({ isActive }) => `nav__link${isActive ? ' nav__link--active' : ''}`}
+                            >
+                                Главная
+                            </NavLink>
+                            <NavLink
+                                to='/products'
+                                className={({ isActive }) => `nav__link${isActive ? ' nav__link--active' : ''}`}
+                            >
+                                Продукты
+                            </NavLink>
+                            <button type='button' className='nav__link login__nav-button' onClick={start}>
+                                Получить кредит
+                            </button>
+                        </nav>
+                    )}
                     <div className='header__right'>
                         {/*
                          * Пока проверяется сохранённый вход, кнопки нет — чтобы «Войти» не мелькнуло у вошедшего.
@@ -144,7 +146,7 @@ export function LoginPage({
             </header>
 
             {page === 'products' ? (
-                <ProductsPage onCalculate={(path) => (user ? navigate(path) : enter(path))} />
+                <ProductsPage />
             ) : (
                 <>
                     <section className='login__brand'>

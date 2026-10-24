@@ -172,9 +172,89 @@ a {
     position: relative;
 }
 
-/* колокольчик дизайн-системы нарисован с наклоном 45° — в шапке ставим его ровно */
+/* колокольчик дизайн-системы нарисован с наклоном 45°; в шапке — 60° от вертикали низом влево (+15° к рисунку) */
 .bell > button svg {
-    transform: rotate(-45deg);
+    transform: rotate(15deg);
+}
+
+/* без новых уведомлений — серый, с новыми — красный, с «волнами звона» по бокам и коротким покачиванием */
+.bell > button.cc-icon-button {
+    color: rgba(255, 255, 255, 0.48);
+}
+
+.bell--unread > button.cc-icon-button {
+    color: #ef3124;
+}
+
+.bell--unread > button svg {
+    animation: bell-ring 4s ease-in-out infinite;
+}
+
+.bell--unread::before,
+.bell--unread::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 8px;
+    height: 16px;
+    margin-top: -9px;
+    border: 2px solid transparent;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: bell-waves 4s ease-in-out infinite;
+}
+
+.bell--unread::before {
+    left: 2px;
+    border-left-color: #ef3124;
+}
+
+.bell--unread::after {
+    right: 2px;
+    border-right-color: #ef3124;
+}
+
+@keyframes bell-ring {
+    0%,
+    30%,
+    100% {
+        transform: rotate(15deg);
+    }
+    5% {
+        transform: rotate(30deg);
+    }
+    10% {
+        transform: rotate(0deg);
+    }
+    15% {
+        transform: rotate(26deg);
+    }
+    20% {
+        transform: rotate(5deg);
+    }
+    25% {
+        transform: rotate(18deg);
+    }
+}
+
+@keyframes bell-waves {
+    0%,
+    30%,
+    100% {
+        opacity: 0.35;
+    }
+    10%,
+    20% {
+        opacity: 1;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .bell--unread > button svg,
+    .bell--unread::before,
+    .bell--unread::after {
+        animation: none;
+    }
 }
 
 /* выпадающий список уведомлений светлый, хотя лежит внутри тёмной шапки */
