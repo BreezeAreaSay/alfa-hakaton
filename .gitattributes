@@ -1,0 +1,10 @@
+# Единые концы строк: клон на Windows не должен менять файлы, которые попадают в образы Docker и в тесты
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.pdf binary
+*.woff binary
+*.woff2 binary
+*.ico binary
+# Выгрузка 1С хранит строки с CRLF по формату обмена — не нормализуем
+frontend/public/demo-files/*.txt -text
