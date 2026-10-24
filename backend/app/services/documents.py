@@ -202,7 +202,7 @@ def agreement_pdf(application: Application, offer: Offer, signer: str | None) ->
                 ["Продукт", offer.product.name],
                 ["Сумма", rub(offer.amount)],
                 ["Срок", months_text(offer.term_months)],
-                ["Процентная ставка", f"{offer.rate}% годовых".replace(".", ",")],
+                ["Процентная ставка", f"{offer.rate}\u00a0% годовых".replace(".", ",")],
                 ["Ежемесячный платёж", rub(offer.monthly_payment)],
                 ["Переплата за весь срок", rub(offer.overpayment)],
                 # длинная цель переносится по строкам внутри ячейки, а не уходит за край страницы

@@ -33,7 +33,7 @@ export function reviewPriority(
     }
 
     const important: string[] = [];
-    if (amount >= LARGE_AMOUNT) important.push(`Сумма от ${LARGE_AMOUNT_MLN} млн ₽`);
+    if (amount >= LARGE_AMOUNT) important.push(`Сумма от ${LARGE_AMOUNT_MLN}\u00a0млн\u00a0₽`);
     const attention = flags.filter((code) => ATTENTION_FLAGS.has(code));
     if (attention.length === 1) important.push(`Флаг ${attention[0]} требует проверки`);
     else if (attention.length) important.push(`Флаги ${attention.join(', ')} требуют проверки`);

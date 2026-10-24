@@ -39,7 +39,7 @@ FLAGS: dict[str, str] = {
     "F01": "Адрес массовой регистрации",
     "F02": "Есть налоговая задолженность",
     "F03": "Руководитель сменился меньше 6 месяцев назад",
-    "F04": "Выручка в заявке отличается от данных источников больше чем на 30%",
+    "F04": "Выручка в заявке отличается от данных источников больше чем на 30\u00a0%",
     "F05": "Внешний источник недоступен после всех повторов",
     "F06": "Текущая просрочка до 30 дней",
     "F07": "Класс риска C или D",
@@ -88,6 +88,13 @@ ADVICE: dict[str, str] = {
     "R06": "Выберите другой продукт: подходящие условия видны на шаге подбора",
 }
 
+# Совет по оценке риска (S05, R01) называет, что её повысит, — по факторам скоринга заявки (FACTOR_ADVICE).
+# Общий текст из ADVICE остаётся, только если отрицательных факторов, на которые клиент может повлиять, нет.
+RISK_ADVICE_CODES = {"S05", "R01"}
+RISK_ADVICE = "Оценка станет выше, когда {causes}. Начать можно с небольшой суммы через несколько месяцев"
+# При этих стоп-факторах совета по оценке риска нет: сначала устраняется сам стоп-фактор, у него свой совет.
+BLOCKING_STOP_FACTORS = {"S01", "S02", "S03", "S04"}
+
 # За счёт чего продукт дешевле — для подсказки «как получить ставку ниже».
 CHEAPER_WHY: dict[str, str] = {
     "SECURED": "залог недвижимости или оборудования снижает риск банка",
@@ -114,7 +121,7 @@ LIMIT_PHRASES: dict[str, str] = {
     "REVENUE": "Сумма ограничена выручкой бизнеса",
     "COLLATERAL": "Сумма ограничена стоимостью залога",
     "DSCR": "Текущие платежи по кредитам и прибыль ограничивают сумму",
-    "OVERDRAFT": "Лимит овердрафта — до 40% среднемесячных поступлений на счёт",
+    "OVERDRAFT": "Лимит овердрафта — до 40\u00a0% среднемесячных поступлений на счёт",
 }
 
 STATEMENT_REQUEST_ITEM = {
@@ -433,6 +440,13 @@ def rate_breakdown(product: ProductTerms, risk_margin: Decimal, *, offer_rate: D
     }
 
 
+def factor_causes(factors: list[dict[str, Any]], limit: int = 2) -> list[str]:
+    """Что улучшит оценку: продолжения фраз из FACTOR_ADVICE для факторов скоринга с наибольшим отрицательным
+    вкладом. Отраслевой риск совета не получает — отрасль клиент не меняет."""
+    negative = sorted((x for x in factors if x.get("points", 0) < 0), key=lambda x: x["points"])
+    return [FACTOR_ADVICE[x["code"]] for x in negative if x.get("code") in FACTOR_ADVICE][:limit]
+
+
 def rate_hints(
     product: ProductTerms,
     f: Features,
@@ -463,7 +477,7 @@ def rate_hints(
         if issues:
             continue
         why = CHEAPER_WHY.get(other.code, "ставка ниже за счёт условий продукта")
-        text = f"{other.name} — {pp(other_rate)} %: {why}"
+        text = f"{other.name} — {pp(other_rate)}\u00a0%: {why}"
         saving: Decimal | None = None
         if f.term_months and f.term_months > other.max_term:
             text += f" (срок до {months_text(other.max_term)})"
@@ -483,13 +497,12 @@ def rate_hints(
             }
         )
     if risk_margin > 0:
-        negative = sorted((x for x in factors if x.get("points", 0) < 0), key=lambda x: x["points"])
-        causes = [FACTOR_ADVICE[x["code"]] for x in negative if x.get("code") in FACTOR_ADVICE][:2]
+        causes = factor_causes(factors)
         if causes:
-            text = f"Надбавка за риск {pp(risk_margin)} п.п. станет ниже, когда {' и '.join(causes)}"
+            text = f"Надбавка за риск {pp(risk_margin)}\u00a0п.п. станет ниже, когда {' и '.join(causes)}"
         else:
             text = (
-                f"Надбавка за риск {pp(risk_margin)} п.п. снижается по мере роста срока работы бизнеса "
+                f"Надбавка за риск {pp(risk_margin)}\u00a0п.п. снижается по мере роста срока работы бизнеса "
                 "и накопления кредитной истории без просрочек"
             )
         hints.append(
@@ -535,11 +548,25 @@ def decline_alternatives(
     return result[:2]
 
 
-def next_steps(stop_factor_codes: list[str], reason_codes: list[str]) -> list[str]:
-    """Что поможет после отказа: по одному совету на код, без повторов."""
+def next_steps(
+    stop_factor_codes: list[str], reason_codes: list[str], factors: list[dict[str, Any]] | None = None
+) -> list[str]:
+    """Что поможет после отказа: по одному совету на код, без повторов.
+
+    Совет по оценке риска (S05, R01) собирается из отрицательных факторов скоринга заявки (factors), общий текст —
+    только если таких факторов нет. Если есть стоп-фактор S01–S04, этого совета нет: сначала нужно устранить сам
+    стоп-фактор, а совет по оценке повторял бы его совет или говорил о том, чего у компании нет.
+    """
+    blocked = any(code in BLOCKING_STOP_FACTORS for code in stop_factor_codes)
+    causes = factor_causes(factors or [])
     result: list[str] = []
     for code in [*stop_factor_codes, *reason_codes]:
-        text = ADVICE.get(code)
+        if code in RISK_ADVICE_CODES:
+            if blocked:
+                continue
+            text = RISK_ADVICE.format(causes=" и ".join(causes)) if causes else ADVICE.get(code)
+        else:
+            text = ADVICE.get(code)
         if text and text not in result:
             result.append(text)
     return result
@@ -562,10 +589,10 @@ def check_analyst_terms(
     if not (product.min_term <= term_months <= product.max_term):
         errors.append(f"Срок должен быть от {product.min_term} до {product.max_term} мес.")
     if min_rate is not None and rate < min_rate:
-        errors.append(f"Ставка не может быть ниже расчётной: {min_rate}%")
+        errors.append(f"Ставка не может быть ниже расчётной: {pp(min_rate)}\u00a0%")
     if limit is not None:
         if amount > limit * ANALYST_LIMIT_TOLERANCE:
-            errors.append(f"Сумма превышает расчётный лимит {rub(limit)} больше чем на 20%")
+            errors.append(f"Сумма превышает расчётный лимит {rub(limit)} больше чем на 20\u00a0%")
         elif amount > limit and not (comment and comment.strip()):
             errors.append("Сумма выше расчётного лимита — добавьте комментарий с обоснованием")
     return errors

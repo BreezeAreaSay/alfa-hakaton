@@ -93,7 +93,7 @@ def proactive_facts(f: Features) -> list[str]:
         facts.append(f"Выручка по отчётности — {rub(f.revenue)} в год")
         if f.revenue_growth is not None and abs(f.revenue_growth) >= 0.05:
             change = "выросла" if f.revenue_growth > 0 else "снизилась"
-            facts.append(f"Выручка {change} на {round(abs(f.revenue_growth) * 100)} % за год")
+            facts.append(f"Выручка {change} на {round(abs(f.revenue_growth) * 100)}\u00a0% за год")
     if f.is_bank_client and f.avg_monthly_inflow is not None and f.inflow_months >= 3:
         facts.append(f"Поступления на счёт — в среднем {rub(f.avg_monthly_inflow)} в месяц")
     return facts

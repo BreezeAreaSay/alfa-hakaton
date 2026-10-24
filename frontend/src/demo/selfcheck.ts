@@ -4,9 +4,11 @@
 import type { Application, Dossier } from '../api/types';
 import { DEMO_PASSWORD } from './data';
 import { parseNeedRules } from './engine/ai';
+import { moscowDate } from './engine/dates';
 import { PRIORITY_RANK, reviewPriority } from './engine/review';
 import { parseStatement } from './engine/statements';
 import aiGolden from './fixtures/ai-golden.json';
+import companiesFixture from './fixtures/companies.json';
 import errors from './fixtures/errors.json';
 import examples from './fixtures/examples.json';
 import notificationsFixture from './fixtures/notifications.json';
@@ -415,7 +417,11 @@ function checkPriorityRules(check: Check): void {
             { now, sla_due_at: at(1), amount: 12_000_000, flags: ['F01', 'F02'] },
             {
                 priority: 'HIGH',
-                reasons: ['До конца срока меньше 4 часов', 'Сумма от 10 млн ₽', 'Флаги F01, F02 требуют проверки'],
+                reasons: [
+                    'До конца срока меньше 4 часов',
+                    'Сумма от 10\u00a0млн\u00a0₽',
+                    'Флаги F01, F02 требуют проверки',
+                ],
             },
         ],
         [
@@ -1055,6 +1061,13 @@ export async function run(io: SelfcheckIo): Promise<boolean> {
     // Логин на стенде мог получить номер, ИНН и даты зависят от стенда и дня запуска — сверяем остальное
     check.ok('своя компания: логин', created.login.replace(/\d+$/, '') === C.created.login_base, created.login);
     check.same('своя компания: профиль', C.created.company, pick(created.company, COMPANY_STABLE_FIELDS));
+    // ИНН и ОГРН — из своей последовательности: у первой созданной компании ОГРН совпадал с «Северным ветром»
+    const builtin = Object.values(companiesFixture.companies).map(({ company }) => company);
+    check.ok(
+        'своя компания: ИНН и ОГРН не совпадают со встроенными',
+        builtin.every((company) => company.inn !== created.company.inn && company.ogrn !== created.company.ogrn),
+        `${created.company.inn} / ${created.company.ogrn}`,
+    );
     const custom = await session(created.login);
     check.same('своя компания: пользователь', C.user, pick(custom.user, ['full_name', 'position', 'role', 'can_sign']));
     const customApp = await apply(custom, C.request);
@@ -1177,11 +1190,16 @@ export async function run(io: SelfcheckIo): Promise<boolean> {
     );
     check.ok('очередь с завершёнными: порядок', queueOrdered(closed));
     check.same('сводка в конце', examples.summary_end, await analyst.get('/api/bank/summary'), ['issued_today']);
-    check.same(
-        'показатели в конце',
-        examples.metrics_end,
-        await analyst.get('/api/bank/metrics?days=30'),
-        METRICS_TIMING_KEYS,
+    const metricsEnd = await analyst.get('/api/bank/metrics?days=30');
+    check.same('показатели в конце', examples.metrics_end, metricsEnd, METRICS_TIMING_KEYS);
+    // Динамика по дням — по московской дате (как metrics.py): после 00:00 МСК в UTC ещё вчера
+    check.ok(
+        'показатели: день по Москве',
+        moscowDate('2026-10-22T21:10:00Z') === '2026-10-23' &&
+            moscowDate('2026-10-22T20:50:00Z') === '2026-10-22' &&
+            metricsEnd.daily.at(-1)?.date === moscowDate(Date.now()) &&
+            metricsEnd.daily.reduce((sum: number, d: J) => sum + d.submitted, 0) === metricsEnd.submitted,
+        JSON.stringify(metricsEnd.daily.at(-1)),
     );
 
     // Сброс демо-данных возвращает стартовые заявки

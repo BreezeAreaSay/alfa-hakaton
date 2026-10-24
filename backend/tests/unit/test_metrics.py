@@ -1,7 +1,7 @@
 """Показатели конвейера: расчёт на данных трёх заявок с разными исходами."""
 
 import uuid
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
 from types import SimpleNamespace as Row
 
@@ -128,6 +128,53 @@ def test_products_analysts_and_daily():
     assert (m.analysts[0].decided, m.analysts[0].in_work, m.analysts[0].median_review_hours) == (1, 0, 36.0)
     assert len(m.daily) == 30 and m.daily[-1].date == NOW.date()
     assert sum(d.submitted for d in m.daily) == 3 and sum(d.issued for d in m.daily) == 1
+
+
+def test_daily_counts_by_moscow_date():
+    # 01:30 МСК 23 октября, а в UTC ещё 22-е: заявка, поданная и выданная после полуночи по Москве, — сегодняшняя
+    now = datetime(2026, 10, 22, 22, 30, tzinfo=UTC)
+    tonight, evening = uuid.uuid4(), uuid.uuid4()
+    applications = [
+        Row(
+            id=tonight,
+            product_code="GROWTH",
+            status="ISSUED",
+            submitted_at=datetime(2026, 10, 22, 21, 10, tzinfo=UTC),  # 00:10 МСК 23-го
+            closed_at=datetime(2026, 10, 22, 21, 40, tzinfo=UTC),
+            sla_due_at=None,
+            assignee_id=None,
+        ),
+        Row(
+            id=evening,
+            product_code="GROWTH",
+            status="REJECTED",
+            submitted_at=datetime(2026, 10, 22, 20, 50, tzinfo=UTC),  # 23:50 МСК 22-го
+            closed_at=datetime(2026, 10, 22, 20, 52, tzinfo=UTC),
+            sla_due_at=None,
+            assignee_id=None,
+        ),
+    ]
+    decisions = [
+        Row(
+            application_id=app_id,
+            kind="AUTO",
+            outcome=outcome,
+            created_at=at,
+            decided_by=None,
+            reason_codes=[],
+            stop_factors=[],
+        )
+        for app_id, outcome, at in [
+            (tonight, "APPROVE", datetime(2026, 10, 22, 21, 12, tzinfo=UTC)),
+            (evening, "REJECT", datetime(2026, 10, 22, 20, 52, tzinfo=UTC)),
+        ]
+    ]
+    loans = [Row(application_id=tonight, amount=Decimal("1000000"))]
+    m = compute(MetricsInput(now, 7, applications, decisions, [], [], [], loans, [], {}))
+    today, yesterday = m.daily[-1], m.daily[-2]
+    assert (today.date, today.submitted, today.decided, today.issued) == (date(2026, 10, 23), 1, 1, 1)
+    assert (yesterday.date, yesterday.submitted, yesterday.decided, yesterday.issued) == (date(2026, 10, 22), 1, 1, 0)
+    assert m.daily[0].date == date(2026, 10, 17)
 
 
 def test_empty_period():

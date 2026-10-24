@@ -1,6 +1,11 @@
 """Форматирование для текстов, которые видят пользователи."""
 
+from datetime import timedelta, timezone
 from decimal import Decimal
+
+# Даты и время для людей — московские: стенд хранит метки в UTC. В Москве с 2014 года нет перехода на летнее
+# время, поэтому хватает постоянного смещения и образу не нужна база часовых поясов.
+MSK = timezone(timedelta(hours=3), "МСК")
 
 
 def plural(n: int, one: str, few: str, many: str) -> str:
@@ -25,9 +30,12 @@ def months_text(months: int, *, genitive: bool = False) -> str:
 
 
 def rub(amount: Decimal | float | int) -> str:
+    """«1 500 000 ₽»: разряды и знак рубля — через неразрывный пробел (U+00A0), чтобы на узком экране
+    сумма не разрывалась и «₽» не уходил на следующую строку. Так же перед «%» и «п.п.» в текстах."""
     value = int(round(Decimal(str(amount))))
-    return f"{value:,}".replace(",", " ") + " ₽"
+    return f"{value:,}".replace(",", "\u00a0") + "\u00a0₽"
 
 
 def percent(value: float, digits: int = 0) -> str:
-    return f"{value * 100:.{digits}f}%".replace(".", ",")
+    """0,16 → «16 %», с digits — «16,1 %»; перед «%» — неразрывный пробел."""
+    return f"{value * 100:.{digits}f}\u00a0%".replace(".", ",")

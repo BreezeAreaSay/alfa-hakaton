@@ -640,25 +640,25 @@ class CompanyBuilderIn(BaseModel):
     @field_validator("revenue")
     @classmethod
     def _revenue(cls, value: int) -> int:
-        _within(value, 1, 1_000_000_000_000, "Выручка — от 1 ₽ до 1 трлн ₽")
+        _within(value, 1, 1_000_000_000_000, "Выручка — от 1\u00a0₽ до 1\u00a0трлн\u00a0₽")
         return value
 
     @field_validator("revenue_growth")
     @classmethod
     def _growth(cls, value: float) -> float:
-        _within(value, -0.9, 10, "Рост выручки — доля от −0,9 до 10: например, 0,1 — рост на 10 %")
+        _within(value, -0.9, 10, "Рост выручки — доля от −0,9 до 10: например, 0,1 — рост на 10\u00a0%")
         return value
 
     @field_validator("margin")
     @classmethod
     def _margin(cls, value: float) -> float:
-        _within(value, -1, 1, "Рентабельность — доля от −1 до 1: например, 0,08 — 8 %")
+        _within(value, -1, 1, "Рентабельность — доля от −1 до 1: например, 0,08 — 8\u00a0%")
         return value
 
     @field_validator("existing_monthly_payments")
     @classmethod
     def _payments(cls, value: int) -> int:
-        _within(value, 0, 1_000_000_000, "Платежи по кредитам — от 0 до 1 млрд ₽ в месяц")
+        _within(value, 0, 1_000_000_000, "Платежи по кредитам — от 0 до 1\u00a0млрд\u00a0₽ в месяц")
         return value
 
     @field_validator("max_overdue_days_24m", "current_overdue_days")
@@ -670,7 +670,7 @@ class CompanyBuilderIn(BaseModel):
     @field_validator("tax_debt")
     @classmethod
     def _tax_debt(cls, value: int) -> int:
-        _within(value, 0, 10_000_000_000, "Налоговая задолженность — от 0 до 10 млрд ₽")
+        _within(value, 0, 10_000_000_000, "Налоговая задолженность — от 0 до 10\u00a0млрд\u00a0₽")
         return value
 
     @field_validator("account_months")
@@ -682,7 +682,7 @@ class CompanyBuilderIn(BaseModel):
     @field_validator("avg_monthly_inflow")
     @classmethod
     def _inflow(cls, value: int) -> int:
-        _within(value, 0, 100_000_000_000, "Поступления на счёт — от 0 до 100 млрд ₽ в месяц")
+        _within(value, 0, 100_000_000_000, "Поступления на счёт — от 0 до 100\u00a0млрд\u00a0₽ в месяц")
         return value
 
     @model_validator(mode="after")

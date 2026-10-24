@@ -230,7 +230,9 @@ def explanation(db: Session, application: Application, offer: Offer | None = Non
             if not out.rejection:
                 out.rejection = [STOP_FACTORS["S05"]]
             out.advice = out.negative or []
-            out.next_steps = next_steps(decision.stop_factors, decision.reason_codes)
+            out.next_steps = next_steps(
+                decision.stop_factors, decision.reason_codes, scoring.factors if scoring else []
+            )
             codes = set(decision.reason_codes)
             if scoring and not decision.stop_factors and codes and codes <= {"R02", "R06"}:
                 risk_margin = margin_for_class(scoring.risk_class)

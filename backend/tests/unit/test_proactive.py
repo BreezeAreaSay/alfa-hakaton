@@ -25,9 +25,9 @@ def test_strong_client_gets_overdraft_and_growth_loan():
 def test_facts_explain_the_offer():
     facts = proactive_facts(strong_company())
     assert facts[0] == "Бизнес работает 6 лет 2 мес."
-    assert "Выручка по отчётности — 120 000 000 ₽ в год" in facts
-    assert "Выручка выросла на 14 % за год" in facts
-    assert "Поступления на счёт — в среднем 10 000 000 ₽ в месяц" in facts
+    assert "Выручка по отчётности — 120\u00a0000\u00a0000\u00a0₽ в год" in facts
+    assert "Выручка выросла на 14\u00a0% за год" in facts
+    assert "Поступления на счёт — в среднем 10\u00a0000\u00a0000\u00a0₽ в месяц" in facts
 
 
 def test_young_business_and_recent_account_get_only_what_is_allowed():

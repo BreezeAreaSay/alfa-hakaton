@@ -67,16 +67,19 @@ export function pyFixed(value: number, digits: number): string {
     return value < 0 ? `-${truncated}` : truncated;
 }
 
-/** «1 500 000 ₽»: целые рубли, разряды через обычный пробел — как rub() на сервере. */
+/**
+ * «1 500 000 ₽»: целые рубли, разряды и знак рубля — через неразрывный пробел (\u00a0), как rub() на сервере:
+ * на узком экране сумма не разрывается. Так же перед «%» и «п.п.» в текстах.
+ */
 export function rub(amount: number): string {
     const value = roundDecimal(amount, 0, 'HALF_EVEN');
     const negative = value.startsWith('-');
     const digits = negative ? value.slice(1) : value;
-    const grouped = digits.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-    return `${negative ? '-' : ''}${grouped} ₽`;
+    const grouped = digits.replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0');
+    return `${negative ? '-' : ''}${grouped}\u00a0₽`;
 }
 
-/** 0,16 → «16%», с digits — «16,1%». */
+/** 0,16 → «16 %», с digits — «16,1 %»; перед «%» — неразрывный пробел, как percent() на сервере. */
 export function percent(value: number, digits = 0): string {
-    return `${pyFixed(value * 100, digits)}%`.replace('.', ',');
+    return `${pyFixed(value * 100, digits)}\u00a0%`.replace('.', ',');
 }

@@ -52,7 +52,7 @@ def review_priority(
 
     important: list[str] = []
     if amount >= LARGE_AMOUNT:
-        important.append(f"Сумма от {LARGE_AMOUNT_MLN} млн ₽")
+        important.append(f"Сумма от {LARGE_AMOUNT_MLN}\u00a0млн\u00a0₽")
     attention = [code for code in flags if code in ATTENTION_FLAGS]
     if len(attention) == 1:
         important.append(f"Флаг {attention[0]} требует проверки")

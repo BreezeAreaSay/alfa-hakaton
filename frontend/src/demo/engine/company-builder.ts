@@ -92,32 +92,32 @@ export function checkCompanySpec(spec: CompanySpec): { spec: CompanySpec; issues
     if (!(spec.okved in OKVED_NAMES)) {
         issues.push({ loc: ['okved'], msg: 'Неизвестный код ОКВЭД — выберите из справочника' });
     }
-    within('revenue', spec.revenue, 1, 1_000_000_000_000, 'Выручка — от 1 ₽ до 1 трлн ₽');
+    within('revenue', spec.revenue, 1, 1_000_000_000_000, 'Выручка — от 1\u00a0₽ до 1\u00a0трлн\u00a0₽');
     within(
         'revenue_growth',
         spec.revenue_growth,
         -0.9,
         10,
-        'Рост выручки — доля от −0,9 до 10: например, 0,1 — рост на 10 %',
+        'Рост выручки — доля от −0,9 до 10: например, 0,1 — рост на 10\u00a0%',
     );
-    within('margin', spec.margin, -1, 1, 'Рентабельность — доля от −1 до 1: например, 0,08 — 8 %');
+    within('margin', spec.margin, -1, 1, 'Рентабельность — доля от −1 до 1: например, 0,08 — 8\u00a0%');
     within(
         'existing_monthly_payments',
         spec.existing_monthly_payments,
         0,
         1_000_000_000,
-        'Платежи по кредитам — от 0 до 1 млрд ₽ в месяц',
+        'Платежи по кредитам — от 0 до 1\u00a0млрд\u00a0₽ в месяц',
     );
     within('max_overdue_days_24m', spec.max_overdue_days_24m, 0, 730, 'Дни просрочки — от 0 до 730');
     within('current_overdue_days', spec.current_overdue_days, 0, 730, 'Дни просрочки — от 0 до 730');
-    within('tax_debt', spec.tax_debt, 0, 10_000_000_000, 'Налоговая задолженность — от 0 до 10 млрд ₽');
+    within('tax_debt', spec.tax_debt, 0, 10_000_000_000, 'Налоговая задолженность — от 0 до 10\u00a0млрд\u00a0₽');
     within('account_months', spec.account_months, 0, 600, 'Срок счёта — от 0 до 600 месяцев');
     within(
         'avg_monthly_inflow',
         spec.avg_monthly_inflow,
         0,
         100_000_000_000,
-        'Поступления на счёт — от 0 до 100 млрд ₽ в месяц',
+        'Поступления на счёт — от 0 до 100\u00a0млрд\u00a0₽ в месяц',
     );
     if (issues.length) return { spec, issues };
 
@@ -174,6 +174,8 @@ export function uniqueLogin(base: string, taken: Set<string>): string {
 
 const INN_PREFIX = '0020';
 const REGION = '77';
+// Номер записи в ОГРН у созданных компаний начинается с 20: у встроенных компаний номера маленькие, ОГРН не совпадают
+const OGRN_SERIAL_PREFIX = '20';
 const LENDER = 'Банк «Восток»';
 const INFLOW_PATTERN = [0.97, 1.02, 0.95, 1.04, 1.0, 0.98, 1.03, 0.99, 1.01, 1.05, 0.96, 1.0];
 const DIRECTORS = [
@@ -224,13 +226,13 @@ export function makeInn(serial: number, legalForm: string): string {
     return `${body}${n11}${n12}`;
 }
 
-/** ОГРН (13 знаков, контроль по модулю 11) или ОГРНИП (15 знаков, по модулю 13). */
+/** ОГРН (13 знаков, контроль по модулю 11) или ОГРНИП (15 знаков, по модулю 13); номер записи — префикс и serial. */
 export function makeOgrn(serial: number, legalForm: string): string {
     if (legalForm === 'OOO') {
-        const body = `100${REGION}${String(serial).padStart(7, '0')}`;
+        const body = `100${REGION}${OGRN_SERIAL_PREFIX}${String(serial).padStart(5, '0')}`;
         return body + ((Number(body) % 11) % 10);
     }
-    const body = `310${REGION}${String(serial).padStart(9, '0')}`;
+    const body = `310${REGION}${OGRN_SERIAL_PREFIX}${String(serial).padStart(7, '0')}`;
     return body + ((Number(body) % 13) % 10);
 }
 

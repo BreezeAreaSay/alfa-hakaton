@@ -52,7 +52,7 @@ FACTORS = [
     {
         "code": "TAX_DEBT",
         "title": "Налоговая задолженность",
-        "value": "82 000 ₽",
+        "value": "82\u00a0000\u00a0₽",
         "points": -30,
         "phrase": "Есть налоговая задолженность",
     },
@@ -92,14 +92,17 @@ def content(**overrides) -> dict:
             "outcome": "Передано аналитику",
             "decided_at": "24.10.2026 11:00",
             "reasons": [],
-            "rate": "20,5 % годовых",
+            "rate": "20,5\u00a0% годовых",
         },
         "decisions": [
             {
                 "who": "Иванова Ольга Дмитриевна",
                 "when": "24.10.2026 11:40",
                 "outcome": "Контрпредложение",
-                "terms": "Кредит на развитие бизнеса: 6 000 000 ₽ на 3 года под 20,5 % годовых (контрпредложение)",
+                "terms": (
+                    "Кредит на развитие бизнеса: 6\u00a0000\u00a0000\u00a0₽ на 3 года под 20,5\u00a0% годовых "
+                    "(контрпредложение)"
+                ),
                 "comment": "Стабильные поступления на счёт & задолженность погашается <до конца месяца>",
                 "authority": j.authority_lines(
                     P["GROWTH"],
@@ -129,10 +132,10 @@ def content(**overrides) -> dict:
         "offers": [
             [
                 "Кредит на развитие бизнеса — контрпредложение",
-                "6 000 000 ₽",
+                "6\u00a0000\u00a0000\u00a0₽",
                 "3 года",
-                "20,5 %",
-                "230 000 ₽",
+                "20,5\u00a0%",
+                "230\u00a0000\u00a0₽",
                 "Действует",
             ]
         ],
@@ -174,7 +177,7 @@ def test_signing_and_loan_sections_are_rendered():
                 "sha256": "a" * 64,
                 "created_at": "24.10.2026 12:20",
             },
-            loan=[["Ссудный счёт", "45207810000000000001"], ["Сумма", "6 000 000 ₽"]],
+            loan=[["Ссудный счёт", "45207810000000000001"], ["Сумма", "6\u00a0000\u00a0000\u00a0₽"]],
         )
     )
     assert pdf.startswith(b"%PDF") and len(pdf) > 2048
@@ -193,7 +196,7 @@ def test_source_facts_from_saved_results():
     assert j.egrul_facts({"found": False}) == [["Результат", "Компания не найдена в реестре"]]
 
     fns = j.fns_facts({"tax_debt": 82000, "mass_address": True, "director_disqualified": False})
-    assert fns[:2] == [["Налоговая задолженность", "82 000 ₽"], ["Адрес массовой регистрации", "да"]]
+    assert fns[:2] == [["Налоговая задолженность", "82\u00a0000\u00a0₽"], ["Адрес массовой регистрации", "да"]]
 
     facts, table = j.bki_block(BKI)
     assert ["Максимальная просрочка за 24 мес.", "12 дн."] in facts
@@ -208,7 +211,7 @@ def test_source_facts_from_saved_results():
     _, table = j.girbo_block(
         {"available": True, "years": [{"year": 2025, "revenue": 1000, "sales_profit": 200, "net_profit": 100}]}
     )
-    assert table["rows"] == [["2025", "1 000 ₽", "200 ₽", "100 ₽", "20 %"]]
+    assert table["rows"] == [["2025", "1\u00a0000\u00a0₽", "200\u00a0₽", "100\u00a0₽", "20\u00a0%"]]
 
 
 def test_scoring_summary_and_limit_constraints():
@@ -216,10 +219,10 @@ def test_scoring_summary_and_limit_constraints():
     scoring = j.scoring_content(
         version="v1.0", score=830, risk_class="A", pd=Decimal("1"), factors=FACTORS, features=features.to_dict()
     )
-    assert scoring["margin"] == "+0 п.п. к базовой ставке продукта"
+    assert scoring["margin"] == "+0\u00a0п.п. к базовой ставке продукта"
     assert scoring["total"] == "базовый балл 600 + 0 по факторам = 830"
     assert scoring["factors"][1][2] == "-30"
-    assert ["Выручка за год", "120 000 000 ₽ по отчётности ГИР БО"] in scoring["features"]
+    assert ["Выручка за год", "120\u00a0000\u00a0000\u00a0₽ по отчётности ГИР БО"] in scoring["features"]
     assert (
         j.scoring_content(version="v1.0", score=400, risk_class="E", pd=Decimal("25"), factors=[], features={})[
             "margin"
@@ -235,7 +238,7 @@ def test_scoring_summary_and_limit_constraints():
         collateral_value=None,
         decided_limit=Decimal("9230000"),
     )
-    assert limit["amount"] == "9 230 000 ₽"
+    assert limit["amount"] == "9\u00a0230\u00a0000\u00a0₽"
     assert limit["phrase"] == "Текущие платежи по кредитам и прибыль ограничивают сумму"
     binding = [row for row in limit["constraints"] if row[3]]
     assert len(binding) == 1 and binding[0][0] == "По платёжеспособности (DSCR ≥ 1,3)"
@@ -248,7 +251,7 @@ def test_scoring_summary_and_limit_constraints():
         collateral_value=None,
         decided_limit=Decimal("1000000"),
     )
-    assert stale["recomputed"] == "Пересчёт по текущей версии политики даёт 9 230 000 ₽"
+    assert stale["recomputed"] == "Пересчёт по текущей версии политики даёт 9\u00a0230\u00a0000\u00a0₽"
 
 
 def test_authority_check_explains_limits_and_violations():
@@ -261,8 +264,8 @@ def test_authority_check_explains_limits_and_violations():
         min_rate=Decimal("20.5"),
         comment="Стабильные поступления",
     )
-    assert ok[0] == "Расчётный лимит 5 650 000 ₽, сумма выше лимита на 6,2 % — с обоснованием"
-    assert ok[1] == "Минимальная ставка по классу риска 20,5 %, в решении 20,5 %"
+    assert ok[0] == "Расчётный лимит 5\u00a0650\u00a0000\u00a0₽, сумма выше лимита на 6,2\u00a0% — с обоснованием"
+    assert ok[1] == "Минимальная ставка по классу риска 20,5\u00a0%, в решении 20,5\u00a0%"
     assert ok[-1] == "Нарушений полномочий нет"
 
     bad = j.authority_lines(
@@ -275,7 +278,7 @@ def test_authority_check_explains_limits_and_violations():
         comment=None,
     )
     assert bad[-1].startswith("Нарушения: Ставка не может быть ниже расчётной")
-    assert "больше чем на 20%" in bad[-1]
+    assert "больше чем на 20\u00a0%" in bad[-1]
 
     no_limit = j.authority_lines(
         P["GROWTH"],
@@ -286,11 +289,11 @@ def test_authority_check_explains_limits_and_violations():
         min_rate=None,
         comment=None,
     )
-    assert no_limit[0] == "Расчётный лимит не определён" and no_limit[1] == "Ставка в решении 19 %"
+    assert no_limit[0] == "Расчётный лимит не определён" and no_limit[1] == "Ставка в решении 19\u00a0%"
 
 
 def test_formatting_helpers():
-    assert j.percent(Decimal("20.50")) == "20,5 %"
+    assert j.percent(Decimal("20.50")) == "20,5\u00a0%"
     assert j.percent(None) == "—"
     assert j.day("2026-10-24T11:00:00Z") == "24.10.2026"
     assert j.day(None) == "—"

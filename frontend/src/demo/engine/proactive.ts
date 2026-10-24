@@ -89,7 +89,7 @@ export function proactiveFacts(f: Features): string[] {
         facts.push(`Выручка по отчётности — ${rub(f.revenue)} в год`);
         if (f.revenue_growth !== null && Math.abs(f.revenue_growth) >= 0.05) {
             const change = f.revenue_growth > 0 ? 'выросла' : 'снизилась';
-            facts.push(`Выручка ${change} на ${Math.round(Math.abs(f.revenue_growth) * 100)} % за год`);
+            facts.push(`Выручка ${change} на ${Math.round(Math.abs(f.revenue_growth) * 100)}\u00a0% за год`);
         }
     }
     if (f.is_bank_client && f.avg_monthly_inflow !== null && f.inflow_months >= 3) {

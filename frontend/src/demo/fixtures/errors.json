@@ -1,7 +1,7 @@
 {
   "answer_empty": {"status":422,"detail":"Добавьте ответ или приложите документ"},
   "decision_over_limit_no_comment": {"status":422,"detail":"Сумма выше расчётного лимита — добавьте комментарий с обоснованием"},
-  "decision_over_tolerance": {"status":422,"detail":"Сумма превышает расчётный лимит 5 650 000 ₽ больше чем на 20%"},
+  "decision_over_tolerance": {"status":422,"detail":"Сумма превышает расчётный лимит 5 650 000 ₽ больше чем на 20 %"},
   "reject_without_comment": {"status":422,"detail":"Добавьте комментарий к отказу"},
   "reject_without_reason": {"status":422,"detail":"Укажите причину отказа"},
   "decline_draft": {"status":409,"detail":"Действие недоступно: заявка в статусе «Черновик»"},

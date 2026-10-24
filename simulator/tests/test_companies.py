@@ -1,5 +1,6 @@
 """Конструктор персон: созданная компания видна во всех источниках, данные детерминированы и переживают перезапуск."""
 
+import json
 from pathlib import Path
 
 from fastapi.testclient import TestClient
@@ -8,6 +9,12 @@ from sim.companies import INFLOW_PATTERN, CompanySpec, CompanyStore, build_perso
 from sim.main import app
 
 client = TestClient(app)
+
+# Встроенные персоны: с их ИНН и ОГРН созданные компании совпадать не должны
+BUILTIN = json.loads((Path(__file__).parents[1] / "sim" / "data" / "companies.json").read_text(encoding="utf-8"))[
+    "companies"
+]
+BUILTIN_OGRNS = {persona["egrul"]["ogrn"] for persona in BUILTIN.values()}
 
 STABLE = {
     "name": "Полярная звезда",
@@ -54,12 +61,24 @@ def is_valid_ogrn(ogrn: str) -> bool:
 
 
 def test_generated_identifiers_have_valid_check_digits():
-    for serial in range(1, 60):
+    for serial in [*range(1, 60), 99_999]:
         for legal_form in ("OOO", "IP"):
             assert is_valid_inn(make_inn(serial, legal_form)), (serial, legal_form)
             assert is_valid_ogrn(make_ogrn(serial, legal_form)), (serial, legal_form)
     assert len(make_inn(1, "OOO")) == 10 and len(make_inn(1, "IP")) == 12
+    assert len(make_ogrn(1, "OOO")) == len(make_ogrn(99_999, "OOO")) == 13
+    assert len(make_ogrn(1, "IP")) == len(make_ogrn(999_999, "IP")) == 15
+
+
+def test_generated_identifiers_do_not_overlap_builtin_companies():
+    """ИНН и ОГРН созданных компаний не совпадают со встроенными: у первой созданной ООО ОГРН был таким же,
+    как у «Северного ветра» (1007700000010)."""
     assert make_inn(1, "OOO").startswith("0020"), "у созданных компаний свой префикс, отличный от companies.json"
+    for serial in [*range(1, 2000), 99_999]:
+        for legal_form in ("OOO", "IP"):
+            assert make_inn(serial, legal_form) not in BUILTIN, (serial, legal_form)
+            assert make_ogrn(serial, legal_form) not in BUILTIN_OGRNS, (serial, legal_form)
+    assert make_ogrn(1, "OOO") != BUILTIN["0010000017"]["egrul"]["ogrn"]
 
 
 def test_created_company_is_visible_in_all_sources():
@@ -72,7 +91,7 @@ def test_created_company_is_visible_in_all_sources():
 
     egrul = client.get(f"/egrul/{inn}").json()
     assert egrul["legal_form"] == "OOO" and egrul["status"] == "ACTIVE" and egrul["okved"] == "46.39"
-    assert is_valid_ogrn(egrul["ogrn"])
+    assert is_valid_ogrn(egrul["ogrn"]) and egrul["ogrn"] not in BUILTIN_OGRNS
     assert egrul["registration_date"] == egrul["director"]["since"]
 
     fns = client.get(f"/fns/{inn}").json()
@@ -143,11 +162,12 @@ def test_young_company_has_short_history_and_stop_factor_data():
 
 def test_same_description_gives_same_data():
     spec = CompanySpec(**STABLE)
-    first = build_persona(spec, "0020000011", "1007700000011", "2026-10-24T00:00:00+00:00")
-    second = build_persona(spec, "0020000011", "1007700000011", "2026-10-24T00:00:00+00:00")
+    inn, ogrn = make_inn(1, "OOO"), make_ogrn(1, "OOO")
+    first = build_persona(spec, inn, ogrn, "2026-10-24T00:00:00+00:00")
+    second = build_persona(spec, inn, ogrn, "2026-10-24T00:00:00+00:00")
     assert first == second
     assert sum(first["bank"]["inflow_pattern"]) == sum(INFLOW_PATTERN)
-    other = build_persona(CompanySpec(**{**STABLE, "name": "Белые ночи"}), "0020000011", "1007700000011", "")
+    other = build_persona(CompanySpec(**{**STABLE, "name": "Белые ночи"}), inn, ogrn, "")
     assert other["egrul"]["address"] != first["egrul"]["address"]
 
 

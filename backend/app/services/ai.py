@@ -52,6 +52,7 @@ PURPOSE_KEYWORDS: dict[str, tuple[str, ...]] = {
     ),
     Purpose.EXPANSION: (
         "расшир",
+        "развит",
         "откры",
         "точк",
         "филиал",

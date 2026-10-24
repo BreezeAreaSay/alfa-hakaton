@@ -8,7 +8,7 @@ import statistics
 import uuid
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
-from datetime import date, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
 
 from sqlalchemy import select
@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session
 
 from app.domain.enums import AppStatus, DecisionKind, InfoOrigin, InfoStatus, OfferKind, OfferStatus, Outcome, Role
 from app.domain.policy import REASONS
+from app.domain.text import MSK
 from app.models import Application, Decision, InfoRequest, Loan, Offer, Product, StatusHistory, User
 from app.schemas import (
     AnalystMetrics,
@@ -59,6 +60,13 @@ def share(part: int, whole: int) -> float | None:
 def hours(seconds: list[float]) -> float | None:
     value = median(seconds)
     return round(value / 3600, 1) if value is not None else None
+
+
+def moscow_date(moment: datetime) -> date:
+    """День по московскому времени; метка без часового пояса считается UTC, как в базе."""
+    if moment.tzinfo is None:
+        moment = moment.replace(tzinfo=UTC)
+    return moment.astimezone(MSK).date()
 
 
 @dataclass
@@ -220,19 +228,21 @@ def compute(data: MetricsInput) -> BankMetrics:
             )
         )
 
+    # Динамика по дням — по московской дате: с 00:00 до 03:00 МСК в UTC ещё вчера, и сегодняшние заявки
+    # попали бы во вчерашний столбец
     daily: dict[date, DailyMetrics] = {}
-    start = (data.now - timedelta(days=data.days - 1)).date()
+    start = moscow_date(data.now) - timedelta(days=data.days - 1)
     for offset in range(data.days):
         day = start + timedelta(days=offset)
         daily[day] = DailyMetrics(date=day)
     for a in data.applications:
-        if a.submitted_at and a.submitted_at.date() in daily:
-            daily[a.submitted_at.date()].submitted += 1
-        if a.status == AppStatus.ISSUED and a.closed_at and a.closed_at.date() in daily:
-            daily[a.closed_at.date()].issued += 1
+        if a.submitted_at and moscow_date(a.submitted_at) in daily:
+            daily[moscow_date(a.submitted_at)].submitted += 1
+        if a.status == AppStatus.ISSUED and a.closed_at and moscow_date(a.closed_at) in daily:
+            daily[moscow_date(a.closed_at)].issued += 1
     for d in first_final.values():
-        if d.created_at.date() in daily:
-            daily[d.created_at.date()].decided += 1
+        if moscow_date(d.created_at) in daily:
+            daily[moscow_date(d.created_at)].decided += 1
 
     return BankMetrics(
         period_days=data.days,

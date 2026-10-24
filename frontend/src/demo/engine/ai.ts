@@ -45,6 +45,7 @@ const PURPOSE_KEYWORDS: [Purpose, string[]][] = [
         'EXPANSION',
         [
             'расшир',
+            'развит',
             'откры',
             'точк',
             'филиал',

@@ -31,6 +31,13 @@ export const CHEAPER_WHY: Record<string, string> = meta.cheaper_why;
 export const FACTOR_ADVICE: Record<string, string> = meta.factor_advice;
 export const KEY_RATE: number = meta.key_rate;
 
+// Совет по оценке риска (S05, R01) — из факторов скоринга заявки, как RISK_ADVICE в policy.py; общий текст из ADVICE
+// остаётся, только если отрицательных факторов нет. При стоп-факторах S01–S04 этого совета нет.
+const RISK_ADVICE_CODES = new Set(['S05', 'R01']);
+const riskAdvice = (causes: string[]): string =>
+    `Оценка станет выше, когда ${causes.join(' и ')}. Начать можно с небольшой суммы через несколько месяцев`;
+const BLOCKING_STOP_FACTORS = new Set(['S01', 'S02', 'S03', 'S04']);
+
 export const STATEMENT_REQUEST_ITEM = {
     code: 'BANK_STATEMENT',
     title: 'Выписка по расчётному счёту за последние 12 месяцев',
@@ -369,10 +376,6 @@ export function decide(
     return d;
 }
 
-/** Ставка в тексте ошибки — как Decimal на сервере: базовая ставка из каталога с двумя знаками. */
-const rateText = (rate: number): string => rate.toFixed(2);
-
-/** Проверка решения аналитика по границам полномочий. Возвращает список нарушений. */
 /** Проценты и процентные пункты по-русски: 1,5 / 0 / 5 — как `pp` в policy.py. */
 export const pp = (value: number): string => String(value).replace('.', ',');
 
@@ -422,6 +425,19 @@ const fitsPurpose = (code: string, purpose: string | null): boolean => {
     return !purpose || !purposes.length || purposes.includes(purpose);
 };
 
+/**
+ * Что улучшит оценку: продолжения фраз из FACTOR_ADVICE для факторов скоринга с наибольшим отрицательным вкладом
+ * (factor_causes в policy.py). Отраслевой риск совета не получает — отрасль клиент не меняет.
+ */
+export function factorCauses(factors: Pick<Factor, 'code' | 'points'>[], limit = 2): string[] {
+    return factors
+        .filter((x) => x.points < 0)
+        .sort((a, b) => a.points - b.points)
+        .filter((x) => x.code in FACTOR_ADVICE)
+        .map((x) => FACTOR_ADVICE[x.code])
+        .slice(0, limit);
+}
+
 /** Как получить ставку ниже: более дешёвые продукты под ту же цель, доступные компании, и что снизит надбавку. */
 export function rateHints(
     product: ProductTerms,
@@ -447,7 +463,7 @@ export function rateHints(
         });
         if (issues.length) continue;
         const why = CHEAPER_WHY[other.code] ?? 'ставка ниже за счёт условий продукта';
-        let text = `${other.name} — ${pp(otherRate)} %: ${why}`;
+        let text = `${other.name} — ${pp(otherRate)}\u00a0%: ${why}`;
         let saving: number | null = null;
         if (f.term_months && f.term_months > other.max_term) {
             text += ` (срок до ${monthsText(other.max_term)})`;
@@ -472,14 +488,10 @@ export function rateHints(
         });
     }
     if (riskMargin > 0) {
-        const negative = factors.filter((x) => x.points < 0).sort((a, b) => a.points - b.points);
-        const causes = negative
-            .filter((x) => x.code in FACTOR_ADVICE)
-            .map((x) => FACTOR_ADVICE[x.code])
-            .slice(0, 2);
+        const causes = factorCauses(factors);
         const text = causes.length
-            ? `Надбавка за риск ${pp(riskMargin)} п.п. станет ниже, когда ${causes.join(' и ')}`
-            : `Надбавка за риск ${pp(riskMargin)} п.п. снижается по мере роста срока работы бизнеса и накопления кредитной истории без просрочек`;
+            ? `Надбавка за риск ${pp(riskMargin)}\u00a0п.п. станет ниже, когда ${causes.join(' и ')}`
+            : `Надбавка за риск ${pp(riskMargin)}\u00a0п.п. снижается по мере роста срока работы бизнеса и накопления кредитной истории без просрочек`;
         hints.push({ kind: 'risk', text, product_code: null, product_name: null, rate: null, saving: null });
     }
     return hints;
@@ -516,16 +528,30 @@ export function declineAlternatives(
     return result.slice(0, 2);
 }
 
-/** Что поможет после отказа: по одному совету на код, без повторов. */
-export function nextSteps(stopFactors: string[], reasonCodes: string[]): string[] {
+/**
+ * Что поможет после отказа: по одному совету на код, без повторов. Совет по оценке риска (S05, R01) — по
+ * отрицательным факторам скоринга заявки, общий текст — если их нет; при стоп-факторах S01–S04 его нет.
+ */
+export function nextSteps(
+    stopFactors: string[],
+    reasonCodes: string[],
+    factors: Pick<Factor, 'code' | 'points'>[] = [],
+): string[] {
+    const blocked = stopFactors.some((code) => BLOCKING_STOP_FACTORS.has(code));
+    const causes = factorCauses(factors);
     const result: string[] = [];
     for (const code of [...stopFactors, ...reasonCodes]) {
-        const text = ADVICE[code];
+        let text: string | undefined = ADVICE[code];
+        if (RISK_ADVICE_CODES.has(code)) {
+            if (blocked) continue;
+            if (causes.length) text = riskAdvice(causes);
+        }
         if (text && !result.includes(text)) result.push(text);
     }
     return result;
 }
 
+/** Проверка решения аналитика по границам полномочий. Возвращает список нарушений. */
 export function checkAnalystTerms(
     product: ProductTerms,
     {
@@ -552,10 +578,10 @@ export function checkAnalystTerms(
         errors.push(`Срок должен быть от ${product.min_term} до ${product.max_term} мес.`);
     }
     if (min_rate !== null && rate < min_rate)
-        errors.push(`Ставка не может быть ниже расчётной: ${rateText(min_rate)}%`);
+        errors.push(`Ставка не может быть ниже расчётной: ${pp(min_rate)}\u00a0%`);
     if (limit !== null) {
         if (amount > limit * ANALYST_LIMIT_TOLERANCE) {
-            errors.push(`Сумма превышает расчётный лимит ${rub(limit)} больше чем на 20%`);
+            errors.push(`Сумма превышает расчётный лимит ${rub(limit)} больше чем на 20\u00a0%`);
         } else if (amount > limit && !(comment && comment.trim())) {
             errors.push('Сумма выше расчётного лимита — добавьте комментарий с обоснованием');
         }

@@ -158,7 +158,9 @@ def test_liquidating_company_rejected_by_stop_factor():
     application = apply(client, "GROWTH", 2_000_000, 24)
     assert application["status"] == "REJECTED"
     assert "ликвидации" in application["explanation"]["rejection"][0]
-    assert "после завершения ликвидации" in application["explanation"]["next_steps"][0]
+    # Совет только по стоп-фактору: общий совет по оценке риска (класс E) к нему не добавляется
+    [advice] = application["explanation"]["next_steps"]
+    assert "после завершения ликвидации" in advice
 
 
 def test_current_overdue_rejected():
@@ -166,6 +168,8 @@ def test_current_overdue_rejected():
     application = apply(client, "GROWTH", 2_000_000, 24)
     assert application["status"] == "REJECTED"
     assert "просроченный долг" in application["explanation"]["rejection"][0]
+    [advice] = application["explanation"]["next_steps"]
+    assert advice.startswith("Погасите просроченный долг")
 
 
 def test_manual_review_info_request_and_counter_offer():
@@ -230,7 +234,12 @@ def test_young_business_goes_to_analyst_and_is_rejected():
         f"/api/bank/applications/{application['id']}/decision",
         json={"action": "REJECT", "reason_code": "R01", "comment": "Недостаточная история бизнеса"},
     )
-    assert client.get(f"/api/applications/{application['id']}")["status"] == "REJECTED"
+    rejected = client.get(f"/api/applications/{application['id']}")
+    assert rejected["status"] == "REJECTED"
+    # Совет — по факторам скоринга заявки: просрочек и налогового долга у молодого бизнеса нет
+    assert rejected["explanation"]["next_steps"] == [
+        "Оценка станет выше, когда бизнес проработает дольше. Начать можно с небольшой суммы через несколько месяцев"
+    ]
 
 
 def review_loads(analyst: Client, names: dict[str, str]) -> dict[str, int]:
@@ -261,7 +270,7 @@ def test_manual_review_is_assigned_automatically_with_priority_and_can_be_taken_
     row = next(r for r in rows if r["id"] == app_id)
     assert row["assignee_name"] == names[expected]
     assert row["priority"] == "MEDIUM"
-    assert row["priority_reasons"] == ["Сумма от 10 млн ₽", "Флаги F01, F02 требуют проверки"]
+    assert row["priority_reasons"] == ["Сумма от 10\u00a0млн\u00a0₽", "Флаги F01, F02 требуют проверки"]
     # Сверху высокий приоритет, внутри приоритета — ближайший срок рассмотрения
     rank = {"HIGH": 0, "MEDIUM": 1, "NORMAL": 2}
     order = [(rank[r["priority"]], datetime.fromisoformat(r["sla_due_at"])) for r in rows]

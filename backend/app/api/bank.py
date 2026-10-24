@@ -39,6 +39,7 @@ from app.domain.policy import (
 )
 from app.domain.review import PRIORITY_RANK, review_priority
 from app.domain.scoring import score
+from app.domain.text import MSK
 from app.models import Application, AuditLog, Company, Decision, InfoRequest, Job, Offer, PipelineStep, Product, User
 from app.pipeline.steps import collect_inputs, run_results, save_decision
 from app.schemas import (
@@ -103,7 +104,8 @@ def summary(user: User = Depends(bank_staff), db: Session = Depends(get_db)) -> 
         .join(Application, Application.id == PipelineStep.application_id)
         .where(PipelineStep.status == StepStatus.WAITING, Application.status == AppStatus.IN_PROCESSING)
     )
-    midnight = now().replace(hour=0, minute=0, second=0, microsecond=0)
+    # «Выдано сегодня» — с полуночи по Москве, как день в показателях конвейера
+    midnight = now().astimezone(MSK).replace(hour=0, minute=0, second=0, microsecond=0)
     return BankSummary(
         manual_review=count(Application.status == AppStatus.MANUAL_REVIEW),
         mine=count(Application.status == AppStatus.MANUAL_REVIEW, Application.assignee_id == user.id),

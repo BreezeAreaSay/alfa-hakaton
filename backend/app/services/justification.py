@@ -6,7 +6,7 @@
 """
 
 import io
-from datetime import UTC, date, datetime, timedelta, timezone
+from datetime import UTC, date, datetime
 from decimal import Decimal
 from typing import Any
 from xml.sax.saxutils import escape
@@ -35,14 +35,11 @@ from app.domain.policy import (
     pp,
 )
 from app.domain.scoring import BASE_SCORE, SCORING_VERSION, margin_for_class
-from app.domain.text import months_text, rub
+from app.domain.text import MSK, months_text, rub
 from app.models import Application, Decision, Document, InfoRequest, Loan, Offer, Signature, StatusHistory, User
 from app.pipeline.steps import latest_statement, run_results
 from app.services.documents import _fonts, _styles, _table
 from app.services.views import latest_scoring
-
-# Время в документе — московское: стенд хранит метки в UTC, а читает документ сотрудник банка
-MSK = timezone(timedelta(hours=3), "МСК")
 
 # Источники в порядке конвейера; скоринг и решение описаны отдельными разделами
 SOURCE_STEPS: tuple[StepCode, ...] = (
@@ -74,9 +71,9 @@ OUTCOME_LABELS: dict[str, str] = {
 CONSTRAINT_LABELS: dict[str, str] = {
     "PRODUCT_MAX": "Максимум продукта",
     "REVENUE": "По выручке",
-    "COLLATERAL": "По залогу (80% стоимости)",
+    "COLLATERAL": "По залогу (80\u00a0% стоимости)",
     "DSCR": "По платёжеспособности (DSCR ≥ 1,3)",
-    "OVERDRAFT": "40% поступлений на счёт",
+    "OVERDRAFT": "40\u00a0% поступлений на счёт",
 }
 
 OFFER_STATUS: dict[str, str] = {
@@ -130,6 +127,7 @@ Facts = list[list[str]]
 
 
 def when(value: datetime | None) -> str:
+    """Время в документе — московское: стенд хранит метки в UTC, а читает документ сотрудник банка."""
     if value is None:
         return "—"
     if value.tzinfo is None:
@@ -151,10 +149,10 @@ def day(value: Any) -> str:
 
 
 def percent(value: Decimal | float | int | None) -> str:
-    """Ставка или доля в процентах по-русски: «20,5 %»."""
+    """Ставка или доля в процентах по-русски: «20,5 %», перед «%» — неразрывный пробел."""
     if value is None:
         return "—"
-    return f"{pp(Decimal(str(value)))} %"
+    return f"{pp(Decimal(str(value)))}\u00a0%"
 
 
 def signed(points: int) -> str:
@@ -377,7 +375,9 @@ def scoring_content(
         "score": score,
         "risk_class": risk_class,
         "pd": percent(pd),
-        "margin": f"+{pp(margin)} п.п. к базовой ставке продукта" if margin is not None else "ставка не назначается",
+        "margin": (
+            f"+{pp(margin)}\u00a0п.п. к базовой ставке продукта" if margin is not None else "ставка не назначается"
+        ),
         "total": f"базовый балл {BASE_SCORE} {'+' if total >= 0 else '−'} {abs(total)} по факторам = {score}",
         "factors": [
             [
@@ -444,7 +444,7 @@ def authority_lines(
     elif amount > limit:
         over = (amount - limit) / limit * 100
         lines.append(
-            f"Расчётный лимит {rub(limit)}, сумма выше лимита на {pp(Decimal(round(over, 1)))} % — с обоснованием"
+            f"Расчётный лимит {rub(limit)}, сумма выше лимита на {pp(Decimal(round(over, 1)))}\u00a0% — с обоснованием"
         )
     else:
         lines.append(f"Расчётный лимит {rub(limit)}, сумма в пределах лимита")

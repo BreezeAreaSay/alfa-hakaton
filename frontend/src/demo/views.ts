@@ -31,7 +31,7 @@ import type {
 } from '../api/types';
 import { META, USERS, companyProfile, sourceSnapshot, userName } from './data';
 import { PRODUCTS, productRow, productTerms } from './engine/catalog';
-import { todayUtc } from './engine/dates';
+import { moscowDate, moscowMidnight, todayUtc } from './engine/dates';
 import { type Features, buildFeatures } from './engine/features';
 import { paymentSchedule } from './engine/finance';
 import {
@@ -228,7 +228,7 @@ export function explanation(state: DemoState, app: AppRow, offer: OfferRow | nul
             }
             if (!out.rejection.length) out.rejection = [STOP_FACTORS.S05];
             out.advice = out.negative;
-            out.next_steps = nextSteps(decision.stop_factors, decision.reason_codes);
+            out.next_steps = nextSteps(decision.stop_factors, decision.reason_codes, scoring?.factors ?? []);
             const codes = decision.reason_codes;
             if (
                 scoring &&
@@ -470,7 +470,8 @@ export function queueItems(
 export function bankSummary(state: DemoState, viewer: DemoUser, now: number): BankSummary {
     const apps = state.applications;
     const count = (test: (a: AppRow) => boolean) => apps.filter(test).length;
-    const midnight = Date.parse(`${todayUtc(now)}T00:00:00Z`);
+    // «Выдано сегодня» — с полуночи по Москве, как день в показателях конвейера
+    const midnight = moscowMidnight(now);
     return {
         manual_review: count((a) => a.status === 'MANUAL_REVIEW'),
         mine: count((a) => a.status === 'MANUAL_REVIEW' && a.assignee_id === viewer.id),
@@ -757,7 +758,6 @@ const hoursOf = (seconds: number[]): number | null => {
     return value === null ? null : Math.round(value / 360) / 10;
 };
 const seconds = (later: string, earlier: string): number => (Date.parse(later) - Date.parse(earlier)) / 1000;
-const dayOf = (iso: string): string => iso.slice(0, 10);
 // Decimal(0) сервер отдаёт как "0", суммы — с копейками
 const sumMoney = (total: number): string => (total === 0 ? '0' : money(total));
 
@@ -872,21 +872,22 @@ export function bankMetrics(state: DemoState, now: number, days: number): BankMe
             };
         });
 
+    // Динамика по дням — по московской дате, как на сервере: с 00:00 до 03:00 МСК в UTC ещё вчера
     const daily = new Map<string, DailyMetrics>();
     for (let offset = days - 1; offset >= 0; offset -= 1) {
-        const day = dayOf(iso(now - offset * DAY_MS));
+        const day = moscowDate(now - offset * DAY_MS);
         daily.set(day, { date: day, submitted: 0, decided: 0, issued: 0 });
     }
     for (const a of apps) {
-        const submitted = daily.get(dayOf(a.submitted_at!));
+        const submitted = daily.get(moscowDate(a.submitted_at!));
         if (submitted) submitted.submitted += 1;
         if (a.status === 'ISSUED' && a.closed_at) {
-            const row = daily.get(dayOf(a.closed_at));
+            const row = daily.get(moscowDate(a.closed_at));
             if (row) row.issued += 1;
         }
     }
     for (const d of firstFinal.values()) {
-        const row = daily.get(dayOf(d.created_at));
+        const row = daily.get(moscowDate(d.created_at));
         if (row) row.decided += 1;
     }
 

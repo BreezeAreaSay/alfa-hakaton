@@ -37,7 +37,7 @@ def test_less_than_four_hours_left_is_high():
 
 
 def test_large_amount_is_medium():
-    assert priority(amount="10000000") == (Priority.MEDIUM, ["Сумма от 10 млн ₽"])
+    assert priority(amount="10000000") == (Priority.MEDIUM, ["Сумма от 10\u00a0млн\u00a0₽"])
     assert priority(amount="9999999.99") == (Priority.NORMAL, [])
 
 
@@ -62,7 +62,7 @@ def test_waiting_for_source_is_normal_whatever_else():
 def test_high_priority_lists_every_reason_deadline_first():
     assert priority(left=timedelta(hours=1), amount="12000000", flags=["F01", "F02"]) == (
         Priority.HIGH,
-        ["До конца срока меньше 4 часов", "Сумма от 10 млн ₽", "Флаги F01, F02 требуют проверки"],
+        ["До конца срока меньше 4 часов", "Сумма от 10\u00a0млн\u00a0₽", "Флаги F01, F02 требуют проверки"],
     )
 
 
@@ -73,7 +73,7 @@ def test_policy_flags_of_company_with_mass_address_and_tax_debt():
     assert flags == ["F01", "F02"]
     assert priority(amount="12000000", flags=flags) == (
         Priority.MEDIUM,
-        ["Сумма от 10 млн ₽", "Флаги F01, F02 требуют проверки"],
+        ["Сумма от 10\u00a0млн\u00a0₽", "Флаги F01, F02 требуют проверки"],
     )
 
 

@@ -1,4 +1,5 @@
-// Даты без времени ('YYYY-MM-DD') по UTC — как date на сервере и в симуляторе внешних систем.
+// Даты без времени ('YYYY-MM-DD') по UTC — как date на сервере и в симуляторе внешних систем. День по Москве
+// (moscowDate) — для показателей банка по дням и «выдано сегодня», как MSK на сервере.
 
 export interface Ymd {
     y: number;
@@ -16,6 +17,16 @@ const pad = (n: number, width = 2) => String(n).padStart(width, '0');
 export const formatDate = ({ y, m, d }: Ymd): string => `${pad(y, 4)}-${pad(m)}-${pad(d)}`;
 
 export const todayUtc = (now: number = Date.now()): string => new Date(now).toISOString().slice(0, 10);
+
+/** Москва — UTC+3 без перехода на летнее время, как MSK в backend/app/domain/text.py. */
+const MSK_OFFSET_MS = 3 * 3_600_000;
+
+/** День по московскому времени для метки времени (ISO-строка или миллисекунды) — .astimezone(MSK).date(). */
+export const moscowDate = (moment: string | number): string =>
+    new Date((typeof moment === 'number' ? moment : Date.parse(moment)) + MSK_OFFSET_MS).toISOString().slice(0, 10);
+
+/** Полночь по Москве того дня, в который попадает момент now, — в миллисекундах. */
+export const moscowMidnight = (now: number): number => Date.parse(`${moscowDate(now)}T00:00:00+03:00`);
 
 export const daysInMonth = (y: number, m: number): number => new Date(Date.UTC(y, m, 0)).getUTCDate();
 
