@@ -1,4 +1,3 @@
-import { ButtonDesktop } from '@alfalab/core-components/button/desktop';
 import { Typography } from '@alfalab/core-components/typography';
 import { CheckmarkCircleMIcon } from '@alfalab/icons-glyph/CheckmarkCircleMIcon';
 import { ChevronDownMIcon } from '@alfalab/icons-glyph/ChevronDownMIcon';
@@ -126,7 +125,7 @@ function decision(product: Product): string {
  * Страница «Продукты»: что есть у банка и что подходит под задачу. Открыта гостю и клиенту. Вошедшему клиенту
  * недоступные продукты помечены причиной — по тем же правилам, что в подборе.
  */
-export function ProductsPage({ onCalculate }: { onCalculate: (path: string) => void }) {
+export function ProductsPage() {
     const { user } = useAuth();
     const isClient = user?.role === 'CLIENT';
     const { data: products } = useProducts();
@@ -154,21 +153,6 @@ export function ProductsPage({ onCalculate }: { onCalculate: (path: string) => v
               ).map((issue) => issue.text)
             : [];
     const available = products?.filter((product) => issuesFor(product).length === 0).length ?? 0;
-
-    // В подбор — с целью, под которую продукт подходит, и с суммой и сроком в его пределах
-    const calculate = (product: Product) => {
-        const purpose =
-            (selected?.purpose && PURPOSE_PRODUCTS[selected.purpose].includes(product.code)
-                ? selected.purpose
-                : null) ??
-            (Object.keys(PURPOSE_PRODUCTS) as Purpose[]).find((code) =>
-                PURPOSE_PRODUCTS[code].includes(product.code),
-            ) ??
-            'WORKING_CAPITAL';
-        const amount = Math.min(Math.max(3_000_000, num(product.min_amount)), num(product.max_amount));
-        const term = Math.min(Math.max(24, product.min_term), product.max_term);
-        onCalculate(`/client/new?purpose=${purpose}&amount=${amount}&term=${term}`);
-    };
 
     return (
         <>
@@ -278,11 +262,6 @@ export function ProductsPage({ onCalculate }: { onCalculate: (path: string) => v
                                             </div>
                                         </details>
                                     )}
-                                    <div className='products-card__action'>
-                                        <ButtonDesktop view='secondary' size={40} onClick={() => calculate(product)}>
-                                            Рассчитать
-                                        </ButtonDesktop>
-                                    </div>
                                 </article>
                             );
                         })}

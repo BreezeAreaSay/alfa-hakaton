@@ -509,10 +509,6 @@
     color: var(--color-light-text-tertiary, #898991);
 }
 
-.products-card__action {
-    margin-top: auto;
-}
-
 /* Сравнение: сетка с линиями между всеми столбцами, серая шапка и чередование строк — чтобы глаз шёл по столбцу */
 .products-table {
     border-collapse: separate;

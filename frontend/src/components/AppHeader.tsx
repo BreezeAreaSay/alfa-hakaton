@@ -163,11 +163,12 @@ function NotificationsBell() {
 
     const base = user?.role === 'CLIENT' ? '/client/applications' : '/bank/applications';
     return (
-        <div className='bell' ref={ref}>
+        // Без новых уведомлений колокольчик серый, с новыми — красный и «звенит», чтобы захотелось проверить
+        <div className={`bell${data?.unread ? ' bell--unread' : ''}`} ref={ref}>
             <IconButton
                 icon={<BellMIcon aria-hidden={true} />}
                 colors='inverted'
-                aria-label='Уведомления'
+                aria-label={data?.unread ? `Уведомления, новых: ${data.unread}` : 'Уведомления'}
                 title='Уведомления'
                 onClick={toggle}
             />
