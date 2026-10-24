@@ -354,9 +354,14 @@
 
 /* ---------------------------------------------------------------- кому подойдёт кабинет */
 
+/*
+ * Строки трёх карточек выровнены между собой (subgrid): роль, цитата и каждый пункт с галкой стоят
+ * на одном уровне, даже если в соседней карточке текст переносится на две строки.
+ */
 .landing-audience__card {
-    align-content: start;
-    gap: var(--gap-16);
+    grid-row: span 5;
+    grid-template-rows: subgrid;
+    row-gap: var(--gap-16);
 }
 
 .landing-audience__quote {
@@ -366,8 +371,10 @@
 }
 
 .landing-audience__points {
+    grid-row: span 3;
     display: grid;
-    gap: var(--gap-8);
+    grid-template-rows: subgrid;
+    row-gap: var(--gap-8);
     margin: 0;
     padding: 0;
     list-style: none;
