@@ -374,15 +374,16 @@
     position: relative;
 }
 
-/* Знак роли: звезда, перо, график — крупно и полупрозрачно в правом верхнем углу, как водяной знак */
+/* Знак роли: витрина, ручка, график — крупно и полупрозрачно в правой половине карточки, часть под текстом */
 .landing-audience__mark {
     position: absolute;
-    top: var(--gap-16);
-    right: var(--gap-24);
-    width: 104px;
-    height: 104px;
+    top: 50%;
+    right: -12px;
+    width: 220px;
+    height: 220px;
+    transform: translateY(-50%);
     color: var(--color-light-text-primary);
-    opacity: 0.08;
+    opacity: 0.1;
     pointer-events: none;
 }
 
@@ -493,8 +494,8 @@
     }
 
     .landing-audience__mark {
-        width: 72px;
-        height: 72px;
+        width: 168px;
+        height: 168px;
     }
 
     .landing-faq .landing-faq__answer {
