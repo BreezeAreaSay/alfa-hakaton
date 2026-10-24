@@ -187,6 +187,101 @@ const PROMOS: { title: string; text: string; action: string; icon: Icon; tone: T
     },
 ];
 
+/** Роли из ТЗ (стр. 5): у каждой свой этап пути — решает, следит за заявкой, готовит данные. */
+const AUDIENCE: { title: string; who: string; quote: string; points: string[]; icon: Icon; tone: Tone }[] = [
+    {
+        title: 'Собственнику',
+        who: 'Владелец бизнеса или ИП',
+        quote: 'Хочу оформить кредит, не отвлекаясь от бизнеса',
+        points: [
+            'Продукт под задачу бизнеса, а не по названию',
+            'Платёж и переплата — ещё до заявки',
+            'Если банк не готов дать запрошенное — объяснит почему и предложит другие условия',
+        ],
+        icon: StarMIcon,
+        tone: 'orange',
+    },
+    {
+        title: 'Руководителю',
+        who: 'Генеральный директор или представитель по доверенности',
+        quote: 'Хочу видеть, что с заявкой, и не звонить в банк',
+        points: [
+            'Заявка онлайн — данные компании заполнятся сами',
+            'Каждый шаг проверки виден на экране',
+            'Подпись договора и выдача — без визита в банк',
+        ],
+        icon: PenNibMIcon,
+        tone: 'red',
+    },
+    {
+        title: 'Финансисту',
+        who: 'Финансовый директор, бухгалтер, сотрудник по финансированию',
+        quote: 'Не хочу собирать справки и вводить одно и то же по три раза',
+        points: [
+            'Реквизиты и отчётность подтянем из реестров',
+            'Запросы банка и документы — в одном месте',
+            'По выписке из 1С — прогноз кассового разрыва на три месяца',
+        ],
+        icon: ChartColumnThreeAscMIcon,
+        tone: 'violet',
+    },
+];
+
+const TERMS = ['ИП и ООО', 'Счёт в Альфа-Банке', 'Бизнесу от 3 месяцев'];
+
+/** Для кого кабинет: малый и микробизнес, роли из ТЗ и условия — те же, что в ответах на вопросы. */
+export function AudienceSection() {
+    return (
+        <section className='stack'>
+            <div className='stack-8'>
+                <Typography.Title tag='h2' view='medium' font='system' weight='bold'>
+                    Кому подойдёт кабинет
+                </Typography.Title>
+                <Typography.Text view='primary-medium' color='secondary' tag='p'>
+                    Малому и микробизнесу — ИП и компаниям, у которых уже есть счёт в Альфа-Банке
+                </Typography.Text>
+            </div>
+            <ul className='login__steps'>
+                {AUDIENCE.map((role) => (
+                    <li key={role.title} className='login__step landing-audience__card'>
+                        <Orb icon={role.icon} tone={role.tone} size={56} />
+                        <div>
+                            <Typography.Text view='primary-medium' weight='bold' tag='div'>
+                                {role.title}
+                            </Typography.Text>
+                            <Typography.Text view='primary-small' color='secondary' tag='div'>
+                                {role.who}
+                            </Typography.Text>
+                        </div>
+                        <q className='landing-audience__quote'>{role.quote}</q>
+                        <ul className='landing-audience__points'>
+                            {role.points.map((point) => (
+                                <li key={point}>
+                                    <CheckmarkCircleMIcon width={20} height={20} aria-hidden={true} />
+                                    <span>{point}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </li>
+                ))}
+            </ul>
+            <div className='stack-8'>
+                <ul className='landing-audience__terms'>
+                    {TERMS.map((term) => (
+                        <li key={term}>
+                            <CheckmarkCircleMIcon width={20} height={20} aria-hidden={true} />
+                            <span>{term}</span>
+                        </li>
+                    ))}
+                </ul>
+                <Typography.Text view='primary-small' color='secondary' tag='p'>
+                    Не подойдёт тем, кто только планирует открыть бизнес, и компаниям в ликвидации.
+                </Typography.Text>
+            </div>
+        </section>
+    );
+}
+
 /** Светлые баннеры о возможностях кабинета: всё перечисленное работает в прототипе. */
 export function PromoBanners({ onStart }: { onStart: () => void }) {
     return (
