@@ -76,6 +76,39 @@ jobs:
       - run: npm run format:check
       - run: npm run build
 
+  dependencies:
+    name: Аудит зависимостей — известные уязвимости
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: |
+            frontend/package-lock.json
+            e2e/package-lock.json
+      # Находки не останавливают сборку: новая публикация уязвимости не должна красить CI в день показа.
+      # Шаг помечается предупреждением, подробности — в его выводе.
+      - name: npm audit — зависимости интерфейса, попадающие в сборку
+        working-directory: frontend
+        continue-on-error: true
+        run: npm audit --omit=dev --audit-level=high
+      - name: npm audit — браузерные тесты
+        working-directory: e2e
+        continue-on-error: true
+        run: npm audit --audit-level=high
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - run: pip install uv==${{ env.UV_VERSION }}
+      - name: pip-audit — зависимости API, обработчика и симулятора
+        continue-on-error: true
+        run: |
+          uv export --project backend --no-dev --no-hashes --format requirements-txt -o backend-requirements.txt
+          uv export --project simulator --no-dev --no-hashes --format requirements-txt -o simulator-requirements.txt
+          uvx pip-audit -r backend-requirements.txt -r simulator-requirements.txt --progress-spinner off
+
   e2e-demo:
     name: Сквозные сценарии на демо-версии без сервера
     needs: [frontend]
