@@ -23,6 +23,9 @@ class Settings(BaseSettings):
     info_request_ttl_hours: int = 3 * 24
     review_sla_hours: int = 24
     source_wait_limit_minutes: int = 15
+    # Заявка на ручном рассмотрении сразу назначается наименее загруженному аналитику (docs/process.md,
+    # «Очередь аналитиков»); false — заявки ждут в общей очереди, пока аналитик не возьмёт их сам
+    auto_assign: bool = True
 
     # Внешние вызовы
     external_timeout_seconds: float = 3.0

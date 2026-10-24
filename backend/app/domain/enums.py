@@ -41,6 +41,14 @@ FINAL_STATUSES = frozenset(
 )
 
 
+class Priority(StrEnum):
+    """Приоритет заявки на ручном рассмотрении (domain/review.py)."""
+
+    HIGH = "HIGH"
+    MEDIUM = "MEDIUM"
+    NORMAL = "NORMAL"
+
+
 class Purpose(StrEnum):
     WORKING_CAPITAL = "WORKING_CAPITAL"
     CASH_GAP = "CASH_GAP"

@@ -285,7 +285,7 @@
         ],
         "rate": 20.5
       },
-      "assignee": null,
+      "assignee": "Иванова Ольга Дмитриевна",
       "audit": [
         {
           "action": "STATUS_CHANGED",
@@ -303,6 +303,7 @@
           "user": null,
           "details": {"to":"IN_PROCESSING","from":"SUBMITTED","reason":null}
         },
+        {"action":"ASSIGNED","actor":"SYSTEM","user":null,"details":{"to":"analyst","auto":true}},
         {
           "action": "STATUS_CHANGED",
           "actor": "CLIENT",
@@ -588,7 +589,7 @@
         ],
         "rate": 15.5
       },
-      "assignee": null,
+      "assignee": "Ковалёв Павел Игоревич",
       "audit": [
         {
           "action": "STATUS_CHANGED",
@@ -602,6 +603,7 @@
           "user": null,
           "details": {"to":"IN_PROCESSING","from":"SUBMITTED","reason":null}
         },
+        {"action":"ASSIGNED","actor":"SYSTEM","user":null,"details":{"to":"analyst2","auto":true}},
         {
           "action": "STATUS_CHANGED",
           "actor": "CLIENT",
@@ -1070,7 +1072,6 @@
           "user": "Иванова Ольга Дмитриевна",
           "details": {"to":"NEED_INFO","from":"MANUAL_REVIEW","reason":"Пояснение по налоговой задолженности"}
         },
-        {"action":"ASSIGNED","actor":"UNDERWRITER","user":"Иванова Ольга Дмитриевна","details":{}},
         {
           "action": "STATUS_CHANGED",
           "actor": "SYSTEM",
@@ -1087,6 +1088,7 @@
           "user": null,
           "details": {"to":"IN_PROCESSING","from":"SUBMITTED","reason":null}
         },
+        {"action":"ASSIGNED","actor":"SYSTEM","user":null,"details":{"to":"analyst","auto":true}},
         {
           "action": "STATUS_CHANGED",
           "actor": "CLIENT",
@@ -1383,7 +1385,12 @@
           "user": "Иванова Ольга Дмитриевна",
           "details": {"to":"OFFER","from":"MANUAL_REVIEW","reason":"Одобрено"}
         },
-        {"action":"ASSIGNED","actor":"UNDERWRITER","user":"Иванова Ольга Дмитриевна","details":{}},
+        {
+          "action": "ASSIGNED",
+          "actor": "UNDERWRITER",
+          "user": "Иванова Ольга Дмитриевна",
+          "details": {"to":"analyst","from":"analyst2"}
+        },
         {
           "action": "STATUS_CHANGED",
           "actor": "SYSTEM",
@@ -1396,6 +1403,7 @@
           "user": null,
           "details": {"to":"IN_PROCESSING","from":"SUBMITTED","reason":null}
         },
+        {"action":"ASSIGNED","actor":"SYSTEM","user":null,"details":{"to":"analyst2","auto":true}},
         {
           "action": "STATUS_CHANGED",
           "actor": "CLIENT",
@@ -1528,14 +1536,6 @@
     },
     "dossier": {
       "sources": {
-        "FNS": {"status":"DONE","error":null,"attempts":1},
-        "SCORING": {"status":"DONE","result":{"score":870,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
-        "POLICY": {
-          "status": "DONE",
-          "result": {"flags":[],"limit":9230000,"outcome":"APPROVE","version":"v1.0","stop_factors":[]},
-          "error": null,
-          "attempts": 1
-        },
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -1552,9 +1552,17 @@
           "attempts": 1
         },
         "EGRUL": {"status":"DONE","error":null,"attempts":1},
+        "FNS": {"status":"DONE","error":null,"attempts":1},
         "GIRBO": {"status":"DONE","error":null,"attempts":1},
         "BKI": {"status":"DONE","error":null,"attempts":1},
-        "BANK": {"status":"DONE","error":null,"attempts":1}
+        "BANK": {"status":"DONE","error":null,"attempts":1},
+        "SCORING": {"status":"DONE","result":{"score":870,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
+        "POLICY": {
+          "status": "DONE",
+          "result": {"flags":[],"limit":9230000,"outcome":"APPROVE","version":"v1.0","stop_factors":[]},
+          "error": null,
+          "attempts": 1
+        }
       },
       "scoring": {
         "score": 870,
@@ -1930,7 +1938,7 @@
           "source": "GENERATED",
           "file_name": "Кредитный договор 2026-00003.pdf",
           "content_type": "application/pdf",
-          "size": 53422,
+          "size": 53466,
           "parsed": null,
           "signed_by_client": false,
           "signed_by_bank": false
@@ -2057,7 +2065,7 @@
           "source": "GENERATED",
           "file_name": "Кредитный договор 2026-00003.pdf",
           "content_type": "application/pdf",
-          "size": 53422,
+          "size": 53466,
           "parsed": null,
           "signed_by_client": true,
           "signed_by_bank": true
@@ -2192,7 +2200,7 @@
           "source": "GENERATED",
           "file_name": "Кредитный договор 2026-00003.pdf",
           "content_type": "application/pdf",
-          "size": 53422,
+          "size": 53466,
           "parsed": null,
           "signed_by_client": true,
           "signed_by_bank": true
@@ -2349,7 +2357,7 @@
           "source": "GENERATED",
           "file_name": "Кредитный договор 2026-00003.pdf",
           "content_type": "application/pdf",
-          "size": 53422,
+          "size": 53466,
           "parsed": null,
           "signed_by_client": true,
           "signed_by_bank": true
@@ -2431,14 +2439,6 @@
     },
     "dossier_issued": {
       "sources": {
-        "FNS": {"status":"DONE","error":null,"attempts":1},
-        "SCORING": {"status":"DONE","result":{"score":870,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
-        "POLICY": {
-          "status": "DONE",
-          "result": {"flags":[],"limit":9230000,"outcome":"APPROVE","version":"v1.0","stop_factors":[]},
-          "error": null,
-          "attempts": 1
-        },
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -2455,9 +2455,17 @@
           "attempts": 1
         },
         "EGRUL": {"status":"DONE","error":null,"attempts":1},
+        "FNS": {"status":"DONE","error":null,"attempts":1},
         "GIRBO": {"status":"DONE","error":null,"attempts":1},
         "BKI": {"status":"DONE","error":null,"attempts":1},
-        "BANK": {"status":"DONE","error":null,"attempts":1}
+        "BANK": {"status":"DONE","error":null,"attempts":1},
+        "SCORING": {"status":"DONE","result":{"score":870,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
+        "POLICY": {
+          "status": "DONE",
+          "result": {"flags":[],"limit":9230000,"outcome":"APPROVE","version":"v1.0","stop_factors":[]},
+          "error": null,
+          "attempts": 1
+        }
       },
       "scoring": {"score":870,"risk_class":"A"},
       "auto_decision": {
@@ -2540,8 +2548,8 @@
           "actor": "CLIENT",
           "user": "Ветров Андрей Сергеевич",
           "details": {
-            "sha256": "b3139e1235e4dd5199b56616ff5b5c9233da8ba7f3b1fd6cc8746732eca8a9d1",
-            "document": "b5e6cee2-305d-46c5-a461-5fecb3585215"
+            "sha256": "db1f937b8e6b3ff07e43f414fc4f197b0969eccd2b8462645d80202d0c81392b",
+            "document": "07b3fa8e-8890-4ffc-9542-b9046c5df69f"
           }
         },
         {
@@ -3105,6 +3113,9 @@
     },
     "dossier": {
       "sources": {
+        "FNS": {"status":"DONE","error":null,"attempts":1},
+        "GIRBO": {"status":"DONE","error":null,"attempts":1},
+        "SCORING": {"status":"DONE","result":{"score":790,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -3121,17 +3132,14 @@
           "attempts": 1
         },
         "EGRUL": {"status":"DONE","error":null,"attempts":1},
-        "FNS": {"status":"DONE","error":null,"attempts":1},
-        "GIRBO": {"status":"DONE","error":null,"attempts":1},
-        "BKI": {"status":"DONE","error":null,"attempts":1},
         "BANK": {"status":"DONE","error":null,"attempts":1},
-        "SCORING": {"status":"DONE","result":{"score":790,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
         "POLICY": {
           "status": "DONE",
           "result": {"flags":[],"limit":3200000,"outcome":"COUNTER","version":"v1.0","stop_factors":[]},
           "error": null,
           "attempts": 1
-        }
+        },
+        "BKI": {"status":"DONE","error":null,"attempts":1}
       },
       "scoring": {
         "score": 790,
@@ -3541,6 +3549,10 @@
     },
     "dossier": {
       "sources": {
+        "EGRUL": {"status":"DONE","error":null,"attempts":1},
+        "GIRBO": {"status":"DONE","error":null,"attempts":1},
+        "BKI": {"status":"DONE","error":null,"attempts":1},
+        "BANK": {"status":"DONE","error":null,"attempts":1},
         "SCORING": {"status":"DONE","result":{"score":790,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
         "POLICY": {
           "status": "DONE",
@@ -3563,11 +3575,7 @@
           "error": null,
           "attempts": 1
         },
-        "EGRUL": {"status":"DONE","error":null,"attempts":1},
-        "FNS": {"status":"DONE","error":null,"attempts":1},
-        "GIRBO": {"status":"DONE","error":null,"attempts":1},
-        "BKI": {"status":"DONE","error":null,"attempts":1},
-        "BANK": {"status":"DONE","error":null,"attempts":1}
+        "FNS": {"status":"DONE","error":null,"attempts":1}
       },
       "scoring": {
         "score": 790,
@@ -3864,6 +3872,7 @@
           "error": null,
           "attempts": 1
         },
+        "EGRUL": {"status":"DONE","error":null,"attempts":1},
         "FNS": {"status":"DONE","error":null,"attempts":1},
         "GIRBO": {"status":"SKIPPED","error":null,"attempts":1},
         "BKI": {"status":"DONE","error":null,"attempts":1},
@@ -3874,8 +3883,7 @@
           "result": {"flags":[],"limit":null,"outcome":"NEED_INFO","version":"v1.0","stop_factors":[]},
           "error": null,
           "attempts": 1
-        },
-        "EGRUL": {"status":"DONE","error":null,"attempts":1}
+        }
       },
       "scoring": {
         "score": 690,
@@ -4428,6 +4436,7 @@
     },
     "dossier": {
       "sources": {
+        "FNS": {"status":"DONE","error":null,"attempts":1},
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -4444,7 +4453,6 @@
           "attempts": 1
         },
         "EGRUL": {"status":"DONE","error":null,"attempts":1},
-        "FNS": {"status":"DONE","error":null,"attempts":1},
         "GIRBO": {"status":"SKIPPED","error":null,"attempts":1},
         "BKI": {"status":"DONE","error":null,"attempts":1},
         "BANK": {"status":"DONE","error":null,"attempts":1},
@@ -4742,8 +4750,27 @@
       ],
       "loan": null
     },
+    "queue_item": {
+      "status": "MANUAL_REVIEW",
+      "flags": ["F03","F07"],
+      "priority": "MEDIUM",
+      "priority_reasons": ["Флаг F03 требует проверки"],
+      "assignee_name": "Иванова Ольга Дмитриевна",
+      "assignee_is_me": false
+    },
     "dossier": {
       "sources": {
+        "FNS": {"status":"DONE","error":null,"attempts":1},
+        "GIRBO": {"status":"SKIPPED","error":null,"attempts":1},
+        "BKI": {"status":"DONE","error":null,"attempts":1},
+        "BANK": {"status":"DONE","error":null,"attempts":1},
+        "SCORING": {"status":"DONE","result":{"score":630,"version":"v1.0","risk_class":"C"},"error":null,"attempts":1},
+        "POLICY": {
+          "status": "DONE",
+          "result": {"flags":["F03","F07"],"limit":1430000,"outcome":"MANUAL_REVIEW","version":"v1.0","stop_factors":[]},
+          "error": null,
+          "attempts": 1
+        },
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -4759,18 +4786,7 @@
           "error": null,
           "attempts": 1
         },
-        "EGRUL": {"status":"DONE","error":null,"attempts":1},
-        "FNS": {"status":"DONE","error":null,"attempts":1},
-        "GIRBO": {"status":"SKIPPED","error":null,"attempts":1},
-        "BKI": {"status":"DONE","error":null,"attempts":1},
-        "BANK": {"status":"DONE","error":null,"attempts":1},
-        "SCORING": {"status":"DONE","result":{"score":630,"version":"v1.0","risk_class":"C"},"error":null,"attempts":1},
-        "POLICY": {
-          "status": "DONE",
-          "result": {"flags":["F03","F07"],"limit":1430000,"outcome":"MANUAL_REVIEW","version":"v1.0","stop_factors":[]},
-          "error": null,
-          "attempts": 1
-        }
+        "EGRUL": {"status":"DONE","error":null,"attempts":1}
       },
       "scoring": {
         "score": 630,
@@ -4930,8 +4946,9 @@
         ],
         "rate": 26
       },
-      "assignee": null,
+      "assignee": "Иванова Ольга Дмитриевна",
       "audit": [
+        {"action":"ASSIGNED","actor":"SYSTEM","user":null,"details":{"to":"analyst","auto":true}},
         {
           "action": "STATUS_CHANGED",
           "actor": "SYSTEM",
@@ -5044,6 +5061,17 @@
     },
     "dossier_rejected": {
       "sources": {
+        "FNS": {"status":"DONE","error":null,"attempts":1},
+        "GIRBO": {"status":"SKIPPED","error":null,"attempts":1},
+        "BKI": {"status":"DONE","error":null,"attempts":1},
+        "BANK": {"status":"DONE","error":null,"attempts":1},
+        "SCORING": {"status":"DONE","result":{"score":630,"version":"v1.0","risk_class":"C"},"error":null,"attempts":1},
+        "POLICY": {
+          "status": "DONE",
+          "result": {"flags":["F03","F07"],"limit":1430000,"outcome":"MANUAL_REVIEW","version":"v1.0","stop_factors":[]},
+          "error": null,
+          "attempts": 1
+        },
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -5059,18 +5087,7 @@
           "error": null,
           "attempts": 1
         },
-        "EGRUL": {"status":"DONE","error":null,"attempts":1},
-        "FNS": {"status":"DONE","error":null,"attempts":1},
-        "GIRBO": {"status":"SKIPPED","error":null,"attempts":1},
-        "BKI": {"status":"DONE","error":null,"attempts":1},
-        "BANK": {"status":"DONE","error":null,"attempts":1},
-        "SCORING": {"status":"DONE","result":{"score":630,"version":"v1.0","risk_class":"C"},"error":null,"attempts":1},
-        "POLICY": {
-          "status": "DONE",
-          "result": {"flags":["F03","F07"],"limit":1430000,"outcome":"MANUAL_REVIEW","version":"v1.0","stop_factors":[]},
-          "error": null,
-          "attempts": 1
-        }
+        "EGRUL": {"status":"DONE","error":null,"attempts":1}
       },
       "scoring": {"score":630,"risk_class":"C"},
       "auto_decision": {
@@ -5124,7 +5141,7 @@
         ],
         "rate": 26
       },
-      "assignee": "Ковалёв Павел Игоревич",
+      "assignee": "Иванова Ольга Дмитриевна",
       "audit": [
         {
           "action": "STATUS_CHANGED",
@@ -5132,6 +5149,7 @@
           "user": "Ковалёв Павел Игоревич",
           "details": {"to":"REJECTED","from":"MANUAL_REVIEW","reason":"R01: Недостаточная история бизнеса"}
         },
+        {"action":"ASSIGNED","actor":"SYSTEM","user":null,"details":{"to":"analyst","auto":true}},
         {
           "action": "STATUS_CHANGED",
           "actor": "SYSTEM",
@@ -5257,11 +5275,11 @@
           "attempts": 1
         },
         "EGRUL": {"status":"DONE","error":null,"attempts":1},
-        "GIRBO": {"status":"DONE","error":null,"attempts":1},
-        "BANK": {"status":"DONE","error":null,"attempts":1},
-        "BKI": {"status":"DONE","error":null,"attempts":1},
-        "SCORING": {"status":"DONE","result":{"score":370,"version":"v1.0","risk_class":"E"},"error":null,"attempts":1},
         "FNS": {"status":"DONE","error":null,"attempts":1},
+        "GIRBO": {"status":"DONE","error":null,"attempts":1},
+        "BKI": {"status":"DONE","error":null,"attempts":1},
+        "BANK": {"status":"DONE","error":null,"attempts":1},
+        "SCORING": {"status":"DONE","result":{"score":370,"version":"v1.0","risk_class":"E"},"error":null,"attempts":1},
         "POLICY": {
           "status": "DONE",
           "result": {"flags":[],"limit":null,"outcome":"REJECT","version":"v1.0","stop_factors":["S01","S05"]},
@@ -5524,15 +5542,6 @@
     },
     "dossier": {
       "sources": {
-        "FNS": {"status":"DONE","error":null,"attempts":1},
-        "BANK": {"status":"DONE","error":null,"attempts":1},
-        "SCORING": {"status":"DONE","result":{"score":500,"version":"v1.0","risk_class":"E"},"error":null,"attempts":1},
-        "POLICY": {
-          "status": "DONE",
-          "result": {"flags":[],"limit":null,"outcome":"REJECT","version":"v1.0","stop_factors":["S03","S05"]},
-          "error": null,
-          "attempts": 1
-        },
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -5548,9 +5557,18 @@
           "error": null,
           "attempts": 1
         },
-        "GIRBO": {"status":"DONE","error":null,"attempts":1},
         "EGRUL": {"status":"DONE","error":null,"attempts":1},
-        "BKI": {"status":"DONE","error":null,"attempts":1}
+        "FNS": {"status":"DONE","error":null,"attempts":1},
+        "GIRBO": {"status":"DONE","error":null,"attempts":1},
+        "BKI": {"status":"DONE","error":null,"attempts":1},
+        "SCORING": {"status":"DONE","result":{"score":500,"version":"v1.0","risk_class":"E"},"error":null,"attempts":1},
+        "BANK": {"status":"DONE","error":null,"attempts":1},
+        "POLICY": {
+          "status": "DONE",
+          "result": {"flags":[],"limit":null,"outcome":"REJECT","version":"v1.0","stop_factors":["S03","S05"]},
+          "error": null,
+          "attempts": 1
+        }
       },
       "scoring": {
         "score": 500,
@@ -5846,8 +5864,9 @@
           "error": null,
           "attempts": 1
         },
-        "FNS": {"status":"DONE","error":null,"attempts":1},
         "GIRBO": {"status":"DONE","error":null,"attempts":1},
+        "EGRUL": {"status":"DONE","error":null,"attempts":1},
+        "FNS": {"status":"DONE","error":null,"attempts":1},
         "BKI": {"status":"DONE","error":null,"attempts":1},
         "BANK": {"status":"DONE","error":null,"attempts":1},
         "SCORING": {"status":"DONE","result":{"score":900,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
@@ -5856,8 +5875,7 @@
           "result": {"flags":[],"limit":5000000,"outcome":"APPROVE","version":"v1.0","stop_factors":[]},
           "error": null,
           "attempts": 1
-        },
-        "EGRUL": {"status":"DONE","error":null,"attempts":1}
+        }
       },
       "scoring": {
         "score": 900,
@@ -6260,7 +6278,9 @@
       "waiting_source": "Кредитная история",
       "risk_class": null,
       "score": null,
-      "flags": []
+      "flags": [],
+      "priority": null,
+      "priority_reasons": []
     },
     "timeout_step": {"status":"WAITING","error":"bki: превышено время ожидания ответа","attempts":2},
     "application": {
@@ -6707,6 +6727,16 @@
     },
     "dossier": {
       "sources": {
+        "FNS": {"status":"DONE","error":null,"attempts":1},
+        "BKI": {"status":"DONE","error":null,"attempts":1},
+        "BANK": {"status":"DONE","error":null,"attempts":1},
+        "SCORING": {"status":"DONE","result":{"score":810,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
+        "POLICY": {
+          "status": "DONE",
+          "result": {"flags":[],"limit":7620000,"outcome":"APPROVE","version":"v1.0","stop_factors":[]},
+          "error": null,
+          "attempts": 1
+        },
         "DATA_CHECK": {
           "status": "DONE",
           "result": {
@@ -6723,17 +6753,7 @@
           "attempts": 1
         },
         "EGRUL": {"status":"DONE","error":null,"attempts":1},
-        "FNS": {"status":"DONE","error":null,"attempts":1},
-        "GIRBO": {"status":"DONE","error":null,"attempts":1},
-        "BKI": {"status":"DONE","error":null,"attempts":1},
-        "BANK": {"status":"DONE","error":null,"attempts":1},
-        "SCORING": {"status":"DONE","result":{"score":810,"version":"v1.0","risk_class":"A"},"error":null,"attempts":1},
-        "POLICY": {
-          "status": "DONE",
-          "result": {"flags":[],"limit":7620000,"outcome":"APPROVE","version":"v1.0","stop_factors":[]},
-          "error": null,
-          "attempts": 1
-        }
+        "GIRBO": {"status":"DONE","error":null,"attempts":1}
       },
       "scoring": {
         "score": 810,

@@ -22,9 +22,11 @@ router = APIRouter(prefix="/api", tags=["Уведомления"])
 
 
 def scope(user: User):
+    # Личное уведомление (user_id) видит только адресат
+    personal = Event.user_id.is_(None) | (Event.user_id == user.id)
     if user.role == Role.CLIENT:
-        return (Event.company_id == user.company_id) & Event.audience.in_([Audience.CLIENT, Audience.ALL])
-    return Event.audience.in_([Audience.BANK, Audience.ALL])
+        return (Event.company_id == user.company_id) & Event.audience.in_([Audience.CLIENT, Audience.ALL]) & personal
+    return Event.audience.in_([Audience.BANK, Audience.ALL]) & personal
 
 
 @router.get("/notifications", response_model=NotificationsOut, summary="Лента уведомлений")

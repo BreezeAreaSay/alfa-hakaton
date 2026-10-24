@@ -1054,6 +1054,7 @@ function queue(ctx: Ctx) {
     });
 }
 
+/** «Взять в работу» ничью заявку или «Взять себе» заявку другого аналитика; своя остаётся без изменений. */
 function assign(ctx: Ctx) {
     const user = bankStaff(ctx);
     return transact((state) => {
@@ -1061,6 +1062,8 @@ function assign(ctx: Ctx) {
         if (app.status !== 'MANUAL_REVIEW' && app.status !== 'NEED_INFO') {
             throw new HttpError(409, 'Взять в работу можно заявку на ручном рассмотрении');
         }
+        if (app.assignee_id === user.id) return applicationOut(state, app, user, ctx.now);
+        const previous = userById(app.assignee_id);
         app.assignee_id = user.id;
         audit(state, ctx.now, {
             actor: 'UNDERWRITER',
@@ -1068,7 +1071,10 @@ function assign(ctx: Ctx) {
             action: 'ASSIGNED',
             entity_type: 'application',
             entity_id: app.id,
+            details: previous ? { from: previous.login, to: user.login } : { to: user.login },
         });
+        // Прежний исполнитель и другие сотрудники видят нового исполнителя без перезагрузки
+        emit(state, app, ctx.now, { audience: 'BANK', kind: 'ASSIGNED', title: 'ASSIGNED', notify: false });
         return applicationOut(state, app, user, ctx.now);
     });
 }

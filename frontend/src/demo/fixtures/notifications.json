@@ -248,7 +248,74 @@
     ]
   },
   "analyst": {
-    "unread": 10,
+    "unread": 12,
+    "items": [
+      {"kind":"ASSIGNED","title":"Вам назначена заявка № 2026-00009","body":null,"unread":true},
+      {
+        "kind": "STATUS_MANUAL_REVIEW",
+        "title": "Заявка № 2026-00009 ждёт рассмотрения",
+        "body": "F03 Руководитель сменился меньше 6 месяцев назад, F07 Класс риска C или D",
+        "unread": true
+      },
+      {
+        "kind": "INFO_ANSWERED",
+        "title": "Клиент ответил на запрос по заявке № 2026-00007",
+        "body": "Выписка за 12 месяцев",
+        "unread": true
+      },
+      {
+        "kind": "STATUS_DECLINED",
+        "title": "Клиент отказался от предложения по заявке № 2026-00005",
+        "body": null,
+        "unread": true
+      },
+      {
+        "kind": "STATUS_CANCELLED",
+        "title": "Клиент отозвал заявку № 2026-00004",
+        "body": "Отозвана клиентом",
+        "unread": true
+      },
+      {
+        "kind": "STATUS_ACCEPTED",
+        "title": "Клиент принял предложение по заявке № 2026-00003",
+        "body": "Принят вариант 1",
+        "unread": true
+      },
+      {
+        "kind": "MESSAGE",
+        "title": "Новое сообщение по заявке № 2026-00002",
+        "body": "Когда ждать решения?",
+        "unread": true
+      },
+      {
+        "kind": "INFO_ANSWERED",
+        "title": "Клиент ответил на запрос по заявке № 2026-00001",
+        "body": "Погасим до конца месяца",
+        "unread": true
+      },
+      {
+        "kind": "STATUS_MANUAL_REVIEW",
+        "title": "Заявка № 2026-00001 ждёт рассмотрения",
+        "body": "Клиент ответил на запрос",
+        "unread": true
+      },
+      {
+        "kind": "STATUS_MANUAL_REVIEW",
+        "title": "Заявка № 2026-00002 ждёт рассмотрения",
+        "body": "Продукт рассматривает аналитик",
+        "unread": true
+      },
+      {
+        "kind": "STATUS_MANUAL_REVIEW",
+        "title": "Заявка № 2026-00001 ждёт рассмотрения",
+        "body": "F01 Адрес массовой регистрации, F02 Есть налоговая задолженность",
+        "unread": true
+      },
+      {"kind":"ASSIGNED","title":"Вам назначена заявка № 2026-00001","body":null,"unread":true}
+    ]
+  },
+  "analyst2": {
+    "unread": 11,
     "items": [
       {
         "kind": "STATUS_MANUAL_REVIEW",
@@ -309,7 +376,8 @@
         "title": "Заявка № 2026-00001 ждёт рассмотрения",
         "body": "F01 Адрес массовой регистрации, F02 Есть налоговая задолженность",
         "unread": true
-      }
+      },
+      {"kind":"ASSIGNED","title":"Вам назначена заявка № 2026-00002","body":null,"unread":true}
     ]
   },
   "admin": {

@@ -374,6 +374,9 @@ export interface Meta {
 
 // ---------------------------------------------------------------- банк
 
+/** Приоритет заявки на ручном рассмотрении (docs/process.md, «Очередь аналитиков»). */
+export type Priority = 'HIGH' | 'MEDIUM' | 'NORMAL';
+
 export interface QueueItem {
     id: string;
     number: string;
@@ -393,6 +396,9 @@ export interface QueueItem {
     assignee_is_me: boolean;
     sla_due_at: string | null;
     overdue: boolean;
+    /** у заявок не на ручном рассмотрении — null */
+    priority: Priority | null;
+    priority_reasons: string[];
     submitted_at: string | null;
     status_changed_at: string;
     waiting_source: string | null;
@@ -530,6 +536,8 @@ export interface Dossier {
     assignee: string | null;
     assignee_is_me: boolean;
     sla_due_at: string | null;
+    priority: Priority | null;
+    priority_reasons: string[];
     audit: { action: string; actor: string; user: string | null; details: Record<string, any>; created_at: string }[];
     info_item_presets: InfoItem[];
 }

@@ -209,6 +209,8 @@ export interface EventRow {
     id: number;
     app_id: string | null;
     company_id: string | null;
+    /** адресат личного уведомления сотруднику: событие видит только он */
+    user_id: string | null;
     audience: Audience;
     kind: string;
     title: string;

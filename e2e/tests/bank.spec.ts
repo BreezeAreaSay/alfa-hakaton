@@ -10,14 +10,27 @@ test('аналитик рассматривает заявку вручную и
     await login(page, 'analyst');
     await expect(page.getByRole('heading', { level: 1, name: 'Очередь заявок' })).toBeVisible();
 
+    // Стартовые заявки распределены автоматически по порядку номеров: первая — analyst, вторая — analyst2
+    const own = page.getByRole('row', { name: /Вектор Логистик/ });
+    await expect(own).toContainText('Средний');
+    await expect(own).toContainText('Иванова О. Д. · вы');
+
     // Заявка под залог всегда идёт на ручное рассмотрение
     const row = page.getByRole('row', { name: /Гранд Девелопмент/ });
     await expect(row).toContainText('Ручное рассмотрение');
+    await expect(row).toContainText('Ковалёв П. И.');
     await row.click();
     await expect(page.getByRole('heading', { name: 'ООО «Гранд Девелопмент»' })).toBeVisible();
 
-    await page.getByRole('button', { name: 'Взять в работу' }).click();
-    await expect(page.getByRole('button', { name: 'Взять в работу' })).toBeHidden();
+    // В шапке досье — приоритет с причиной; заявку коллеги аналитик забирает себе
+    const head = page.locator('.bank-head');
+    await expect(head.getByText('Средний', { exact: true })).toBeVisible();
+    await expect(head.getByText('Сумма от 10 млн ₽', { exact: true })).toBeVisible();
+    await expect(head.getByText('Ковалёв Павел Игоревич', { exact: true })).toBeVisible();
+    await expect(head.getByRole('button', { name: 'Взять в работу' })).toHaveCount(0);
+    await head.getByRole('button', { name: 'Взять себе' }).click();
+    await expect(head.getByText('Иванова Ольга Дмитриевна (вы)', { exact: true })).toBeVisible();
+    await expect(head.getByRole('button', { name: 'Взять себе' })).toBeHidden();
 
     const panel = page.getByRole('region', { name: 'Решение по заявке' });
     await panel.getByRole('group', { name: 'Действие' }).getByRole('button', { name: 'Одобрить' }).click();

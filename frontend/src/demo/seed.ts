@@ -1,12 +1,14 @@
 // Исходные демо-данные — как backend/app/seed/demo.py: сбой источников снят, заявки vektor и grand
-// отправлены и уходят к аналитику.
+// отправлены, распределены между аналитиками и уходят к ним.
 import type { Purpose } from '../api/types';
 import { FAULT_SOURCES, FIXTURES_VERSION, USERS, companyIds, userByLogin } from './data';
+import { pickAnalyst } from './engine/review';
 import { type AppRow, type DemoState, iso, uuid } from './model';
 import { drain } from './pipeline';
-import { transition } from './workflow';
+import { analystLoads, assignAutomatically, transition } from './workflow';
 
-export const STATE_VERSION = 1;
+// 2 — у событий появился адресат-сотрудник (user_id), у стартовых заявок — исполнитель
+export const STATE_VERSION = 2;
 
 interface Preseed {
     login: string;
@@ -50,6 +52,10 @@ export function nextNumber(state: DemoState, now: number): string {
 }
 
 function preseed(state: DemoState, now: number): number {
+    // Стартовые заявки распределяются сразу, тем же правилом и по порядку номеров, будто пришли на рассмотрение
+    // одна за другой, — как на стенде, где без этого исполнитель зависел бы от того, какая заявка первой пройдёт
+    // параллельный конвейер
+    const loads = analystLoads(state);
     for (const spec of PRESEED) {
         const user = userByLogin(spec.login);
         if (!user?.company_id) continue;
@@ -79,6 +85,11 @@ function preseed(state: DemoState, now: number): number {
         };
         state.applications.push(app);
         transition(state, app, 'SUBMITTED', now, { actor: 'CLIENT', user });
+        const login = pickAnalyst(loads);
+        if (login) {
+            assignAutomatically(state, app, login, now);
+            loads[login] += 1;
+        }
     }
     return PRESEED.length;
 }

@@ -20,12 +20,15 @@ def emit(
     notify: bool = True,
     payload: dict[str, Any] | None = None,
     company_id: uuid.UUID | None = None,
+    user_id: uuid.UUID | None = None,
 ) -> None:
-    """company_id — адресат-компания события без заявки (например, ответ поддержки клиенту)."""
+    """company_id — адресат-компания события без заявки (например, ответ поддержки клиенту);
+    user_id — адресат-сотрудник личного уведомления: событие видит только он."""
     db.add(
         Event(
             application_id=application.id if application else None,
             company_id=application.company_id if application else company_id,
+            user_id=user_id,
             audience=audience,
             kind=kind,
             title=title,

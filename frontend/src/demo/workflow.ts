@@ -2,8 +2,9 @@
 import type { AppStatus } from '../api/types';
 import { HttpError } from './http';
 import { pickupDelay } from './timing';
-import { META } from './data';
+import { META, USERS, userByLogin } from './data';
 import type { Json } from './engine/features';
+import { pickAnalyst } from './engine/review';
 import {
     type Actor,
     type AppRow,
@@ -126,6 +127,8 @@ export function emit(
         notify?: boolean;
         /** адресат-компания события без заявки (ответ поддержки клиенту) */
         company_id?: string | null;
+        /** адресат-сотрудник личного уведомления: событие видит только он */
+        user_id?: string | null;
     },
 ): void {
     state.seq.event += 1;
@@ -133,6 +136,7 @@ export function emit(
         id: state.seq.event,
         app_id: app?.id ?? null,
         company_id: app?.company_id ?? event.company_id ?? null,
+        user_id: event.user_id ?? null,
         audience: event.audience,
         kind: event.kind,
         title: event.title,
@@ -171,6 +175,48 @@ export function audit(
         created_at: iso(now),
     });
     if (state.audit.length > KEEP_AUDIT) state.audit = state.audit.slice(-KEEP_AUDIT);
+}
+
+/** Логин аналитика → сколько у него заявок на ручном рассмотрении. Администратор заявки не получает. */
+export function analystLoads(state: DemoState): Record<string, number> {
+    const loads: Record<string, number> = {};
+    for (const user of USERS.filter((u) => u.role === 'UNDERWRITER')) {
+        loads[user.login] = state.applications.filter(
+            (a) => a.status === 'MANUAL_REVIEW' && a.assignee_id === user.id,
+        ).length;
+    }
+    return loads;
+}
+
+/** Назначить заявку аналитику без его участия: запись в журнале и личное уведомление ему. */
+export function assignAutomatically(state: DemoState, app: AppRow, login: string, now: number): void {
+    const analyst = userByLogin(login);
+    if (!analyst) return;
+    app.assignee_id = analyst.id;
+    audit(state, now, {
+        actor: 'SYSTEM',
+        user: null,
+        action: 'ASSIGNED',
+        entity_type: 'application',
+        entity_id: app.id,
+        details: { auto: true, to: analyst.login },
+    });
+    emit(state, app, now, {
+        audience: 'BANK',
+        kind: 'ASSIGNED',
+        title: `Вам назначена заявка № ${app.number}`,
+        user_id: analyst.id,
+    });
+}
+
+/**
+ * Автораспределение при переходе в ручное рассмотрение — как на стенде с AUTO_ASSIGN=true (по умолчанию).
+ * Заявка с исполнителем остаётся у него: вернулась после ответа клиента или перезапуска проверки.
+ */
+function autoAssign(state: DemoState, app: AppRow, now: number): void {
+    if (app.assignee_id) return;
+    const login = pickAnalyst(analystLoads(state));
+    if (login) assignAutomatically(state, app, login, now);
 }
 
 /** Новый прогон конвейера: шаги в статусе «ожидает», первое задание в очередь. */
@@ -256,6 +302,7 @@ export function transition(
             title: bank.replace('{n}', n),
             body: reason,
         });
+    if (target === 'MANUAL_REVIEW') autoAssign(state, app, now);
 
     // Задания обработчику — как transactional outbox на сервере
     if (

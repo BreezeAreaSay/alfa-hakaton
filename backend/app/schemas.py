@@ -8,7 +8,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 from pydantic_core import PydanticCustomError
 
-from app.domain.enums import Purpose
+from app.domain.enums import Priority, Purpose
 
 
 class Model(BaseModel):
@@ -417,6 +417,10 @@ class QueueItem(BaseModel):
     assignee_is_me: bool
     sla_due_at: datetime | None
     overdue: bool
+    priority: Priority | None = Field(
+        description="Приоритет на ручном рассмотрении (docs/process.md, «Очередь аналитиков»); у других статусов — null"
+    )
+    priority_reasons: list[str] = Field(description="Почему такой приоритет — короткие причины для аналитика")
     submitted_at: datetime | None
     status_changed_at: datetime
     waiting_source: str | None

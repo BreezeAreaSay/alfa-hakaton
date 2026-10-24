@@ -7,6 +7,7 @@
 import os
 import time
 import uuid
+from datetime import datetime
 from pathlib import Path
 
 import httpx
@@ -230,6 +231,72 @@ def test_young_business_goes_to_analyst_and_is_rejected():
         json={"action": "REJECT", "reason_code": "R01", "comment": "Недостаточная история бизнеса"},
     )
     assert client.get(f"/api/applications/{application['id']}")["status"] == "REJECTED"
+
+
+def review_loads(analyst: Client, names: dict[str, str]) -> dict[str, int]:
+    """Сколько заявок на ручном рассмотрении у каждого аналитика — когда конвейер ничего не обрабатывает
+    и загрузка не может измениться, пока тест отправляет свою заявку."""
+    deadline = time.monotonic() + 90
+    while analyst.get("/api/bank/applications", params={"status": ["SUBMITTED", "IN_PROCESSING"]}):
+        assert time.monotonic() < deadline, "конвейер не освободился"
+        time.sleep(0.5)
+    rows = analyst.get("/api/bank/applications", params={"status": "MANUAL_REVIEW"})
+    return {login: sum(1 for r in rows if r["assignee_name"] == name) for login, name in names.items()}
+
+
+def test_manual_review_is_assigned_automatically_with_priority_and_can_be_taken_over():
+    """Умная очередь (docs/process.md, «Очередь аналитиков»): заявка на ручном рассмотрении сразу у аналитика
+    с наименьшей загрузкой, в очереди и досье — приоритет с причинами, «Взять себе» передаёт её другому."""
+    client, analyst, analyst2 = Client("vektor"), Client("analyst"), Client("analyst2")
+    staff = {"analyst": analyst, "analyst2": analyst2}
+    names = {login: c.user["full_name"] for login, c in staff.items()}
+    loads = review_loads(analyst, names)
+    expected = min(loads, key=lambda login: (loads[login], login))
+
+    application = apply(client, "GROWTH", 12_000_000, 36, purpose="EXPANSION", declared_revenue=36_000_000)
+    assert application["status"] == "MANUAL_REVIEW"
+    app_id = application["id"]
+
+    rows = analyst.get("/api/bank/applications", params={"status": "MANUAL_REVIEW"})
+    row = next(r for r in rows if r["id"] == app_id)
+    assert row["assignee_name"] == names[expected]
+    assert row["priority"] == "MEDIUM"
+    assert row["priority_reasons"] == ["Сумма от 10 млн ₽", "Флаги F01, F02 требуют проверки"]
+    # Сверху высокий приоритет, внутри приоритета — ближайший срок рассмотрения
+    rank = {"HIGH": 0, "MEDIUM": 1, "NORMAL": 2}
+    order = [(rank[r["priority"]], datetime.fromisoformat(r["sla_due_at"])) for r in rows]
+    assert order == sorted(order)
+
+    dossier = analyst.get(f"/api/bank/applications/{app_id}/dossier")
+    assert (dossier["priority"], dossier["priority_reasons"]) == (row["priority"], row["priority_reasons"])
+    assert dossier["assignee"] == names[expected]
+    [auto] = [r for r in dossier["audit"] if r["action"] == "ASSIGNED"]
+    assert auto["details"] == {"auto": True, "to": expected} and auto["actor"] == "SYSTEM"
+
+    # «Вам назначена заявка» — личное уведомление: его видит только назначенный аналитик
+    title = f"Вам назначена заявка № {application['number']}"
+    for login, c in [*staff.items(), ("admin", Client("admin"))]:
+        titles = [n["title"] for n in c.get("/api/notifications")["items"]]
+        assert (title in titles) == (login == expected), login
+
+    # «Взять себе»: analyst2 забирает заявку у коллеги; если она досталась ему самому, сначала её забирает analyst
+    if expected == "analyst2":
+        analyst.post(f"/api/bank/applications/{app_id}/assign")
+    analyst2.post(f"/api/bank/applications/{app_id}/assign")
+    analyst2.post(f"/api/bank/applications/{app_id}/assign")  # своя заявка: ничего не меняет
+    dossier = analyst2.get(f"/api/bank/applications/{app_id}/dossier")
+    assert dossier["assignee"] == names["analyst2"] and dossier["assignee_is_me"]
+    moves = [r for r in dossier["audit"] if r["action"] == "ASSIGNED"]
+    assert moves[0]["details"] == {"from": "analyst", "to": "analyst2"} and moves[0]["user"] == names["analyst2"]
+    assert moves[-1]["details"] == {"auto": True, "to": expected}
+    assert len(moves) == (3 if expected == "analyst2" else 2)
+    mine = analyst2.get("/api/bank/applications", params={"mine": "true"})
+    assert any(r["id"] == app_id and r["assignee_is_me"] for r in mine)
+
+    # Заявку можно отозвать как обычно; в очереди у завершённых приоритета нет
+    client.post(f"/api/applications/{app_id}/cancel")
+    closed = analyst.get("/api/bank/applications", params={"status": "CANCELLED"})
+    assert next(r for r in closed if r["id"] == app_id)["priority"] is None
 
 
 def test_source_outage_waits_and_recovers():
@@ -548,3 +615,24 @@ def test_security_headers_on_interface_and_api():
     assert script.headers["x-content-type-options"] == "nosniff" and "content-security-policy" in script.headers
     api = http.get("/api/health")
     assert api.headers["x-content-type-options"] == "nosniff" and "content-security-policy" not in api.headers
+
+
+def test_demo_reset_assigns_starting_applications_in_number_order():
+    """Стартовые заявки сброса распределены тем же правилом по порядку номеров: стенд после сброса всегда одинаковый.
+    Сценарий последний: сброс удаляет заявки, которые создали остальные."""
+    analyst, analyst2 = Client("analyst"), Client("analyst2")
+    Client("admin").post("/api/admin/demo/reset")
+    deadline = time.monotonic() + 60
+    while True:
+        rows = analyst.get("/api/bank/applications")
+        if len(rows) == 2 and all(r["status"] == "MANUAL_REVIEW" for r in rows):
+            break
+        assert time.monotonic() < deadline, "стартовые заявки не дошли до ручного рассмотрения"
+        time.sleep(0.5)
+    owners = {r["company_name"]: r["assignee_name"] for r in rows}
+    assert owners == {
+        "ООО «Вектор Логистик»": analyst.user["full_name"],
+        "ООО «Гранд Девелопмент»": analyst2.user["full_name"],
+    }
+    assert [r["priority"] for r in rows] == ["MEDIUM", "MEDIUM"]
+    assert analyst.get("/api/bank/summary")["mine"] == 1 and analyst2.get("/api/bank/summary")["mine"] == 1

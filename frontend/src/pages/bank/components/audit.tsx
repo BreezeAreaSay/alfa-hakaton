@@ -14,7 +14,7 @@ export const ACTION_LABELS: Record<string, string> = {
     DOCUMENT_UPLOADED: 'Загружен документ',
     AGREEMENT_SIGNED: 'Подписан договор',
     JUSTIFICATION_GENERATED: 'Сформировано обоснование',
-    ASSIGNED: 'Взята в работу',
+    ASSIGNED: 'Назначен исполнитель',
     PIPELINE_RETRY: 'Повтор шага конвейера',
     FAULT_SET: 'Изменено состояние источника',
     DEMO_RESET: 'Сброс демо-данных',
@@ -85,6 +85,13 @@ export function auditDetails(
                 : '';
             const ip = typeof d.ip === 'string' && d.ip !== '—' ? ` · адрес ${d.ip}` : '';
             return `Логин ${plainValue(d.login)}${ip}${blocked}`;
+        }
+        case 'ASSIGNED': {
+            // Логины: автораспределение — {auto, to}, «Взять себе» — {from, to}, «Взять в работу» — {to}
+            const to = plainValue(d.to);
+            if (d.auto) return `Назначена автоматически: ${to}`;
+            if (d.from) return `Передана от ${plainValue(d.from)} к ${to}`;
+            return d.to ? `Взята в работу: ${to}` : 'Взята в работу';
         }
         case 'AGREEMENT_SIGNED': {
             const hash = typeof d.sha256 === 'string' ? ` · SHA-256 ${d.sha256.slice(0, 12)}…` : '';

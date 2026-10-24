@@ -4,6 +4,7 @@
 import type { Application, Dossier } from '../api/types';
 import { DEMO_PASSWORD } from './data';
 import { parseNeedRules } from './engine/ai';
+import { PRIORITY_RANK, reviewPriority } from './engine/review';
 import { parseStatement } from './engine/statements';
 import aiGolden from './fixtures/ai-golden.json';
 import errors from './fixtures/errors.json';
@@ -191,6 +192,32 @@ function compactApp(app: Application): J {
 const EXTERNAL = ['EGRUL', 'FNS', 'GIRBO', 'BKI', 'BANK'];
 // Стартовые заявки обрабатываются параллельно, поэтому порядок в очереди (по сроку рассмотрения) может отличаться
 const byNumber = (a: J, b: J) => a.number.localeCompare(b.number);
+// Строка очереди после сброса: приоритет с причинами и исполнитель — стартовые заявки распределены по порядку номеров
+const QUEUE_RESET_FIELDS = [
+    'number',
+    'company_name',
+    'status',
+    'risk_class',
+    'score',
+    'flags',
+    'priority',
+    'priority_reasons',
+    'assignee_name',
+];
+// Поля строки очереди, которые сохраняет скрипт съёмки (QUEUE_ROW_FIELDS)
+const QUEUE_ROW_FIELDS = ['status', 'flags', 'priority', 'priority_reasons', 'assignee_name', 'assignee_is_me'];
+
+/** Ручное рассмотрение сверху, внутри — по приоритету, затем по сроку рассмотрения (как сортирует сервер). */
+function queueOrdered(rows: J[]): boolean {
+    const status = (row: J) => ({ MANUAL_REVIEW: 0, IN_PROCESSING: 1, NEED_INFO: 2 })[row.status as string] ?? 3;
+    const rank = (row: J) => (row.priority ? PRIORITY_RANK[row.priority as keyof typeof PRIORITY_RANK] : 3);
+    const key = (row: J) => [status(row), rank(row), row.sla_due_at ?? row.status_changed_at] as const;
+    return rows.every((row, i) => {
+        if (i === 0) return true;
+        const [a, b] = [key(rows[i - 1]), key(row)];
+        return a[0] < b[0] || (a[0] === b[0] && (a[1] < b[1] || (a[1] === b[1] && a[2] <= b[2])));
+    });
+}
 // Показатели: сроки и календарь зависят от момента снятия снимка и скорости стенда, сверяются только счётчики
 const METRICS_TIMING_KEYS = [
     'since',
@@ -366,6 +393,60 @@ function checkEngine(check: Check): void {
     for (const item of aiGolden as J[]) {
         check.same(`разбор потребности №${item.id}: «${item.text}»`, item.result, parseNeedRules(item.text));
     }
+    checkPriorityRules(check);
+}
+
+/**
+ * Правила приоритета, которые снимком стенда не проверить: срок рассмотрения на стенде — сутки, а флаг F05
+ * появляется после 15 минут ожидания источника. Ожидаемое — как в юнит-тестах сервера
+ * (backend/tests/unit/test_review.py).
+ */
+function checkPriorityRules(check: Check): void {
+    const now = Date.parse('2026-10-24T12:00:00Z');
+    const at = (hours: number) => new Date(now + hours * 3_600_000).toISOString();
+    const cases: [string, Parameters<typeof reviewPriority>[1], J][] = [
+        [
+            'срок истёк',
+            { now, sla_due_at: at(-0.02), amount: 3_000_000, flags: [] },
+            { priority: 'HIGH', reasons: ['Срок рассмотрения истёк'] },
+        ],
+        [
+            'до срока меньше 4 часов, крупная сумма и флаги',
+            { now, sla_due_at: at(1), amount: 12_000_000, flags: ['F01', 'F02'] },
+            {
+                priority: 'HIGH',
+                reasons: ['До конца срока меньше 4 часов', 'Сумма от 10 млн ₽', 'Флаги F01, F02 требуют проверки'],
+            },
+        ],
+        [
+            'ровно 4 часа до срока',
+            { now, sla_due_at: at(4), amount: 3_000_000, flags: [] },
+            { priority: 'NORMAL', reasons: [] },
+        ],
+        [
+            'один флаг',
+            { now, sla_due_at: at(20), amount: 3_000_000, flags: ['F06'] },
+            { priority: 'MEDIUM', reasons: ['Флаг F06 требует проверки'] },
+        ],
+        [
+            'только класс риска C или D',
+            { now, sla_due_at: at(20), amount: 3_000_000, flags: ['F07'] },
+            { priority: 'NORMAL', reasons: [] },
+        ],
+        [
+            'ждём источник при истёкшем сроке',
+            { now, sla_due_at: at(-2), amount: 60_000_000, flags: ['F01', 'F05'] },
+            { priority: 'NORMAL', reasons: ['Ждём ответа источника'] },
+        ],
+    ];
+    for (const [label, input, expected] of cases) {
+        check.same(`приоритет: ${label}`, expected, reviewPriority('MANUAL_REVIEW', input));
+    }
+    check.same(
+        'приоритет: не на ручном рассмотрении',
+        { priority: null, reasons: [] },
+        reviewPriority('OFFER', cases[0][1]),
+    );
 }
 
 async function checkStatements(check: Check, io: SelfcheckIo): Promise<void> {
@@ -425,13 +506,10 @@ export async function run(io: SelfcheckIo): Promise<boolean> {
     const queue = await analyst.get('/api/bank/applications');
     check.same(
         'очередь после сброса',
-        [...examples.queue]
-            .sort(byNumber)
-            .map((r: J) => pick(r, ['number', 'company_name', 'status', 'risk_class', 'score', 'flags'])),
-        [...queue]
-            .sort(byNumber)
-            .map((r: J) => pick(r, ['number', 'company_name', 'status', 'risk_class', 'score', 'flags'])),
+        [...examples.queue].sort(byNumber).map((r: J) => pick(r, QUEUE_RESET_FIELDS)),
+        [...queue].sort(byNumber).map((r: J) => pick(r, QUEUE_RESET_FIELDS)),
     );
+    check.ok('очередь: по приоритету, затем по сроку рассмотрения', queueOrdered(queue));
     check.shape('очередь: поля ответа', examples.queue, queue);
     check.same('сводка после сброса', examples.summary, await analyst.get('/api/bank/summary'));
     for (const [login, expected] of Object.entries((examples as J).proactive as Record<string, J>)) {
@@ -809,6 +887,9 @@ export async function run(io: SelfcheckIo): Promise<boolean> {
         term_months: 24,
     });
     const startDossier = await analyst2.get(`/api/bank/applications/${startApp.id}/dossier`);
+    const startRow = (await analyst2.get('/api/bank/applications?status=MANUAL_REVIEW')).find(
+        (r: J) => r.id === startApp.id,
+    );
     errorsSeen.request_unknown_item = await analyst2.error(
         'POST',
         `/api/bank/applications/${startApp.id}/info-requests`,
@@ -820,6 +901,7 @@ export async function run(io: SelfcheckIo): Promise<boolean> {
         comment: 'Недостаточная история бизнеса',
     });
     check.same('start: ручное рассмотрение', S['start-young'].review, compactApp(startApp));
+    check.same('start: строка очереди', S['start-young'].queue_item, pick(startRow, QUEUE_ROW_FIELDS));
     check.same('start: досье', S['start-young'].dossier, compactDossier(startDossier));
     check.same(
         'start: отказ аналитика',
@@ -910,7 +992,16 @@ export async function run(io: SelfcheckIo): Promise<boolean> {
     check.same(
         'altair: строка очереди',
         A.waiting_queue_item,
-        pick(waitingRow, ['status', 'status_label', 'waiting_source', 'risk_class', 'score', 'flags']),
+        pick(waitingRow, [
+            'status',
+            'status_label',
+            'waiting_source',
+            'risk_class',
+            'score',
+            'flags',
+            'priority',
+            'priority_reasons',
+        ]),
     );
     check.ok(
         'altair: текст ошибки БКИ',
@@ -1070,9 +1161,21 @@ export async function run(io: SelfcheckIo): Promise<boolean> {
         'очередь с завершёнными',
         [...examples.queue_closed].sort(byNumber),
         closed
-            .map((r: J) => pick(r, ['number', 'status', 'status_label', 'risk_class', 'score', 'flags']))
+            .map((r: J) =>
+                pick(r, [
+                    'number',
+                    'status',
+                    'status_label',
+                    'risk_class',
+                    'score',
+                    'flags',
+                    'priority',
+                    'assignee_name',
+                ]),
+            )
             .sort(byNumber),
     );
+    check.ok('очередь с завершёнными: порядок', queueOrdered(closed));
     check.same('сводка в конце', examples.summary_end, await analyst.get('/api/bank/summary'), ['issued_today']);
     check.same(
         'показатели в конце',
@@ -1090,12 +1193,8 @@ export async function run(io: SelfcheckIo): Promise<boolean> {
     }, 'стартовые заявки после сброса');
     check.same(
         'очередь после сброса администратором',
-        [...examples.queue]
-            .sort(byNumber)
-            .map((r: J) => pick(r, ['number', 'company_name', 'status', 'risk_class', 'score', 'flags'])),
-        [...afterReset]
-            .sort(byNumber)
-            .map((r: J) => pick(r, ['number', 'company_name', 'status', 'risk_class', 'score', 'flags'])),
+        [...examples.queue].sort(byNumber).map((r: J) => pick(r, QUEUE_RESET_FIELDS)),
+        [...afterReset].sort(byNumber).map((r: J) => pick(r, QUEUE_RESET_FIELDS)),
     );
 
     io.log(`Проверок пройдено: ${check.passed}, с расхождениями: ${check.failures.length}`);

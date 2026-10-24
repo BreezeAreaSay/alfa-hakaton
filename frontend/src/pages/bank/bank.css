@@ -261,6 +261,24 @@ table.simple tr.clickable:focus-visible td {
     min-width: 150px;
 }
 
+/* в очереди одиннадцать колонок: поля ячеек уже, чтобы таблица помещалась в экран 1440 без прокрутки;
+   ширина текста компании и продукта — прежняя */
+@media (min-width: 768px) {
+    table.simple.bank-queue th,
+    table.simple.bank-queue td {
+        padding-left: var(--gap-8);
+        padding-right: var(--gap-8);
+    }
+
+    .bank-queue td:nth-child(2) {
+        min-width: 212px;
+    }
+
+    .bank-queue .bank-product-cell {
+        min-width: 142px;
+    }
+}
+
 .bank-status-cell {
     display: flex;
     flex-direction: column;
@@ -314,6 +332,15 @@ table.simple tr.clickable:focus-visible td {
     font-size: 18px;
     line-height: 24px;
     font-weight: 700;
+}
+
+/* почему у заявки такой приоритет — под бейджем в шапке досье */
+.bank-reasons {
+    margin: var(--gap-8) 0 0;
+    padding-left: 18px;
+    font-size: 13px;
+    line-height: 18px;
+    color: var(--color-light-text-secondary);
 }
 
 .bank-facts {

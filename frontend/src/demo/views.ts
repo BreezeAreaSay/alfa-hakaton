@@ -60,6 +60,7 @@ import {
     rateFor,
     rateHints,
 } from './engine/policy';
+import { PRIORITY_RANK, reviewPriority } from './engine/review';
 import { marginForClass, score } from './engine/scoring';
 import { HttpError } from './http';
 import {
@@ -422,6 +423,13 @@ export function queueItems(
         if (filters.risk_class && scoring?.risk_class !== filters.risk_class) continue;
         const company = companyOut(state, a.company_id, now);
         const review = a.status === 'MANUAL_REVIEW';
+        const flags = decision?.flags ?? [];
+        const { priority, reasons } = reviewPriority(a.status, {
+            now,
+            sla_due_at: a.sla_due_at,
+            amount: a.amount,
+            flags,
+        });
         items.push({
             id: a.id,
             number: a.number,
@@ -436,20 +444,25 @@ export function queueItems(
             status_label: META.statuses[a.status].bank,
             risk_class: scoring?.risk_class ?? null,
             score: scoring?.score ?? null,
-            flags: decision?.flags ?? [],
+            flags,
             assignee_name: userName(a.assignee_id),
             assignee_is_me: a.assignee_id === viewer.id,
             sla_due_at: review ? a.sla_due_at : null,
             overdue: Boolean(review && a.sla_due_at && Date.parse(a.sla_due_at) < now),
+            priority,
+            priority_reasons: reasons,
             submitted_at: a.submitted_at,
             status_changed_at: a.status_changed_at,
             waiting_source: waitingSource(state, a),
         });
     }
-    const priority: Record<string, number> = { MANUAL_REVIEW: 0, IN_PROCESSING: 1, NEED_INFO: 2 };
+    // Сверху ручное рассмотрение: по приоритету, внутри него — по сроку рассмотрения; дальше остальные статусы
+    const order: Record<string, number> = { MANUAL_REVIEW: 0, IN_PROCESSING: 1, NEED_INFO: 2 };
+    const rank = (item: QueueItem) => (item.priority ? PRIORITY_RANK[item.priority] : 3);
     return items.sort(
         (a, b) =>
-            (priority[a.status] ?? 3) - (priority[b.status] ?? 3) ||
+            (order[a.status] ?? 3) - (order[b.status] ?? 3) ||
+            rank(a) - rank(b) ||
             (a.sla_due_at ?? a.status_changed_at).localeCompare(b.sla_due_at ?? b.status_changed_at),
     );
 }
@@ -534,6 +547,12 @@ export function dossierOut(state: DemoState, app: AppRow, viewer: DemoUser, now:
             finished_at: row.finished_at,
         };
     }
+    const priority = reviewPriority(app.status, {
+        now,
+        sla_due_at: app.sla_due_at,
+        amount: app.amount,
+        flags: latestDecision(state, app)?.flags ?? [],
+    });
     return {
         application: applicationOut(state, app, viewer, now),
         sources,
@@ -551,6 +570,8 @@ export function dossierOut(state: DemoState, app: AppRow, viewer: DemoUser, now:
         assignee: userName(app.assignee_id),
         assignee_is_me: app.assignee_id === viewer.id,
         sla_due_at: app.sla_due_at,
+        priority: priority.priority,
+        priority_reasons: priority.reasons,
         audit: state.audit
             .filter((r) => r.entity_id === app.id)
             .sort((a, b) => b.id - a.id)
@@ -658,8 +679,12 @@ export function pipelineIssues(state: DemoState): PipelineIssue[] {
 
 // ---------------------------------------------------------------- уведомления и журнал
 
-/** События, которые видит пользователь: клиент — по своей компании, банк — банковские и общие. */
+/**
+ * События, которые видит пользователь: клиент — по своей компании, банк — банковские и общие. Личное
+ * уведомление (user_id) видит только адресат.
+ */
 export function inScope(event: EventRow, viewer: DemoUser): boolean {
+    if (event.user_id && event.user_id !== viewer.id) return false;
     if (isClient(viewer)) return event.company_id === viewer.company_id && event.audience !== 'BANK';
     return event.audience !== 'CLIENT';
 }

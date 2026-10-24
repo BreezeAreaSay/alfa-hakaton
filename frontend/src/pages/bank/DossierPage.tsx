@@ -13,7 +13,7 @@ import type { Dossier } from '../../api/types';
 import { ErrorPlate, Loader, StatusBadge } from '../../components/ui';
 import { dateTime, legalFormLabel, months, rub, timeLeft } from '../../utils/format';
 import { ChatTab } from './components/ChatTab';
-import { RiskBadge, useNow, useStickyTop } from './components/common';
+import { PriorityBadge, RiskBadge, useNow, useStickyTop } from './components/common';
 import { DecisionPanel } from './components/DecisionPanel';
 import { DocumentsTab } from './components/DocumentsTab';
 import { HistoryTab } from './components/HistoryTab';
@@ -87,6 +87,7 @@ function Header({ data }: { data: Dossier }) {
     const app = data.application;
     const assign = useAssign();
     useNow(30_000);
+    // Ничью заявку берут в работу, заявку коллеги — забирают себе; своя кнопки не требует
     const canAssign = (app.status === 'MANUAL_REVIEW' || app.status === 'NEED_INFO') && !data.assignee_is_me;
     const overdue = Boolean(
         data.sla_due_at && app.status === 'MANUAL_REVIEW' && new Date(data.sla_due_at).getTime() < Date.now(),
@@ -133,6 +134,19 @@ function Header({ data }: { data: Dossier }) {
                         <div className='bank-sub'>до {dateTime(data.sla_due_at)}</div>
                     </div>
                 )}
+                {data.priority && (
+                    <div>
+                        <div className='bank-caption'>Приоритет</div>
+                        <PriorityBadge priority={data.priority} />
+                        {data.priority_reasons.length > 0 && (
+                            <ul className='bank-reasons'>
+                                {data.priority_reasons.map((reason) => (
+                                    <li key={reason}>{reason}</li>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
+                )}
                 <div>
                     <div className='bank-caption'>Исполнитель</div>
                     <div className='bank-strong'>
@@ -147,7 +161,7 @@ function Header({ data }: { data: Dossier }) {
                         loading={assign.isPending}
                         onClick={() => assign.mutate(app.id)}
                     >
-                        Взять в работу
+                        {data.assignee ? 'Взять себе' : 'Взять в работу'}
                     </Button>
                 )}
                 <ErrorPlate error={assign.error} title='Не удалось взять в работу' />

@@ -1,16 +1,19 @@
 """Машина состояний заявки (docs/process.md, «Правила переходов»).
 
-Каждый переход проверяется по таблице, а смена статуса, история, журнал действий, события и задания
-обработчику записываются в одной транзакции вызывающего кода.
+Каждый переход проверяется по таблице, а смена статуса, история, журнал действий, события, задания
+обработчику и назначение аналитика при переходе в ручное рассмотрение записываются в одной транзакции
+вызывающего кода.
 """
 
 from datetime import UTC, datetime, timedelta
 
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.config import get_settings
-from app.domain.enums import FINAL_STATUSES, PIPELINE_ORDER, Actor, AppStatus, Audience, JobKind, StepStatus
+from app.domain.enums import FINAL_STATUSES, PIPELINE_ORDER, Actor, AppStatus, Audience, JobKind, Role, StepStatus
 from app.domain.labels import STATUS_LABELS
+from app.domain.review import pick_analyst
 from app.models import Application, PipelineStep, StatusHistory, User
 from app.pipeline import queue
 from app.services import events
@@ -82,6 +85,61 @@ BANK_NOTICES: dict[AppStatus, str] = {
 }
 
 
+def analyst_loads(db: Session) -> dict[str, int]:
+    """Логин аналитика → сколько у него заявок на ручном рассмотрении. Администратор заявки не получает.
+
+    Строки аналитиков блокируются до конца транзакции: заявки, одновременно пришедшие на рассмотрение
+    в разных потоках обработчика, распределяются по очереди и не достаются обе одному аналитику.
+    """
+    analysts = db.scalars(
+        select(User).where(User.role == Role.UNDERWRITER).order_by(User.login).with_for_update(key_share=True)
+    ).all()
+    counts = dict(
+        db.execute(
+            select(Application.assignee_id, func.count())
+            .where(Application.status == S.MANUAL_REVIEW, Application.assignee_id.is_not(None))
+            .group_by(Application.assignee_id)
+        ).all()
+    )
+    return {analyst.login: counts.get(analyst.id, 0) for analyst in analysts}
+
+
+def assign_automatically(db: Session, application: Application, login: str) -> None:
+    """Назначить заявку аналитику без его участия: запись в журнале и личное уведомление ему."""
+    analyst = db.scalars(select(User).where(User.login == login)).one()
+    application.assignee_id = analyst.id
+    audit(
+        db,
+        actor=Actor.SYSTEM,
+        user=None,
+        action="ASSIGNED",
+        entity_type="application",
+        entity_id=application.id,
+        details={"auto": True, "to": analyst.login},
+    )
+    events.emit(
+        db,
+        application,
+        audience=Audience.BANK,
+        kind="ASSIGNED",
+        title=f"Вам назначена заявка № {application.number}",
+        user_id=analyst.id,
+    )
+
+
+def auto_assign(db: Session, application: Application) -> None:
+    """Автораспределение при переходе в ручное рассмотрение (docs/process.md, «Очередь аналитиков»).
+
+    Заявка, у которой исполнитель уже есть, остаётся у него: она вернулась после ответа клиента на запрос
+    или после перезапуска проверки, и продолжает её тот же аналитик.
+    """
+    if not get_settings().auto_assign or application.assignee_id is not None:
+        return
+    login = pick_analyst(analyst_loads(db))
+    if login is not None:
+        assign_automatically(db, application, login)
+
+
 def transition(
     db: Session,
     application: Application,
@@ -148,6 +206,8 @@ def transition(
             title=BANK_NOTICES[target].format(n=n),
             body=reason,
         )
+    if target == S.MANUAL_REVIEW:
+        auto_assign(db, application)
 
     # Задания обработчику — часть той же транзакции (transactional outbox).
     if target == S.SUBMITTED or (current in (S.NEED_INFO, S.MANUAL_REVIEW) and target == S.IN_PROCESSING):

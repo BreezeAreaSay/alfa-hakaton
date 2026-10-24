@@ -16,6 +16,7 @@ from app.domain.catalog import ProductTerms
 from app.domain.enums import (
     Actor,
     AppStatus,
+    Audience,
     DecisionKind,
     InfoOrigin,
     JobStatus,
@@ -36,6 +37,7 @@ from app.domain.policy import (
     offer_figures,
     rate_for,
 )
+from app.domain.review import PRIORITY_RANK, review_priority
 from app.domain.scoring import score
 from app.models import Application, AuditLog, Company, Decision, InfoRequest, Job, Offer, PipelineStep, Product, User
 from app.pipeline.steps import collect_inputs, run_results, save_decision
@@ -50,6 +52,7 @@ from app.schemas import (
     TermsPreviewRequest,
 )
 from app.security import bank_staff
+from app.services import events
 from app.services.audit import audit
 from app.services.justification import justification_pdf
 from app.services.metrics import bank_metrics
@@ -149,12 +152,17 @@ def queue_list(
         query = query.where(Company.name.ilike(like) | Company.inn.like(like) | Application.number.like(like))
     rows = db.scalars(query.order_by(Application.status_changed_at.desc()).limit(300)).all()
 
+    moment = now()
     items = []
     for a in rows:
         scoring = latest_scoring(db, a)
         decision = latest_decision(db, a)
         if risk_class and (scoring is None or scoring.risk_class != risk_class):
             continue
+        flags = decision.flags if decision else []
+        priority, reasons = review_priority(
+            a.status, now=moment, sla_due_at=a.sla_due_at, amount=Decimal(a.amount), flags=flags
+        )
         items.append(
             QueueItem(
                 id=a.id,
@@ -170,32 +178,60 @@ def queue_list(
                 status_label=STATUS_LABELS[a.status]["bank"],
                 risk_class=scoring.risk_class if scoring else None,
                 score=scoring.score if scoring else None,
-                flags=decision.flags if decision else [],
+                flags=flags,
                 assignee_name=a.assignee.full_name if a.assignee else None,
                 assignee_is_me=a.assignee_id == user.id,
                 sla_due_at=a.sla_due_at if a.status == AppStatus.MANUAL_REVIEW else None,
-                overdue=bool(a.status == AppStatus.MANUAL_REVIEW and a.sla_due_at and a.sla_due_at < now()),
+                overdue=bool(a.status == AppStatus.MANUAL_REVIEW and a.sla_due_at and a.sla_due_at < moment),
+                priority=priority,
+                priority_reasons=reasons,
                 submitted_at=a.submitted_at,
                 status_changed_at=a.status_changed_at,
                 waiting_source=waiting_source(db, a),
             )
         )
-    priority = {AppStatus.MANUAL_REVIEW: 0, AppStatus.IN_PROCESSING: 1, AppStatus.NEED_INFO: 2}
-    items.sort(key=lambda i: (priority.get(i.status, 3), i.sla_due_at or i.status_changed_at))
+    # Сверху ручное рассмотрение: по приоритету, внутри него — по сроку рассмотрения; дальше остальные статусы
+    order = {AppStatus.MANUAL_REVIEW: 0, AppStatus.IN_PROCESSING: 1, AppStatus.NEED_INFO: 2}
+    items.sort(
+        key=lambda i: (
+            order.get(i.status, 3),
+            PRIORITY_RANK.get(i.priority, len(PRIORITY_RANK)),
+            i.sla_due_at or i.status_changed_at,
+        )
+    )
     return items
 
 
-@router.post("/applications/{application_id}/assign", response_model=ApplicationOut, summary="Взять в работу")
+@router.post(
+    "/applications/{application_id}/assign",
+    response_model=ApplicationOut,
+    summary="Взять в работу или забрать себе заявку другого аналитика",
+)
 def assign(
     application_id: uuid.UUID, user: User = Depends(bank_staff), db: Session = Depends(get_db)
 ) -> ApplicationOut:
+    """Ничья заявка назначается на сотрудника («Взять в работу»), заявка другого аналитика переходит к нему
+    («Взять себе»). В журнал пишется `ASSIGNED`: к кому, а при передаче — и от кого. Повтор по своей заявке
+    ничего не меняет."""
     application = load(db, application_id, lock=True)
     if application.status not in (AppStatus.MANUAL_REVIEW, AppStatus.NEED_INFO):
         raise HTTPException(status.HTTP_409_CONFLICT, "Взять в работу можно заявку на ручном рассмотрении")
+    if application.assignee_id == user.id:
+        return application_out(db, application, user)
+    previous = application.assignee
     application.assignee_id = user.id
+    details = {"to": user.login} if previous is None else {"from": previous.login, "to": user.login}
     audit(
-        db, actor=Actor.UNDERWRITER, user=user, action="ASSIGNED", entity_type="application", entity_id=application.id
+        db,
+        actor=Actor.UNDERWRITER,
+        user=user,
+        action="ASSIGNED",
+        entity_type="application",
+        entity_id=application.id,
+        details=details,
     )
+    # Прежний исполнитель и другие сотрудники видят нового исполнителя без перезагрузки
+    events.emit(db, application, audience=Audience.BANK, kind="ASSIGNED", title="ASSIGNED", notify=False)
     db.commit()
     return application_out(db, application, user)
 
@@ -258,6 +294,13 @@ def dossier(application_id: uuid.UUID, user: User = Depends(bank_staff), db: Ses
         select(AuditLog).where(AuditLog.entity_id == str(application.id)).order_by(AuditLog.id.desc()).limit(100)
     ).all()
     users = {u.id: u.full_name for u in db.scalars(select(User))}
+    priority, priority_reasons = review_priority(
+        application.status,
+        now=now(),
+        sla_due_at=application.sla_due_at,
+        amount=Decimal(application.amount),
+        flags=last.flags if last else [],
+    )
     return {
         "application": application_out(db, application, user),
         "sources": {
@@ -286,6 +329,8 @@ def dossier(application_id: uuid.UUID, user: User = Depends(bank_staff), db: Ses
         "assignee": application.assignee.full_name if application.assignee else None,
         "assignee_is_me": application.assignee_id == user.id,
         "sla_due_at": application.sla_due_at,
+        "priority": priority,
+        "priority_reasons": priority_reasons,
         "audit": [
             {
                 "action": r.action,

@@ -11,6 +11,7 @@ x-backend-env: &backend-env
   LLM_MODEL: ${LLM_MODEL:-qwen3:4b}
   LLM_TIMEOUT_SECONDS: ${LLM_TIMEOUT_SECONDS:-40}
   WORKER_CONCURRENCY: ${WORKER_CONCURRENCY:-4}
+  AUTO_ASSIGN: ${AUTO_ASSIGN:-true}
 
 services:
   postgres:

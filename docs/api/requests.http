@@ -293,7 +293,7 @@ Authorization: Bearer {{analystToken}}
     });
 %}
 
-### 2.4. Взять заявку в работу
+### 2.4. Взять заявку себе: после сброса её автоматически получил analyst2
 POST {{baseUrl}}/bank/applications/{{grandApplicationId}}/assign
 Authorization: Bearer {{analystToken}}
 

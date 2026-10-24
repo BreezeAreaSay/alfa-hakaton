@@ -75,6 +75,9 @@ const CUSTOM_COMPANY = {
     avg_monthly_inflow: 5_000_000,
 };
 
+// Поля строки очереди, которые сверяет проверка: приоритет с причинами и исполнитель (автораспределение)
+const QUEUE_ROW_FIELDS = ['status', 'flags', 'priority', 'priority_reasons', 'assignee_name', 'assignee_is_me'];
+
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const log = (...args) => console.log('·', ...args);
 
@@ -804,6 +807,10 @@ async function main() {
     });
     const startDossier = await analyst2.get(`/api/bank/applications/${startApp.id}/dossier`);
     companySources.start = sourcesOf(startDossier);
+    // Строка очереди у analyst2: заявка уже назначена автоматически, флаг F03 повышает приоритет, F07 — нет
+    const startRow = (await analyst2.get('/api/bank/applications?status=MANUAL_REVIEW')).find(
+        (r) => r.id === startApp.id,
+    );
     errors.request_unknown_item = await analyst2.error('POST', `/api/bank/applications/${startApp.id}/info-requests`, {
         items: ['UNKNOWN'],
         comment: '',
@@ -819,6 +826,7 @@ async function main() {
         request: { product_code: 'STARTUP', purpose: 'WORKING_CAPITAL', amount: 1_500_000, term_months: 24 },
         quote: startQuote.map((q) => ({ code: q.product.code, eligible: q.eligible, issues: q.issues })),
         review: compactApp(startApp),
+        queue_item: pick(startRow, QUEUE_ROW_FIELDS),
         dossier: compactDossier(startDossier),
         application: compactApp(await sessions.start.get(`/api/applications/${startApp.id}`)),
         dossier_rejected: compactDossier(await analyst2.get(`/api/bank/applications/${startApp.id}/dossier`), false),
@@ -913,6 +921,8 @@ async function main() {
             'risk_class',
             'score',
             'flags',
+            'priority',
+            'priority_reasons',
         ]),
         timeout_step: pick(timeoutStep, ['status', 'error', 'attempts']),
         application: compactApp(recovered),
@@ -1012,7 +1022,7 @@ async function main() {
 
     // Итог: уведомления, журнал, очередь
     const notifications = {};
-    for (const login of [...CLIENTS, 'analyst', 'admin']) {
+    for (const login of [...CLIENTS, 'analyst', 'analyst2', 'admin']) {
         notifications[login] = compactNotifications(await sessions[login].get('/api/notifications'));
     }
     const veterNotifications = await veter.get('/api/notifications');
@@ -1021,7 +1031,7 @@ async function main() {
     examples.audit = auditRows.slice(0, 2);
     examples.audit_actions = auditRows.slice(0, 40).map((r) => r.action);
     examples.queue_closed = (await analyst.get('/api/bank/applications?include_closed=true')).map((r) =>
-        pick(r, ['number', 'status', 'status_label', 'risk_class', 'score', 'flags']),
+        pick(r, ['number', 'status', 'status_label', 'risk_class', 'score', 'flags', 'priority', 'assignee_name']),
     );
     examples.summary_end = await analyst.get('/api/bank/summary');
     examples.metrics_end = await analyst.get('/api/bank/metrics?days=30');

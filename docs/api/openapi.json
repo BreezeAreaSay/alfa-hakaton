@@ -1717,7 +1717,8 @@
         "tags": [
           "Рабочее место банка"
         ],
-        "summary": "Взять в работу",
+        "summary": "Взять в работу или забрать себе заявку другого аналитика",
+        "description": "Ничья заявка назначается на сотрудника («Взять в работу»), заявка другого аналитика переходит к нему\n(«Взять себе»). В журнал пишется `ASSIGNED`: к кому, а при передаче — и от кого. Повтор по своей заявке\nничего не меняет.",
         "operationId": "assign_api_bank_applications__application_id__assign_post",
         "security": [
           {
@@ -4919,6 +4920,16 @@
         "title": "PreliminaryOffers",
         "description": "Предварительный лимит по выписке без заявки: предложения, на чём основаны, и разбор выписки с прогнозом."
       },
+      "Priority": {
+        "type": "string",
+        "enum": [
+          "HIGH",
+          "MEDIUM",
+          "NORMAL"
+        ],
+        "title": "Priority",
+        "description": "Приоритет заявки на ручном рассмотрении (domain/review.py)."
+      },
       "ProactiveOffer": {
         "properties": {
           "product_code": {
@@ -5275,6 +5286,25 @@
             "type": "boolean",
             "title": "Overdue"
           },
+          "priority": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Priority"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Приоритет на ручном рассмотрении (docs/process.md, «Очередь аналитиков»); у других статусов — null"
+          },
+          "priority_reasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Priority Reasons",
+            "description": "Почему такой приоритет — короткие причины для аналитика"
+          },
           "submitted_at": {
             "anyOf": [
               {
@@ -5324,6 +5354,8 @@
           "assignee_is_me",
           "sla_due_at",
           "overdue",
+          "priority",
+          "priority_reasons",
           "submitted_at",
           "status_changed_at",
           "waiting_source"

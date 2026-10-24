@@ -10,7 +10,7 @@ import { type QueueFilters, useBankSummary, useMeta, useProducts, useQueue } fro
 import type { AppStatus, BankSummary, QueueItem } from '../../api/types';
 import { Badge, Empty, ErrorPlate, Loader, PageHead, StatusBadge } from '../../components/ui';
 import { date, months, rub, timeLeft } from '../../utils/format';
-import { FlagBadges, RiskBadge, shortName, useNow } from './components/common';
+import { FlagBadges, PriorityBadge, RiskBadge, shortName, useNow } from './components/common';
 import './bank.css';
 
 type Group = 'active' | 'review' | 'need_info' | 'auto' | 'offers' | 'closed';
@@ -247,6 +247,7 @@ export function QueuePage() {
                                         <th className='num'>Сумма</th>
                                         <th>Срок</th>
                                         <th>Статус</th>
+                                        <th className='col-detail'>Приоритет</th>
                                         <th>Риск</th>
                                         <th>Флаги</th>
                                         <th>Срок обработки</th>
@@ -284,6 +285,9 @@ export function QueuePage() {
                                                         <Badge color='orange'>Ждём: {row.waiting_source}</Badge>
                                                     )}
                                                 </div>
+                                            </td>
+                                            <td className='bank-nowrap col-detail'>
+                                                <PriorityBadge priority={row.priority} reasons={row.priority_reasons} />
                                             </td>
                                             <td className='bank-nowrap'>
                                                 <RiskBadge riskClass={row.risk_class} score={row.score} />

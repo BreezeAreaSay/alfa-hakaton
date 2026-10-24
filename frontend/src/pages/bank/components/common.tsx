@@ -2,7 +2,7 @@ import { CheckmarkCircleMIcon } from '@alfalab/icons-glyph/CheckmarkCircleMIcon'
 import { CrossCircleMIcon } from '@alfalab/icons-glyph/CrossCircleMIcon';
 import { type ReactNode, useEffect, useState } from 'react';
 
-import type { Meta, Step } from '../../../api/types';
+import type { Meta, Priority, Step } from '../../../api/types';
 import { Badge, SectionTitle } from '../../../components/ui';
 import { RISK_COLORS, type StatusColor } from '../../../utils/format';
 
@@ -150,6 +150,23 @@ export function RiskBadge({ riskClass, score }: { riskClass: string | null | und
         <Badge color={RISK_COLORS[riskClass] ?? 'grey'}>
             {score === null || score === undefined ? riskClass : `${riskClass} · ${score}`}
         </Badge>
+    );
+}
+
+export const PRIORITY_LABELS: Record<Priority, { label: string; color: StatusColor }> = {
+    HIGH: { label: 'Высокий', color: 'red' },
+    MEDIUM: { label: 'Средний', color: 'orange' },
+    NORMAL: { label: 'Обычный', color: 'grey' },
+};
+
+/** Приоритет заявки на ручном рассмотрении; причины, если переданы, — во всплывающей подсказке. */
+export function PriorityBadge({ priority, reasons = [] }: { priority: Priority | null; reasons?: string[] }) {
+    if (!priority) return <span className='muted'>—</span>;
+    const { label, color } = PRIORITY_LABELS[priority];
+    return (
+        <span title={reasons.length ? reasons.join('\n') : undefined}>
+            <Badge color={color}>{label}</Badge>
+        </span>
     );
 }
 

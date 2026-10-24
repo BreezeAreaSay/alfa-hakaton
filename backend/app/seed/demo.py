@@ -11,10 +11,11 @@ from sqlalchemy.orm import Session
 from app.config import get_settings
 from app.domain.catalog import PRODUCTS
 from app.domain.enums import Actor, AppStatus, ConsentType, Purpose, Role
+from app.domain.review import pick_analyst
 from app.integrations.simulator import external_systems
 from app.models import Application, Company, Consent, Product, User
 from app.security import hash_password
-from app.services.workflow import transition
+from app.services.workflow import analyst_loads, assign_automatically, transition
 
 log = logging.getLogger("seed")
 
@@ -146,6 +147,10 @@ def sync_companies(db: Session) -> None:
 def preseed(db: Session) -> int:
     from app.api.applications import next_number
 
+    # Стартовые заявки распределяются сразу, тем же правилом и по порядку номеров, будто пришли на рассмотрение
+    # одна за другой. Конвейер ведёт их параллельно, и иначе исполнитель зависел бы от того, какая первой
+    # дойдёт до ручного рассмотрения, — стенд после сброса был бы каждый раз разным (docs/process.md)
+    loads = analyst_loads(db) if get_settings().auto_assign else None
     created = 0
     for spec in PRESEED:
         user = db.scalars(select(User).where(User.login == spec["login"])).one()
@@ -163,6 +168,10 @@ def preseed(db: Session) -> int:
         for kind in (ConsentType.BKI, ConsentType.PD):
             db.add(Consent(application_id=application.id, kind=kind, given_by=user.id, text_version="2026-10"))
         transition(db, application, AppStatus.SUBMITTED, actor=Actor.CLIENT, user=user)
+        login = pick_analyst(loads) if loads is not None else None
+        if login is not None:
+            assign_automatically(db, application, login)
+            loads[login] += 1
         created += 1
     return created
 

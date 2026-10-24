@@ -359,6 +359,8 @@ class Event(TimestampMixin, Base):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
     application_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("applications.id"), index=True)
     company_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("companies.id"), index=True)
+    # Личное уведомление сотруднику (например, «Вам назначена заявка»): видит только он
+    user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"), index=True)
     audience: Mapped[str] = mapped_column(String(8))
     kind: Mapped[str] = mapped_column(String(48))
     title: Mapped[str] = mapped_column(String(255))
