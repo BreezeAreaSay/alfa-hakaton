@@ -18,7 +18,7 @@ from app.services.workflow import transition
 
 log = logging.getLogger("seed")
 
-DEMO_PASSWORD = "demo"
+DEMO_PASSWORD = "admin"
 
 COMPANIES = [
     # ИНН, название, логин, ФИО, должность, право подписи
@@ -167,12 +167,13 @@ def preseed(db: Session) -> int:
     return created
 
 
-APPLICATION_TABLES = "applications"
+# Заявки (вместе с ними по CASCADE — документы, чат, события) и чаты с поддержкой
+DEMO_DATA_TABLES = "applications, support_messages"
 
 
 def reset_demo(db: Session) -> int:
     # Идентификаторы не начинаются заново: открытые вкладки продолжают поток событий с последнего Last-Event-ID
-    db.execute(text(f"TRUNCATE {APPLICATION_TABLES}, audit_log, idempotency_keys CASCADE"))
+    db.execute(text(f"TRUNCATE {DEMO_DATA_TABLES}, audit_log, idempotency_keys CASCADE"))
     db.execute(text("ALTER SEQUENCE application_number_seq RESTART WITH 1"))
     db.execute(text("UPDATE users SET last_read_event_id = 0"))
     files = Path(get_settings().files_dir)

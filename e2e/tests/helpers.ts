@@ -1,6 +1,6 @@
 import { expect, type APIRequestContext, type Browser, type Page } from '@playwright/test';
 
-export const PASSWORD = 'demo';
+export const PASSWORD = 'admin';
 
 /**
  * Демо-версия без сервера (E2E_DEMO=1): API имитируется в браузере, данные лежат в localStorage
@@ -29,11 +29,20 @@ export async function apiToken(request: APIRequestContext, login: string): Promi
     return (await response.json()).token as string;
 }
 
+/** Вход через кнопку «Войти» в шапке стартовой страницы: форма — в окне поверх страницы. */
 export async function login(page: Page, username: string, password = PASSWORD): Promise<void> {
     await page.goto('/login');
-    await page.locator('input[name="login"]').fill(username);
-    await page.locator('input[name="password"]').fill(password);
-    await page.getByRole('button', { name: 'Войти', exact: true }).click();
+    await page.getByRole('banner').getByRole('button', { name: 'Войти', exact: true }).click();
+    const dialog = page.getByRole('dialog', { name: 'Вход' });
+    await dialog.locator('input[name="login"]').fill(username);
+    await dialog.locator('input[name="password"]').fill(password);
+    await dialog.getByRole('button', { name: 'Войти', exact: true }).click();
+}
+
+/** Выход: кнопка с дверью в шапке и подтверждение в окне по центру. */
+export async function logout(page: Page): Promise<void> {
+    await page.getByRole('banner').getByRole('button', { name: 'Выйти' }).click();
+    await page.getByRole('dialog', { name: 'Выйти из кабинета?' }).getByRole('button', { name: 'Выйти' }).click();
 }
 
 /**
@@ -47,7 +56,7 @@ export async function openAs(
     current: Page,
 ): Promise<{ page: Page; close: () => Promise<void> }> {
     if (DEMO) {
-        await current.getByRole('button', { name: 'Выйти' }).click();
+        await logout(current);
         await expect(current).toHaveURL(/\/login$/);
         await login(current, username);
         return { page: current, close: async () => undefined };

@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "9ff51097-dd03-5833-814d-9492165858a4",
     "name": "Умный кредитный кабинет — API",
-    "description": "Запросы к API «Умного кредитного кабинета предпринимателя» на демо-стенде.\n\n**Как запустить.** Поднимите стенд (`docker compose up -d --build --wait`) и запустите коллекцию целиком: в Postman — Run collection, из командной строки — из корня репозитория:\n\n```\nnpx newman@6.2.2 run docs/api/postman_collection.json\n```\n\nПапки выполняются по порядку и передают друг другу токены и идентификаторы через переменные коллекции. Папка «0. Подготовка» сбрасывает демо-данные, поэтому коллекцию можно запускать повторно. Статус заявки меняется асинхронно (конвейер работает в отдельном обработчике), поэтому запросы «Опрос …» повторяются, пока заявка не перейдёт в нужный статус.\n\n**Авторизация.** `POST /api/auth/login` → заголовок `Authorization: Bearer <token>`. Токен задан на уровне папки, запросы входа идут без авторизации. Пароль всех демо-пользователей — `demo`.\n\nОписание API — `docs/api.md`, спецификация — `docs/api/openapi.json` и Swagger UI на `{{baseUrl}}/api/docs`.",
+    "description": "Запросы к API «Умного кредитного кабинета предпринимателя» на демо-стенде.\n\n**Как запустить.** Поднимите стенд (`docker compose up -d --build --wait`) и запустите коллекцию целиком: в Postman — Run collection, из командной строки — из корня репозитория:\n\n```\nnpx newman@6.2.2 run docs/api/postman_collection.json\n```\n\nПапки выполняются по порядку и передают друг другу токены и идентификаторы через переменные коллекции. Папка «0. Подготовка» сбрасывает демо-данные, поэтому коллекцию можно запускать повторно. Статус заявки меняется асинхронно (конвейер работает в отдельном обработчике), поэтому запросы «Опрос …» повторяются, пока заявка не перейдёт в нужный статус.\n\n**Авторизация.** `POST /api/auth/login` → заголовок `Authorization: Bearer <token>`. Токен задан на уровне папки, запросы входа идут без авторизации. Пароль всех демо-пользователей — `admin`.\n\nОписание API — `docs/api.md`, спецификация — `docs/api/openapi.json` и Swagger UI на `{{baseUrl}}/api/docs`.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -2241,6 +2241,301 @@
           }
         ]
       }
+    },
+    {
+      "id": "6785fcd3-3057-5f13-89db-2b7aecc5dc5a",
+      "name": "6. Поддержка",
+      "description": "Чат с поддержкой: клиент `orlov` пишет, администратор видит его в колонке чатов, читает и отвечает, клиент получает ответ. Аналитику колонка чатов недоступна. Авторизация папки — `Bearer {{adminToken}}`, запросы клиента и аналитика задают свою.",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{adminToken}}",
+            "type": "string"
+          }
+        ]
+      },
+      "item": [
+        {
+          "id": "d6be0f9f-f1bf-5288-bb3d-00ef48c511c8",
+          "name": "Клиент пишет в поддержку",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "6a1663e7-a056-5892-b036-eca2add617bd",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "const message = pm.response.json();",
+                  "pm.test('Сообщение клиента', () => {",
+                  "    pm.expect(message.author_role).to.eql('CLIENT');",
+                  "    pm.expect(message.text).to.include('выписку');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/support/messages",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "support",
+                "messages"
+              ]
+            },
+            "description": "Сообщение в свой чат с поддержкой; 201 и сообщение. Пишет только клиент.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{orlovToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Банк запросил выписку — в каком формате её загрузить?\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "c5106bc3-5b9b-5f69-a208-1777d405de98",
+          "name": "Колонка чатов администратора",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "acadd9b0-5b54-5175-a2ff-a655e57385db",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const threads = pm.response.json();",
+                  "const thread = threads.find((t) => t.client_name.startsWith('Орлов'));",
+                  "pm.test('Клиент в колонке, сообщение не прочитано', () => {",
+                  "    pm.expect(thread).to.be.an('object');",
+                  "    pm.expect(thread.last_author_role).to.eql('CLIENT');",
+                  "    pm.expect(thread.unread).to.be.above(0);",
+                  "});",
+                  "pm.collectionVariables.set('supportClientId', thread.client_id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/support/threads",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "support",
+                "threads"
+              ]
+            },
+            "description": "Чаты клиентов: последнее сообщение и число непрочитанных; новые сверху."
+          },
+          "response": []
+        },
+        {
+          "id": "03781555-9262-5494-b8da-57fe7dc153e9",
+          "name": "Прочитать чат клиента",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "b8f48c82-f465-5d8e-bc70-51ab0e8b045f",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 204', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/support/threads/{{supportClientId}}/read",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "support",
+                "threads",
+                "{{supportClientId}}",
+                "read"
+              ]
+            },
+            "description": "Отметить сообщения клиента прочитанными; 204."
+          },
+          "response": []
+        },
+        {
+          "id": "505818a8-6289-5c01-b5f8-1c8038f3a18e",
+          "name": "Ответить клиенту",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "a3b3e2fb-d755-590f-b536-e37b86992073",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Ответ поддержки', () => pm.expect(pm.response.json().author_role).to.eql('ADMIN'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/support/threads/{{supportClientId}}/messages",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "support",
+                "threads",
+                "{{supportClientId}}",
+                "messages"
+              ]
+            },
+            "description": "Ответ администратора в чат клиента; 201. Клиент увидит его в окне поддержки.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Подойдёт выгрузка из 1С или CSV за последние 12 месяцев.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "dd13c8f0-329b-5500-9e0a-ee156b09cf4a",
+          "name": "Клиент видит ответ",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "046f3e3f-c600-5e03-955c-4c35055416f3",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const chat = pm.response.json();",
+                  "pm.test('Последнее сообщение — ответ поддержки, он не прочитан', () => {",
+                  "    pm.expect(chat.messages[chat.messages.length - 1].author_role).to.eql('ADMIN');",
+                  "    pm.expect(chat.unread).to.be.above(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/support",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "support"
+              ]
+            },
+            "description": "Свой чат клиента; `unread` — непрочитанные ответы поддержки.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{orlovToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "52ce09de-6f09-5626-974b-f97067603a80",
+          "name": "Аналитику колонка чатов недоступна",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "e4e54f8c-594f-54c7-9e36-6d2ec4db1912",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/support/threads",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "support",
+                "threads"
+              ]
+            },
+            "description": "Отвечает на вопросы в поддержку администратор; у аналитика — 403.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{analystToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
     }
   ],
   "event": [
@@ -2269,7 +2564,7 @@
     {
       "id": "ec3313e3-5696-514d-8a62-37e9c8f8f833",
       "key": "password",
-      "value": "demo",
+      "value": "admin",
       "type": "string",
       "description": "Пароль всех демо-пользователей"
     },
@@ -2426,6 +2721,13 @@
       "value": "1000",
       "type": "string",
       "description": "Пауза между повторами опроса, мс"
+    },
+    {
+      "id": "0e7b16ab-f920-5977-a0c8-100caacad9d2",
+      "key": "supportClientId",
+      "value": "",
+      "type": "string",
+      "description": "Клиент, которому отвечает поддержка"
     }
   ]
 }

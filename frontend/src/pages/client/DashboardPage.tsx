@@ -13,7 +13,7 @@ import { CashflowForecast } from '../../components/CashflowForecast';
 import { CompanyCard } from './components/CompanyCard';
 import { UploadButton } from './components/UploadButton';
 
-const HOW_IT_WORKS = [
+export const HOW_IT_WORKS = [
     { title: 'Подберите кредит', text: 'Расскажите, на что нужны деньги, — покажем подходящие продукты и платёж' },
     { title: 'Отправьте заявку', text: 'Данные компании подтянем из ЕГРЮЛ, проверка — в среднем несколько минут' },
     { title: 'Подпишите договор', text: 'Подписание и выдача — прямо в кабинете, без визитов и звонков' },

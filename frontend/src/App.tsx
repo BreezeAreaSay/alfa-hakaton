@@ -2,7 +2,9 @@ import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 
 import { useLiveUpdates } from './api/hooks';
 import { isBankRole, useAuth } from './auth/AuthContext';
+import { AppFooter } from './components/AppFooter';
 import { AppHeader } from './components/AppHeader';
+import { SupportWidget } from './components/SupportWidget';
 import { Theme } from './components/Theme';
 import { Loader } from './components/ui';
 import { AuditPage } from './pages/bank/AuditPage';
@@ -22,17 +24,21 @@ function ClientLayout() {
     if (!user) return <Navigate to='/login' replace={true} />;
     if (user.role !== 'CLIENT') return <Navigate to='/bank' replace={true} />;
     return (
-        <>
+        <div className='app'>
             <Theme name='corp' />
+            {/* логотип ведёт на стартовую страницу с баннерами, «Главная» в меню — на главную кабинета */}
             <AppHeader
-                home='/client'
+                home='/'
                 nav={[
                     { to: '/client', label: 'Главная', end: true },
+                    { to: '/products', label: 'Продукты', wideOnly: true },
                     { to: '/client/new', label: 'Получить кредит', short: 'Заявка' },
                 ]}
             />
             <Outlet />
-        </>
+            <AppFooter />
+            <SupportWidget admin={false} />
+        </div>
     );
 }
 
@@ -56,6 +62,8 @@ function BankLayout() {
                 ]}
             />
             <Outlet />
+            {/* отвечает на вопросы в поддержку администратор; у аналитика кнопки нет */}
+            {user.role === 'ADMIN' && <SupportWidget admin={true} />}
         </>
     );
 }
@@ -70,12 +78,31 @@ function Home() {
 export function App() {
     return (
         <Routes>
+            {/* Стартовая страница с баннерами открыта всем; /login — она же, но вошедших ведёт в кабинет */}
+            <Route
+                path='/'
+                element={
+                    <>
+                        <Theme name='corp' />
+                        <LoginPage />
+                    </>
+                }
+            />
+            <Route
+                path='/products'
+                element={
+                    <>
+                        <Theme name='corp' />
+                        <LoginPage page='products' />
+                    </>
+                }
+            />
             <Route
                 path='/login'
                 element={
                     <>
                         <Theme name='corp' />
-                        <LoginPage />
+                        <LoginPage guestOnly={true} />
                     </>
                 }
             />

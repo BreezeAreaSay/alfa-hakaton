@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 
 import { expect, test, type Page } from '@playwright/test';
 
-import { login, money, PASSWORD, resetDemo } from './helpers';
+import { login, logout, money, PASSWORD, resetDemo } from './helpers';
 
 const DEMO_FILES = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../frontend/public/demo-files');
 
@@ -11,19 +11,24 @@ test.beforeEach(async ({ request, page }) => {
     await resetDemo({ request, page });
 });
 
-/** Шаг «Подбор»: описание задачи → распознанные параметры → выбор продукта. */
+/** Шаг «Подбор»: описание задачи своими словами → «Я понял так» → выбор продукта. */
 async function chooseProduct(page: Page, need: string, product: string): Promise<void> {
     await page.getByRole('button', { name: 'Подобрать кредит' }).first().click();
     await expect(page).toHaveURL(/\/client\/new/);
+    await page.getByRole('button', { name: 'Или опишите задачу своими словами' }).click();
     await page.locator('textarea').first().fill(need);
     await page.getByRole('button', { name: 'Подобрать по описанию' }).click();
-    await expect(page.getByText(/^Распознали:/)).toBeVisible();
+    await expect(page.getByText('Я понял так', { exact: true })).toBeVisible();
     const card = page.locator('article').filter({ has: page.getByRole('heading', { name: product, exact: true }) });
     await card.getByRole('button', { name: 'Оформить заявку' }).click();
 }
 
-/** Шаги «Данные» и «Проверка и отправка». */
-async function submitApplication(page: Page): Promise<void> {
+/**
+ * Шаги «Данные» и «Проверка и отправка». Выручка обязательна; в тестах — близкая к данным ФНС или оборотам
+ * компании, иначе расхождение больше 30% отправит заявку аналитику (флаг F04) и исход сценария изменится.
+ */
+async function submitApplication(page: Page, revenue: number): Promise<void> {
+    await page.getByLabel('Выручка за последний год, по вашим данным').fill(String(revenue));
     await page.getByRole('button', { name: 'Далее' }).click();
     const consents = [
         'Согласие на запрос кредитной истории в бюро кредитных историй',
@@ -44,7 +49,10 @@ test('ключевой сценарий: подбор, заявка, автоо�
 
     await chooseProduct(page, 'Нужно 3 млн на закупку товара к сезону, верну за 2 года', 'Кредит на развитие бизнеса');
     await expect(page.getByText('Кредит на развитие бизнеса').first()).toBeVisible();
-    await submitApplication(page);
+    // без выручки дальше не пускает
+    await page.getByRole('button', { name: 'Далее' }).click();
+    await expect(page.getByText('Укажите выручку за последний год')).toBeVisible();
+    await submitApplication(page, 120_000_000);
 
     // Конвейер проверок проходит автоматически, статус обновляется без перезагрузки страницы
     await expect(page.getByRole('heading', { name: 'Кредит одобрен' })).toBeVisible();
@@ -70,7 +78,7 @@ test('ключевой сценарий: подбор, заявка, автоо�
 test('банку не хватает данных: клиент загружает выписку и получает предложение', async ({ page }) => {
     await login(page, 'orlov');
     await chooseProduct(page, 'Нужно 1 500 000 на закупку товара на 2 года', 'Экспресс-кредит без залога');
-    await submitApplication(page);
+    await submitApplication(page, 8_400_000);
 
     await expect(page.getByText('Нужна информация').first()).toBeVisible();
     await page
@@ -90,7 +98,7 @@ test('банку не хватает данных: клиент загружае
 test('стоп-фактор: компания в ликвидации получает отказ с понятной причиной', async ({ page }) => {
     await login(page, 'romashka');
     await chooseProduct(page, 'Нужно 2 млн на закупку товара на год', 'Кредит на развитие бизнеса');
-    await submitApplication(page);
+    await submitApplication(page, 9_000_000);
 
     await expect(page.getByRole('heading', { name: 'Банк не может выдать кредит' })).toBeVisible();
     await expect(page.getByText(/ликвидац/i).first()).toBeVisible();
@@ -116,6 +124,36 @@ test('вход с неверным паролем и разграничение 
     await expect(page).toHaveURL(/\/client$/);
 });
 
+test('логотип возвращает вошедшего клиента на стартовую страницу с баннерами', async ({ page }) => {
+    await login(page, 'veter');
+    await expect(page).toHaveURL(/\/client$/);
+
+    await page.getByRole('link', { name: 'На главную' }).click();
+    await expect(page).toHaveURL(/\/$/);
+    await expect(page.getByRole('heading', { level: 1, name: /Кредиты для бизнеса/ })).toBeVisible();
+    // вошедшему окно входа не нужно: «Получить кредит» ведёт сразу в подбор
+    await page.getByRole('banner').getByRole('button', { name: 'Получить кредит' }).click();
+    await expect(page).toHaveURL(/\/client\/new$/);
+
+    await page.getByRole('link', { name: 'На главную' }).click();
+    await page.getByRole('banner').getByRole('button', { name: 'Личный кабинет' }).click();
+    await expect(page).toHaveURL(/\/client$/);
+});
+
+test('выход из кабинета — только после подтверждения в окне', async ({ page }) => {
+    await login(page, 'veter');
+    await expect(page).toHaveURL(/\/client$/);
+
+    await page.getByRole('banner').getByRole('button', { name: 'Выйти' }).click();
+    const confirm = page.getByRole('dialog', { name: 'Выйти из кабинета?' });
+    await confirm.getByRole('button', { name: 'Остаться' }).click();
+    await expect(confirm).toHaveCount(0);
+    await expect(page).toHaveURL(/\/client$/);
+
+    await logout(page);
+    await expect(page).toHaveURL(/\/login$/);
+});
+
 test('выписка с кассовым разрывом: прогноз и подсказка лимита овердрафта', async ({ page }) => {
     await login(page, 'smirnova');
     await chooseProduct(page, 'Нужно 1 000 000 на год, закрыть кассовый разрыв', 'Овердрафт');
@@ -128,7 +166,7 @@ test('выписка с кассовым разрывом: прогноз и п�
     await expect(page.getByText('возможен кассовый разрыв').first()).toBeVisible();
     await expect(page.getByText(/Подойдёт овердрафт до/).first()).toContainText(money(250_000));
 
-    await submitApplication(page);
+    await submitApplication(page, 13_200_000);
     await expect(page.getByRole('heading', { name: 'Банк предлагает другие условия' })).toBeVisible();
     await expect(page.getByText('возможен кассовый разрыв').first()).toBeVisible();
 });

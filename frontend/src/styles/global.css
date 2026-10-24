@@ -5,7 +5,13 @@
  */
 :root {
     --font-family-system: 'Onest', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    --page-max-width: 1232px;
+    /*
+     * Ширина контента — как на alfabank.ru: 1140 px по центру на любом мониторе (плюс поля 24 px),
+     * уже — на всю ширину окна. Рабочему месту банка с таблицами нужно больше: от 1440 px до 88% окна,
+     * не шире 2800 px.
+     */
+    --page-max-width: 1188px;
+    --page-wide-max-width: clamp(1440px, 88vw, 2800px);
     --header-height: 72px;
     --sheet-radius: 40px;
     --brand-black: #000;
@@ -67,7 +73,7 @@ a {
 }
 
 .header--bank .header__inner {
-    max-width: 1440px;
+    max-width: var(--page-wide-max-width);
 }
 
 .logo {
@@ -124,6 +130,31 @@ a {
     line-height: 1.2;
 }
 
+/* «Выйти»: красная открытая дверь прямо на шапке, без плашки; кликабельная область 40×40 */
+.header__exit {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 0;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--color-light-accent-primary, #ef3124);
+    cursor: pointer;
+    transition: color 150ms ease;
+}
+
+.header__exit:hover {
+    color: #ff6a5f;
+}
+
+.header__exit:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}
+
 .bell {
     position: relative;
 }
@@ -169,6 +200,8 @@ a {
 
     position: relative;
     z-index: 0;
+    /* в колонке .app (подвал внизу) элемент с margin: auto сжимается по содержимому — растягиваем явно */
+    width: 100%;
     max-width: var(--page-max-width);
     margin: 0 auto;
     padding: var(--gap-40) var(--gap-24) var(--gap-64);
@@ -202,7 +235,7 @@ a {
 }
 
 .page--wide {
-    max-width: 1440px;
+    max-width: var(--page-wide-max-width);
 }
 
 /* Если у страницы есть заголовок, он стоит на чёрной полосе, а лист начинается под ним */
@@ -432,6 +465,24 @@ a {
     flex: none;
 }
 
+/* «Я понял так»: результат разбора описания — что нашли, по каким словам, «Изменить» */
+.understood {
+    padding: var(--gap-16);
+    border-radius: 16px;
+    background: var(--color-light-base-bg-primary);
+}
+
+.understood__row {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr) auto;
+    align-items: start;
+    gap: var(--gap-12);
+}
+
+.understood__label {
+    padding-top: 2px;
+}
+
 .offer-card {
     background: var(--color-light-base-bg-secondary);
     border-radius: 20px;
@@ -607,26 +658,256 @@ table.simple td.col-status {
     color: var(--color-light-text-primary);
 }
 
-.login {
-    min-height: 100vh;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+/*
+ * Стартовая страница: шапка с «Получить кредит» слева и «Войти» справа, чёрная шторка с заголовком, белый лист
+ * с шагами и подвал. Шторка и лист — по ширине шапки, поэтому заголовок начинается на одной линии со знаком банка.
+ */
+
+/* «Получить кредит» — как пункт меню кабинета (.nav__link), но белым: текст без фона, при наведении тускнеет */
+.login__nav-button {
+    border: 0;
+    background: none;
+    color: #fff;
+    font-family: inherit;
+    cursor: pointer;
+    transition: color 150ms ease;
+}
+
+.login__nav-button:hover {
+    color: rgba(255, 255, 255, 0.72);
+}
+
+/* «Регистрация» и «Войти» стоят рядом — ближе, чем значки в шапке кабинета */
+.login .header__right {
+    gap: var(--gap-8);
+}
+
+.login__inner {
+    max-width: var(--page-max-width);
+    margin: 0 auto;
+    padding: 0 var(--gap-24);
 }
 
 .login__brand {
+    padding: var(--gap-48) 0 calc(var(--sheet-radius) + var(--gap-48));
     background: var(--brand-black);
     color: #fff;
-    padding: var(--gap-64) var(--gap-48);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
 }
 
-.login__form {
+.login__note {
+    margin-top: var(--gap-24);
+}
+
+.login__sheet {
+    position: relative;
+    margin-top: calc(var(--sheet-radius) * -1);
+    padding: var(--gap-48) 0 var(--gap-64);
+    border-radius: var(--sheet-radius) var(--sheet-radius) 0 0;
+    background: #fff;
+}
+
+.login__steps {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--gap-16);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.login__step {
+    display: grid;
+    gap: var(--gap-8);
+    padding: var(--gap-24);
+    border-radius: 24px;
+    background: #f2f3f5;
+}
+
+.login__step-number {
     display: grid;
     place-items: center;
-    padding: var(--gap-48) var(--gap-24);
-    background: var(--color-light-base-bg-primary);
+    width: 32px;
+    height: 32px;
+    margin-bottom: var(--gap-8);
+    border: 2px solid var(--color-light-accent-primary, #ef3124);
+    border-radius: 50%;
+    color: var(--color-light-accent-primary, #ef3124);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+/* Окно входа: треть ширины и две трети высоты экрана, содержимое прокручивается внутри */
+.login-modal.login-modal {
+    width: clamp(420px, 33.333vw, 640px);
+    height: max(66.667vh, 480px);
+    max-height: calc(100vh - var(--gap-32));
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 32px;
+}
+
+/*
+ * Вход: окно по высоте содержимого — форма по центру сверху, под ней тестовые учётные записи в три колонки.
+ * Полосы прокрутки нет; если экран совсем низкий, содержимое всё равно прокручивается колёсиком.
+ */
+.login-modal.login-modal--wide {
+    width: min(760px, calc(100vw - var(--gap-32)));
+    height: auto;
+}
+
+.login-modal--wide .login-modal__content {
+    scrollbar-width: none;
+}
+
+.login-modal--wide .login-modal__content::-webkit-scrollbar {
+    display: none;
+}
+
+.login-modal__form {
+    width: 100%;
+    max-width: 360px;
+    margin: 0 auto;
+}
+
+.login-modal__submit {
+    display: flex;
+    justify-content: center;
+}
+
+/* колонки учётных записей — по ширине окна */
+.login-modal__accounts {
+    container-type: inline-size;
+}
+
+@container (min-width: 600px) {
+    .login-modal__accounts .demo-accounts {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+/* Подтверждение выхода: та же анимация и размытие, но компактное — по размеру содержимого */
+.confirm-modal.confirm-modal {
+    width: min(440px, calc(100vw - var(--gap-32)));
+    border-radius: 32px;
+}
+
+.confirm-modal__actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--gap-12);
+    margin-top: var(--gap-8);
+}
+
+/* отступ окна от краёв экрана меньше стандартного 40 px: на невысоком экране окну нужно место */
+.login-modal__wrapper {
+    --modal-vertical-padding: var(--gap-16);
+}
+
+.login-modal__content {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+/* колонки тестовых учётных записей — по ширине окна, а не экрана */
+.login-modal__body {
+    container-type: inline-size;
+}
+
+/* «Нет профиля? Создать» / «Уже есть профиль? Войти» — переход между окнами входа и регистрации */
+.login-modal__switch {
+    text-align: center;
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--color-light-text-secondary);
+}
+
+.login-modal__link {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--color-light-text-primary);
+    font: inherit;
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+}
+
+.login-modal__link:hover {
+    color: var(--color-light-accent-primary, #ef3124);
+}
+
+@container (max-width: 479px) {
+    .login-modal__body .demo-accounts {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* выезжает снизу с лёгким увеличением, уезжает быстрее */
+.login-modal-appear,
+.login-modal-enter {
+    opacity: 0;
+    transform: translateY(40px) scale(0.97);
+}
+
+.login-modal-appear-active,
+.login-modal-enter-active {
+    opacity: 1;
+    transform: none;
+    transition:
+        opacity 320ms ease-out,
+        transform 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.login-modal-exit {
+    opacity: 1;
+    transform: none;
+}
+
+.login-modal-exit-active {
+    opacity: 0;
+    transform: translateY(24px) scale(0.98);
+    transition:
+        opacity 220ms ease-in,
+        transform 220ms ease-in;
+}
+
+/* остальная страница размывается и чуть темнеет, чтобы внимание было на окне */
+.login-backdrop {
+    background-color: transparent;
+    -webkit-backdrop-filter: blur(0);
+    backdrop-filter: blur(0);
+    transition:
+        background-color 320ms ease-out,
+        backdrop-filter 320ms ease-out,
+        -webkit-backdrop-filter 320ms ease-out;
+}
+
+.login-backdrop-appear-active,
+.login-backdrop-appear-done,
+.login-backdrop-enter-active,
+.login-backdrop-enter-done,
+.login-backdrop-exit {
+    background-color: rgba(0, 0, 0, 0.32);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+}
+
+.login-backdrop-exit-active {
+    background-color: transparent;
+    -webkit-backdrop-filter: blur(0);
+    backdrop-filter: blur(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .login-modal-appear-active,
+    .login-modal-enter-active,
+    .login-modal-exit-active,
+    .login-backdrop {
+        transition-duration: 1ms;
+    }
 }
 
 .demo-accounts {
@@ -657,8 +938,7 @@ table.simple td.col-status {
 
 @media (max-width: 1023px) {
     .grid-2,
-    .grid-2--bank,
-    .login {
+    .grid-2--bank {
         grid-template-columns: minmax(0, 1fr);
     }
 
@@ -666,13 +946,8 @@ table.simple td.col-status {
         position: static;
     }
 
-    .purpose-grid,
-    .demo-accounts {
+    .purpose-grid {
         grid-template-columns: minmax(0, 1fr);
-    }
-
-    .login__brand {
-        display: none;
     }
 }
 
@@ -758,6 +1033,81 @@ table.simple td.col-status {
     }
 }
 
+/* ---------------------------------------------------------------- подвал */
+
+/* Подвал прижат к низу окна и на короткой странице */
+.app {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Чёрное поле со скруглёнными верхними углами поверх белой страницы — как на alfabank.ru */
+.footer {
+    margin-top: auto;
+    border-radius: var(--sheet-radius) var(--sheet-radius) 0 0;
+    background: var(--brand-black);
+    color: #fff;
+    font-size: 14px;
+    line-height: 20px;
+}
+
+.footer__inner {
+    max-width: var(--page-max-width);
+    margin: 0 auto;
+    padding: var(--gap-48) var(--gap-24) var(--gap-40);
+}
+
+.footer__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--gap-40) var(--gap-32);
+    padding-bottom: var(--gap-40);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.footer__title {
+    margin: 0 0 var(--gap-16);
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.48);
+}
+
+.footer a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.footer a:hover {
+    color: rgba(255, 255, 255, 0.72);
+}
+
+.footer__links {
+    display: grid;
+    gap: var(--gap-8);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.footer__legal {
+    display: grid;
+    gap: var(--gap-8);
+    padding-top: var(--gap-24);
+    font-size: 12px;
+    line-height: 18px;
+    color: rgba(255, 255, 255, 0.48);
+}
+
+@media (max-width: 1023px) {
+    .footer__grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
 /* ---------------------------------------------------------------- телефон: кабинет клиента от 360 px */
 @media (max-width: 767px) {
     :root {
@@ -797,6 +1147,10 @@ table.simple td.col-status {
 
     .nav__label--short {
         display: inline;
+    }
+
+    .nav__link--wide {
+        display: none;
     }
 
     .steps-card__full {
@@ -887,5 +1241,59 @@ table.simple td.col-status {
 
     .metrics {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .footer__inner {
+        padding: var(--gap-32) var(--gap-16) var(--gap-24);
+    }
+
+    .footer__grid {
+        gap: var(--gap-32) var(--gap-16);
+        padding-bottom: var(--gap-32);
+    }
+
+    .login__inner {
+        padding: 0 var(--gap-16);
+    }
+
+    .login__brand {
+        padding: var(--gap-32) 0 calc(var(--sheet-radius) + var(--gap-32));
+    }
+
+    .login__sheet {
+        padding: var(--gap-32) 0 var(--gap-48);
+    }
+
+    .login__steps {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .login__step {
+        padding: var(--gap-20);
+    }
+
+    /* в шапке телефона две кнопки не помещаются рядом с меню — регистрация открывается из окна входа */
+    .login .header__right .login__register {
+        display: none;
+    }
+
+    /* на телефоне кнопки подтверждения выхода — друг под другом, главная сверху */
+    .confirm-modal__actions {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .confirm-modal__actions > :last-child {
+        order: -1;
+    }
+
+    /* на телефоне окно почти во весь экран: треть ширины здесь слишком узко */
+    .login-modal.login-modal {
+        width: calc(100vw - var(--gap-32));
+        height: calc(100vh - var(--gap-32));
+        border-radius: 24px;
+    }
+
+    .demo-accounts {
+        grid-template-columns: minmax(0, 1fr);
     }
 }

@@ -1,55 +1,68 @@
+import { ButtonDesktop } from '@alfalab/core-components/button/desktop';
 import { IconButton } from '@alfalab/core-components/icon-button';
 import { Typography } from '@alfalab/core-components/typography';
 import { AlfaBankLIcon } from '@alfalab/icons-logotype/AlfaBankLIcon';
 import { BellMIcon } from '@alfalab/icons-glyph/BellMIcon';
-import { PowerButtonMIcon } from '@alfalab/icons-glyph/PowerButtonMIcon';
+import { DoorOpenMIcon } from '@alfalab/icons-glyph/DoorOpenMIcon';
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 
 import { useMarkRead, useNotifications } from '../api/hooks';
 import { useAuth } from '../auth/AuthContext';
 import { dateTime } from '../utils/format';
+import { CenteredModal } from './CenteredModal';
 
 export interface NavItem {
     to: string;
     label: string;
     /** короткая подпись для телефона, где полная не помещается */
     short?: string;
+    /** пункт только для широких экранов: на телефоне в шапке помещаются два-три пункта */
+    wideOnly?: boolean;
     end?: boolean;
 }
 
-export function AppHeader({ nav, home, bank = false }: { nav: NavItem[]; home: string; bank?: boolean }) {
-    const { user, logout } = useAuth();
-    const navigate = useNavigate();
+/** Знак банка и название кабинета в шапке; ведёт на главную раздела. */
+export function Logo({ home, bank = false }: { home: string; bank?: boolean }) {
     const brand = 'Альфа-Банк';
     const title = bank ? 'Кредитный конвейер' : 'Кредитный кабинет';
     const subtitle = bank ? 'Рабочее место аналитика' : 'для бизнеса';
     return (
+        /* Имя ссылки: знак банка, весь видимый текст и назначение (WCAG 2.5.3 «Метка в имени»). Сам знак
+           скрыт от вспомогательных технологий: его подпись склеивалась бы с текстом ссылки без пробела. */
+        <Link to={home} className='logo' aria-label={`${brand} ${title} ${subtitle} — на главную`}>
+            <span className='logo__mark'>
+                <AlfaBankLIcon width={21} height={32} aria-hidden={true} />
+            </span>
+            <span>
+                {/* пробел между строками: без него их текст склеивается в одно слово при чтении вслух и копировании */}
+                <Typography.Text view='primary-medium' weight='bold' tag='div'>
+                    {title}
+                </Typography.Text>{' '}
+                <Typography.Text view='primary-small' color='secondary' tag='div'>
+                    {subtitle}
+                </Typography.Text>
+            </span>
+        </Link>
+    );
+}
+
+export function AppHeader({ nav, home, bank = false }: { nav: NavItem[]; home: string; bank?: boolean }) {
+    const { user } = useAuth();
+    const [confirmExit, setConfirmExit] = useState(false);
+    return (
         <header className={`header${bank ? ' header--bank' : ''}`}>
             <div className='header__inner'>
-                {/* Имя ссылки: знак банка, весь видимый текст и назначение (WCAG 2.5.3 «Метка в имени»). Сам знак
-                    скрыт от вспомогательных технологий: его подпись склеивалась бы с текстом ссылки без пробела. */}
-                <Link to={home} className='logo' aria-label={`${brand} ${title} ${subtitle} — на главную`}>
-                    <span className='logo__mark'>
-                        <AlfaBankLIcon width={21} height={32} aria-hidden={true} />
-                    </span>
-                    <span>
-                        {/* пробел между строками: без него их текст склеивается в одно слово при чтении вслух и копировании */}
-                        <Typography.Text view='primary-medium' weight='bold' tag='div'>
-                            {title}
-                        </Typography.Text>{' '}
-                        <Typography.Text view='primary-small' color='secondary' tag='div'>
-                            {subtitle}
-                        </Typography.Text>
-                    </span>
-                </Link>
+                <Logo home={home} bank={bank} />
                 <nav className='nav' aria-label='Разделы'>
                     {nav.map((item) => (
                         <NavLink
                             key={item.to}
                             to={item.to}
                             end={item.end}
-                            className={({ isActive }) => `nav__link${isActive ? ' nav__link--active' : ''}`}
+                            className={({ isActive }) =>
+                                `nav__link${isActive ? ' nav__link--active' : ''}${item.wideOnly ? ' nav__link--wide' : ''}`
+                            }
                         >
                             {item.short ? (
                                 <>
@@ -72,19 +85,46 @@ export function AppHeader({ nav, home, bank = false }: { nav: NavItem[]; home: s
                             {user?.company?.name ?? user?.position}
                         </Typography.Text>
                     </div>
-                    <IconButton
-                        icon={<PowerButtonMIcon aria-hidden={true} />}
-                        colors='inverted'
+                    <button
+                        type='button'
+                        className='header__exit'
                         aria-label='Выйти'
                         title='Выйти'
-                        onClick={() => {
-                            logout();
-                            navigate('/login');
-                        }}
-                    />
+                        onClick={() => setConfirmExit(true)}
+                    >
+                        <DoorOpenMIcon aria-hidden={true} />
+                    </button>
                 </div>
             </div>
+            <ExitConfirm open={confirmExit} onClose={() => setConfirmExit(false)} />
         </header>
+    );
+}
+
+/** Подтверждение выхода — по центру экрана, как окно входа; выход — только по кнопке «Выйти» в окне. */
+function ExitConfirm({ open, onClose }: { open: boolean; onClose: () => void }) {
+    const { logout } = useAuth();
+    const navigate = useNavigate();
+    const exit = () => {
+        logout();
+        navigate('/login');
+    };
+    return (
+        <CenteredModal open={open} title='Выйти из кабинета?' onClose={onClose} className='confirm-modal'>
+            <div className='stack'>
+                <Typography.Text view='primary-medium' color='secondary' tag='p'>
+                    Чтобы вернуться, понадобится снова ввести логин и пароль.
+                </Typography.Text>
+                <div className='confirm-modal__actions'>
+                    <ButtonDesktop view='secondary' size={48} block={true} onClick={onClose}>
+                        Остаться
+                    </ButtonDesktop>
+                    <ButtonDesktop view='primary' size={48} block={true} onClick={exit}>
+                        Выйти
+                    </ButtonDesktop>
+                </div>
+            </div>
+        </CenteredModal>
     );
 }
 

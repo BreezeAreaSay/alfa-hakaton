@@ -365,7 +365,7 @@ export function CompanyBuilderCard() {
                         Создать компанию
                     </Button>
                     <span className='bank-sub'>
-                        Пароль у всех демо-пользователей — demo. Сброс демо-данных компанию не удалит.
+                        Пароль у всех демо-пользователей — admin. Сброс демо-данных компанию не удалит.
                     </span>
                 </div>
                 <ErrorPlate error={options.error} title='Не удалось загрузить справочник ОКВЭД' />

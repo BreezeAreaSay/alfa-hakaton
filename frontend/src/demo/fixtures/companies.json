@@ -1,10 +1,10 @@
 {
-  "captured_at": "2026-10-24T19:04:41.026Z",
+  "captured_at": "2026-10-24T20:18:59.927Z",
   "captured_on": "2026-10-24",
   "companies": {
     "veter": {
       "company": {
-        "id": "e29b72a7-2f86-49d7-b3e8-fa39d53de0ae",
+        "id": "ffe889d3-7d5c-43de-8901-bb737fad3461",
         "inn": "0010000017",
         "name": "ООО «Северный ветер»",
         "legal_form": "OOO",
@@ -20,7 +20,7 @@
         "bank_account_opened_at": "2021-10-24",
         "business_months": 74,
         "account_months": 60,
-        "registry_synced_at": "2026-10-24T18:58:43.881419Z"
+        "registry_synced_at": "2026-10-24T20:18:15.050819Z"
       },
       "sources": {
         "EGRUL": {
@@ -106,7 +106,7 @@
     },
     "smirnova": {
       "company": {
-        "id": "fa1e4ede-a4b7-4688-8a80-fd51d561210d",
+        "id": "a4e4af0c-ab74-4a61-93ce-d70c18f81c57",
         "inn": "001000000436",
         "name": "ИП Смирнова Анна Викторовна",
         "legal_form": "IP",
@@ -122,7 +122,7 @@
         "bank_account_opened_at": "2024-09-24",
         "business_months": 26,
         "account_months": 25,
-        "registry_synced_at": "2026-10-24T18:58:45.587039Z"
+        "registry_synced_at": "2026-10-24T20:17:49.499791Z"
       },
       "sources": {
         "EGRUL": {
@@ -192,7 +192,7 @@
     },
     "tehnomaster": {
       "company": {
-        "id": "0914ff61-a420-4907-ad68-4ff5a2359650",
+        "id": "7f18b03e-234a-43b3-8f3b-488c48075900",
         "inn": "0010000024",
         "name": "ООО «ТехноМастер»",
         "legal_form": "OOO",
@@ -208,7 +208,7 @@
         "bank_account_opened_at": "2026-06-24",
         "business_months": 52,
         "account_months": 4,
-        "registry_synced_at": "2026-10-24T18:58:46.457450Z"
+        "registry_synced_at": "2026-10-24T20:17:51.739563Z"
       },
       "sources": {
         "EGRUL": {
@@ -294,7 +294,7 @@
     },
     "orlov": {
       "company": {
-        "id": "c4a7d1a8-5a7b-4cbe-afeb-1233b9094f30",
+        "id": "aa3b5b8b-ec4d-462d-8cae-7b4cf0062fb9",
         "inn": "001000001006",
         "name": "ИП Орлов Дмитрий Сергеевич",
         "legal_form": "IP",
@@ -310,7 +310,7 @@
         "bank_account_opened_at": "2026-08-24",
         "business_months": 38,
         "account_months": 2,
-        "registry_synced_at": "2026-10-24T18:58:47.085994Z"
+        "registry_synced_at": "2026-10-24T20:17:55.847552Z"
       },
       "sources": {
         "EGRUL": {
@@ -376,7 +376,7 @@
     },
     "vektor": {
       "company": {
-        "id": "4c937c05-da1c-4df0-945a-b944c412f0fa",
+        "id": "11a8ca47-de2b-47eb-9b49-807cddd3e17d",
         "inn": "0010000031",
         "name": "ООО «Вектор Логистик»",
         "legal_form": "OOO",
@@ -392,7 +392,7 @@
         "bank_account_opened_at": "2025-04-24",
         "business_months": 40,
         "account_months": 18,
-        "registry_synced_at": "2026-10-24T19:04:40.723132Z"
+        "registry_synced_at": "2026-10-24T20:18:59.139558Z"
       },
       "sources": {
         "EGRUL": {
@@ -478,7 +478,7 @@
     },
     "grand": {
       "company": {
-        "id": "1fb90dea-2d08-4b6f-b0bc-860ed36b9317",
+        "id": "dd69e159-c6ce-4a25-9d84-5ffb38c9dce6",
         "inn": "0010000063",
         "name": "ООО «Гранд Девелопмент»",
         "legal_form": "OOO",
@@ -494,7 +494,7 @@
         "bank_account_opened_at": "2023-10-24",
         "business_months": 100,
         "account_months": 36,
-        "registry_synced_at": "2026-10-24T19:04:40.792642Z"
+        "registry_synced_at": "2026-10-24T20:18:59.320124Z"
       },
       "sources": {
         "EGRUL": {
@@ -580,7 +580,7 @@
     },
     "start": {
       "company": {
-        "id": "24754344-5376-4662-9ed6-3c8ca61c1c20",
+        "id": "36580a4f-15fe-4ee8-915f-06b90adca7ba",
         "inn": "0010000070",
         "name": "ООО «Новый старт»",
         "legal_form": "OOO",
@@ -596,7 +596,7 @@
         "bank_account_opened_at": "2026-05-24",
         "business_months": 5,
         "account_months": 5,
-        "registry_synced_at": "2026-10-24T18:58:47.597563Z"
+        "registry_synced_at": "2026-10-24T20:18:05.617558Z"
       },
       "sources": {
         "EGRUL": {
@@ -656,7 +656,7 @@
     },
     "altair": {
       "company": {
-        "id": "f7c9f2ff-ae27-4591-acaf-3f76bef83b84",
+        "id": "2a366ac2-1576-41c3-9c89-b4f038478f03",
         "inn": "0010000088",
         "name": "ООО «Альтаир»",
         "legal_form": "OOO",
@@ -672,7 +672,7 @@
         "bank_account_opened_at": "2022-10-24",
         "business_months": 98,
         "account_months": 48,
-        "registry_synced_at": "2026-10-24T18:58:44.412381Z"
+        "registry_synced_at": "2026-10-24T20:18:08.329501Z"
       },
       "sources": {
         "EGRUL": {
@@ -743,7 +743,7 @@
     },
     "romashka": {
       "company": {
-        "id": "2fc995a7-dabe-4d5a-a443-710d9e149cff",
+        "id": "6845ab70-140f-40c3-832e-44907438abfc",
         "inn": "0010000056",
         "name": "ООО «Ромашка-Строй»",
         "legal_form": "OOO",
@@ -759,7 +759,7 @@
         "bank_account_opened_at": "2026-07-24",
         "business_months": 70,
         "account_months": 3,
-        "registry_synced_at": "2026-10-24T18:58:48.062472Z"
+        "registry_synced_at": "2026-10-24T20:17:58.220365Z"
       },
       "sources": {
         "EGRUL": {
@@ -827,7 +827,7 @@
     },
     "meridian": {
       "company": {
-        "id": "be863d34-afc4-45a1-8f37-874257bae595",
+        "id": "5a42bef9-4c45-46f8-af97-43033d5f4af3",
         "inn": "0010000095",
         "name": "ООО «Меридиан»",
         "legal_form": "OOO",
@@ -843,7 +843,7 @@
         "bank_account_opened_at": "2026-05-24",
         "business_months": 44,
         "account_months": 5,
-        "registry_synced_at": "2026-10-24T18:58:48.573028Z"
+        "registry_synced_at": "2026-10-24T20:18:00.561355Z"
       },
       "sources": {
         "EGRUL": {

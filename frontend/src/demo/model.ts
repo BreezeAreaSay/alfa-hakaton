@@ -194,6 +194,17 @@ export interface MessageRow {
     created_at: string;
 }
 
+/** Чат с поддержкой — как таблица support_messages: одна ветка на клиента, read_at — прочитано другой стороной. */
+export interface SupportRow {
+    id: number;
+    client_id: string;
+    author_id: string;
+    author_role: Role;
+    text: string;
+    read_at: string | null;
+    created_at: string;
+}
+
 export interface EventRow {
     id: number;
     app_id: string | null;
@@ -264,6 +275,7 @@ export interface DemoState {
     loans: LoanRow[];
     history: HistoryRow[];
     messages: MessageRow[];
+    support: SupportRow[];
     events: EventRow[];
     audit: AuditEntry[];
     jobs: JobRow[];

@@ -152,7 +152,7 @@ cat <<MSG
 
 Стенд запущен: $PUBLIC
 $( [ -n "$DOMAIN" ] && echo "  Сертификат Let's Encrypt выпускается при первом обращении — первая загрузка может занять до минуты." )
-  Вход: клиент veter, аналитик analyst, администратор admin — пароль demo (все учётные записи в README)
+  Вход: клиент veter, аналитик analyst, администратор admin — пароль admin (все учётные записи в README)
   Сброс демо-данных:  docker compose ${FILES[*]} exec api python -m app.seed --reset
   Логи:               docker compose ${FILES[*]} logs -f --tail=100
   Обновление:         $UPDATE_CMD

@@ -104,8 +104,11 @@ function toNumber(token: string): number | null {
     return FLOAT_RE.test(plain) ? Number(plain) : null;
 }
 
-export function parseAmount(text: string): number | null {
-    let best: number | null = null;
+/** Найденное значение и фрагмент текста, из которого оно взято, — фрагмент показываем клиенту. */
+type Found = { value: number; fragment: string };
+
+function findAmount(text: string): Found | null {
+    let best: Found | null = null;
     for (const match of text.matchAll(AMOUNT_RE)) {
         let value = toNumber(match[1]);
         const unit = (match[2] ?? '').toLowerCase();
@@ -117,26 +120,36 @@ export function parseAmount(text: string): number | null {
         } else if (!unit && value < 1000) {
             continue; // голое маленькое число — скорее срок или количество, не сумма
         }
-        if (value >= 10_000 && (best === null || value > best)) best = value;
+        if (value >= 10_000 && (best === null || value > best.value)) best = { value, fragment: match[0].trim() };
     }
-    if (best === null && MILLION_RE.test(text)) best = 1_000_000; // «нужен миллион»
-    return best ? Math.trunc(best) : null;
+    if (best === null && MILLION_RE.test(text)) best = { value: 1_000_000, fragment: 'миллион' }; // «нужен миллион»
+    return best ? { value: Math.trunc(best.value), fragment: best.fragment } : null;
 }
 
-export function parseTerm(text: string): number | null {
+function findTerm(text: string): Found | null {
     const lowered = text.toLowerCase();
-    if (lowered.includes('полгода') || lowered.includes('пол года')) return 6;
+    if (lowered.includes('полгода')) return { value: 6, fragment: 'полгода' };
+    if (lowered.includes('пол года')) return { value: 6, fragment: 'пол года' };
     for (const match of lowered.matchAll(TERM_RE)) {
         const raw = match[1];
         const unit = match[2] ?? '';
-        if (raw === 'полгода') return 6;
-        if (raw === 'год' && !unit) return 12;
+        const fragment = match[0].trim();
+        if (raw === 'полгода') return { value: 6, fragment };
+        if (raw === 'год' && !unit) return { value: 12, fragment };
         const value = toNumber(raw);
         if (value === null) continue;
-        if (unit.startsWith('мес')) return Math.trunc(value);
-        if (unit === 'лет' || unit === 'года' || unit === 'год') return Math.trunc(value * 12);
+        if (unit.startsWith('мес')) return { value: Math.trunc(value), fragment };
+        if (unit === 'лет' || unit === 'года' || unit === 'год') return { value: Math.trunc(value * 12), fragment };
     }
     return null;
+}
+
+export function parseAmount(text: string): number | null {
+    return findAmount(text)?.value ?? null;
+}
+
+export function parseTerm(text: string): number | null {
+    return findTerm(text)?.value ?? null;
 }
 
 const count = (text: string, word: string): number => text.split(word).length - 1;
@@ -153,6 +166,35 @@ export function parsePurpose(text: string): Purpose | null {
         }
     }
     return best;
+}
+
+export interface NeedEvidence {
+    /** Слова из текста, по которым определена цель */
+    purpose: string[];
+    amount: string | null;
+    term: string | null;
+}
+
+/**
+ * На каких словах основан разбор на правилах — кабинет показывает это клиенту рядом с результатом.
+ * Те же словарь и регулярные выражения, что в parseNeedRules, поэтому объяснение совпадает с результатом.
+ */
+export function explainNeed(text: string): NeedEvidence {
+    const lowered = text.toLowerCase();
+    const purpose = parsePurpose(text);
+    const stems = PURPOSE_KEYWORDS.find(([code]) => code === purpose)?.[1] ?? [];
+    const words = [
+        // словосочетания показываем как есть, однословные основы — целым словом из текста
+        ...stems.filter((stem) => stem.includes(' ') && lowered.includes(stem)),
+        ...(text.match(/[\p{L}-]+/gu) ?? []).filter((word) =>
+            stems.some((stem) => !stem.includes(' ') && word.toLowerCase().includes(stem)),
+        ),
+    ];
+    return {
+        purpose: [...new Set(words.map((word) => word.toLowerCase()))],
+        amount: findAmount(text)?.fragment ?? null,
+        term: findTerm(text)?.fragment ?? null,
+    };
 }
 
 export function parseNeedRules(text: string): ParsedNeed {

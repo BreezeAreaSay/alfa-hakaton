@@ -1237,6 +1237,274 @@
         }
       }
     },
+    "/api/support": {
+      "get": {
+        "tags": [
+          "Поддержка"
+        ],
+        "summary": "Мой чат с поддержкой",
+        "operationId": "my_chat_api_support_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupportChatOut"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/support/messages": {
+      "post": {
+        "tags": [
+          "Поддержка"
+        ],
+        "summary": "Написать в поддержку",
+        "operationId": "write_api_support_messages_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MessageIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/support/read": {
+      "post": {
+        "tags": [
+          "Поддержка"
+        ],
+        "summary": "Отметить ответы поддержки прочитанными",
+        "operationId": "read_mine_api_support_read_post",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/support/threads": {
+      "get": {
+        "tags": [
+          "Поддержка"
+        ],
+        "summary": "Чаты клиентов с поддержкой",
+        "operationId": "threads_api_support_threads_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SupportThreadOut"
+                  },
+                  "type": "array",
+                  "title": "Response Threads Api Support Threads Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/support/threads/{client_id}": {
+      "get": {
+        "tags": [
+          "Поддержка"
+        ],
+        "summary": "Чат клиента с поддержкой",
+        "operationId": "thread_api_support_threads__client_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "client_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Client Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupportChatOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/support/threads/{client_id}/messages": {
+      "post": {
+        "tags": [
+          "Поддержка"
+        ],
+        "summary": "Ответить клиенту",
+        "operationId": "reply_api_support_threads__client_id__messages_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "client_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Client Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MessageIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/support/threads/{client_id}/read": {
+      "post": {
+        "tags": [
+          "Поддержка"
+        ],
+        "summary": "Отметить сообщения клиента прочитанными",
+        "operationId": "read_thread_api_support_threads__client_id__read_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "client_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Client Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/bank/summary": {
       "get": {
         "tags": [
@@ -4221,7 +4489,7 @@
             "type": "string",
             "title": "Password",
             "examples": [
-              "demo"
+              "admin"
             ]
           }
         },
@@ -5438,6 +5706,81 @@
           "consent_pd"
         ],
         "title": "SubmitRequest"
+      },
+      "SupportChatOut": {
+        "properties": {
+          "messages": {
+            "items": {
+              "$ref": "#/components/schemas/MessageOut"
+            },
+            "type": "array",
+            "title": "Messages"
+          },
+          "unread": {
+            "type": "integer",
+            "title": "Unread"
+          }
+        },
+        "type": "object",
+        "required": [
+          "messages",
+          "unread"
+        ],
+        "title": "SupportChatOut",
+        "description": "Переписка одного клиента с поддержкой; unread — непрочитанные сообщения от другой стороны."
+      },
+      "SupportThreadOut": {
+        "properties": {
+          "client_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Client Id"
+          },
+          "client_name": {
+            "type": "string",
+            "title": "Client Name"
+          },
+          "company_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Company Name"
+          },
+          "last_text": {
+            "type": "string",
+            "title": "Last Text"
+          },
+          "last_author_role": {
+            "type": "string",
+            "title": "Last Author Role"
+          },
+          "last_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Last At"
+          },
+          "unread": {
+            "type": "integer",
+            "title": "Unread"
+          }
+        },
+        "type": "object",
+        "required": [
+          "client_id",
+          "client_name",
+          "company_name",
+          "last_text",
+          "last_author_role",
+          "last_at",
+          "unread"
+        ],
+        "title": "SupportThreadOut",
+        "description": "Строка в колонке чатов у администратора: клиент и его последнее сообщение."
       },
       "TermsPreview": {
         "properties": {

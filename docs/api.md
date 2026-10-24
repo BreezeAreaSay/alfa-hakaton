@@ -26,7 +26,7 @@ npx newman@6.2.2 run docs/api/postman_collection.json
 
 ## Аутентификация и роли
 
-Вход — `POST /api/auth/login` с логином и паролем. В ответе JWT (HS256, действует 12 часов), его передают в заголовке `Authorization: Bearer <token>`. Демо-пользователи и их сценарии перечислены в [README](../README.md#сценарий-проверки), пароль у всех — `demo`.
+Вход — `POST /api/auth/login` с логином и паролем. В ответе JWT (HS256, действует 12 часов), его передают в заголовке `Authorization: Bearer <token>`. Демо-пользователи и их сценарии перечислены в [README](../README.md#сценарий-проверки), пароль у всех — `admin`.
 
 Вход защищён от перебора паролей: после пяти неверных паролей по одному логину с одного адреса вход блокируется на 5 минут — метод отвечает 429 с заголовком `Retry-After` и текстом «Слишком много попыток входа. Повторите через 5 минут». Успешный вход обнуляет счётчик; другие логины и другие адреса не затрагиваются. Каждая неудачная попытка записывается в журнал действий (`LOGIN_FAILED`: логин, адрес, срок блокировки). Пороги задаются переменными `LOGIN_ATTEMPTS` и `LOGIN_WINDOW_SECONDS`, сброс демо-данных снимает блокировки.
 
@@ -34,7 +34,7 @@ npx newman@6.2.2 run docs/api/postman_collection.json
 POST /api/auth/login
 Content-Type: application/json
 
-{"login": "veter", "password": "demo"}
+{"login": "veter", "password": "admin"}
 ```
 
 ```json
@@ -203,6 +203,20 @@ Content-Type: application/json
 | `GET` | `/api/notifications` | Любая роль | Лента: 50 последних уведомлений и число непрочитанных |
 | `POST` | `/api/notifications/read` | Любая роль | Отметить все уведомления прочитанными (204) |
 | `GET` | `/api/stream` | Любая роль | Поток событий (SSE). Токен — только в заголовке `Authorization` |
+
+### Поддержка
+
+| Метод | Путь | Кто | Что делает |
+|---|---|---|---|
+| `GET` | `/api/support` | Клиент | Свой чат с поддержкой и число непрочитанных ответов |
+| `POST` | `/api/support/messages` | Клиент | Написать в поддержку (201) |
+| `POST` | `/api/support/read` | Клиент | Отметить ответы поддержки прочитанными (204) |
+| `GET` | `/api/support/threads` | Администратор | Колонка чатов: клиент, последнее сообщение, непрочитанные; новые сверху |
+| `GET` | `/api/support/threads/{client_id}` | Администратор | Чат одного клиента |
+| `POST` | `/api/support/threads/{client_id}/messages` | Администратор | Ответить клиенту (201) |
+| `POST` | `/api/support/threads/{client_id}/read` | Администратор | Отметить сообщения клиента прочитанными (204) |
+
+Подробнее — в разделе [«Чат с поддержкой»](#чат-с-поддержкой).
 
 ### Рабочее место банка
 
@@ -459,7 +473,7 @@ POST /api/applications/74deba13-28af-41b2-89d9-8a80aef68715/sign
 Content-Type: application/json
 Idempotency-Key: 5b0b8d0e-1f7a-4a53-9a51-2f3c5b7f9e10
 
-{"password": "demo"}
+{"password": "admin"}
 ```
 
 ```json
@@ -1067,7 +1081,7 @@ Content-Type: application/json
 ```json
 {
   "login": "belyenochi",
-  "password": "demo",
+  "password": "admin",
   "inn": "0020000012",
   "company": {
     "id": "0d0f2b7e-6b6f-4d4f-9b2c-1f1e7e0a6c21",
@@ -1120,13 +1134,82 @@ Content-Type: application/json
 ]
 ```
 
+## Чат с поддержкой
+
+Клиент пишет из окна справа внизу кабинета, администратор видит в том же окне колонку с чатами всех клиентов и отвечает. Сообщения не привязаны к заявке: у каждого клиента одна ветка — его собственная, `client_id` — идентификатор пользователя-клиента. Аналитику методы недоступны (403), клиенту — методы администратора (403). Текст — от 1 до 4000 символов, иначе 422.
+
+Клиент пишет в поддержку:
+
+```http
+POST /api/support/messages
+Authorization: Bearer <токен orlov>
+Content-Type: application/json
+
+{"text": "Банк запросил выписку — в каком формате её загрузить?"}
+```
+
+```json
+{
+  "id": 13,
+  "author_name": "Орлов Дмитрий Сергеевич",
+  "author_role": "CLIENT",
+  "text": "Банк запросил выписку — в каком формате её загрузить?",
+  "created_at": "2026-10-23T01:39:43.259837Z"
+}
+```
+
+Администратор видит клиента в колонке чатов — с последним сообщением и числом непрочитанных:
+
+```http
+GET /api/support/threads
+Authorization: Bearer <токен admin>
+```
+
+```json
+[
+  {
+    "client_id": "4199f325-ea0f-4425-bb75-a56b2d046912",
+    "client_name": "Орлов Дмитрий Сергеевич",
+    "company_name": "ИП Орлов Дмитрий Сергеевич",
+    "last_text": "Банк запросил выписку — в каком формате её загрузить?",
+    "last_author_role": "CLIENT",
+    "last_at": "2026-10-23T01:39:43.259837Z",
+    "unread": 1
+  }
+]
+```
+
+Открыв чат (`GET /api/support/threads/{client_id}`), окно отмечает сообщения прочитанными — `POST /api/support/threads/{client_id}/read`, 204 — и администратор отвечает:
+
+```http
+POST /api/support/threads/4199f325-ea0f-4425-bb75-a56b2d046912/messages
+Authorization: Bearer <токен admin>
+Content-Type: application/json
+
+{"text": "Подойдёт выгрузка из 1С или CSV за последние 12 месяцев."}
+```
+
+Клиент получает ответ в своём чате; `unread` — непрочитанные ответы, окно сбрасывает их через `POST /api/support/read`:
+
+```json
+{
+  "messages": [
+    {"id": 13, "author_name": "Орлов Дмитрий Сергеевич", "author_role": "CLIENT", "text": "Банк запросил выписку — в каком формате её загрузить?", "created_at": "2026-10-23T01:39:43.259837Z"},
+    {"id": 14, "author_name": "Администратор демо-стенда", "author_role": "ADMIN", "text": "Подойдёт выгрузка из 1С или CSV за последние 12 месяцев.", "created_at": "2026-10-23T01:39:43.303376Z"}
+  ],
+  "unread": 1
+}
+```
+
+Каждое сообщение порождает событие `SUPPORT` в потоке (без уведомления в ленте): окно у другой стороны обновляется само. Сброс демо-данных очищает и чаты с поддержкой.
+
 ## Поток событий (SSE)
 
 `GET /api/stream` — поток Server-Sent Events: интерфейс обновляется без перезагрузки страницы. Токен передаётся **только** в заголовке `Authorization: Bearer <token>`, в адресе он не принимается — так токен не попадает в логи. Стандартный `EventSource` браузера заголовки не передаёт, поэтому интерфейс читает поток через `fetch` ([frontend/src/api/stream.ts](../frontend/src/api/stream.ts)).
 
 ```bash
 TOKEN=$(curl -s http://localhost:8080/api/auth/login -H 'Content-Type: application/json' \
-  -d '{"login": "veter", "password": "demo"}' | jq -r .token)
+  -d '{"login": "veter", "password": "admin"}' | jq -r .token)
 curl -N http://localhost:8080/api/stream -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -1179,6 +1262,7 @@ data: {"id": 40, "kind": "STATUS_OFFER", "application_id": "74deba13-28af-41b2-8
 | `UPDATED` | Клиенту и банку | нет | Загружен или удалён документ |
 | `INFO_ANSWERED` | Банку | да | Клиент ответил на запрос |
 | `MESSAGE` | Другой стороне | да | Новое сообщение в чате |
+| `SUPPORT` | Банку; клиенту — ответ ему | нет | Новое сообщение в чате с поддержкой: обновляет окно поддержки |
 | `SOURCE_WAITING` | Банку | нет | Шаг начал ждать внешний источник |
 | `SOURCE_FAILED` | Банку | да | Источник недоступен дольше лимита |
 | `DISBURSE_RETRY` | Банку | да | Выдача кредита повторяется из-за сбоя АБС |

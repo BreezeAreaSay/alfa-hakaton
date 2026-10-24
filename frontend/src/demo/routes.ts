@@ -29,7 +29,7 @@ import { StatementError, parseStatement } from './engine/statements';
 import { plural } from './engine/text';
 import aiStatusFixture from './fixtures/ai-status.json';
 import { type Body, HttpError, Validator, json, noContent } from './http';
-import { type AppRow, type DemoState, type DemoUser, type FaultMode, iso, uuid } from './model';
+import { type AppRow, type DemoState, type DemoUser, type FaultMode, type SupportRow, iso, uuid } from './model';
 import { findApp, resetBreakers, saveDecision } from './pipeline';
 import { kick } from './scheduler';
 import { nextNumber, resetState } from './seed';
@@ -698,6 +698,152 @@ function sendMessage(ctx: Ctx) {
     return json(response, 201);
 }
 
+// ---------------------------------------------------------------- поддержка (как backend/app/api/support.py)
+
+/** Сообщения, которые читает reader: клиенту — ответы поддержки, администратору — сообщения клиента. */
+const incoming = (row: SupportRow, reader: DemoUser) =>
+    reader.role === 'CLIENT' ? row.author_role !== 'CLIENT' : row.author_role === 'CLIENT';
+
+function supportMessageOut(row: SupportRow) {
+    return {
+        id: row.id,
+        author_name: userById(row.author_id)?.full_name ?? '',
+        author_role: row.author_role,
+        text: row.text,
+        created_at: row.created_at,
+    };
+}
+
+function supportChatOut(state: DemoState, clientId: string, reader: DemoUser) {
+    const rows = state.support.filter((r) => r.client_id === clientId).sort((a, b) => a.id - b.id);
+    return {
+        messages: rows.map(supportMessageOut),
+        unread: rows.filter((r) => incoming(r, reader) && !r.read_at).length,
+    };
+}
+
+function supportClient(clientId: string): DemoUser {
+    const client = userById(clientId);
+    if (!client || client.role !== 'CLIENT') throw new HttpError(404, 'Клиент не найден');
+    return client;
+}
+
+function supportText(ctx: Ctx): string {
+    const v = new Validator(ctx.body);
+    const text = v.string('text', { required: true, min: 1, max: 4000 }) as string;
+    v.done();
+    return text.trim();
+}
+
+function addSupport(state: DemoState, clientId: string, author: DemoUser, text: string, now: number): SupportRow {
+    state.seq.message += 1;
+    const row: SupportRow = {
+        id: state.seq.message,
+        client_id: clientId,
+        author_id: author.id,
+        author_role: author.role,
+        text,
+        read_at: null,
+        created_at: iso(now),
+    };
+    state.support.push(row);
+    return row;
+}
+
+function markSupportRead(clientId: string, reader: DemoUser, now: number) {
+    transact((state) => {
+        state.support
+            .filter((r) => r.client_id === clientId && incoming(r, reader) && !r.read_at)
+            .forEach((r) => {
+                r.read_at = iso(now);
+            });
+    });
+    return noContent();
+}
+
+function supportChat(ctx: Ctx) {
+    const user = clientOnly(ctx);
+    return supportChatOut(getState(), user.id, user);
+}
+
+function supportWrite(ctx: Ctx) {
+    const user = clientOnly(ctx);
+    const text = supportText(ctx);
+    const row = transact((state) => {
+        const created = addSupport(state, user.id, user, text, ctx.now);
+        emit(state, null, ctx.now, {
+            audience: 'BANK',
+            kind: 'SUPPORT',
+            title: 'Новое сообщение в поддержку',
+            body: text.slice(0, 200),
+            notify: false,
+        });
+        return created;
+    });
+    return json(supportMessageOut(row), 201);
+}
+
+function supportReadMine(ctx: Ctx) {
+    const user = clientOnly(ctx);
+    return markSupportRead(user.id, user, ctx.now);
+}
+
+function supportThreads(ctx: Ctx) {
+    adminOnly(ctx);
+    const state = getState();
+    const last = new Map<string, SupportRow>();
+    const unread = new Map<string, number>();
+    for (const row of state.support) {
+        if ((last.get(row.client_id)?.id ?? 0) < row.id) last.set(row.client_id, row);
+        if (row.author_role === 'CLIENT' && !row.read_at)
+            unread.set(row.client_id, (unread.get(row.client_id) ?? 0) + 1);
+    }
+    return [...last.values()]
+        .sort((a, b) => b.id - a.id)
+        .map((row) => {
+            const client = userById(row.client_id);
+            return {
+                client_id: row.client_id,
+                client_name: client?.full_name ?? '',
+                company_name: client?.company_id ? companyOut(state, client.company_id, ctx.now).name : null,
+                last_text: row.text,
+                last_author_role: row.author_role,
+                last_at: row.created_at,
+                unread: unread.get(row.client_id) ?? 0,
+            };
+        });
+}
+
+function supportThread(ctx: Ctx) {
+    const user = adminOnly(ctx);
+    return supportChatOut(getState(), supportClient(ctx.params.id).id, user);
+}
+
+function supportReply(ctx: Ctx) {
+    const user = adminOnly(ctx);
+    const client = supportClient(ctx.params.id);
+    const text = supportText(ctx);
+    const row = transact((state) => {
+        const created = addSupport(state, client.id, user, text, ctx.now);
+        emit(state, null, ctx.now, {
+            audience: 'CLIENT',
+            kind: 'SUPPORT',
+            title: 'Ответ поддержки',
+            body: text.slice(0, 200),
+            notify: false,
+            company_id: client.company_id,
+        });
+        emit(state, null, ctx.now, { audience: 'BANK', kind: 'SUPPORT', title: 'Ответ поддержки', notify: false });
+        return created;
+    });
+    return json(supportMessageOut(row), 201);
+}
+
+function supportReadThread(ctx: Ctx) {
+    const user = adminOnly(ctx);
+    return markSupportRead(supportClient(ctx.params.id).id, user, ctx.now);
+}
+
 function acceptOffer(ctx: Ctx) {
     const user = clientOnly(ctx);
     const result = transact((state) => {
@@ -1318,6 +1464,13 @@ export const ROUTES: Route[] = [
     route('GET', '/api/applications/{id}/loan', loan),
     route('GET', '/api/notifications', notifications),
     route('POST', '/api/notifications/read', markRead),
+    route('GET', '/api/support', supportChat),
+    route('POST', '/api/support/messages', supportWrite),
+    route('POST', '/api/support/read', supportReadMine),
+    route('GET', '/api/support/threads', supportThreads),
+    route('GET', '/api/support/threads/{id}', supportThread),
+    route('POST', '/api/support/threads/{id}/messages', supportReply),
+    route('POST', '/api/support/threads/{id}/read', supportReadThread),
     route('GET', '/api/stream', stream),
     route('GET', '/api/bank/summary', summary),
     route('GET', '/api/bank/metrics', metrics),

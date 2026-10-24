@@ -37,7 +37,7 @@ STABLE = {
 def test_admin_creates_stable_company_and_its_application_is_approved():
     admin = Client("admin")
     created = admin.post("/api/admin/companies", expect=201, json=STABLE)
-    assert created["password"] == "demo"
+    assert created["password"] == "admin"
     assert created["login"].startswith("polyarnayazvezda")
     company = created["company"]
     assert created["inn"] == company["inn"] and company["inn"].startswith("0020")

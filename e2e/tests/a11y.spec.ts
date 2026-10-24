@@ -39,8 +39,9 @@ const SELECTORS_SHOWN = 3;
  *    дизайн-системы разносит атрибуты combobox по двум элементам (aria-expanded на внешнем, aria-controls на
  *    внутреннем), поэтому axe видит безымянный combobox, ссылку на ещё не отрисованное меню и стрелку role="img"
  *    без имени; подписи полям даны (label), остальное — разметка дизайн-системы;
- *  - кнопка «показать пароль» в PasswordInput и индикатор пройденных шагов в Steps: иконка role="img" без имени
- *    внутри компонентов дизайн-системы, снаружи не правится.
+ *  - кнопка «показать пароль» в PasswordInput, индикатор пройденных шагов в Steps и стрелка раскрытия в Accordion
+ *    (ответы на вопросы на стартовой странице): иконка role="img" без имени внутри компонентов дизайн-системы,
+ *    снаружи не правится; сам вопрос — кнопка с текстом, состояние «раскрыт» передаётся атрибутом.
  */
 const DESIGN_SYSTEM_EXCLUDES = [
     'button[class*="button__primary_"] [class*="button__label_"]',
@@ -48,6 +49,7 @@ const DESIGN_SYSTEM_EXCLUDES = [
     '.company-builder [aria-haspopup="listbox"]',
     '[class*="password-input__eye_"]',
     '.steps-card__full svg',
+    '.landing-faq [class*="accordion__icon_"]',
 ];
 
 /** Селектор элемента: части через теневой DOM соединяются «»», уровни фреймов — «›». */
@@ -103,13 +105,14 @@ const CONSENTS = [
     'Согласие на обработку персональных данных',
 ];
 
-/** Шаг 1 «Подбор продукта»: описание задачи → распознанные параметры и карточки продуктов. */
+/** Шаг 1 «Подбор продукта»: описание задачи своими словами (свёрнутый путь) → «Я понял так» → карточки продуктов. */
 async function describeNeed(page: Page): Promise<void> {
     await page.getByRole('button', { name: 'Подобрать кредит' }).first().click();
     await expect(page).toHaveURL(/\/client\/new/);
+    await page.getByRole('button', { name: 'Или опишите задачу своими словами' }).click();
     await page.locator('textarea').first().fill(NEED);
     await page.getByRole('button', { name: 'Подобрать по описанию' }).click();
-    await expect(page.getByText(/^Распознали:/)).toBeVisible();
+    await expect(page.getByText('Я понял так', { exact: true })).toBeVisible();
     await expect(page.getByRole('heading', { name: PRODUCT, exact: true })).toBeVisible();
 }
 
@@ -121,8 +124,9 @@ async function pickProduct(page: Page): Promise<void> {
     await expect(page.getByRole('region', { name: 'Компания' })).toBeVisible();
 }
 
-/** Шаг 3 «Проверка и отправка». */
+/** Шаг 3 «Проверка и отправка»: выручка за последний год обязательна, берём близкую к отчётности компании. */
 async function goToReview(page: Page): Promise<void> {
+    await page.getByLabel('Выручка за последний год, по вашим данным').fill('120000000');
     await page.getByRole('button', { name: 'Далее' }).click();
     await expect(page.getByRole('heading', { name: 'Проверьте заявку' })).toBeVisible();
 }
@@ -155,13 +159,30 @@ async function acceptAndSign(page: Page): Promise<void> {
 
 // ---------------------------------------------------------------- экраны
 
-test.describe('Доступность: вход', () => {
-    test('экран входа', async ({ request, page }, testInfo) => {
+test.describe('Доступность: стартовая страница и вход', () => {
+    test.beforeEach(async ({ request, page }) => {
         await resetDemo({ request, page });
+    });
+
+    test('стартовая страница', async ({ page }, testInfo) => {
         await page.goto('/login');
-        await expect(page.getByRole('heading', { name: 'Вход' })).toBeVisible();
-        await expect(page.getByRole('button', { name: 'Войти', exact: true })).toBeVisible();
-        await checkA11y(page, 'Вход', testInfo);
+        await expect(page.getByRole('banner').getByRole('button', { name: 'Войти', exact: true })).toBeVisible();
+        await checkA11y(page, 'Стартовая страница', testInfo);
+    });
+
+    test('окно входа', async ({ page }, testInfo) => {
+        await page.goto('/login');
+        await page.getByRole('banner').getByRole('button', { name: 'Войти', exact: true }).click();
+        await expect(page.getByRole('dialog', { name: 'Вход' }).locator('input[name="login"]')).toBeVisible();
+        await checkA11y(page, 'Окно входа', testInfo);
+    });
+
+    test('страница «Продукты»', async ({ page }, testInfo) => {
+        await page.goto('/products');
+        await expect(
+            page.getByRole('heading', { level: 1, name: 'Какой продукт нужен вашему бизнесу?' }),
+        ).toBeVisible();
+        await checkA11y(page, 'Продукты', testInfo);
     });
 });
 

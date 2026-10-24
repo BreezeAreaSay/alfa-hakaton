@@ -50,7 +50,7 @@ class UserOut(Model):
 
 class LoginRequest(BaseModel):
     login: str = Field(examples=["veter"])
-    password: str = Field(examples=["demo"])
+    password: str = Field(examples=["admin"])
 
 
 class LoginResponse(BaseModel):
@@ -352,6 +352,25 @@ class MessageOut(BaseModel):
     author_role: str
     text: str
     created_at: datetime
+
+
+class SupportChatOut(BaseModel):
+    """Переписка одного клиента с поддержкой; unread — непрочитанные сообщения от другой стороны."""
+
+    messages: list[MessageOut]
+    unread: int
+
+
+class SupportThreadOut(BaseModel):
+    """Строка в колонке чатов у администратора: клиент и его последнее сообщение."""
+
+    client_id: uuid.UUID
+    client_name: str
+    company_name: str | None
+    last_text: str
+    last_author_role: str
+    last_at: datetime
+    unread: int
 
 
 class SignRequest(BaseModel):
