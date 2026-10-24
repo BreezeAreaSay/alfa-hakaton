@@ -223,18 +223,10 @@
     color: rgba(255, 255, 255, 0.8);
 }
 
-/* текст не заходит под шар в правом нижнем углу */
 .landing-product__text {
-    max-width: calc(100% - 72px);
     font-size: 14px;
     line-height: 20px;
     color: rgba(255, 255, 255, 0.6);
-}
-
-.landing-product__art {
-    position: absolute;
-    right: -18px;
-    bottom: -18px;
 }
 
 .landing-feature {
@@ -462,7 +454,6 @@
 
     .landing-product {
         min-height: 0;
-        padding-bottom: var(--gap-32);
     }
 
     .landing-feature {

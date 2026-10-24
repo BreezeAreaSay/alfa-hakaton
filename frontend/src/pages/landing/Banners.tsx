@@ -1,19 +1,14 @@
 import { ButtonDesktop } from '@alfalab/core-components/button/desktop';
 import { Typography } from '@alfalab/core-components/typography';
 import { ChartColumnThreeAscMIcon } from '@alfalab/icons-glyph/ChartColumnThreeAscMIcon';
-import { ChartLineAscMIcon } from '@alfalab/icons-glyph/ChartLineAscMIcon';
 import { CheckmarkCircleMIcon } from '@alfalab/icons-glyph/CheckmarkCircleMIcon';
 import { ClockMIcon } from '@alfalab/icons-glyph/ClockMIcon';
 import { DocumentCheckmarkMIcon } from '@alfalab/icons-glyph/DocumentCheckmarkMIcon';
 import { EyeMIcon } from '@alfalab/icons-glyph/EyeMIcon';
-import { HouseMIcon } from '@alfalab/icons-glyph/HouseMIcon';
-import { LightningMIcon } from '@alfalab/icons-glyph/LightningMIcon';
 import { PenNibMIcon } from '@alfalab/icons-glyph/PenNibMIcon';
 import { PercentMIcon } from '@alfalab/icons-glyph/PercentMIcon';
-import { RepeatMIcon } from '@alfalab/icons-glyph/RepeatMIcon';
 import { RocketMIcon } from '@alfalab/icons-glyph/RocketMIcon';
 import { RubMIcon } from '@alfalab/icons-glyph/RubMIcon';
-import { StarMIcon } from '@alfalab/icons-glyph/StarMIcon';
 import { WalletMIcon } from '@alfalab/icons-glyph/WalletMIcon';
 import type { ComponentType, SVGProps } from 'react';
 
@@ -49,27 +44,18 @@ function Sparkle({ size, className }: { size: number; className: string }) {
     return <span className={`landing-sparkle ${className}`} style={{ width: size, height: size }} />;
 }
 
-/** Иллюстрация справа в шторке: проценты, рубль и звезда. */
+/** Иллюстрация справа в шторке: проценты, рубль и кошелёк. */
 export function HeroArt() {
     return (
         <div className='landing-hero__art' aria-hidden={true}>
             <Orb icon={PercentMIcon} tone='red' size={168} className='landing-hero__orb landing-hero__orb--main' />
             <Orb icon={RubMIcon} tone='silver' size={112} className='landing-hero__orb landing-hero__orb--rub' />
-            <Orb icon={StarMIcon} tone='violet' size={84} className='landing-hero__orb landing-hero__orb--star' />
+            <Orb icon={WalletMIcon} tone='violet' size={84} className='landing-hero__orb landing-hero__orb--star' />
             <Sparkle size={64} className='landing-hero__sparkle landing-hero__sparkle--top' />
             <Sparkle size={44} className='landing-hero__sparkle landing-hero__sparkle--bottom' />
         </div>
     );
 }
-
-const PRODUCT_ART: Record<string, { icon: Icon; tone: Tone }> = {
-    GROWTH: { icon: ChartLineAscMIcon, tone: 'green' },
-    EXPRESS: { icon: LightningMIcon, tone: 'orange' },
-    SECURED: { icon: HouseMIcon, tone: 'blue' },
-    OVERDRAFT: { icon: WalletMIcon, tone: 'violet' },
-    CREDIT_LINE: { icon: RepeatMIcon, tone: 'teal' },
-    STARTUP: { icon: RocketMIcon, tone: 'red' },
-};
 
 /** «до 5 лет», «до 3 лет», «до 1 года» — после «до» нужен родительный падеж, а months() даёт именительный. */
 function upToTerm(term: number): string {
@@ -88,14 +74,12 @@ function productFacts(product: Product): string[] {
 }
 
 function ProductCard({ product, onStart }: { product: Product; onStart: () => void }) {
-    const art = PRODUCT_ART[product.code] ?? { icon: PercentMIcon, tone: 'red' };
     return (
         <button type='button' className='landing-product' onClick={onStart}>
             <span className='landing-product__rate'>от {percent(product.base_rate)}</span>
             <span className='landing-product__name'>{product.name}</span>
             <span className='landing-product__facts'>{productFacts(product).join(' · ')}</span>
             <span className='landing-product__text'>{product.description}</span>
-            <Orb icon={art.icon} tone={art.tone} size={104} className='landing-product__art' />
         </button>
     );
 }
@@ -155,7 +139,7 @@ export function ProductsBanner({ onStart }: { onStart: () => void }) {
                 <div className='landing-feature__art' aria-hidden={true}>
                     <Orb icon={PenNibMIcon} tone='red' size={148} className='landing-feature__orb--main' />
                     <Orb icon={DocumentCheckmarkMIcon} tone='blue' size={96} className='landing-feature__orb--doc' />
-                    <Orb icon={CheckmarkCircleMIcon} tone='green' size={68} className='landing-feature__orb--ok' />
+                    <Orb icon={ClockMIcon} tone='orange' size={68} className='landing-feature__orb--ok' />
                     <Sparkle size={40} className='landing-feature__sparkle' />
                 </div>
             </div>
@@ -168,8 +152,8 @@ const PROMOS: { title: string; text: string; action: string; icon: Icon; tone: T
         title: 'Предложение ещё до заявки',
         text: 'Войдите в кабинет — по данным компании покажем, какой кредит банк готов предложить, с суммой и платежом.',
         action: 'Узнать свой лимит',
-        icon: StarMIcon,
-        tone: 'orange',
+        icon: RocketMIcon,
+        tone: 'red',
     },
     {
         title: 'Кассовый разрыв — заранее',
