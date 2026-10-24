@@ -13,7 +13,9 @@ export default defineConfig({
     testDir: './tests',
     fullyParallel: false,
     workers: 1,
-    retries: 0,
+    // В CI одна повторная попытка: раннер с двумя ядрами под нагрузкой сборки образов и конвейера иногда не
+    // укладывается в таймауты ожидания; локально повторов нет, чтобы нестабильность была видна сразу
+    retries: process.env.CI ? 1 : 0,
     timeout: 120_000,
     expect: { timeout: 30_000 },
     forbidOnly: !!process.env.CI,

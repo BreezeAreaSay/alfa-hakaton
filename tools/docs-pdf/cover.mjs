@@ -2,8 +2,9 @@
 // Сопроводительное письмо к сдаче: cover.md → PDF с адресом репозитория, тегом и хешем текущего коммита.
 // Запуск из tools/docs-pdf:
 //   npm run cover -- [--ref v1.0.0] [--repo-url https://github.com/stonebridgeway/alfa-hakaton]
-//                    [--demo-url https://…] [--out out/Сопроводительное-письмо.pdf]
+//                    [--demo-url https://…] [--stand-url https://…] [--out out/Сопроводительное-письмо.pdf]
 // Адрес демо-версии подставляется по умолчанию; --demo-url '' убирает его из письма.
+// --stand-url — адрес развёрнутого стенда с бэкендом (docs/deploy.md); без него строки о стенде в письме нет.
 // Без --ref берётся тег текущего коммита, если он есть, иначе в письме указывается хеш коммита.
 import fs from 'node:fs';
 import os from 'node:os';
@@ -32,6 +33,7 @@ async function main() {
       ref: { type: 'string' },
       'repo-url': { type: 'string' },
       'demo-url': { type: 'string' },
+      'stand-url': { type: 'string' },
       out: { type: 'string' },
     },
   });
@@ -47,6 +49,10 @@ async function main() {
   const demoBlock = demoUrl
     ? `- **Демо-версия интерфейса без сервера** — дополнение к локальному запуску, а не замена: <${demoUrl}>.`
     : '';
+  const standUrl = (values['stand-url'] ?? '').replace(/\/$/, '');
+  const standBlock = standUrl
+    ? `- **Развёрнутый стенд с бэкендом** (те же учётные записи, данные можно сбросить под \`admin\`): <${standUrl}>.`
+    : '';
   if (gitOutput(['status', '--porcelain'])) {
     console.log('• Внимание: в рабочем каталоге есть незакоммиченные изменения — письмо описывает коммит без них');
   }
@@ -57,7 +63,8 @@ async function main() {
     .replaceAll('{{ref}}', ref)
     .replaceAll('{{ref_line}}', refLine)
     .replaceAll('{{date}}', buildDate())
-    .replaceAll('{{demo_block}}', demoBlock);
+    .replaceAll('{{demo_block}}', demoBlock)
+    .replaceAll('{{stand_block}}', standBlock);
 
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'cover-pdf-'));
   fs.writeFileSync(path.join(tmpDir, 'cover.md'), filled);
