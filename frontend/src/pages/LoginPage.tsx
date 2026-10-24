@@ -3,7 +3,7 @@ import { Input } from '@alfalab/core-components/input';
 import { PasswordInput } from '@alfalab/core-components/password-input';
 import { Typography } from '@alfalab/core-components/typography';
 import { type FormEvent, useRef, useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate, NavLink, useNavigate } from 'react-router-dom';
 
 import { useProducts } from '../api/hooks';
 import { useAuth } from '../auth/AuthContext';
@@ -14,6 +14,7 @@ import { HOW_IT_WORKS } from './client/DashboardPage';
 import { AuthModal, AuthSwitch } from './landing/AuthModal';
 import { AudienceSection, HeroArt, ProductsBanner, PromoBanners } from './landing/Banners';
 import { Faq } from './landing/Faq';
+import { ProductsPage } from './landing/ProductsPage';
 import { RegisterWidget } from './landing/RegisterWidget';
 import { num, percent } from '../utils/format';
 
@@ -62,7 +63,14 @@ const STAFF = [
  * Гостю рядом с «Войти» — «Регистрация» (пока только интерфейс). guestOnly — для адреса /login: вошедшего
  * он ведёт в кабинет.
  */
-export function LoginPage({ guestOnly = false }: { guestOnly?: boolean }) {
+export function LoginPage({
+    guestOnly = false,
+    page = 'landing',
+}: {
+    guestOnly?: boolean;
+    /** products — страница «Продукты» в той же оболочке: шапка, окно входа, подвал */
+    page?: 'landing' | 'products';
+}) {
     const { user, loading } = useAuth();
     const navigate = useNavigate();
     const [dialog, setDialog] = useState<'login' | 'register' | null>(null);
@@ -87,6 +95,12 @@ export function LoginPage({ guestOnly = false }: { guestOnly?: boolean }) {
                     <Logo home='/' />
                     {/* слева, как пункт меню в шапке кабинета */}
                     <nav className='nav' aria-label='Разделы'>
+                        <NavLink
+                            to='/products'
+                            className={({ isActive }) => `nav__link${isActive ? ' nav__link--active' : ''}`}
+                        >
+                            Продукты
+                        </NavLink>
                         <button type='button' className='nav__link login__nav-button' onClick={start}>
                             Получить кредит
                         </button>
@@ -121,74 +135,80 @@ export function LoginPage({ guestOnly = false }: { guestOnly?: boolean }) {
                 </div>
             </header>
 
-            <section className='login__brand'>
-                <div className='login__inner landing-hero'>
-                    <div className='stack-16 landing-hero__text'>
-                        <Typography.TitleResponsive
-                            tag='h1'
-                            view='xlarge'
-                            font='system'
-                            weight='bold'
-                            color='primary-inverted'
-                        >
-                            {/* как на alfabank.ru; ставка — минимальная базовая по каталогу, а не обещание */}
-                            Кредиты для бизнеса
-                            {minRate !== null && (
-                                <>
-                                    <br />
-                                    от {percent(minRate)}
-                                </>
-                            )}
-                        </Typography.TitleResponsive>
-                        <Typography.Text view='primary-large' color='primary-inverted' tag='p'>
-                            Получите деньги на развитие своего дела
-                        </Typography.Text>
-                        <div className='landing-hero__actions'>
-                            <ButtonDesktop view='primary' size={56} onClick={start}>
-                                Оформить заявку
-                            </ButtonDesktop>
+            {page === 'products' ? (
+                <ProductsPage onCalculate={(path) => (user ? navigate(path) : enter(path))} />
+            ) : (
+                <>
+                    <section className='login__brand'>
+                        <div className='login__inner landing-hero'>
+                            <div className='stack-16 landing-hero__text'>
+                                <Typography.TitleResponsive
+                                    tag='h1'
+                                    view='xlarge'
+                                    font='system'
+                                    weight='bold'
+                                    color='primary-inverted'
+                                >
+                                    {/* как на alfabank.ru; ставка — минимальная базовая по каталогу, а не обещание */}
+                                    Кредиты для бизнеса
+                                    {minRate !== null && (
+                                        <>
+                                            <br />
+                                            от {percent(minRate)}
+                                        </>
+                                    )}
+                                </Typography.TitleResponsive>
+                                <Typography.Text view='primary-large' color='primary-inverted' tag='p'>
+                                    Получите деньги на развитие своего дела
+                                </Typography.Text>
+                                <div className='landing-hero__actions'>
+                                    <ButtonDesktop view='primary' size={56} onClick={start}>
+                                        Оформить заявку
+                                    </ButtonDesktop>
+                                </div>
+                                <Typography.Text
+                                    view='primary-small'
+                                    color='secondary-inverted'
+                                    tag='p'
+                                    className='login__note'
+                                >
+                                    Демонстрационный стенд: все компании и данные синтетические.
+                                </Typography.Text>
+                            </div>
+                            <HeroArt />
                         </div>
-                        <Typography.Text
-                            view='primary-small'
-                            color='secondary-inverted'
-                            tag='p'
-                            className='login__note'
-                        >
-                            Демонстрационный стенд: все компании и данные синтетические.
-                        </Typography.Text>
-                    </div>
-                    <HeroArt />
-                </div>
-            </section>
-
-            <section className='login__sheet'>
-                <div className='login__inner landing-sections'>
-                    <AudienceSection />
-                    <ProductsBanner onStart={start} />
-                    <PromoBanners onStart={start} />
-
-                    <section className='stack'>
-                        <Typography.Title tag='h2' view='medium' font='system' weight='bold'>
-                            Как получить кредит
-                        </Typography.Title>
-                        <ol className='login__steps'>
-                            {HOW_IT_WORKS.map((step, index) => (
-                                <li key={step.title} className='login__step'>
-                                    <span className='login__step-number'>{index + 1}</span>
-                                    <Typography.Text view='primary-medium' weight='bold' tag='div'>
-                                        {step.title}
-                                    </Typography.Text>
-                                    <Typography.Text view='primary-small' color='secondary' tag='div'>
-                                        {step.text}
-                                    </Typography.Text>
-                                </li>
-                            ))}
-                        </ol>
                     </section>
 
-                    <Faq />
-                </div>
-            </section>
+                    <section className='login__sheet'>
+                        <div className='login__inner landing-sections'>
+                            <AudienceSection />
+                            <ProductsBanner onStart={start} />
+                            <PromoBanners onStart={start} />
+
+                            <section className='stack'>
+                                <Typography.Title tag='h2' view='medium' font='system' weight='bold'>
+                                    Как получить кредит
+                                </Typography.Title>
+                                <ol className='login__steps'>
+                                    {HOW_IT_WORKS.map((step, index) => (
+                                        <li key={step.title} className='login__step'>
+                                            <span className='login__step-number'>{index + 1}</span>
+                                            <Typography.Text view='primary-medium' weight='bold' tag='div'>
+                                                {step.title}
+                                            </Typography.Text>
+                                            <Typography.Text view='primary-small' color='secondary' tag='div'>
+                                                {step.text}
+                                            </Typography.Text>
+                                        </li>
+                                    ))}
+                                </ol>
+                            </section>
+
+                            <Faq />
+                        </div>
+                    </section>
+                </>
+            )}
 
             <AppFooter />
             <LoginWidget
