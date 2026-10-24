@@ -15,17 +15,36 @@ import { AudienceSection, HeroArt, ProductsBanner, PromoBanners } from './landin
 import { Faq } from './landing/Faq';
 import { RegisterWidget } from './landing/RegisterWidget';
 
-const CLIENTS = [
-    { login: 'veter', company: 'ООО «Северный ветер»', hint: 'Автоодобрение и выдача' },
-    { login: 'smirnova', company: 'ИП Смирнова', hint: 'Овердрафт: контрпредложение' },
-    { login: 'tehnomaster', company: 'ООО «ТехноМастер»', hint: 'Два варианта условий' },
-    { login: 'orlov', company: 'ИП Орлов', hint: 'Банк запросит выписку' },
-    { login: 'vektor', company: 'ООО «Вектор Логистик»', hint: 'Ручное рассмотрение' },
-    { login: 'grand', company: 'ООО «Гранд Девелопмент»', hint: 'Кредит под залог' },
-    { login: 'start', company: 'ООО «Новый старт»', hint: 'Бизнесу 5 месяцев' },
-    { login: 'altair', company: 'ООО «Альтаир»', hint: 'Для демонстрации сбоев' },
-    { login: 'romashka', company: 'ООО «Ромашка-Строй»', hint: 'Отказ: ликвидация' },
-    { login: 'meridian', company: 'ООО «Меридиан»', hint: 'Отказ: просрочка' },
+/** Клиенты по персонам (docs/product.md#персоны): сегменты, которые банк обрабатывает по-разному. */
+const CLIENT_GROUPS = [
+    {
+        title: 'ИП на упрощёнке',
+        accounts: [
+            { login: 'smirnova', company: 'ИП Смирнова', hint: 'Овердрафт: контрпредложение' },
+            { login: 'orlov', company: 'ИП Орлов', hint: 'Банк запросит выписку' },
+        ],
+    },
+    {
+        title: 'ООО с финансовой службой',
+        accounts: [
+            { login: 'veter', company: 'ООО «Северный ветер»', hint: 'Автоодобрение и выдача' },
+            { login: 'tehnomaster', company: 'ООО «ТехноМастер»', hint: 'Два варианта условий' },
+            { login: 'vektor', company: 'ООО «Вектор Логистик»', hint: 'Ручное рассмотрение' },
+        ],
+    },
+    {
+        title: 'Молодой бизнес',
+        accounts: [{ login: 'start', company: 'ООО «Новый старт»', hint: 'Бизнесу 5 месяцев' }],
+    },
+    {
+        title: 'Особые случаи',
+        accounts: [
+            { login: 'grand', company: 'ООО «Гранд Девелопмент»', hint: 'Кредит под залог' },
+            { login: 'altair', company: 'ООО «Альтаир»', hint: 'Для демонстрации сбоев' },
+            { login: 'romashka', company: 'ООО «Ромашка-Строй»', hint: 'Отказ: ликвидация' },
+            { login: 'meridian', company: 'ООО «Меридиан»', hint: 'Отказ: просрочка' },
+        ],
+    },
 ];
 
 const STAFF = [
@@ -257,7 +276,9 @@ function LoginWidget({
                 <Typography.Text view='primary-small' color='secondary' tag='div'>
                     Пароль у всех — admin. Нажмите, чтобы войти.
                 </Typography.Text>
-                <AccountGroup title='Клиенты' accounts={CLIENTS} onPick={quick} />
+                {CLIENT_GROUPS.map((group) => (
+                    <AccountGroup key={group.title} title={group.title} accounts={group.accounts} onPick={quick} />
+                ))}
                 <AccountGroup title='Сотрудники банка' accounts={STAFF} onPick={quick} />
             </div>
         </AuthModal>
