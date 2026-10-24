@@ -6,11 +6,11 @@
 :root {
     --font-family-system: 'Onest', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     /*
-     * Ширина контента растёт с экраном: до 1540 px окна — 1232 px, как на alfabank.ru, на широкоформатных
-     * мониторах — 80% окна (2560 px → 2048 px), но не шире 2400 px, чтобы строки не растягивались бесконечно.
-     * Рабочему месту банка с таблицами нужно больше: от 1440 px до 88% окна, не шире 2800 px.
+     * Ширина контента — как на alfabank.ru: 1140 px по центру на любом мониторе (плюс поля 24 px),
+     * уже — на всю ширину окна. Рабочему месту банка с таблицами нужно больше: от 1440 px до 88% окна,
+     * не шире 2800 px.
      */
-    --page-max-width: clamp(1232px, 80vw, 2400px);
+    --page-max-width: 1188px;
     --page-wide-max-width: clamp(1440px, 88vw, 2800px);
     --header-height: 72px;
     --sheet-radius: 40px;

@@ -5,6 +5,7 @@ import { Typography } from '@alfalab/core-components/typography';
 import { type FormEvent, useRef, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 
+import { useProducts } from '../api/hooks';
 import { useAuth } from '../auth/AuthContext';
 import { AppFooter } from '../components/AppFooter';
 import { Logo } from '../components/AppHeader';
@@ -14,6 +15,7 @@ import { AuthModal, AuthSwitch } from './landing/AuthModal';
 import { AudienceSection, HeroArt, ProductsBanner, PromoBanners } from './landing/Banners';
 import { Faq } from './landing/Faq';
 import { RegisterWidget } from './landing/RegisterWidget';
+import { num, percent } from '../utils/format';
 
 /** Клиенты по персонам (docs/product.md#персоны): сегменты, которые банк обрабатывает по-разному. */
 const CLIENT_GROUPS = [
@@ -64,6 +66,8 @@ export function LoginPage({ guestOnly = false }: { guestOnly?: boolean }) {
     const { user, loading } = useAuth();
     const navigate = useNavigate();
     const [dialog, setDialog] = useState<'login' | 'register' | null>(null);
+    const { data: products } = useProducts();
+    const minRate = products?.length ? Math.min(...products.map((product) => num(product.base_rate))) : null;
     const [next, setNext] = useState<string | null>(null);
 
     const cabinet = user?.role === 'CLIENT' ? '/client' : '/bank';
@@ -127,16 +131,21 @@ export function LoginPage({ guestOnly = false }: { guestOnly?: boolean }) {
                             weight='bold'
                             color='primary-inverted'
                         >
-                            {/* неразрывные пробелы: строка не начинается с тире и не кончается на «от» */}
-                            {'Кредит для бизнеса — от задачи до денег на счёте'}
+                            {/* как на alfabank.ru; ставка — минимальная базовая по каталогу, а не обещание */}
+                            Кредиты для бизнеса
+                            {minRate !== null && (
+                                <>
+                                    <br />
+                                    от {percent(minRate)}
+                                </>
+                            )}
                         </Typography.TitleResponsive>
-                        <Typography.Text view='primary-large' color='secondary-inverted' tag='p'>
-                            Подберём продукт под вашу задачу, данные компании подтянем из ЕГРЮЛ, статус заявки — в
-                            реальном времени. Подписание и выдача — прямо в кабинете.
+                        <Typography.Text view='primary-large' color='primary-inverted' tag='p'>
+                            Получите деньги на развитие своего дела
                         </Typography.Text>
                         <div className='landing-hero__actions'>
                             <ButtonDesktop view='primary' size={56} onClick={start}>
-                                Подобрать кредит
+                                Оформить заявку
                             </ButtonDesktop>
                         </div>
                         <Typography.Text

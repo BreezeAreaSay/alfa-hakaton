@@ -162,20 +162,11 @@
     color: #fff;
 }
 
-/*
- * Шесть продуктов: 3 + 3, а на очень широком экране — все в один ряд. Число колонок задано явно:
- * «сколько влезет» давало 4 + 2 на 1920 px и пустую колонку на 3440 px.
- */
+/* Шесть продуктов: 3 + 3. Число колонок задано явно: «сколько влезет» давало 4 + 2. */
 .landing-products {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--gap-16);
-}
-
-@media (min-width: 2400px) {
-    .landing-products {
-        grid-template-columns: repeat(6, minmax(0, 1fr));
-    }
 }
 
 /* тёмный градиент карточек — как у баннеров alfabank.ru */
