@@ -2,13 +2,15 @@ from functools import lru_cache
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+DEFAULT_JWT_SECRET = "change-me-in-production"
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     database_url: str = "postgresql+psycopg://credit:credit@localhost:5432/credit"
     simulator_url: str = "http://localhost:8100"
-    jwt_secret: str = "change-me-in-production"
+    jwt_secret: str = DEFAULT_JWT_SECRET
     jwt_ttl_minutes: int = 12 * 60
     # Неверных паролей по логину с одного адреса до блокировки и её длительность (docs/architecture.md, «Безопасность»)
     login_attempts: int = 5

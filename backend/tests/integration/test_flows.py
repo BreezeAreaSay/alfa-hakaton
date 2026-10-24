@@ -495,3 +495,56 @@ def test_support_chat_between_client_and_admin():
     assert admin.http.post("/api/support/messages", json={"text": "вопрос"}).status_code == 403
     assert admin.http.post(f"/api/support/threads/{uuid.uuid4()}/messages", json={"text": "ответ"}).status_code == 404
     assert client.http.post("/api/support/messages", json={"text": ""}).status_code == 422
+
+
+def test_spoofed_forwarded_for_does_not_bypass_login_protection():
+    """Подмена X-Forwarded-For не помогает перебору: адрес клиента берётся из соединения, а не из заголовка."""
+    http = httpx.Client(base_url=API, timeout=30)
+    login = f"spoof-{uuid.uuid4().hex[:6]}"
+    statuses = [
+        http.post(
+            "/api/auth/login",
+            json={"login": login, "password": "wrong"},
+            headers={"X-Forwarded-For": f"203.0.113.{attempt}"},
+        ).status_code
+        for attempt in range(1, 8)
+    ]
+    assert 429 in statuses and statuses.index(429) <= 5, statuses
+
+
+def test_uploaded_file_type_is_taken_from_extension():
+    """Файл «.pdf» с заявленным типом text/html хранится и отдаётся как PDF: страницей нашего сайта он не откроется."""
+    client = Client("veter")
+    draft = client.post(
+        "/api/applications",
+        expect=201,
+        json={"product_code": "GROWTH", "purpose": "EXPANSION", "amount": 2_000_000, "term_months": 24},
+    )
+    document = client.post(
+        f"/api/applications/{draft['id']}/documents",
+        expect=201,
+        files={"file": ("x.pdf", b"<script>alert(1)</script>", "text/html")},
+        data={"kind": "OTHER"},
+    )
+    assert document["content_type"] == "application/pdf"
+    response = client.http.get(f"/api/documents/{document['id']}/download")
+    assert response.headers["content-type"] == "application/pdf"
+    assert response.headers["x-content-type-options"] == "nosniff"
+    assert client.http.delete(f"/api/applications/{draft['id']}").status_code == 204
+
+
+def test_security_headers_on_interface_and_api():
+    """Интерфейс отдаётся с CSP и запретом встраивания, API — с nosniff; версия nginx не раскрывается."""
+    http = httpx.Client(base_url=API, timeout=30)
+    page = http.get("/")
+    if "text/html" not in page.headers.get("content-type", ""):
+        pytest.skip("тест проверяет nginx стенда, а API_URL указывает прямо на API")
+    csp = page.headers["content-security-policy"]
+    assert "script-src 'self'" in csp and "frame-ancestors 'none'" in csp
+    assert page.headers["x-frame-options"] == "DENY"
+    assert page.headers["server"] == "nginx"
+    asset = next(part.split('"')[0] for part in page.text.split('src="')[1:] if part.startswith("/assets/"))
+    script = http.get(asset)
+    assert script.headers["x-content-type-options"] == "nosniff" and "content-security-policy" in script.headers
+    api = http.get("/api/health")
+    assert api.headers["x-content-type-options"] == "nosniff" and "content-security-policy" not in api.headers

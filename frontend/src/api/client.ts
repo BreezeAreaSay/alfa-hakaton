@@ -116,7 +116,20 @@ export async function download(path: string, fileName: string): Promise<void> {
     setTimeout(() => URL.revokeObjectURL(url), 10_000);
 }
 
+/** Типы, которые браузер показывает во вкладке без риска выполнить содержимое как страницу сайта. */
+const VIEWABLE = new Set(['application/pdf', 'image/png', 'image/jpeg']);
+
+/**
+ * Открыть файл во вкладке. Blob-адрес принадлежит нашему сайту, поэтому HTML внутри него выполнился бы с доступом
+ * к токену: текст показываем как простой текст, а всё, что не PDF и не картинка, браузер только скачает.
+ */
 export async function openInNewTab(path: string): Promise<void> {
     const blob = await fetchBlob(path, 'Не удалось открыть файл');
-    window.open(URL.createObjectURL(blob), '_blank', 'noopener');
+    const type = blob.type.split(';')[0].trim().toLowerCase();
+    const safe = VIEWABLE.has(type)
+        ? blob
+        : new Blob([blob], {
+              type: type.startsWith('text/') ? 'text/plain;charset=utf-8' : 'application/octet-stream',
+          });
+    window.open(URL.createObjectURL(safe), '_blank', 'noopener');
 }

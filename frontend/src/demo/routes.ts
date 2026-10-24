@@ -63,6 +63,17 @@ const DAY = 24 * HOUR;
 const OFFER_TTL_HOURS = 7 * 24;
 const MAX_UPLOAD_MB = 10;
 const ALLOWED_EXTENSIONS = ['.pdf', '.jpg', '.jpeg', '.png', '.txt', '.csv'];
+// Тип файла — по расширению, как на сервере (documents.content_type_for), а не по типу из браузера
+const CONTENT_TYPES: Record<string, string> = {
+    '.pdf': 'application/pdf',
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.png': 'image/png',
+    '.txt': 'text/plain',
+    '.csv': 'text/csv',
+};
+const contentTypeFor = (fileName: string): string =>
+    CONTENT_TYPES[fileName.toLowerCase().match(/\.[^./]*$/)?.[0] ?? ''] ?? 'application/octet-stream';
 const PURPOSES: Purpose[] = ['WORKING_CAPITAL', 'CASH_GAP', 'EQUIPMENT', 'EXPANSION'];
 const DOCUMENT_KINDS = ['BANK_STATEMENT', 'FIN_STATEMENT', 'COLLATERAL', 'OTHER', 'AGREEMENT', 'SCHEDULE'] as const;
 const STATUSES = Object.keys(META.statuses) as AppStatus[];
@@ -536,7 +547,7 @@ async function upload(ctx: Ctx) {
             kind,
             source,
             file_name: name,
-            content_type: blob.type || 'application/octet-stream',
+            content_type: contentTypeFor(name),
             size: data.length,
             sha256: digest,
             created_at: iso(ctx.now),
@@ -567,7 +578,10 @@ async function download(ctx: Ctx) {
     const doc = state.documents.find((d) => d.id === ctx.params.id);
     if (!doc) throw new HttpError(404, 'Документ не найден');
     load(state, doc.app_id, user);
-    const headers = { 'Content-Type': doc.content_type, 'Content-Disposition': disposition(doc.file_name) };
+    const headers = {
+        'Content-Type': contentTypeFor(doc.file_name),
+        'Content-Disposition': disposition(doc.file_name),
+    };
     if (doc.kind === 'AGREEMENT') {
         try {
             const pdf = await fetch(`${import.meta.env.BASE_URL}demo/agreement-sample.pdf`);

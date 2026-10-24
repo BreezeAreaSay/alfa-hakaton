@@ -455,7 +455,6 @@ def generate_documents(db: Session, job: Job) -> None:
         db,
         application,
         file_name=f"Кредитный договор {application.number}.pdf",
-        content_type="application/pdf",
         data=pdf,
         kind=DocumentKind.AGREEMENT,
         source=DocumentSource.GENERATED,

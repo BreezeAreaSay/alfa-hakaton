@@ -1,7 +1,10 @@
 # HTTPS для демо-стенда: сертификат Let's Encrypt выпускается автоматически для домена из DOMAIN.
 {$DOMAIN} {
 	encode zstd gzip
-	# поток событий (SSE) отдаётся без буферизации
+	# браузер запоминает, что сайт открывается только по HTTPS
+	header Strict-Transport-Security "max-age=31536000"
+	# поток событий (SSE) отдаётся без буферизации. X-Forwarded-For Caddy заполняет сам настоящим адресом
+	# клиента, присланный клиентом заголовок отбрасывает — nginx берёт адрес оттуда (TRUSTED_PROXY)
 	reverse_proxy frontend:80 {
 		flush_interval -1
 	}

@@ -8,6 +8,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.orm.exc import StaleDataError
 
 from app.api import admin, ai, applications, auth, bank, catalog, notifications, support
+from app.config import DEFAULT_JWT_SECRET, get_settings
 from app.logging_setup import setup_logging
 from app.services.audit import request_id_var
 from app.services.workflow import TransitionError
@@ -15,6 +16,10 @@ from app.telemetry import metrics_payload, observe_request
 
 setup_logging()
 log = logging.getLogger("api")
+
+if get_settings().jwt_secret == DEFAULT_JWT_SECRET:
+    # Для локального стенда это нормально, на сервере секрет обязан быть своим (deploy/install.sh создаёт его сам)
+    log.warning("JWT_SECRET не задан: токены входа подписываются секретом по умолчанию. На сервере замените его в .env")
 
 DESCRIPTION = """
 API цифрового кредитного конвейера для малого и микробизнеса.

@@ -19,6 +19,12 @@ services:
         condition: service_started
     restart: unless-stopped
 
+  frontend:
+    environment:
+      # nginx верит адресу клиента в X-Forwarded-For только от Caddy. Caddy подставляет туда настоящий адрес
+      # и отбрасывает присланный клиентом; сеть Docker по умолчанию — в 172.16.0.0/12
+      TRUSTED_PROXY: ${TRUSTED_PROXY:-172.16.0.0/12}
+
 volumes:
   caddy_data:
   caddy_config:

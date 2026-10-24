@@ -278,7 +278,6 @@ async def upload(
             db,
             application,
             file_name=file.filename or "file",
-            content_type=file.content_type or "application/octet-stream",
             data=data,
             kind=kind,
             source=DocumentSource.CLIENT if user.role == Role.CLIENT else DocumentSource.BANK,
@@ -308,10 +307,14 @@ def download(document_id: uuid.UUID, user: User = Depends(current_user), db: Ses
     if document is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Документ не найден")
     load(db, document.application_id, user)
+    # Тип — по расширению имени, а не из записи: так безопасно отдаются и файлы, сохранённые раньше
     return Response(
         content=documents.read(document),
-        media_type=document.content_type,
-        headers={"Content-Disposition": f"inline; filename*=UTF-8''{quote(document.file_name)}"},
+        media_type=documents.content_type_for(document.file_name),
+        headers={
+            "Content-Disposition": f"inline; filename*=UTF-8''{quote(document.file_name)}",
+            "X-Content-Type-Options": "nosniff",
+        },
     )
 
 

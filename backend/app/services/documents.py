@@ -8,6 +8,8 @@ import uuid
 from collections.abc import Iterable
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
+from xml.sax.saxutils import escape
 
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
@@ -25,6 +27,24 @@ from app.domain.text import months_text, rub
 from app.models import Application, Document, Offer, User
 
 ALLOWED_EXTENSIONS = {".pdf", ".jpg", ".jpeg", ".png", ".txt", ".csv"}
+
+# Тип файла определяется по расширению, а не по заголовку, который прислал клиент: иначе «x.pdf» с типом text/html
+# открылся бы в браузере аналитика как страница нашего сайта и мог бы прочитать его токен (хранимый XSS)
+CONTENT_TYPES = {
+    ".pdf": "application/pdf",
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".png": "image/png",
+    ".txt": "text/plain",
+    ".csv": "text/csv",
+}
+
+
+def content_type_for(file_name: str) -> str:
+    """Тип для хранения и выдачи файла; неизвестное расширение отдаётся как двоичные данные и только скачивается."""
+    return CONTENT_TYPES.get(Path(file_name).suffix.lower(), "application/octet-stream")
+
+
 # Шрифты с кириллицей лежат в репозитории, чтобы сборка образа не зависела от пакетного менеджера ОС
 FONT_DIR = Path(__file__).resolve().parent.parent / "assets" / "fonts"
 
@@ -50,7 +70,6 @@ def store(
     application: Application,
     *,
     file_name: str,
-    content_type: str,
     data: bytes,
     kind: DocumentKind,
     source: DocumentSource,
@@ -74,7 +93,7 @@ def store(
         kind=kind,
         source=source,
         file_name=name,
-        content_type=content_type or "application/octet-stream",
+        content_type=content_type_for(name),
         size=len(data),
         sha256=hashlib.sha256(data).hexdigest(),
         storage_key=key,
@@ -121,10 +140,11 @@ def _styles() -> dict[str, ParagraphStyle]:
         "h": ParagraphStyle("h", fontName=bold, fontSize=11, leading=15, spaceBefore=8, spaceAfter=4),
         "p": ParagraphStyle("p", fontName=regular, fontSize=9.5, leading=13.5),
         "note": ParagraphStyle("note", fontName=regular, fontSize=8, leading=11, textColor=colors.HexColor("#6F7079")),
+        "cell": ParagraphStyle("cell", fontName=regular, fontSize=8.5, leading=11),
     }
 
 
-def _table(rows: list[list[str]], widths: list[float], header: bool = True) -> Table:
+def _table(rows: list[list[Any]], widths: list[float], header: bool = True) -> Table:
     regular, bold = _fonts()
     table = Table(rows, colWidths=widths, repeatRows=1 if header else 0)
     style = [
@@ -156,6 +176,10 @@ def agreement_pdf(application: Application, offer: Offer, signer: str | None) ->
         bottomMargin=16 * mm,
         title=f"Кредитный договор № {application.number}",
     )
+    # Название, адрес и подписант приходят из реестров и конструктора компании, цель — от клиента: в разметке
+    # ReportLab символы «<» и «&» ломают разбор абзаца, поэтому значения экранируются
+    name, address = escape(company.name), escape(company.address or "")
+    signer_name = escape(signer or company.director_name or "—")
     story = [
         Paragraph(f"Кредитный договор № {application.number}", s["title"]),
         Paragraph(
@@ -165,13 +189,13 @@ def agreement_pdf(application: Application, offer: Offer, signer: str | None) ->
         Paragraph("1. Стороны", s["h"]),
         Paragraph("Кредитор: Банк (демонстрационный стенд кредитного конвейера).", s["p"]),
         Paragraph(
-            f"Заёмщик: {company.name}, ИНН {company.inn}"
+            f"Заёмщик: {name}, ИНН {company.inn}"
             + (f", ОГРН {company.ogrn}" if company.ogrn else "")
-            + (f", адрес: {company.address}" if company.address else "")
+            + (f", адрес: {address}" if address else "")
             + ".",
             s["p"],
         ),
-        Paragraph(f"Подписант со стороны заёмщика: {signer or company.director_name or '—'}.", s["p"]),
+        Paragraph(f"Подписант со стороны заёмщика: {signer_name}.", s["p"]),
         Paragraph("2. Условия кредита", s["h"]),
         _table(
             [
@@ -181,7 +205,8 @@ def agreement_pdf(application: Application, offer: Offer, signer: str | None) ->
                 ["Процентная ставка", f"{offer.rate}% годовых".replace(".", ",")],
                 ["Ежемесячный платёж", rub(offer.monthly_payment)],
                 ["Переплата за весь срок", rub(offer.overpayment)],
-                ["Цель", application.purpose_text or "—"],
+                # длинная цель переносится по строкам внутри ячейки, а не уходит за край страницы
+                ["Цель", Paragraph(escape(application.purpose_text or "—"), s["cell"])],
             ],
             [55 * mm, 119 * mm],
             header=False,

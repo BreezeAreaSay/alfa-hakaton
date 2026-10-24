@@ -121,4 +121,5 @@ docker compose -f docker-compose.yml -f deploy/docker-compose.prod.yml down     
 - Данные на стенде синтетические, тестовые учётные записи с паролем `admin` известны всем — это демо, а не боевой контур.
 - Обязательно замените `JWT_SECRET` и `POSTGRES_PASSWORD`. Ключ LLM храните только в `.env` на сервере.
 - Наружу открыты только 80 и 443 (Caddy). База, API, обработчик и симулятор доступны лишь внутри сети Docker.
+- Caddy добавляет HSTS и передаёт настоящий адрес клиента; nginx верит ему, потому что в `deploy/docker-compose.prod.yml` задано `TRUSTED_PROXY=172.16.0.0/12` — диапазон сетей Docker по умолчанию. Если Docker на сервере выдаёт сетям другие адреса (`docker network inspect smart-credit_default`), укажите их подсеть в `TRUSTED_PROXY` в `.env`. Ошибка здесь не открывает обход защиты входа: в худшем случае все клиенты будут видны с адресом Caddy.
 - Включите межсетевой экран: `sudo ufw allow 22,80,443/tcp && sudo ufw enable`.
