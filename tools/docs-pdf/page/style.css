@@ -612,3 +612,16 @@ figure.diagram--landscape {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+
+/* Экраны интерфейса из README и обзора продукта: в ширину колонки, без разрыва между страницами */
+img {
+  max-width: 100%;
+  height: auto;
+  break-inside: avoid;
+}
+
+td img {
+  display: block;
+  border: 1px solid #d5d6dc;
+  border-radius: 4px;
+}

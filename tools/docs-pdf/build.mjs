@@ -18,6 +18,7 @@ const require = createRequire(import.meta.url);
 // Документы в порядке следования. optional — включается, только если файл есть.
 const DOCUMENTS = [
   { file: 'README.md', title: 'Обзор проекта' },
+  { file: 'docs/product-overview.md' },
   { file: 'docs/product.md' },
   { file: 'docs/requirements.md' },
   { file: 'docs/architecture.md' },

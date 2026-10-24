@@ -2,6 +2,7 @@
 // заготовки для диаграмм Mermaid, таблицы и блоки кода под печать.
 import fs from 'node:fs';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import MarkdownIt from 'markdown-it';
 
 // Длинные блоки кода можно разрывать между страницами, короткие — нет.
@@ -246,6 +247,17 @@ export function renderDocuments({ docs, repoRoot, githubBase }) {
       const children = token.children;
       for (let i = 0; i < children.length; i++) {
         const link = children[i];
+        if (link.type === 'image') {
+          // Картинки лежат рядом с документом (docs/screenshots), а HTML печатается из временного каталога:
+          // путь становится абсолютным относительно каталога документа, как его понимает GitHub
+          const src = link.attrGet('src') || '';
+          if (src && !/^[a-z][a-z0-9+.-]*:/i.test(src) && !src.startsWith('//')) {
+            const file = path.resolve(repoRoot, path.dirname(entry.file), safeDecode(src.split('#')[0]));
+            if (fs.existsSync(file)) link.attrSet('src', pathToFileURL(file).href);
+            else warnings.push(`${entry.file}:${findLine(sourceLines, token.map, src)}: картинка «${src}» не найдена`);
+          }
+          continue;
+        }
         if (link.type !== 'link_open') continue;
         const href = link.attrGet('href') || '';
         const where = () => `${entry.file}:${findLine(sourceLines, token.map, href)}`;
