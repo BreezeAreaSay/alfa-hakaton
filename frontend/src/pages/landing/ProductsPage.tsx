@@ -1,6 +1,7 @@
 import { ButtonDesktop } from '@alfalab/core-components/button/desktop';
 import { Typography } from '@alfalab/core-components/typography';
 import { CheckmarkCircleMIcon } from '@alfalab/icons-glyph/CheckmarkCircleMIcon';
+import { ChevronDownMIcon } from '@alfalab/icons-glyph/ChevronDownMIcon';
 import { CrossCircleMIcon } from '@alfalab/icons-glyph/CrossCircleMIcon';
 import { useState } from 'react';
 
@@ -259,12 +260,23 @@ export function ProductsPage({ onCalculate }: { onCalculate: (path: string) => v
                                         </div>
                                     )}
                                     {guide && (
-                                        <div className='products-card__lists'>
-                                            <GuideList title='Подходит, если' items={guide.fits} good={true} />
-                                            <GuideList title='Не подходит, если' items={guide.notFits} good={false} />
-                                            <GuideList title='Плюсы' items={guide.pros} good={true} />
-                                            <GuideList title='Минусы' items={guide.cons} good={false} />
-                                        </div>
+                                        // Подробности свёрнуты, чтобы карточка не пугала объёмом текста
+                                        <details className='products-card__more'>
+                                            <summary>
+                                                Подробнее: кому подходит, плюсы и минусы
+                                                <ChevronDownMIcon width={20} height={20} aria-hidden={true} />
+                                            </summary>
+                                            <div className='products-card__lists'>
+                                                <GuideList title='Подходит, если' items={guide.fits} good={true} />
+                                                <GuideList
+                                                    title='Не подходит, если'
+                                                    items={guide.notFits}
+                                                    good={false}
+                                                />
+                                                <GuideList title='Плюсы' items={guide.pros} good={true} />
+                                                <GuideList title='Минусы' items={guide.cons} good={false} />
+                                            </div>
+                                        </details>
                                     )}
                                     <div className='products-card__action'>
                                         <ButtonDesktop view='secondary' size={40} onClick={() => calculate(product)}>
@@ -303,8 +315,10 @@ export function ProductsPage({ onCalculate }: { onCalculate: (path: string) => v
                                                 {shortAmount(num(product.max_amount))}
                                             </td>
                                             <td className='nowrap'>{terms(product)}</td>
-                                            <td>{product.collateral_required ? 'Нужен' : 'Не нужен'}</td>
-                                            <td>{decision(product)}</td>
+                                            <td className='nowrap'>
+                                                {product.collateral_required ? 'Нужен' : 'Не нужен'}
+                                            </td>
+                                            <td className='nowrap'>{decision(product)}</td>
                                             <td>{GUIDE[product.code]?.who}</td>
                                         </tr>
                                     ))}
