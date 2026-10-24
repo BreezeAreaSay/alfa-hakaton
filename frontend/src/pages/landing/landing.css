@@ -513,8 +513,49 @@
     margin-top: auto;
 }
 
+/* Сравнение: сетка с линиями между всеми столбцами, серая шапка и чередование строк — чтобы глаз шёл по столбцу */
+.products-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid #dbdde2;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.products-table th,
 .products-table td {
+    border-right: 1px solid #dbdde2;
+    border-bottom: 1px solid #dbdde2;
+}
+
+.products-table th:last-child,
+.products-table td:last-child {
+    border-right: 0;
+}
+
+.products-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.products-table thead th {
+    padding: var(--gap-12) var(--gap-16);
+    background: #f2f3f5;
+    color: var(--color-light-text-primary);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.products-table td {
+    padding: var(--gap-12) var(--gap-16);
     vertical-align: top;
+}
+
+.products-table td:first-child {
+    font-weight: 700;
+}
+
+.products-table tbody tr:nth-child(even) td {
+    background: #fafafb;
 }
 
 /* ---------------------------------------------------------------- ответы на вопросы */

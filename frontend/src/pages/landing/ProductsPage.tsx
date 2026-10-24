@@ -315,8 +315,10 @@ export function ProductsPage({ onCalculate }: { onCalculate: (path: string) => v
                                                 {shortAmount(num(product.max_amount))}
                                             </td>
                                             <td className='nowrap'>{terms(product)}</td>
-                                            <td>{product.collateral_required ? 'Нужен' : 'Не нужен'}</td>
-                                            <td>{decision(product)}</td>
+                                            <td className='nowrap'>
+                                                {product.collateral_required ? 'Нужен' : 'Не нужен'}
+                                            </td>
+                                            <td className='nowrap'>{decision(product)}</td>
                                             <td>{GUIDE[product.code]?.who}</td>
                                         </tr>
                                     ))}
