@@ -1,0 +1,1160 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Умный кредитный кабинет предпринимателя — презентация решения</title>
+<script>
+/*
+ * Все числа презентации — здесь. В разметке слайдов на них ссылаются атрибуты data-v="путь.к.значению",
+ * при сборке значения подставляются в текст. data-forms="тест|теста|тестов" добавляет к числу слово в нужной форме.
+ * Числа проекта обновляются вместе с README.md («Ключевые цифры»); у остальных в комментарии — источник.
+ */
+window.DATA = {
+  // ── Ключевые цифры проекта: README.md, «Ключевые цифры» и «Тесты»
+  companies: 10, // тестовые компании со своими сценариями
+  products: 6, // кредитные продукты
+  externalSystems: 6, // ЕГРЮЛ/ЕГРИП, ФНС, ГИР БО, БКИ, обороты по счёту, АБС
+  roles: 3, // клиент, кредитный аналитик, администратор
+  pipelineSteps: 8, // шаги автоматического конвейера
+  scoringFactors: 9, // факторы скоринговой карты
+  riskClasses: 'A–E',
+  outcomes: 4, // одобрение, контрпредложение, запрос информации, отказ
+  unitTests: 113,
+  apiScenarios: 24, // сценарии через API на поднятом стенде
+  browserScenarios: 19, // сценарии Playwright в браузере
+  browserDesktop: 12,
+  browserMobile: 7,
+  a11yScreens: 16, // экраны в аудите доступности WCAG 2.1 AA
+  demoChecks: 250, // проверки сверки демо-версии со снимками ответов настоящего API
+  docs: 18, // документы в Markdown
+  docsPdfPages: 154, // страницы docs/Документация-проекта.pdf
+
+  // ── Замер на стенде: docs/architecture.md, «Производительность и ресурсы»
+  load: {
+    applications: 30, // заявок отправлено одновременно
+    medianSec: 8, // медиана от отправки до решения, с
+    p95Sec: 14, // 95 % заявок, с
+  },
+
+  // ── Исследование: docs/research/desk-research.md, «Три факта, которые задали рамку MVP»
+  research: {
+    avgAmountMln: 1.59, // средняя онлайн-заявка бизнеса, млн ₽ (Банки.ру, I квартал 2026)
+    avgTermMonths: 39.5, // её срок, месяцев
+    managerWait: 'Неделя', // ожидание звонка менеджера (отзыв об Альфа-Банке, март 2025)
+  },
+
+  // ── Продукт: docs/product-overview.md и docs/product.md
+  pipelineSources: 5, // источников в автоматической проверке (схема в начале product-overview.md)
+  businessTasks: 6, // карточек задач в подборе (product.md, «Что показало кабинетное исследование»)
+  forecastMonths: 3, // горизонт прогноза кассового разрыва по выписке, месяцев
+  pathTime: 'около полуминуты', // весь путь на стенде (product-overview.md, «Для кого и зачем»)
+
+  // ── Кредитная политика: docs/credit-policy.md
+  rateExample: { // разбор ставки на экране одобрения: «Ставки» и client-offer.png
+    total: 19, // ставка предложения, %
+    keyRate: 14, // ключевая ставка Банка России, %
+    productSpread: 5, // надбавка продукта «Кредит на развитие бизнеса», п.п.
+    riskAddon: 0, // надбавка за риск класса A, п.п.
+  },
+  scoreBase: 600, // стартовый балл скоринговой карты
+  classes: { // «Классы риска»: нижняя граница балла и надбавка к ставке, п.п.
+    A: { from: 760, addon: 0 },
+    B: { from: 680, addon: 1.5 },
+    C: { from: 600, addon: 3 },
+    D: { from: 520, addon: 5 },
+  },
+  stopFactors: 5, // S01–S05, «Стоп-факторы»
+  flags: 7, // F01–F07, «Флаги для ручного рассмотрения»
+  overdueDays: 30, // стоп-фактор S03: просрочка больше 30 дней
+  limit: { // «Расчёт лимита»
+    revenuePct: 50, // без залога — не больше 50 % годовой выручки
+    collateralPct: 80, // под залог — не больше 80 % стоимости залога
+    dscrMin: 1.3, // платёжеспособность с новым платежом
+    overdraftPct: 40, // овердрафт — не больше 40 % среднемесячных поступлений
+  },
+  counterOptions: 2, // вариантов в контрпредложении, «Матрица решения»
+  analystOverLimitPct: 20, // превышение расчётного лимита аналитиком, «Полномочия аналитика»
+
+  // ── Надёжность и безопасность: docs/architecture.md
+  retry: { minSec: 2, maxSec: 30, attempts: 8 }, // «Как устроен конвейер», «Повторы»
+  sourceWaitMin: 15, // ожидание источника в демо, потом — аналитику с флагом F05
+  staleJobSec: 120, // зависшее задание возвращается в очередь
+  login: { attempts: 5, lockMin: 5 }, // «Безопасность», «Перебор паролей»
+  uploadMaxMb: 10, // «Безопасность», «Файлы»
+
+  // ── ИИ: docs/ai.md, «Оценка качества»
+  ai: {
+    summaryPoints: '3–5', // пунктов в сводке для аналитика («Что делает модель»)
+    goldenSet: 32, // фраз в эталонном наборе
+    rulesAllCorrect: 30, // фраз, где правила верно распознали задачу, сумму и срок
+    invented: 0, // придуманных сумм и сроков
+  },
+
+  // ── Эффект для банка: docs/product.md, «Эффект для банка»
+  autoDecidedDemo: 7, // компаний демо-набора, которые решаются без аналитика (из 10)
+  baselineAutoPct: 0, // «было»: доля автоматических решений в ручном процессе, допущение
+};
+</script>
+<style>
+@import url("../../frontend/node_modules/@fontsource/onest/400.css");
+@import url("../../frontend/node_modules/@fontsource/onest/500.css");
+@import url("../../frontend/node_modules/@fontsource/onest/600.css");
+@import url("../../frontend/node_modules/@fontsource/onest/700.css");
+
+/* Цвета — по дизайн-системе Альфа-Банка (docs/design.md): белый фон, чёрный текст, красный акцент. */
+:root {
+  --red: #ef3124;
+  --ink: #0e0e12;
+  --text: #212124;
+  --muted: #55565e;
+  --faint: #8b8c94;
+  --line: #e1e2e7;
+  --panel: #f2f3f5;
+  --panel-2: #e6e8ec;
+  --green: #0b772c;
+  --green-bg: #e2f4e7;
+  --indigo: #4f37d9;
+  --indigo-bg: #ebe8fd;
+  --orange: #9a560c;
+  --orange-bg: #fcefdf;
+  --red-text: #c81d11;
+  --red-bg: #fde8e6;
+  --teal: #047276;
+  --teal-bg: #dcf2f2;
+}
+
+@page { size: 1920px 1080px; margin: 0; }
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font: 400 26px/1.35 'Onest', sans-serif;
+  color: var(--text);
+  background: #fff;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  font-kerning: normal;
+}
+p, ul, ol, dl, dd, figure { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+a { color: inherit; text-decoration: none; }
+h1, h2, h3, h4 { margin: 0; font-weight: 700; color: var(--ink); }
+b, strong { font-weight: 600; color: var(--ink); }
+/* Без одиноких слов в последней строке абзаца */
+p, li, td, dd, .term > span { text-wrap: pretty; }
+
+/* Предпросмотр в браузере: слайды друг под другом на сером фоне */
+@media screen {
+  body { background: #d9dade; padding: 40px 0; }
+  .slide { margin: 0 auto 40px; box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18); }
+}
+
+/* ───────── Каркас слайда ───────── */
+.slide {
+  position: relative;
+  width: 1920px;
+  height: 1080px;
+  padding: 72px 104px 88px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  break-after: page;
+}
+.slide:last-of-type { break-after: auto; }
+.slide-num {
+  position: absolute;
+  right: 72px;
+  bottom: 40px;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+}
+.kicker { font-size: 22px; line-height: 1.2; font-weight: 600; color: var(--red); margin-bottom: 16px; }
+.title { font-size: 58px; line-height: 1.1; letter-spacing: -0.015em; max-width: 1600px; }
+.lead { margin-top: 16px; font-size: 26px; line-height: 1.35; color: var(--muted); max-width: 1500px; }
+.body { position: relative; flex: 1 1 auto; min-height: 0; margin-top: 48px; }
+.nowrap { white-space: nowrap; }
+
+/* Экран интерфейса в рамке: размер задаёт data-w или data-h, кадр из исходного PNG — data-crop="x y ширина высота" */
+.shot {
+  position: relative;
+  flex: none;
+  overflow: hidden;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(14, 14, 18, 0.06), 0 18px 44px rgba(14, 14, 18, 0.11);
+}
+.shot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgba(14, 14, 18, 0.08);
+  pointer-events: none;
+}
+.shot img { position: absolute; left: 0; top: 0; display: block; max-width: none; }
+.shot-label { font-size: 20px; line-height: 1.2; font-weight: 600; color: var(--muted); margin-bottom: 12px; }
+
+/* Метки статусов — как в интерфейсе */
+.chip {
+  display: inline-block;
+  padding: 4px 14px 5px;
+  border-radius: 999px;
+  font-size: 20px;
+  line-height: 1.25;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.chip--green { color: var(--green); background: var(--green-bg); }
+.chip--indigo { color: var(--indigo); background: var(--indigo-bg); }
+.chip--orange { color: var(--orange); background: var(--orange-bg); }
+.chip--red { color: var(--red-text); background: var(--red-bg); }
+.chip--grey { color: var(--text); background: var(--panel-2); }
+
+/* Тезисы: жирное начало и короткое пояснение */
+.theses { display: grid; gap: 22px; }
+.theses li { font-size: 23px; line-height: 1.36; padding-left: 26px; position: relative; }
+.theses li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 11px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--red);
+}
+.theses b { font-weight: 700; }
+
+/* ───────── 1. Титул ───────── */
+.s-title { flex-direction: row; align-items: center; gap: 80px; padding-top: 88px; padding-bottom: 88px; }
+.title-col { flex: 1 1 0; align-self: stretch; display: flex; flex-direction: column; min-width: 0; }
+.brand { display: flex; align-items: center; gap: 22px; }
+.logo { display: inline-flex; }
+.logo svg { display: block; height: 64px; width: auto; fill: var(--red); }
+.brand-case { font-size: 24px; line-height: 1.3; font-weight: 500; color: var(--muted); }
+.hero { margin-top: 84px; font-size: 92px; line-height: 1.02; letter-spacing: -0.03em; }
+.hero-lead { margin-top: 36px; font-size: 30px; line-height: 1.38; color: var(--muted); max-width: 880px; }
+.links { margin-top: auto; display: grid; gap: 14px; }
+.links > div { display: flex; align-items: baseline; gap: 24px; font-size: 24px; }
+.links dt { width: 176px; flex: none; color: var(--muted); }
+.links dd { font-weight: 600; color: var(--ink); }
+.links dd a { border-bottom: 2px solid var(--red); }
+.authors { margin-top: 32px; font-size: 22px; color: var(--muted); }
+
+/* ───────── 2. Проблема ───────── */
+.facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 36px; }
+.fact { background: var(--panel); border-radius: 32px; padding: 44px 44px 36px; display: flex; flex-direction: column; min-height: 540px; }
+.fact-big { font-size: 84px; line-height: 1; font-weight: 700; letter-spacing: -0.03em; color: var(--ink); white-space: nowrap; }
+.fact-sub { margin-top: 14px; font-size: 28px; line-height: 1.2; font-weight: 600; color: var(--red); }
+.fact-text { margin-top: 30px; font-size: 27px; line-height: 1.38; }
+.fact-src { margin-top: auto; padding-top: 24px; font-size: 20px; line-height: 1.3; color: var(--muted); }
+.conclusion { margin-top: 56px; padding-left: 32px; border-left: 6px solid var(--red); font-size: 30px; line-height: 1.38; max-width: 1580px; }
+
+/* ───────── 3. Пользователи ───────── */
+.cols3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+.card { background: var(--panel); border-radius: 32px; padding: 44px 40px 40px; min-height: 600px; }
+.card h3 { font-size: 34px; line-height: 1.15; }
+.card .who { margin-top: 12px; font-size: 22px; line-height: 1.35; color: var(--muted); min-height: 60px; }
+.card .ask { margin-top: 26px; padding: 20px 24px; background: #fff; border-radius: 20px; font-size: 24px; line-height: 1.38; min-height: 152px; }
+.card .ask > span { display: block; font-size: 20px; font-weight: 600; color: var(--red); margin-bottom: 4px; }
+.card .theses { margin-top: 30px; gap: 18px; }
+.card .theses li { font-size: 24px; }
+.personas { margin-top: 40px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; font-size: 22px; color: var(--muted); }
+.personas .chip { font-size: 21px; }
+
+/* ───────── 4. Исследование ───────── */
+.pairs-head, .pair { display: grid; grid-template-columns: 1fr 88px 1.08fr; align-items: center; }
+.pairs-head { padding-bottom: 14px; border-bottom: 2px solid var(--ink); font-size: 21px; font-weight: 600; color: var(--muted); }
+.pairs-head span:last-child { grid-column: 3; }
+.pair { padding: 28px 0; border-bottom: 1px solid var(--line); font-size: 27px; line-height: 1.34; }
+.pair .arr { text-align: center; color: var(--red); font-size: 30px; line-height: 1; }
+.pair .did { font-weight: 600; color: var(--ink); }
+.pair--quote .heard q { quotes: '«' '»'; font-style: normal; color: var(--ink); font-weight: 600; }
+.note { margin-top: 30px; font-size: 22px; line-height: 1.4; color: var(--muted); max-width: 1560px; }
+
+/* ───────── Схемы: блоки на абсолютных координатах, стрелки — SVG под ними ───────── */
+.diagram { position: relative; }
+.diagram > svg { position: absolute; left: 0; top: 0; overflow: visible; }
+.node { position: absolute; border-radius: 24px; padding: 20px 24px; display: flex; flex-direction: column; justify-content: center; }
+.node h3 { font-size: 26px; line-height: 1.2; display: flex; align-items: center; gap: 12px; }
+.node p { margin-top: 8px; font-size: 21px; line-height: 1.32; color: var(--muted); }
+.node--step { background: var(--panel); }
+.node--out { background: #fff; border: 2px solid var(--line); }
+.node--out .chip { align-self: flex-start; }
+.node--end { background: var(--ink); }
+.node--end h3 { color: #fff; }
+.node--end p { color: #c6c7cd; }
+.node--dashed { background: #fff; border: 2px dashed #b4b5bc; }
+.badge {
+  width: 36px; height: 36px; flex: none;
+  border-radius: 50%;
+  background: var(--red); color: #fff;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 20px; font-weight: 700;
+}
+.wire-label { position: absolute; font-size: 20px; line-height: 1.2; color: var(--muted); white-space: nowrap; transform: translate(-50%, -50%); background: #fff; padding: 0 6px; }
+.pill {
+  position: absolute; transform: translate(-50%, -50%);
+  background: #fff; border: 2px solid var(--red); border-radius: 999px;
+  padding: 6px 20px; font-size: 22px; line-height: 1.25; font-weight: 700; color: var(--red); white-space: nowrap;
+}
+.wire { fill: none; stroke: #2a2a30; stroke-width: 2.5; }
+.wire--dash { stroke: #8b8c94; stroke-dasharray: 9 8; }
+
+/* ───────── 5. Решение одной схемой ───────── */
+.flow { width: 1712px; height: 700px; }
+.flow-note { position: absolute; left: 888px; top: 550px; width: 824px; height: 140px; display: flex; align-items: center; gap: 24px; font-size: 24px; line-height: 1.38; color: var(--muted); }
+.flow-note b { color: var(--ink); }
+.flow-note .bar { width: 6px; align-self: stretch; background: var(--red); border-radius: 3px; flex: none; }
+
+/* ───────── 6. Кабинет клиента ───────── */
+.two-shots { display: flex; justify-content: space-between; align-items: flex-start; }
+.shot-col { display: flex; flex-direction: column; gap: 28px; }
+.shot-col .theses { gap: 14px; }
+.shot-col .theses li { font-size: 22px; }
+
+/* ───────── 7. Объяснимое решение ───────── */
+.split { display: flex; gap: 72px; align-items: flex-start; }
+.split-main { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; }
+.rate { background: var(--panel); border-radius: 32px; padding: 30px 36px 30px; }
+.rate-caption { font-size: 21px; font-weight: 600; color: var(--muted); }
+.rate-row { margin-top: 16px; display: flex; align-items: flex-start; gap: 14px; }
+.term { flex: 1 1 0; min-width: 0; }
+.term > b { display: block; font-size: 52px; line-height: 1.05; letter-spacing: -0.02em; white-space: nowrap; }
+.term > span { display: block; margin-top: 8px; font-size: 20px; line-height: 1.3; color: var(--muted); }
+.term--total > b { color: var(--red); }
+.op { flex: none; font-size: 52px; line-height: 1.05; font-weight: 400; color: var(--faint); }
+.split-main .theses { margin-top: 40px; gap: 24px; }
+.aside-note { margin-top: 30px; font-size: 21px; line-height: 1.4; color: var(--muted); }
+
+/* ───────── 8. Рабочее место банка ───────── */
+.bank { display: flex; gap: 64px; align-items: flex-start; }
+.bank .theses { width: 480px; flex: none; gap: 22px; }
+.bank .theses li { font-size: 22px; }
+.stack { display: flex; flex-direction: column; gap: 30px; }
+
+/* ───────── 9. Конвейер и политика ───────── */
+.chain { display: grid; grid-template-columns: repeat(8, 1fr); gap: 28px; }
+.chain li {
+  position: relative;
+  background: var(--panel); border-radius: 20px;
+  padding: 14px 16px 14px; min-height: 100px;
+  font-size: 21px; line-height: 1.25; font-weight: 600; color: var(--ink);
+}
+.chain li .n { display: block; font-size: 20px; font-weight: 700; color: var(--red); margin-bottom: 6px; }
+.chain li + li::before {
+  content: '';
+  position: absolute; left: -21px; top: 50%;
+  width: 14px; height: 14px; margin-top: -7px;
+  border-top: 3px solid var(--faint); border-right: 3px solid var(--faint);
+  transform: rotate(45deg);
+}
+.chain li.ext { background: var(--teal-bg); }
+.chain-legend { margin-top: 14px; display: flex; gap: 28px; font-size: 20px; color: var(--muted); }
+.chain-legend > span::before { content: ''; display: inline-block; width: 16px; height: 16px; border-radius: 5px; margin-right: 10px; vertical-align: -2px; background: var(--panel); }
+.chain-legend .ext::before { background: var(--teal-bg); }
+.policy-grid { margin-top: 30px; display: flex; gap: 56px; align-items: flex-start; }
+.policy { flex: 1 1 0; min-width: 0; }
+.policy h3 { font-size: 24px; line-height: 1.3; }
+.scale { margin-top: 14px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.scale > div { border-radius: 14px; padding: 10px 14px 12px; background: var(--panel); }
+.scale > div > b { display: block; font-size: 32px; line-height: 1.1; }
+.scale > div > span { display: block; font-size: 20px; line-height: 1.3; color: var(--muted); white-space: nowrap; }
+.scale .auto { background: var(--ink); }
+.scale .auto > b { color: #fff; }
+.scale .auto > span { color: #c6c7cd; }
+.scale .stop { background: var(--red-bg); }
+.scale .stop > b, .scale .stop > span { color: var(--red-text); }
+.rules { margin-top: 26px; display: grid; gap: 14px; }
+.rules > div { display: grid; grid-template-columns: 196px 1fr; gap: 16px; align-items: baseline; font-size: 22px; line-height: 1.36; }
+.rules dt .chip { min-width: 184px; text-align: center; }
+
+/* ───────── 10. Архитектура ───────── */
+.arch { width: 1712px; height: 420px; }
+.arch .node { padding: 18px 22px; }
+.arch .node h3 { font-size: 24px; }
+.arch .node p { font-size: 20px; margin-top: 6px; }
+.perf { position: absolute; left: 0; top: 250px; width: 608px; height: 170px; border-radius: 24px; border: 2px solid var(--line); padding: 16px 26px; display: flex; flex-direction: column; justify-content: center; }
+.perf-head { font-size: 20px; line-height: 1.3; color: var(--muted); }
+.perf-nums { margin-top: 6px; display: flex; gap: 44px; }
+.perf-nums > div > b { display: block; font-size: 52px; line-height: 1.05; letter-spacing: -0.02em; color: var(--red); white-space: nowrap; }
+.perf-nums > div > span { display: block; font-size: 20px; line-height: 1.25; color: var(--muted); }
+.decisions { margin-top: 52px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; }
+.decisions li { background: var(--panel); border-radius: 24px; padding: 30px 30px 32px; font-size: 23px; line-height: 1.4; }
+.decisions b { display: block; font-size: 25px; line-height: 1.25; font-weight: 700; margin-bottom: 10px; }
+
+/* ───────── 11. Безопасность и качество ───────── */
+.sq { display: grid; grid-template-columns: 1fr 940px; gap: 72px; align-items: start; }
+.sq h3 { font-size: 30px; margin-bottom: 26px; }
+.sec { display: grid; gap: 32px; }
+.sec li { font-size: 26px; line-height: 1.4; padding-left: 28px; position: relative; }
+.sec li::before { content: ''; position: absolute; left: 0; top: 13px; width: 10px; height: 10px; border-radius: 50%; background: var(--red); }
+.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.tile { background: var(--panel); border-radius: 24px; padding: 30px 30px 32px; min-height: 280px; }
+.tile > b { display: block; font-size: 68px; line-height: 1.05; letter-spacing: -0.02em; white-space: nowrap; }
+.tile > span { display: block; margin-top: 14px; font-size: 23px; line-height: 1.34; color: var(--text); }
+.tile--dark { background: var(--ink); }
+.tile--dark > b { color: #fff; }
+.tile--dark > span { color: #d4d5da; }
+
+/* ───────── 12. ИИ ───────── */
+.ai-example { display: flex; align-items: center; gap: 32px; background: var(--ink); border-radius: 28px; padding: 34px 44px; }
+.ai-example .said { flex: 0 0 640px; font-size: 28px; line-height: 1.35; font-weight: 600; color: #fff; }
+.ai-example .said > span { display: block; font-size: 20px; font-weight: 600; color: #b9bac1; margin-bottom: 6px; }
+.ai-example .arr { font-size: 40px; color: var(--red); flex: none; }
+.ai-example .parsed { flex: 1 1 0; min-width: 0; }
+.ai-example dl { display: flex; gap: 44px; }
+.ai-example dt { font-size: 20px; color: #b9bac1; }
+.ai-example dd { font-size: 30px; font-weight: 600; color: #fff; white-space: nowrap; }
+.ai-example .src { margin-top: 12px; font-size: 20px; color: #b9bac1; }
+.ai-cols { margin-top: 28px; display: grid; grid-template-columns: 1fr 1.25fr; gap: 32px; }
+.ai-cols > div { background: var(--panel); border-radius: 28px; padding: 30px 40px 32px; }
+.ai-cols h3 { font-size: 30px; margin-bottom: 24px; }
+.ai-cols .theses { gap: 24px; }
+.ai-cols .theses li { font-size: 24px; }
+
+/* ───────── 13. Эффект для банка ───────── */
+.effect { width: 100%; border-collapse: collapse; }
+.effect th { text-align: left; font-size: 22px; font-weight: 600; color: var(--muted); padding: 0 24px 14px 0; border-bottom: 2px solid var(--ink); vertical-align: bottom; }
+.effect td { padding: 24px 28px 24px 0; border-bottom: 1px solid var(--line); font-size: 25px; line-height: 1.38; vertical-align: top; }
+.effect td:first-child { font-weight: 700; color: var(--ink); width: 23%; }
+.effect td:nth-child(2) { color: var(--muted); width: 33%; }
+.effect td:nth-child(3) { width: 44%; }
+.effect .big { font-weight: 700; color: var(--red); }
+.formula { margin-top: 36px; display: flex; gap: 24px; align-items: stretch; font-size: 25px; line-height: 1.4; }
+.formula .bar { width: 6px; flex: none; background: var(--red); border-radius: 3px; }
+
+/* ───────── 14. Как проверить ───────── */
+.check { display: grid; grid-template-columns: 1fr 640px; gap: 88px; align-items: start; }
+.term-box { background: var(--ink); color: #fff; border-radius: 28px; padding: 36px 40px; font-size: 28px; line-height: 1.65; }
+.term-box div::before { content: '$ '; color: #8b8c94; }
+.term-box .main { color: #fff; font-weight: 700; }
+.term-box .dim { color: #c6c7cd; }
+.open-url { margin-top: 28px; font-size: 28px; }
+.open-url a { font-weight: 700; color: var(--ink); border-bottom: 2px solid var(--red); }
+.logins { margin-top: 34px; width: 100%; border-collapse: collapse; }
+.logins td { padding: 16px 20px 16px 0; border-bottom: 1px solid var(--line); font-size: 25px; line-height: 1.35; vertical-align: top; }
+.logins td:first-child { width: 170px; font-weight: 700; color: var(--ink); }
+.logins-note { margin-top: 18px; font-size: 22px; color: var(--muted); }
+.check-side { display: grid; gap: 40px; }
+.check-side h3 { font-size: 28px; margin-bottom: 12px; }
+.check-side p { font-size: 24px; line-height: 1.42; }
+.check-side a { font-weight: 600; color: var(--ink); border-bottom: 2px solid var(--red); }
+.check-side .theses { gap: 16px; }
+.check-side .theses li { font-size: 24px; }
+.signature { display: flex; align-items: center; gap: 18px; font-size: 22px; color: var(--muted); }
+.signature .logo svg { height: 40px; }
+</style>
+</head>
+<body>
+
+<!-- 1. Титул -->
+<section class="slide s-title">
+  <div class="title-col">
+    <div class="brand">
+      <span class="logo" data-logo></span>
+      <span class="brand-case">Кейс Альфа-Банка · Альфа Будущее 2026</span>
+    </div>
+    <h1 class="hero">Умный кредитный кабинет предпринимателя</h1>
+    <p class="hero-lead">Кабинет клиента малого бизнеса и рабочее место кредитного аналитика, связанные одним кредитным конвейером: от задачи бизнеса до выдачи кредита</p>
+    <dl class="links">
+      <div><dt>Демо-версия</dt><dd><a href="https://stonebridgeway.github.io/alfa-hakaton/">stonebridgeway.github.io/alfa-hakaton</a></dd></div>
+      <div><dt>Репозиторий</dt><dd><a href="https://github.com/stonebridgeway/alfa-hakaton">github.com/stonebridgeway/alfa-hakaton</a></dd></div>
+    </dl>
+    <p class="authors">stonebridgeway и команда «Альфы»</p>
+  </div>
+  <figure class="shot" data-h="820">
+    <img src="../../docs/screenshots/mobile.png" alt="Кабинет клиента на телефоне: главная и одобренная заявка">
+  </figure>
+</section>
+
+<!-- 2. Проблема -->
+<section class="slide">
+  <p class="kicker">Проблема</p>
+  <h2 class="title">Онлайн-заявка есть, понятного пути до денег — нет</h2>
+  <div class="body">
+    <div class="facts">
+      <article class="fact">
+        <div class="fact-big"><span data-v="research.avgAmountMln"></span>&nbsp;млн&nbsp;₽</div>
+        <div class="fact-sub">на <span data-v="research.avgTermMonths"></span>&nbsp;месяца</div>
+        <p class="fact-text">Средняя онлайн-заявка бизнеса: суммы от сотен тысяч до десятков миллионов, а не крупные сделки под залог</p>
+        <p class="fact-src">Банки.ру, статистика заявок за I квартал 2026</p>
+      </article>
+      <article class="fact">
+        <div class="fact-big" data-v="research.managerWait"></div>
+        <div class="fact-sub">ждал звонка менеджера</div>
+        <p class="fact-text">После подачи заявки клиент не мог завершить оформление сам — только ждать</p>
+        <p class="fact-src">Отзыв об Альфа-Банке, март 2025</p>
+      </article>
+      <article class="fact">
+        <div class="fact-big">Повторно</div>
+        <div class="fact-sub">одни и те же документы</div>
+        <p class="fact-text">Документы приходится заново отправлять в разные подразделения банка</p>
+        <p class="fact-src">Отзыв о МСП Банке, апрель 2025</p>
+      </article>
+    </div>
+    <p class="conclusion"><b>Вывод:</b> быстрый ответ не решает проблему, если за ним — ожидание менеджера без сроков. Нужно в любой момент видеть, что с заявкой, чего не хватает и что банк уже решил.</p>
+  </div>
+</section>
+
+<!-- 3. Пользователи -->
+<section class="slide">
+  <p class="kicker">Пользователи</p>
+  <h2 class="title">Три участника — одна заявка</h2>
+  <div class="body">
+    <div class="cols3">
+      <article class="card">
+        <h3>Предприниматель</h3>
+        <p class="who">Собственник, директор, финансовый директор или бухгалтер ООО либо ИП</p>
+        <p class="ask"><span>Главный вопрос</span>Сколько реально одобрят, под какую ставку и когда деньги будут на счёте</p>
+        <ul class="theses">
+          <li>Понять, что подходит и сколько стоит, — до заявки</li>
+          <li>Подать заявку, не собирая справки</li>
+          <li>Статус без звонков, подпись без визита</li>
+        </ul>
+      </article>
+      <article class="card">
+        <h3>Кредитный аналитик</h3>
+        <p class="who">Разбирает заявки, которые не решились автоматически</p>
+        <p class="ask"><span>Задача</span>Принять обоснованное решение быстро и в пределах полномочий</p>
+        <ul class="theses">
+          <li>Все источники, оценка риска и причина передачи — в одном досье</li>
+          <li>Запрос информации и пересчёт условий вместо отказа</li>
+        </ul>
+      </article>
+      <article class="card">
+        <h3>Банк</h3>
+        <p class="who">Руководитель процесса и администратор</p>
+        <p class="ask"><span>Задача</span>Масштабировать выдачи без роста риска и ручного труда</p>
+        <ul class="theses">
+          <li>Типовые заявки — автоматически, по прозрачным правилам</li>
+          <li>След каждого действия и решения</li>
+          <li>Видно, как работает конвейер и где сбои</li>
+        </ul>
+      </article>
+    </div>
+    <div class="personas">
+      <span>Персоны — там, где у банка меняются данные или шаги процесса:</span>
+      <span class="chip chip--grey">ИП на упрощёнке</span>
+      <span class="chip chip--grey">ООО с финансовой службой</span>
+      <span class="chip chip--grey">Молодой бизнес</span>
+    </div>
+  </div>
+</section>
+
+<!-- 4. Исследование → продукт -->
+<section class="slide">
+  <p class="kicker">Исследование</p>
+  <h2 class="title">Что узнали — и что изменили в продукте</h2>
+  <p class="lead">Кабинетное исследование по открытым источникам на октябрь 2026 года и первое интервью</p>
+  <div class="body">
+    <div class="pairs-head"><span>Узнали</span><span>Сделали в продукте</span></div>
+    <div class="pair"><p class="heard">После заявки клиент неделями ждёт звонка менеджера</p><span class="arr">→</span><p class="did">Статус по этапам обновляется сам, сроки и «что нужно от вас» — на экране</p></div>
+    <div class="pair"><p class="heard">Документы отправляют повторно в разные подразделения</p><span class="arr">→</span><p class="did">Единое досье: реквизиты из реестров, документы в одном месте</p></div>
+    <div class="pair"><p class="heard">Одобряют меньше, чем просили, и не объясняют почему</p><span class="arr">→</span><p class="did">Контрпредложение с вариантами и блоком «Что повлияло»</p></div>
+    <div class="pair"><p class="heard">Непонятно, сколько одобрят и сколько это будет стоить</p><span class="arr">→</span><p class="did">Платёж и переплата до заявки, «Сколько одобрят по выписке»</p></div>
+    <div class="pair pair--quote"><p class="heard">Интервью: главное — ставка. <q>Чем меньше ставка, тем больше он мне интересен</q></p><span class="arr">→</span><p class="did">Продукты — от меньшей ставки к большей, ставка разложена на слагаемые</p></div>
+    <p class="note">Не подтвердился спрос на подбор по описанию своими словами. Поэтому главный вход в подбор — карточки задач, а описание — по желанию.</p>
+  </div>
+</section>
+
+<!-- 5. Решение одной схемой -->
+<section class="slide">
+  <p class="kicker">Решение</p>
+  <h2 class="title">Один путь: от задачи бизнеса до денег на счёте</h2>
+  <div class="body">
+    <div class="diagram flow">
+      <svg width="1712" height="700" viewBox="0 0 1712 700" aria-hidden="true">
+        <defs>
+          <marker id="arrow5" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="16" refX="14" refY="8" orient="auto">
+            <path d="M2,2 L14,8 L2,14 Z" fill="#2a2a30"/>
+          </marker>
+          <marker id="arrow5g" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="16" refX="14" refY="8" orient="auto">
+            <path d="M2,2 L14,8 L2,14 Z" fill="#8b8c94"/>
+          </marker>
+        </defs>
+        <!-- шаги 1 → 2 → 3 → 4 -->
+        <path class="wire" d="M380 80 H442" marker-end="url(#arrow5)"/>
+        <path class="wire" d="M824 80 H886" marker-end="url(#arrow5)"/>
+        <path class="wire" d="M1268 80 H1330" marker-end="url(#arrow5)"/>
+        <!-- проверка → четыре исхода -->
+        <path class="wire" d="M1420 160 V294" marker-end="url(#arrow5)"/>
+        <path class="wire" d="M1420 228 H190 V294" marker-end="url(#arrow5)"/>
+        <path class="wire" d="M634 228 V294" marker-end="url(#arrow5)"/>
+        <path class="wire" d="M1078 228 V294" marker-end="url(#arrow5)"/>
+        <!-- запрос информации → снова проверка -->
+        <path class="wire wire--dash" d="M1640 296 V162" marker-end="url(#arrow5g)"/>
+        <!-- аналитик → предложение -->
+        <path class="wire" d="M444 386 H382" marker-end="url(#arrow5)"/>
+        <!-- предложение → подписание → выдача -->
+        <path class="wire" d="M190 476 V548" marker-end="url(#arrow5)"/>
+        <path class="wire" d="M380 620 H442" marker-end="url(#arrow5)"/>
+      </svg>
+
+      <div class="node node--step" style="left:0; top:0; width:380px; height:160px">
+        <h3><span class="badge">1</span>Задача</h3>
+        <p>своими словами или карточкой</p>
+      </div>
+      <div class="node node--step" style="left:444px; top:0; width:380px; height:160px">
+        <h3><span class="badge">2</span>Подбор</h3>
+        <p>из <span data-v="products" data-forms="продукта|продуктов|продуктов"></span>: ставка, платёж и&nbsp;переплата</p>
+      </div>
+      <div class="node node--step" style="left:888px; top:0; width:380px; height:160px">
+        <h3><span class="badge">3</span>Заявка</h3>
+        <p>данные компании — из реестров</p>
+      </div>
+      <div class="node node--step" style="left:1332px; top:0; width:380px; height:160px">
+        <h3><span class="badge">4</span>Проверка</h3>
+        <p>автоматически: <span data-v="pipelineSources" data-forms="источник|источника|источников"></span>, скоринг и&nbsp;политика</p>
+      </div>
+
+      <span class="pill" style="left:856px; top:228px"><span data-v="outcomes" data-forms="исход|исхода|исходов"></span> вместо «да» или «нет»</span>
+      <span class="wire-label" style="left:1530px; top:228px">ответ клиента</span>
+
+      <div class="node node--out" style="left:0; top:296px; width:380px; height:180px">
+        <span class="chip chip--green">Предложение</span>
+        <p>как запросили или контрпредложение с вариантами</p>
+      </div>
+      <div class="node node--out" style="left:444px; top:296px; width:380px; height:180px">
+        <span class="chip chip--indigo">Аналитик</span>
+        <p>досье и решение в пределах полномочий</p>
+      </div>
+      <div class="node node--out" style="left:888px; top:296px; width:380px; height:180px">
+        <span class="chip chip--red">Отказ</span>
+        <p>причина простыми словами и альтернативы</p>
+      </div>
+      <div class="node node--out" style="left:1332px; top:296px; width:380px; height:180px">
+        <span class="chip chip--orange">Запрос информации</span>
+        <p>перечень и срок ответа, затем проверка продолжается</p>
+      </div>
+
+      <div class="node node--end" style="left:0; top:550px; width:380px; height:140px">
+        <h3>Подписание</h3>
+        <p>в кабинете, без визита в офис</p>
+      </div>
+      <div class="node node--end" style="left:444px; top:550px; width:380px; height:140px">
+        <h3>Выдача</h3>
+        <p>деньги на счёте, график платежей</p>
+      </div>
+
+      <div class="flow-note">
+        <span class="bar"></span>
+        <p>Статус меняется на экране в реальном времени, без звонков. Весь путь на стенде — <b data-v="pathTime"></b>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. Кабинет клиента -->
+<section class="slide">
+  <p class="kicker">Кабинет клиента</p>
+  <h2 class="title">Сколько одобрят и сколько это стоит — ещё до заявки</h2>
+  <div class="body two-shots">
+    <div class="shot-col">
+      <figure class="shot" data-h="600">
+        <img src="../../docs/screenshots/client-dashboard.png" data-crop="138 396 756 729" alt="Главная кабинета: «Вам уже доступно» и «Сколько одобрят по выписке»">
+      </figure>
+      <ul class="theses">
+        <li><b>Предложение до заявки.</b> «Вам уже доступно» — по данным компании, с пометкой «предварительно»</li>
+        <li><b>Сколько одобрят по выписке.</b> Лимит и прогноз кассового разрыва на <span data-v="forecastMonths" data-forms="месяц|месяца|месяцев"></span> — за секунды, без заявки</li>
+      </ul>
+    </div>
+    <div class="shot-col">
+      <figure class="shot" data-h="600">
+        <img src="../../docs/screenshots/client-new-application.png" data-crop="166 476 1108 776" alt="Подбор продукта: задачи карточками, «Я понял так» и продукты с платежом и переплатой">
+      </figure>
+      <ul class="theses">
+        <li><b>Подбор от задачи.</b> <span data-v="businessTasks" data-forms="задача|задачи|задач"></span> карточками или описание своими словами; продукты — от меньшей ставки, с платежом и переплатой</li>
+        <li><b>Заявка почти без ввода.</b> Реквизиты — из ЕГРЮЛ/ЕГРИП, финансы — из ГИР БО, БКИ и оборотов по счёту</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 7. Объяснимое решение -->
+<section class="slide">
+  <p class="kicker">Решение для клиента</p>
+  <h2 class="title">Объяснение вместо «одобрено» или «отказано»</h2>
+  <div class="body split">
+    <figure class="shot" data-h="740">
+      <img src="../../docs/screenshots/client-offer.png" data-crop="138 312 756 902" alt="Заявка после автоматического одобрения: условия, что повлияло, из чего складывается ставка">
+    </figure>
+    <div class="split-main">
+      <div class="rate">
+        <p class="rate-caption">Из чего складывается ставка — пример с экрана</p>
+        <div class="rate-row">
+          <div class="term term--total"><b><span data-v="rateExample.total"></span>&nbsp;%</b><span>ставка в&nbsp;предложении</span></div>
+          <div class="op">=</div>
+          <div class="term"><b><span data-v="rateExample.keyRate"></span>&nbsp;%</b><span>ключевая ставка Банка России</span></div>
+          <div class="op">+</div>
+          <div class="term"><b><span data-v="rateExample.productSpread"></span>&nbsp;п.п.</b><span>надбавка продукта</span></div>
+          <div class="op">+</div>
+          <div class="term"><b><span data-v="rateExample.riskAddon"></span>&nbsp;п.п.</b><span>надбавка за риск по итогам проверки</span></div>
+        </div>
+      </div>
+      <ul class="theses">
+        <li><b>Как получить ставку ниже:</b> более дешёвые продукты под ту же цель с разницей в переплате и что снизит надбавку за риск</li>
+        <li><b>Контрпредложение:</b> до <span data-v="counterOptions" data-forms="варианта|вариантов|вариантов"></span> — больше срок или меньше сумма, с объяснением «что повлияло»</li>
+        <li><b>Отказ — с путём дальше:</b> причина простыми словами, «Что поможет» по каждой причине и «Вам может подойти» — продукты в пределах расчётного лимита</li>
+      </ul>
+      <p class="aside-note">Баллы и класс риска клиенту не показываем — их видит аналитик.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 8. Рабочее место банка -->
+<section class="slide">
+  <p class="kicker">Рабочее место банка</p>
+  <h2 class="title">Нестандартные заявки — аналитику, с готовым досье</h2>
+  <div class="body bank">
+    <ul class="theses">
+      <li><b>Очередь:</b> статусы, класс риска, флаги и срок рассмотрения с подсветкой просрочек</li>
+      <li><b>Досье:</b> все источники, вклад каждого из <span data-v="scoringFactors" data-forms="фактора|факторов|факторов"></span>, расчёт лимита, документы и история</li>
+      <li><b>Полномочия:</b> одобрить, изменить условия с пересчётом, запросить информацию, отказать. Выше лимита — до <span data-v="analystOverLimitPct"></span>&nbsp;% и только с обоснованием</li>
+      <li><b>Обоснование для аудита:</b> одной кнопкой — PDF с источниками, скорингом, лимитом, правилами и решениями людей</li>
+      <li><b>Журнал:</b> каждое действие людей и системы с идентификатором запроса</li>
+    </ul>
+    <div class="stack">
+      <div>
+        <p class="shot-label">Очередь заявок</p>
+        <figure class="shot" data-w="1168">
+          <img src="../../docs/screenshots/bank-queue.png" data-crop="24 576 1392 342" alt="Очередь заявок аналитика: статусы, класс риска, флаги, сроки">
+        </figure>
+      </div>
+      <div>
+        <p class="shot-label">Досье заявки: оценка риска и решение</p>
+        <figure class="shot" data-w="1168">
+          <img src="../../docs/screenshots/bank-dossier.png" data-crop="8 440 1424 398" alt="Досье заявки: оценка риска по скоринговой карте и решение аналитика">
+        </figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 9. Конвейер и политика -->
+<section class="slide">
+  <p class="kicker">Кредитный конвейер</p>
+  <h2 class="title"><span data-v="pipelineSteps" data-forms="шаг|шага|шагов"></span> и правила, которые можно объяснить</h2>
+  <div class="body">
+    <ol class="chain">
+      <li><span class="n">1</span>Проверка данных</li>
+      <li class="ext"><span class="n">2</span>ЕГРЮЛ / ЕГРИП</li>
+      <li class="ext"><span class="n">3</span>ФНС</li>
+      <li class="ext"><span class="n">4</span>ГИР БО</li>
+      <li class="ext"><span class="n">5</span>БКИ</li>
+      <li class="ext"><span class="n">6</span>Обороты по счёту</li>
+      <li><span class="n">7</span>Скоринг</li>
+      <li><span class="n">8</span>Кредитная политика</li>
+    </ol>
+    <div class="chain-legend"><span class="ext">внешние источники: в симуляторе <span data-v="externalSystems" data-forms="система|системы|систем"></span> с управляемыми сбоями, включая АБС для выдачи</span><span>проверки и правила банка</span></div>
+    <div class="policy-grid">
+      <div class="policy">
+        <h3>Скоринг: <span data-v="scoreBase" data-forms="балл|балла|баллов"></span> + <span data-v="scoringFactors" data-forms="фактор|фактора|факторов"></span> → класс риска <span data-v="riskClasses"></span></h3>
+        <div class="scale">
+          <div class="stop"><b>E</b><span>меньше <span data-v="classes.D.from"></span></span><span>не выдаётся</span></div>
+          <div><b>D</b><span>от <span data-v="classes.D.from"></span></span><span>+<span data-v="classes.D.addon"></span> п.п.</span></div>
+          <div><b>C</b><span>от <span data-v="classes.C.from"></span></span><span>+<span data-v="classes.C.addon"></span> п.п.</span></div>
+          <div class="auto"><b>B</b><span>от <span data-v="classes.B.from"></span></span><span>+<span data-v="classes.B.addon"></span> п.п.</span></div>
+          <div class="auto"><b>A</b><span>от <span data-v="classes.A.from"></span></span><span>+<span data-v="classes.A.addon"></span> п.п.</span></div>
+        </div>
+        <dl class="rules">
+          <div><dt><span class="chip chip--green">Автоматически</span></dt><dd>класс A или B, без флагов, в пределах автолимита</dd></div>
+          <div><dt><span class="chip chip--indigo">Аналитику</span></dt><dd><span data-v="flags" data-forms="флаг|флага|флагов"></span>: массовый адрес, налоговый долг, класс C или D, недоступный источник…</dd></div>
+          <div><dt><span class="chip chip--red">Отказ</span></dt><dd><span data-v="stopFactors" data-forms="стоп-фактор|стоп-фактора|стоп-факторов"></span>: ликвидация, просрочка больше <span data-v="overdueDays" data-forms="дня|дней|дней"></span>, класс E…</dd></div>
+          <div><dt><span class="chip chip--grey">Лимит</span></dt><dd>минимум из: максимум продукта · <span data-v="limit.revenuePct"></span>&nbsp;% выручки · <span data-v="limit.collateralPct"></span>&nbsp;% залога · DSCR&nbsp;≥&nbsp;<span data-v="limit.dscrMin"></span> · <span data-v="limit.overdraftPct"></span>&nbsp;% поступлений для овердрафта</dd></div>
+          <div><dt><span class="chip chip--orange">Сбой источника</span></dt><dd>заявка ждёт и не теряется: повторы, circuit&nbsp;breaker; дольше <span data-v="sourceWaitMin" data-forms="минуты|минут|минут"></span> — аналитику с флагом F05</dd></div>
+        </dl>
+      </div>
+      <div>
+        <p class="shot-label">Конвейер и сбои: сбой БКИ включён для показа</p>
+        <figure class="shot" data-h="530">
+          <img src="../../docs/screenshots/admin-pipeline.png" data-crop="24 345 901 700" alt="Конвейер и сбои: сбой бюро кредитных историй, заявка ждёт источник">
+        </figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 10. Архитектура -->
+<section class="slide">
+  <p class="kicker">Архитектура</p>
+  <h2 class="title">Простая архитектура, которая не теряет заявки</h2>
+  <div class="body">
+    <div class="diagram arch">
+      <svg width="1712" height="420" viewBox="0 0 1712 420" aria-hidden="true">
+        <defs>
+          <marker id="arrow10" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="16" refX="14" refY="8" orient="auto-start-reverse">
+            <path d="M2,2 L14,8 L2,14 Z" fill="#2a2a30"/>
+          </marker>
+          <marker id="arrow10g" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="16" refX="14" refY="8" orient="auto">
+            <path d="M2,2 L14,8 L2,14 Z" fill="#8b8c94"/>
+          </marker>
+        </defs>
+        <path class="wire" d="M240 75 H366" marker-end="url(#arrow10)"/>
+        <path class="wire" d="M610 75 H734" marker-start="url(#arrow10)" marker-end="url(#arrow10)"/>
+        <path class="wire" d="M856 152 V248" marker-start="url(#arrow10)" marker-end="url(#arrow10)"/>
+        <path class="wire" d="M1104 335 H978" marker-end="url(#arrow10)"/>
+        <path class="wire" d="M1344 335 H1470" marker-end="url(#arrow10)"/>
+        <path class="wire wire--dash" d="M976 75 H1470" marker-end="url(#arrow10g)"/>
+      </svg>
+      <span class="wire-label" style="left:304px; top:45px">HTTPS</span>
+      <span class="wire-label" style="left:672px; top:45px">REST, SSE</span>
+      <span class="wire-label" style="left:896px; top:200px">SQL</span>
+      <span class="wire-label" style="left:1040px; top:305px">задания</span>
+      <span class="wire-label" style="left:1408px; top:305px">HTTP</span>
+      <span class="wire-label" style="left:1224px; top:45px">API в формате OpenAI</span>
+
+      <div class="node node--step" style="left:0; top:0; width:240px; height:150px">
+        <h3>Браузер</h3>
+        <p>клиент, аналитик, администратор</p>
+      </div>
+      <div class="node node--step" style="left:368px; top:0; width:240px; height:150px">
+        <h3>frontend</h3>
+        <p>nginx: React и прокси /api</p>
+      </div>
+      <div class="node node--end" style="left:736px; top:0; width:240px; height:150px">
+        <h3>api</h3>
+        <p>FastAPI: REST, SSE, PDF</p>
+      </div>
+      <div class="node node--dashed" style="left:1472px; top:0; width:240px; height:150px">
+        <h3>Модель ИИ</h3>
+        <p>открытые веса, необязательно</p>
+      </div>
+      <div class="node node--end" style="left:736px; top:250px; width:240px; height:170px">
+        <h3>PostgreSQL</h3>
+        <p>данные, очередь заданий, события, журнал</p>
+      </div>
+      <div class="node node--end" style="left:1104px; top:250px; width:240px; height:170px">
+        <h3>worker</h3>
+        <p>конвейер: шаги, повторы, таймеры</p>
+      </div>
+      <div class="node node--step" style="left:1472px; top:250px; width:240px; height:170px">
+        <h3>simulator</h3>
+        <p>ЕГРЮЛ/ЕГРИП, ФНС, ГИР БО, БКИ, банк, АБС</p>
+      </div>
+      <div class="perf">
+        <p class="perf-head">Замер на стенде: <span data-v="load.applications" data-forms="заявка|заявки|заявок"></span> одновременно</p>
+        <div class="perf-nums">
+          <div><b><span data-v="load.medianSec"></span>&nbsp;с</b><span>медиана до решения</span></div>
+          <div><b><span data-v="load.p95Sec"></span>&nbsp;с</b><span>95&nbsp;% заявок</span></div>
+        </div>
+      </div>
+    </div>
+    <ul class="decisions">
+      <li><b>Одна транзакция</b>Статус, событие и задание пишутся вместе — заявку нельзя потерять или обработать дважды</li>
+      <li><b>Очередь в PostgreSQL</b>SKIP LOCKED: обработчики масштабируются без брокера, зависшее задание вернётся через <span data-v="staleJobSec"></span>&nbsp;с</li>
+      <li><b>Сбой — не потеря</b>Таймаут, до <span data-v="retry.attempts" data-forms="повтора|повторов|повторов"></span> с паузой <span class="nowrap"><span data-v="retry.minSec"></span>–<span data-v="retry.maxSec"></span>&nbsp;с</span>, circuit&nbsp;breaker; проверка продолжится с того же шага</li>
+      <li><b>Без дублей и гонок</b>Отправка и подписание идемпотентны, версия заявки защищает от одновременных действий</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 11. Безопасность и качество -->
+<section class="slide">
+  <p class="kicker">Безопасность и качество</p>
+  <h2 class="title">Безопасность — по умолчанию, качество — в автотестах</h2>
+  <div class="body sq">
+    <div>
+      <h3>Безопасность</h3>
+      <ul class="sec">
+        <li><b><span data-v="roles" data-forms="роль|роли|ролей"></span>:</b> клиент, аналитик, администратор; права проверяются на каждом маршруте, клиент видит только заявки своей компании</li>
+        <li><b>Перебор паролей:</b> после <span data-v="login.attempts" data-forms="неверной попытки|неверных попыток|неверных попыток"></span> вход блокируется на <span data-v="login.lockMin" data-forms="минуту|минуты|минут"></span>, подмена адреса не помогает</li>
+        <li><b>Веб:</b> Content-Security-Policy и заголовки безопасности, пользовательский текст экранируется</li>
+        <li><b>Загрузки:</b> белый список расширений, до <span data-v="uploadMaxMb"></span>&nbsp;МБ, вне веб-корня, SHA-256 каждого файла</li>
+        <li><b>Журнал и подпись:</b> каждое действие — в журнале с идентификатором запроса; договор подписывается повторным вводом пароля</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Качество</h3>
+      <div class="tiles">
+        <div class="tile"><b data-v="unitTests"></b><span data-v="unitTests" data-forms="юнит-тест|юнит-теста|юнит-тестов" data-word-only></span></div>
+        <div class="tile"><b data-v="apiScenarios"></b><span><span data-v="apiScenarios" data-forms="сценарий|сценария|сценариев" data-word-only></span> через API на поднятом стенде</span></div>
+        <div class="tile"><b data-v="browserScenarios"></b><span><span data-v="browserScenarios" data-forms="сценарий|сценария|сценариев" data-word-only></span> в браузере: <span class="nowrap"><span data-v="browserDesktop"></span> на десктопе</span> и <span class="nowrap"><span data-v="browserMobile"></span> на телефоне</span></span></div>
+        <div class="tile"><b data-v="a11yScreens"></b><span><span data-v="a11yScreens" data-forms="экран|экрана|экранов" data-word-only></span> проходят аудит доступности WCAG 2.1 AA</span></div>
+        <div class="tile"><b data-v="demoChecks"></b><span><span data-v="demoChecks" data-forms="проверка|проверки|проверок" data-word-only></span> сверки демо-версии с настоящим API</span></div>
+        <div class="tile tile--dark"><b>CI</b><span>на каждый коммит: линтеры, аудит зависимостей, сборка образов, сценарии на стенде</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 12. ИИ -->
+<section class="slide">
+  <p class="kicker">ИИ — по делу</p>
+  <h2 class="title">Модель помогает, решения принимают правила</h2>
+  <div class="body">
+    <div class="ai-example">
+      <p class="said"><span>Клиент пишет своими словами</span>«Нужно 3 млн на закупку товара к сезону, верну за 2 года»</p>
+      <span class="arr">→</span>
+      <div class="parsed">
+        <dl>
+          <div><dt>Задача</dt><dd>Закупка товара</dd></div>
+          <div><dt>Сумма</dt><dd>3 000 000 ₽</dd></div>
+          <div><dt>Срок</dt><dd>2 года</dd></div>
+        </dl>
+        <p class="src">«Я понял так» показывает, по каким словам это найдено</p>
+      </div>
+    </div>
+    <div class="ai-cols">
+      <div>
+        <h3>Что делает модель</h3>
+        <ul class="theses">
+          <li><b>Разбирает описание задачи:</b> цель, сумма и срок; клиент видит распознанное и может поправить</li>
+          <li><b>Пишет сводку для аналитика:</b> <span data-v="ai.summaryPoints"></span>&nbsp;пунктов «сильные стороны / риски» с пометкой «не решение»</li>
+          <li><b>Только по действию человека:</b> конвейер модель не вызывает, её скорость не влияет на обработку заявок</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Почему это безопасно</h3>
+        <ul class="theses">
+          <li><b>Решают правила:</b> скоринговая карта и кредитная политика, в ручных случаях — аналитик</li>
+          <li><b>Только открытые веса:</b> Qwen3 4B локально или любой провайдер с API в формате OpenAI — адрес, ключ и модель в .env</li>
+          <li><b>Работает и без модели:</b> по умолчанию выключено; правила верно разбирают <span data-v="ai.rulesAllCorrect"></span> из <span data-v="ai.goldenSet"></span> фраз эталонного набора, придуманных значений — <span data-v="ai.invented"></span></li>
+          <li><b>Минимум данных:</b> название компании, ИНН и имена в модель не уходят</li>
+        </ul>
+      </div>
+    </div>
+    <p class="note">Сверились с пятью принципами Кодекса этики в сфере ИИ на финансовом рынке Банка России — как выполняется каждый, описано в docs/ai.md</p>
+  </div>
+</section>
+
+<!-- 13. Эффект для банка -->
+<section class="slide">
+  <p class="kicker">Эффект для банка</p>
+  <h2 class="title">Что меняется для банка — честно о цифрах</h2>
+  <p class="lead">«Было» — допущения из открытых источников. «Стало» — то, что уже считает страница «Показатели» на синтетических данных стенда: механика подсчёта, а не прогноз портфеля.</p>
+  <div class="body">
+    <table class="effect">
+      <thead><tr><th>Показатель</th><th>Было — допущение</th><th>Стало — считает стенд</th></tr></thead>
+      <tbody>
+        <tr><td>Доля автоматических решений</td><td><span data-v="baselineAutoPct"></span>&nbsp;%: каждую заявку рассматривает сотрудник</td><td><span class="big"><span data-v="autoDecidedDemo"></span> из <span data-v="companies"></span></span> компаний демо-набора решаются без аналитика; набор показывает все исходы, поэтому это не прогноз</td></tr>
+        <tr><td>От отправки до решения</td><td>от недели ожидания звонка до месяца до предварительного одобрения — по отзывам</td><td>медиана <span class="big"><span data-v="load.medianSec"></span>&nbsp;с</span>, 95&nbsp;% — <span class="big"><span data-v="load.p95Sec"></span>&nbsp;с</span> при <span data-v="load.applications" data-forms="заявке|заявках|заявках"></span> одновременно</td></tr>
+        <tr><td>Конверсия «предложение&nbsp;→&nbsp;принято»</td><td>не измеряется: отказ бинарный, клиент уходит</td><td>считается, включая контрпредложения, — показатель для пилота</td></tr>
+        <tr><td>Время аналитика на заявку</td><td>нет данных в открытых источниках, замер до пилота</td><td>медиана рассмотрения и просрочки срока — на странице «Показатели»</td></tr>
+      </tbody>
+    </table>
+    <div class="formula"><span class="bar"></span><p><b>Экономия времени аналитика</b> = число автоматических решений × время на типовую заявку. Это формула, а не цифра: число появится в пилоте.</p></div>
+  </div>
+</section>
+
+<!-- 14. Как проверить -->
+<section class="slide">
+  <p class="kicker">Как проверить</p>
+  <h2 class="title">Весь стенд — одной командой</h2>
+  <div class="body check">
+    <div>
+      <div class="term-box">
+        <div class="dim">git clone https://github.com/stonebridgeway/alfa-hakaton.git</div>
+        <div class="dim">cd alfa-hakaton</div>
+        <div class="main">docker compose up -d --build --wait</div>
+      </div>
+      <p class="open-url">Затем откройте <a href="http://localhost:8080">http://localhost:8080</a></p>
+      <table class="logins">
+        <tr><td>veter</td><td>клиент: автоодобрение, подписание и выдача</td></tr>
+        <tr><td>analyst</td><td>аналитик: очередь, досье, решение</td></tr>
+        <tr><td>admin</td><td>администратор: сбои внешних систем, сброс данных</td></tr>
+      </table>
+      <p class="logins-note">Пароль у всех — admin. Всего <span data-v="companies" data-forms="тестовая компания|тестовые компании|тестовых компаний"></span> со своими сценариями — в README</p>
+    </div>
+    <div class="check-side">
+      <div>
+        <h3>Без установки</h3>
+        <p>Демо-версия: <a href="https://stonebridgeway.github.io/alfa-hakaton/">stonebridgeway.github.io/alfa-hakaton</a></p>
+      </div>
+      <div>
+        <h3>Код и документация</h3>
+        <p><a href="https://github.com/stonebridgeway/alfa-hakaton">github.com/stonebridgeway/alfa-hakaton</a> — <span data-v="docs" data-forms="документ|документа|документов"></span> и PDF на <span data-v="docsPdfPages" data-forms="страницу|страницы|страниц"></span></p>
+      </div>
+      <div>
+        <h3>Развитие</h3>
+        <ul class="theses">
+          <li>«Четыре глаза» и кредитный комитет для крупных сумм</li>
+          <li>Реальные интеграции через адаптеры с теми же контрактами, вход через Альфа-Бизнес или ЕСИА</li>
+          <li>Статистическая модель риска поверх балльной карты</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="signature"><span class="logo" data-logo></span><span>stonebridgeway и команда «Альфы»</span></div>
+</section>
+
+<script>
+/*
+ * Подготовка слайдов перед печатью: числа из DATA, неразрывные пробелы, номера слайдов, логотип из пакета
+ * @alfalab/icons-logotype, кадрирование экранов. Готовность — промис window.slidesReady со списком ошибок.
+ */
+(() => {
+  'use strict';
+  const LOGO_URL = '../../frontend/node_modules/@alfalab/icons-logotype/AlfaBankLIcon.js';
+  const errors = [];
+  const numberFormat = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 2 });
+
+  function lookup(key) {
+    return key.split('.').reduce((obj, part) => (obj == null ? undefined : obj[part]), window.DATA);
+  }
+
+  // Форма слова после числа: 1 тест, 2 теста, 5 тестов; после дробного — как после 2
+  function pluralForm(n, [one, few, many]) {
+    if (!Number.isInteger(n)) return few;
+    const mod100 = Math.abs(n) % 100;
+    const mod10 = mod100 % 10;
+    if (mod100 > 10 && mod100 < 20) return many;
+    if (mod10 === 1) return one;
+    if (mod10 >= 2 && mod10 <= 4) return few;
+    return many;
+  }
+
+  function fillData() {
+    for (const el of document.querySelectorAll('[data-v]')) {
+      const key = el.dataset.v;
+      const value = lookup(key);
+      if (value === undefined || value === null || typeof value === 'object') {
+        errors.push(`в DATA нет значения ${key}`);
+        el.textContent = '??';
+        continue;
+      }
+      const number = typeof value === 'number' ? numberFormat.format(value) : String(value);
+      if (el.dataset.forms === undefined) {
+        el.textContent = number;
+        continue;
+      }
+      if (typeof value !== 'number') errors.push(`${key}: формы слова заданы для нечислового значения`);
+      const word = pluralForm(value, el.dataset.forms.split('|'));
+      el.textContent = el.hasAttribute('data-word-only') ? word : `${number}\u00a0${word}`;
+    }
+  }
+
+  // Неразрывные пробелы: после коротких слов, перед тире, между числом и единицей
+  function typograph() {
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+      acceptNode: (node) =>
+        node.parentElement.closest('script, style, .term-box') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT,
+    });
+    const nodes = [];
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) nodes.push(node);
+    for (const node of nodes) {
+      let text = node.nodeValue;
+      for (let pass = 0; pass < 2; pass++) {
+        text = text.replace(/(^|[\s«(])([А-Яа-яЁё]{1,2})[ \t\n]+(?=\S|$)/g, '$1$2\u00a0');
+      }
+      text = text
+        .replace(/[ \t\n]+—/g, '\u00a0—')
+        .replace(/(\d)[ \t\n]+(?=(%|₽|п\.п\.|МБ|млн|тыс|мес))/g, '$1\u00a0')
+        .replace(/(\d)[ \t\n]+(?=[а-яё]{1,2}[ \t\n\u00a0])/g, '$1\u00a0');
+      if (text !== node.nodeValue) node.nodeValue = text;
+    }
+  }
+
+  function numberSlides() {
+    const slides = [...document.querySelectorAll('section.slide')];
+    slides.forEach((slide, i) => {
+      const num = document.createElement('div');
+      num.className = 'slide-num';
+      num.textContent = `${i + 1} / ${slides.length}`;
+      slide.append(num);
+    });
+  }
+
+  async function loadFonts() {
+    const sample = 'АБВгдё ABCxyz 0123456789 ₽ → ≈ ≥ — «» №';
+    await Promise.all(['400', '500', '600', '700'].map((w) => document.fonts.load(`${w} 26px Onest`, sample)));
+    await document.fonts.ready;
+    const loaded = [...document.fonts].filter((f) => f.family.replace(/["']/g, '') === 'Onest' && f.status === 'loaded');
+    for (const weight of ['400', '500', '600', '700']) {
+      if (!loaded.some((f) => f.weight === weight)) errors.push(`шрифт Onest ${weight} не загрузился`);
+    }
+  }
+
+  // Знак «А» берётся из официального пакета дизайн-системы, а не перерисовывается
+  async function loadLogo() {
+    const holders = document.querySelectorAll('[data-logo]');
+    if (!holders.length) return;
+    try {
+      const response = await fetch(LOGO_URL);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const source = await response.text();
+      const viewBox = /viewBox:"([^"]+)"/.exec(source)?.[1];
+      const paths = [...source.matchAll(/\bd:"([^"]+)"/g)].map((m) => m[1]);
+      if (!viewBox || !paths.length) throw new Error('не найден контур знака в пакете');
+      const svg =
+        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}" role="img" aria-label="Альфа-Банк">` +
+        paths.map((d) => `<path d="${d}" fill-rule="evenodd" clip-rule="evenodd"/>`).join('') +
+        '</svg>';
+      for (const holder of holders) holder.innerHTML = svg;
+    } catch (error) {
+      errors.push(`логотип не загружен из ${LOGO_URL}: ${error.message}`);
+    }
+  }
+
+  // Экран в рамке: кадр data-crop из исходного PNG, размер рамки — data-w или data-h.
+  // По http кадр вырезается через canvas (в PDF попадает только он), из file:// — сдвигом картинки.
+  async function layoutShot(figure) {
+    const img = figure.querySelector('img');
+    const name = img.getAttribute('src');
+    try {
+      await img.decode();
+    } catch {
+      errors.push(`не загрузился экран ${name}`);
+      return;
+    }
+    const crop = (img.dataset.crop || `0 0 ${img.naturalWidth} ${img.naturalHeight}`).split(/\s+/).map(Number);
+    const [x, y, w, h] = crop;
+    if (crop.length !== 4 || crop.some((v) => !Number.isFinite(v)) || x < 0 || y < 0 || x + w > img.naturalWidth || y + h > img.naturalHeight) {
+      errors.push(`${name}: кадр ${img.dataset.crop} выходит за картинку ${img.naturalWidth}×${img.naturalHeight}`);
+      return;
+    }
+    let width;
+    let height;
+    if (figure.dataset.w) {
+      width = Number(figure.dataset.w);
+      height = (width * h) / w;
+    } else if (figure.dataset.h) {
+      height = Number(figure.dataset.h);
+      width = (height * w) / h;
+    } else {
+      errors.push(`${name}: у рамки нет data-w или data-h`);
+      return;
+    }
+    const scale = width / w;
+    figure.style.width = `${width}px`;
+    figure.style.height = `${height}px`;
+    figure.dataset.scale = scale.toFixed(3);
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      canvas.getContext('2d').drawImage(img, x, y, w, h, 0, 0, w, h);
+      img.src = canvas.toDataURL('image/png');
+      await img.decode();
+      img.style.width = `${width}px`;
+      img.style.height = `${height}px`;
+    } catch {
+      img.style.width = `${img.naturalWidth * scale}px`;
+      img.style.height = `${img.naturalHeight * scale}px`;
+      img.style.transform = `translate(${-x * scale}px, ${-y * scale}px)`;
+    }
+  }
+
+  async function prepare() {
+    fillData();
+    typograph();
+    numberSlides();
+    await loadFonts();
+    await loadLogo();
+    await Promise.all([...document.querySelectorAll('figure.shot')].map(layoutShot));
+    await document.fonts.ready;
+    return { errors };
+  }
+
+  window.slidesReady = new Promise((resolve) => {
+    const run = () => prepare().then(resolve, (error) => resolve({ errors: [...errors, String(error)] }));
+    if (document.readyState === 'complete') run();
+    else window.addEventListener('load', run, { once: true });
+  });
+})();
+</script>
+</body>
+</html>
