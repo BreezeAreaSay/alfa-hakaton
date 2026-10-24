@@ -248,9 +248,9 @@ function LoginWidget({
 
     return (
         <AuthModal open={open} title='Вход' wide={true} onClose={onClose} onEntered={() => loginInput.current?.focus()}>
-            {/* форма слева, тестовые учётные записи справа — всё видно сразу, без прокрутки */}
-            <div className='login-modal__columns'>
-                <div className='stack-16'>
+            {/* форма по центру сверху, под ней тестовые учётные записи — всё видно сразу, без прокрутки */}
+            <div className='stack'>
+                <div className='stack-16 login-modal__form'>
                     <form className='stack-16' onSubmit={submit}>
                         <Input
                             ref={loginInput}
@@ -275,7 +275,7 @@ function LoginWidget({
                         />
                         <ErrorPlate error={error} title='Не удалось войти' />
                         {/* та же красная кнопка, что в шапке, на любой ширине — по размеру надписи */}
-                        <div>
+                        <div className='login-modal__submit'>
                             <ButtonDesktop view='primary' size={48} type='submit' loading={busy}>
                                 Войти
                             </ButtonDesktop>

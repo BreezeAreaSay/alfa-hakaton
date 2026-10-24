@@ -16,6 +16,7 @@ export function CenteredModal({
     onEntered,
     className,
     contentClassName,
+    titleAlign = 'left',
     children,
 }: {
     open: boolean;
@@ -24,6 +25,7 @@ export function CenteredModal({
     onEntered?: () => void;
     className: string;
     contentClassName?: string;
+    titleAlign?: 'left' | 'center';
     children: ReactNode;
 }) {
     return (
@@ -42,7 +44,7 @@ export function CenteredModal({
                 timeout: TRANSITION_MS,
             }}
         >
-            <ModalDesktop.Header hasCloser={true} sticky={true} title={title} />
+            <ModalDesktop.Header hasCloser={true} sticky={true} title={title} align={titleAlign} />
             <ModalDesktop.Content>{children}</ModalDesktop.Content>
         </ModalDesktop>
     );

@@ -741,20 +741,35 @@ table.simple td.num {
     border-radius: 32px;
 }
 
-/* Вход: широкое окно по высоте содержимого — форма и тестовые учётные записи видны сразу, без прокрутки */
+/*
+ * Вход: окно по высоте содержимого — форма по центру сверху, под ней тестовые учётные записи в три колонки.
+ * Полосы прокрутки нет; если экран совсем низкий, содержимое всё равно прокручивается колёсиком.
+ */
 .login-modal.login-modal--wide {
-    width: min(1120px, calc(100vw - var(--gap-32)));
+    width: min(760px, calc(100vw - var(--gap-32)));
     height: auto;
 }
 
-.login-modal__columns {
-    display: grid;
-    grid-template-columns: minmax(280px, 1fr) minmax(0, 2fr);
-    gap: var(--gap-32);
-    align-items: start;
+.login-modal--wide .login-modal__content {
+    scrollbar-width: none;
 }
 
-/* колонки учётных записей — по ширине своей колонки окна */
+.login-modal--wide .login-modal__content::-webkit-scrollbar {
+    display: none;
+}
+
+.login-modal__form {
+    width: 100%;
+    max-width: 360px;
+    margin: 0 auto;
+}
+
+.login-modal__submit {
+    display: flex;
+    justify-content: center;
+}
+
+/* колонки учётных записей — по ширине окна */
 .login-modal__accounts {
     container-type: inline-size;
 }
@@ -762,12 +777,6 @@ table.simple td.num {
 @container (min-width: 600px) {
     .login-modal__accounts .demo-accounts {
         grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-}
-
-@media (max-width: 899px) {
-    .login-modal__columns {
-        grid-template-columns: minmax(0, 1fr);
     }
 }
 
