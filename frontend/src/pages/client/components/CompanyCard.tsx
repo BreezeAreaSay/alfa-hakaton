@@ -52,7 +52,11 @@ export function CompanyCard({ company, refreshable = false }: { company: Company
                     ],
                     ['Вид деятельности', company.okved ? `${company.okved} ${company.okved_name ?? ''}` : '—'],
                     ['Руководитель', company.director_name ?? '—'],
-                    ['Адрес', company.address ?? '—'],
+                    // «д. 12», «офис 4» не разрываются при переносе строки
+                    [
+                        'Адрес',
+                        company.address?.replace(/(^|[\s,])(г\.|д\.|корп\.|стр\.|офис|кв\.) /g, '$1$2\u00a0') ?? '—',
+                    ],
                     [
                         'Счёт в банке',
                         company.is_bank_client
