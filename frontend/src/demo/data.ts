@@ -1,6 +1,7 @@
 // Неизменяемые данные стенда из снимка настоящего API (fixtures/*.json, scripts/capture-demo-fixtures.mjs):
 // справочники, пользователи, профили компаний и ответы внешних источников по каждой компании.
 import type { Company, Meta } from '../api/types';
+import type { CustomCompanyRecord } from './engine/company-builder';
 import { monthIndex, monthsAgo, monthsBetween, parseDate } from './engine/dates';
 import type { Json } from './engine/features';
 import agreement from './fixtures/agreement.json';
@@ -41,6 +42,22 @@ const COMPANIES = Object.values(companies.companies as unknown as Record<string,
 const COMPANY_BY_ID = new Map(COMPANIES.map((c) => [c.company.id, c]));
 
 export const companyIds = (): string[] => COMPANIES.map((c) => c.company.id);
+export const companyInns = (): string[] => COMPANIES.map((c) => c.company.inn);
+
+/** День съёмки снимков: компании из конструктора строят свои снимки на этот же день, чтобы сдвигаться вместе со всеми. */
+export const FIXTURES_CAPTURED_ON = CAPTURED_ON;
+
+/**
+ * Компании из конструктора администратора хранятся в состоянии (store.ts), а здесь регистрируются при загрузке
+ * и создании: дальше их пользователи и снимки источников ищутся так же, как у компаний из снимков.
+ */
+export function registerCustomCompanies(records: CustomCompanyRecord[]): void {
+    for (const record of records) {
+        BY_ID.set(record.user.id, record.user);
+        BY_LOGIN.set(record.user.login, record.user);
+        COMPANY_BY_ID.set(record.company.id, { company: record.company, sources: record.sources });
+    }
+}
 
 /** Дата на снимке → та же давность относительно сегодняшнего дня (как months_ago в симуляторе). */
 const shiftDate = (value: string | null | undefined, today: string): string | null =>

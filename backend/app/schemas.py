@@ -5,7 +5,8 @@ from datetime import date, datetime
 from decimal import Decimal
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic_core import PydanticCustomError
 
 from app.domain.enums import Purpose
 
@@ -518,3 +519,169 @@ class TermsPreview(BaseModel):
 class FaultIn(BaseModel):
     mode: Literal["ok", "error", "timeout", "slow"]
     latency_ms: int = Field(default=0, ge=0, le=20000)
+
+
+# ---------------------------------------------------------------- конструктор тестовой компании
+
+# Коды ОКВЭД, из которых выбирает администратор: те же, что у тестовых компаний. По первым двум цифрам
+# считаются отраслевой риск и типичная рентабельность (app/domain/features.py).
+COMPANY_BUILDER_OKVED: dict[str, str] = {
+    "25.11": "Производство строительных металлических конструкций",
+    "41.20": "Строительство жилых и нежилых зданий",
+    "46.39": "Торговля оптовая неспециализированная пищевыми продуктами",
+    "47.19": "Торговля розничная прочая в неспециализированных магазинах",
+    "49.41": "Деятельность автомобильного грузового транспорта",
+    "56.30": "Подача напитков",
+    "62.01": "Разработка компьютерного программного обеспечения",
+    "62.02": "Деятельность консультативная в области компьютерных технологий",
+    "74.10": "Деятельность специализированная в области дизайна",
+}
+
+
+def _reject(message: str) -> PydanticCustomError:
+    """Ошибка проверки с понятным русским текстом: в ответе 422 он попадает в msg без префикса."""
+    return PydanticCustomError("value_error", message)
+
+
+def _within(value: int | float, low: int | float, high: int | float, message: str) -> None:
+    if not low <= value <= high:
+        raise _reject(message)
+
+
+class OkvedOption(BaseModel):
+    code: str
+    name: str
+    industry_risk: Literal["LOW", "MEDIUM", "HIGH"]
+    typical_margin: float
+
+
+class CompanyBuilderOptions(BaseModel):
+    """Справочники для формы конструктора: коды ОКВЭД с отраслевым риском и типичной рентабельностью."""
+
+    okved: list[OkvedOption]
+
+
+class CompanyBuilderIn(BaseModel):
+    """Своя тестовая компания: по этим параметрам симулятор создаёт данные во всех внешних системах,
+    а в базе появляются компания и пользователь-клиент (docs/data-model.md, «Как добавить свою компанию»).
+    Исход заявки не задаётся — его считает конвейер по общим правилам скоринга и политики."""
+
+    name: str = Field(
+        examples=["Белые ночи"],
+        description="Название без организационно-правовой формы; для ИП — фамилия, имя и отчество предпринимателя",
+    )
+    legal_form: Literal["OOO", "IP"] = "OOO"
+    registered_months_ago: int = Field(default=72, description="Сколько месяцев назад зарегистрирована")
+    okved: str = Field(default="46.39", description="Код ОКВЭД из справочника GET /api/admin/companies/options")
+    revenue: int = Field(default=60_000_000, description="Выручка за последний год, ₽")
+    revenue_growth: float = Field(default=0.12, description="Рост выручки к предыдущему году, доля: 0.1 — рост на 10 %")
+    margin: float = Field(default=0.1, description="Рентабельность продаж, доля: 0.08 — 8 %")
+    existing_monthly_payments: int = Field(
+        default=0, description="Платежи по действующим кредитам в месяц, ₽; 0 — кредитов нет"
+    )
+    max_overdue_days_24m: int = Field(default=0, description="Максимальная просрочка за 24 месяца, дней")
+    current_overdue_days: int = Field(default=0, description="Текущая просрочка, дней")
+    tax_debt: int = Field(default=0, description="Налоговая задолженность, ₽")
+    mass_address: bool = Field(default=False, description="Адрес массовой регистрации")
+    director_disqualified: bool = Field(default=False, description="Руководитель дисквалифицирован")
+    company_status: Literal["ACTIVE", "LIQUIDATING"] = "ACTIVE"
+    is_bank_client: bool = True
+    account_months: int = Field(default=36, description="Сколько месяцев открыт счёт в банке")
+    avg_monthly_inflow: int = Field(
+        default=5_000_000, description="Среднемесячные поступления на счёт, ₽ — для клиента банка"
+    )
+
+    @field_validator("name")
+    @classmethod
+    def _name(cls, value: str) -> str:
+        value = " ".join(value.split())
+        if not value:
+            raise _reject("Укажите название компании")
+        if len(value) > 120:
+            raise _reject("Название не длиннее 120 символов")
+        return value
+
+    @field_validator("registered_months_ago")
+    @classmethod
+    def _registered(cls, value: int) -> int:
+        _within(value, 0, 600, "Срок с регистрации — от 0 до 600 месяцев")
+        return value
+
+    @field_validator("okved")
+    @classmethod
+    def _okved(cls, value: str) -> str:
+        if value not in COMPANY_BUILDER_OKVED:
+            raise _reject("Неизвестный код ОКВЭД — выберите из справочника")
+        return value
+
+    @field_validator("revenue")
+    @classmethod
+    def _revenue(cls, value: int) -> int:
+        _within(value, 1, 1_000_000_000_000, "Выручка — от 1 ₽ до 1 трлн ₽")
+        return value
+
+    @field_validator("revenue_growth")
+    @classmethod
+    def _growth(cls, value: float) -> float:
+        _within(value, -0.9, 10, "Рост выручки — доля от −0,9 до 10: например, 0,1 — рост на 10 %")
+        return value
+
+    @field_validator("margin")
+    @classmethod
+    def _margin(cls, value: float) -> float:
+        _within(value, -1, 1, "Рентабельность — доля от −1 до 1: например, 0,08 — 8 %")
+        return value
+
+    @field_validator("existing_monthly_payments")
+    @classmethod
+    def _payments(cls, value: int) -> int:
+        _within(value, 0, 1_000_000_000, "Платежи по кредитам — от 0 до 1 млрд ₽ в месяц")
+        return value
+
+    @field_validator("max_overdue_days_24m", "current_overdue_days")
+    @classmethod
+    def _overdue(cls, value: int) -> int:
+        _within(value, 0, 730, "Дни просрочки — от 0 до 730")
+        return value
+
+    @field_validator("tax_debt")
+    @classmethod
+    def _tax_debt(cls, value: int) -> int:
+        _within(value, 0, 10_000_000_000, "Налоговая задолженность — от 0 до 10 млрд ₽")
+        return value
+
+    @field_validator("account_months")
+    @classmethod
+    def _account_months(cls, value: int) -> int:
+        _within(value, 0, 600, "Срок счёта — от 0 до 600 месяцев")
+        return value
+
+    @field_validator("avg_monthly_inflow")
+    @classmethod
+    def _inflow(cls, value: int) -> int:
+        _within(value, 0, 100_000_000_000, "Поступления на счёт — от 0 до 100 млрд ₽ в месяц")
+        return value
+
+    @model_validator(mode="after")
+    def _consistent(self) -> "CompanyBuilderIn":
+        if self.current_overdue_days > self.max_overdue_days_24m:
+            raise _reject("Максимальная просрочка за 24 месяца не может быть меньше текущей")
+        if not self.is_bank_client:
+            # Не клиент банка: счёта и поступлений нет, что бы ни пришло в этих полях
+            self.account_months = 0
+            self.avg_monthly_inflow = 0
+            return self
+        if self.account_months > self.registered_months_ago:
+            raise _reject("Счёт в банке не может быть открыт раньше регистрации компании")
+        if self.avg_monthly_inflow <= 0:
+            raise _reject("Для клиента банка укажите среднемесячные поступления на счёт")
+        return self
+
+
+class CompanyBuilderOut(BaseModel):
+    """Созданная компания и учётная запись её руководителя: пароль у всех демо-пользователей один."""
+
+    login: str
+    password: str
+    company: CompanyOut
+    inn: str

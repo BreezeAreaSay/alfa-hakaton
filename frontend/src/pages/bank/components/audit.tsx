@@ -18,6 +18,7 @@ export const ACTION_LABELS: Record<string, string> = {
     PIPELINE_RETRY: 'Повтор шага конвейера',
     FAULT_SET: 'Изменено состояние источника',
     DEMO_RESET: 'Сброс демо-данных',
+    COMPANY_CREATED: 'Создана тестовая компания',
 };
 
 export const ACTION_COLORS: Record<string, StatusColor> = {
@@ -33,10 +34,12 @@ export const ACTION_COLORS: Record<string, StatusColor> = {
     PIPELINE_RETRY: 'orange',
     FAULT_SET: 'red',
     DEMO_RESET: 'red',
+    COMPANY_CREATED: 'green',
 };
 
 export const ENTITY_LABELS: Record<string, string> = {
     application: 'Заявка',
+    company: 'Компания',
     user: 'Пользователь',
     simulator: 'Внешняя система',
     system: 'Стенд',

@@ -9,6 +9,7 @@ import { useAuth } from '../../auth/AuthContext';
 import { Badge, Empty, ErrorPlate, Loader, PageHead } from '../../components/ui';
 import { time } from '../../utils/format';
 import { Card, FAULT_MODES, relative, useNow } from './components/common';
+import { CompanyBuilderCard } from './components/CompanyBuilderCard';
 import './bank.css';
 
 const MODES: Fault['mode'][] = ['ok', 'error', 'timeout', 'slow'];
@@ -316,6 +317,7 @@ export function PipelinePage() {
                     </div>
                 </div>
                 <IssuesCard />
+                {isAdmin && <CompanyBuilderCard />}
             </div>
         </div>
     );

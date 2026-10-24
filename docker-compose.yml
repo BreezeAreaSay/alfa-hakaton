@@ -30,6 +30,12 @@ services:
 
   simulator:
     build: ./simulator
+    environment:
+      # Компании, созданные в конструкторе администратора, переживают перезапуск: файл лежит в домашнем
+      # каталоге пользователя app — единственном каталоге образа, куда этому пользователю можно писать
+      SIMULATOR_CUSTOM_FILE: /home/app/custom_companies.json
+    volumes:
+      - simdata:/home/app
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8100/health')"]
       interval: 3s
@@ -121,3 +127,4 @@ services:
 volumes:
   pgdata:
   files:
+  simdata:

@@ -3,6 +3,7 @@
 import { HttpError, errorResponse, json } from './http';
 import { type Ctx, ROUTES } from './routes';
 import { startScheduler } from './scheduler';
+import { getState } from './store';
 import { requestLatency } from './timing';
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -24,6 +25,7 @@ async function readBody(init: RequestInit): Promise<{ body: Record<string, unkno
 
 export async function demoFetch(path: string, init: RequestInit = {}): Promise<Response> {
     startScheduler();
+    getState(); // данные загружены до обработки: пользователи компаний из конструктора известны уже при входе
     const url = new URL(path, 'http://demo.local');
     const method = (init.method ?? 'GET').toUpperCase();
     const matches = ROUTES.map((route) => ({ route, match: route.pattern.exec(url.pathname) })).filter((m) => m.match);

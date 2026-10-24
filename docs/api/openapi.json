@@ -2040,6 +2040,79 @@
         ]
       }
     },
+    "/api/admin/companies/options": {
+      "get": {
+        "tags": [
+          "Администрирование демо"
+        ],
+        "summary": "Справочники для конструктора тестовой компании",
+        "operationId": "company_options_api_admin_companies_options_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanyBuilderOptions"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/admin/companies": {
+      "post": {
+        "tags": [
+          "Администрирование демо"
+        ],
+        "summary": "Создать свою тестовую компанию: данные во всех внешних системах и учётная запись клиента",
+        "description": "Исход заявки заранее не задаётся: его считает конвейер по общим правилам скоринга и кредитной политики.\nСброс демо-данных созданные компании не удаляет.",
+        "operationId": "create_company_api_admin_companies_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompanyBuilderIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanyBuilderOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/api/admin/audit": {
       "get": {
         "tags": [
@@ -3168,6 +3241,170 @@
         ],
         "title": "Body_upload_api_applications__application_id__documents_post"
       },
+      "CompanyBuilderIn": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Название без организационно-правовой формы; для ИП — фамилия, имя и отчество предпринимателя",
+            "examples": [
+              "Белые ночи"
+            ]
+          },
+          "legal_form": {
+            "type": "string",
+            "enum": [
+              "OOO",
+              "IP"
+            ],
+            "title": "Legal Form",
+            "default": "OOO"
+          },
+          "registered_months_ago": {
+            "type": "integer",
+            "title": "Registered Months Ago",
+            "description": "Сколько месяцев назад зарегистрирована",
+            "default": 72
+          },
+          "okved": {
+            "type": "string",
+            "title": "Okved",
+            "description": "Код ОКВЭД из справочника GET /api/admin/companies/options",
+            "default": "46.39"
+          },
+          "revenue": {
+            "type": "integer",
+            "title": "Revenue",
+            "description": "Выручка за последний год, ₽",
+            "default": 60000000
+          },
+          "revenue_growth": {
+            "type": "number",
+            "title": "Revenue Growth",
+            "description": "Рост выручки к предыдущему году, доля: 0.1 — рост на 10 %",
+            "default": 0.12
+          },
+          "margin": {
+            "type": "number",
+            "title": "Margin",
+            "description": "Рентабельность продаж, доля: 0.08 — 8 %",
+            "default": 0.1
+          },
+          "existing_monthly_payments": {
+            "type": "integer",
+            "title": "Existing Monthly Payments",
+            "description": "Платежи по действующим кредитам в месяц, ₽; 0 — кредитов нет",
+            "default": 0
+          },
+          "max_overdue_days_24m": {
+            "type": "integer",
+            "title": "Max Overdue Days 24M",
+            "description": "Максимальная просрочка за 24 месяца, дней",
+            "default": 0
+          },
+          "current_overdue_days": {
+            "type": "integer",
+            "title": "Current Overdue Days",
+            "description": "Текущая просрочка, дней",
+            "default": 0
+          },
+          "tax_debt": {
+            "type": "integer",
+            "title": "Tax Debt",
+            "description": "Налоговая задолженность, ₽",
+            "default": 0
+          },
+          "mass_address": {
+            "type": "boolean",
+            "title": "Mass Address",
+            "description": "Адрес массовой регистрации",
+            "default": false
+          },
+          "director_disqualified": {
+            "type": "boolean",
+            "title": "Director Disqualified",
+            "description": "Руководитель дисквалифицирован",
+            "default": false
+          },
+          "company_status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "LIQUIDATING"
+            ],
+            "title": "Company Status",
+            "default": "ACTIVE"
+          },
+          "is_bank_client": {
+            "type": "boolean",
+            "title": "Is Bank Client",
+            "default": true
+          },
+          "account_months": {
+            "type": "integer",
+            "title": "Account Months",
+            "description": "Сколько месяцев открыт счёт в банке",
+            "default": 36
+          },
+          "avg_monthly_inflow": {
+            "type": "integer",
+            "title": "Avg Monthly Inflow",
+            "description": "Среднемесячные поступления на счёт, ₽ — для клиента банка",
+            "default": 5000000
+          }
+        },
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "title": "CompanyBuilderIn",
+        "description": "Своя тестовая компания: по этим параметрам симулятор создаёт данные во всех внешних системах,\nа в базе появляются компания и пользователь-клиент (docs/data-model.md, «Как добавить свою компанию»).\nИсход заявки не задаётся — его считает конвейер по общим правилам скоринга и политики."
+      },
+      "CompanyBuilderOptions": {
+        "properties": {
+          "okved": {
+            "items": {
+              "$ref": "#/components/schemas/OkvedOption"
+            },
+            "type": "array",
+            "title": "Okved"
+          }
+        },
+        "type": "object",
+        "required": [
+          "okved"
+        ],
+        "title": "CompanyBuilderOptions",
+        "description": "Справочники для формы конструктора: коды ОКВЭД с отраслевым риском и типичной рентабельностью."
+      },
+      "CompanyBuilderOut": {
+        "properties": {
+          "login": {
+            "type": "string",
+            "title": "Login"
+          },
+          "password": {
+            "type": "string",
+            "title": "Password"
+          },
+          "company": {
+            "$ref": "#/components/schemas/CompanyOut"
+          },
+          "inn": {
+            "type": "string",
+            "title": "Inn"
+          }
+        },
+        "type": "object",
+        "required": [
+          "login",
+          "password",
+          "company",
+          "inn"
+        ],
+        "title": "CompanyBuilderOut",
+        "description": "Созданная компания и учётная запись её руководителя: пароль у всех демо-пользователей один."
+      },
       "CompanyOut": {
         "properties": {
           "id": {
@@ -4270,6 +4507,39 @@
           "note"
         ],
         "title": "OfferOut"
+      },
+      "OkvedOption": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "industry_risk": {
+            "type": "string",
+            "enum": [
+              "LOW",
+              "MEDIUM",
+              "HIGH"
+            ],
+            "title": "Industry Risk"
+          },
+          "typical_margin": {
+            "type": "number",
+            "title": "Typical Margin"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "name",
+          "industry_risk",
+          "typical_margin"
+        ],
+        "title": "OkvedOption"
       },
       "ParsedNeed": {
         "properties": {

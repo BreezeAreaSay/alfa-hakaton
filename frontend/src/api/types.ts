@@ -562,6 +562,47 @@ export interface AuditRow {
     created_at: string;
 }
 
+// ---------------------------------------------------------------- конструктор тестовой компании
+
+export interface OkvedOption {
+    code: string;
+    name: string;
+    industry_risk: 'LOW' | 'MEDIUM' | 'HIGH';
+    typical_margin: number;
+}
+
+export interface CompanyBuilderOptions {
+    okved: OkvedOption[];
+}
+
+/** Параметры своей тестовой компании (backend/app/schemas.py, CompanyBuilderIn): доли — числами, деньги — в рублях. */
+export interface CompanyBuilderInput {
+    name: string;
+    legal_form: 'OOO' | 'IP';
+    registered_months_ago: number;
+    okved: string;
+    revenue: number;
+    revenue_growth: number;
+    margin: number;
+    existing_monthly_payments: number;
+    max_overdue_days_24m: number;
+    current_overdue_days: number;
+    tax_debt: number;
+    mass_address: boolean;
+    director_disqualified: boolean;
+    company_status: 'ACTIVE' | 'LIQUIDATING';
+    is_bank_client: boolean;
+    account_months: number;
+    avg_monthly_inflow: number;
+}
+
+export interface CompanyBuilderResult {
+    login: string;
+    password: string;
+    company: Company;
+    inn: string;
+}
+
 export interface AiStatus {
     enabled: boolean;
     model: string | null;

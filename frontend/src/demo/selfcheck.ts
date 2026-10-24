@@ -202,6 +202,20 @@ const METRICS_TIMING_KEYS = [
     'review_median_hours',
     'median_review_hours',
 ];
+// Профиль компании из конструктора без полей, которые зависят от стенда и дня запуска (ИНН, ОГРН, даты, id)
+const COMPANY_STABLE_FIELDS = [
+    'name',
+    'legal_form',
+    'okved',
+    'okved_name',
+    'address',
+    'status',
+    'status_label',
+    'director_name',
+    'is_bank_client',
+    'business_months',
+    'account_months',
+];
 const decisionView = (d: J) =>
     d &&
     pick(d, [
@@ -924,6 +938,37 @@ export async function run(io: SelfcheckIo): Promise<boolean> {
         A.dossier,
         compactDossier(await analyst.get(`/api/bank/applications/${outage.id}/dossier`)),
         ['attempts'],
+    );
+
+    // С15. Своя компания: администратор создаёт устойчивую компанию, под её логином подают заявку
+    const C = S['custom-company'];
+    check.same(
+        'своя компания: справочник ОКВЭД',
+        (examples as J).company_options,
+        await admin.get('/api/admin/companies/options'),
+    );
+    errorsSeen.company_builder_analyst = await analyst.error('POST', '/api/admin/companies', C.spec);
+    errorsSeen.company_builder_empty_name = await admin.error('POST', '/api/admin/companies', {
+        ...C.spec,
+        name: '   ',
+    });
+    errorsSeen.company_builder_overdue = await admin.error('POST', '/api/admin/companies', {
+        ...C.spec,
+        current_overdue_days: 40,
+    });
+    const created = await admin.post('/api/admin/companies', C.spec);
+    check.shape('своя компания: поля ответа', (examples as J).company_created, created);
+    // Логин на стенде мог получить номер, ИНН и даты зависят от стенда и дня запуска — сверяем остальное
+    check.ok('своя компания: логин', created.login.replace(/\d+$/, '') === C.created.login_base, created.login);
+    check.same('своя компания: профиль', C.created.company, pick(created.company, COMPANY_STABLE_FIELDS));
+    const custom = await session(created.login);
+    check.same('своя компания: пользователь', C.user, pick(custom.user, ['full_name', 'position', 'role', 'can_sign']));
+    const customApp = await apply(custom, C.request);
+    check.same('своя компания: одобрение', C.application, compactApp(customApp), ['company']);
+    check.same(
+        'своя компания: досье',
+        C.dossier,
+        compactDossier(await analyst.get(`/api/bank/applications/${customApp.id}/dossier`)),
     );
 
     // Права доступа и ошибки

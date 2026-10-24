@@ -139,6 +139,16 @@ class ExternalSystems:
     def reset_faults(self) -> dict[str, Any]:
         return self.client.post("/admin/faults/reset").json()
 
+    # Конструктор тестовой компании: регистрация персоны сразу во всех внешних системах симулятора.
+    def register_company(self, spec: dict[str, Any]) -> dict[str, Any]:
+        try:
+            response = self.client.post("/companies", json=spec, timeout=10.0)
+        except httpx.HTTPError as error:
+            raise SourceUnavailable(f"симулятор: нет соединения ({error.__class__.__name__})") from None
+        if response.status_code >= 400:
+            raise SourceUnavailable(f"симулятор не зарегистрировал компанию: {response.status_code} {response.text}")
+        return response.json()
+
 
 _instance: ExternalSystems | None = None
 

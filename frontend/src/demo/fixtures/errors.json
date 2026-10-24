@@ -24,6 +24,40 @@
   "request_unknown_item": {"status":422,"detail":"Неизвестные пункты запроса: UNKNOWN"},
   "analyst_sets_fault": {"status":403,"detail":"Недостаточно прав"},
   "unknown_fault_source": {"status":404,"detail":"Неизвестная внешняя система: unknown"},
+  "company_builder_analyst": {"status":403,"detail":"Недостаточно прав"},
+  "company_builder_empty_name": {
+    "status": 422,
+    "detail": [{"type":"value_error","loc":["body","name"],"msg":"Укажите название компании","input":"   "}]
+  },
+  "company_builder_overdue": {
+    "status": 422,
+    "detail": [
+      {
+        "type": "value_error",
+        "loc": ["body"],
+        "msg": "Максимальная просрочка за 24 месяца не может быть меньше текущей",
+        "input": {
+          "name": "Белые ночи",
+          "legal_form": "OOO",
+          "registered_months_ago": 72,
+          "okved": "46.39",
+          "revenue": 60000000,
+          "revenue_growth": 0.12,
+          "margin": 0.1,
+          "existing_monthly_payments": 0,
+          "max_overdue_days_24m": 0,
+          "current_overdue_days": 40,
+          "tax_debt": 0,
+          "mass_address": false,
+          "director_disqualified": false,
+          "company_status": "ACTIVE",
+          "is_bank_client": true,
+          "account_months": 36,
+          "avg_monthly_inflow": 5000000
+        }
+      }
+    ]
+  },
   "login_wrong_password": {"status":401,"detail":"Неверный логин или пароль"},
   "me_without_token": {"status":401,"detail":"Нужно войти заново"},
   "client_bank_summary": {"status":403,"detail":"Недостаточно прав"},

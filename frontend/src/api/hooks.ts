@@ -13,6 +13,9 @@ import type {
     BankSummary,
     ChatMessage,
     Company,
+    CompanyBuilderInput,
+    CompanyBuilderOptions,
+    CompanyBuilderResult,
     DocumentItem,
     Dossier,
     Fault,
@@ -371,6 +374,23 @@ export const useResetDemo = () => {
     return useMutation({
         mutationFn: () => api<{ preseeded: number }>('/api/admin/demo/reset', { method: 'POST' }),
         onSuccess: () => void client.invalidateQueries(),
+    });
+};
+
+/** Справочник ОКВЭД для конструктора тестовой компании; меняется только с кодом сервера. */
+export const useCompanyOptions = () =>
+    useQuery({
+        queryKey: ['company-options'],
+        queryFn: () => api<CompanyBuilderOptions>('/api/admin/companies/options'),
+        staleTime: Infinity,
+    });
+
+export const useCreateCompany = () => {
+    const client = useQueryClient();
+    return useMutation({
+        mutationFn: (body: CompanyBuilderInput) =>
+            api<CompanyBuilderResult>('/api/admin/companies', { method: 'POST', body }),
+        onSuccess: () => void client.invalidateQueries({ queryKey: ['bank', 'audit'] }),
     });
 };
 

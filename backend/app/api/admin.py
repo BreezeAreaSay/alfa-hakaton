@@ -1,4 +1,4 @@
-"""Администрирование демо-стенда: сброс данных и управление сбоями внешних систем."""
+"""Администрирование демо-стенда: сброс данных, управление сбоями внешних систем, конструктор тестовой компании."""
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
@@ -6,13 +6,15 @@ from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app.domain.enums import Actor
-from app.integrations.simulator import external_systems
+from app.integrations.simulator import SourceUnavailable, external_systems
 from app.models import AuditLog, User
-from app.schemas import FaultIn
+from app.schemas import CompanyBuilderIn, CompanyBuilderOptions, CompanyBuilderOut, FaultIn
 from app.security import admin_only, bank_staff
-from app.seed.demo import reset_demo
+from app.seed.demo import DEMO_PASSWORD, reset_demo
+from app.services import companies
 from app.services.audit import audit
 from app.services.login_limiter import login_limiter
+from app.services.views import company_out
 
 router = APIRouter(prefix="/api/admin", tags=["Администрирование демо"])
 
@@ -67,6 +69,47 @@ def reset_faults(user: User = Depends(admin_only), db: Session = Depends(get_db)
     audit(db, actor=Actor.ADMIN, user=user, action="FAULTS_RESET", entity_type="simulator", entity_id="all")
     db.commit()
     return faults(user)
+
+
+@router.get(
+    "/companies/options",
+    response_model=CompanyBuilderOptions,
+    summary="Справочники для конструктора тестовой компании",
+)
+def company_options(user: User = Depends(bank_staff)) -> CompanyBuilderOptions:
+    return CompanyBuilderOptions(okved=companies.okved_options())
+
+
+@router.post(
+    "/companies",
+    response_model=CompanyBuilderOut,
+    status_code=201,
+    summary="Создать свою тестовую компанию: данные во всех внешних системах и учётная запись клиента",
+)
+def create_company(
+    body: CompanyBuilderIn, user: User = Depends(admin_only), db: Session = Depends(get_db)
+) -> CompanyBuilderOut:
+    """Исход заявки заранее не задаётся: его считает конвейер по общим правилам скоринга и кредитной политики.
+    Сброс демо-данных созданные компании не удаляет."""
+    try:
+        company, client = companies.create_test_company(db, body)
+    except SourceUnavailable as error:
+        raise HTTPException(
+            status.HTTP_503_SERVICE_UNAVAILABLE, f"Симулятор внешних систем недоступен, компания не создана: {error}"
+        ) from None
+    except companies.CompanyBuilderError as error:
+        raise HTTPException(status.HTTP_409_CONFLICT, str(error)) from None
+    audit(
+        db,
+        actor=Actor.ADMIN,
+        user=user,
+        action="COMPANY_CREATED",
+        entity_type="company",
+        entity_id=company.id,
+        details={"inn": company.inn, "name": company.name, "login": client.login},
+    )
+    db.commit()
+    return CompanyBuilderOut(login=client.login, password=DEMO_PASSWORD, company=company_out(company), inn=company.inn)
 
 
 @router.get("/audit", summary="Журнал действий")

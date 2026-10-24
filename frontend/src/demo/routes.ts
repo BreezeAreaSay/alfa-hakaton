@@ -1,8 +1,27 @@
 // Обработчики API имитации — порт backend/app/api/*.py: те же проверки, коды ответов и тексты ошибок.
 import type { AppStatus, Purpose, Role } from '../api/types';
-import { AGREEMENT, DEMO_PASSWORD, FAULT_SOURCES, META, companyProfile, userById, userByLogin } from './data';
+import {
+    AGREEMENT,
+    DEMO_PASSWORD,
+    FAULT_SOURCES,
+    FIXTURES_CAPTURED_ON,
+    META,
+    USERS,
+    companyInns,
+    companyProfile,
+    registerCustomCompanies,
+    userById,
+    userByLogin,
+} from './data';
 import { parseNeedRules } from './engine/ai';
 import { PRODUCT_ROWS, productRow, productTerms, productsForPurpose } from './engine/catalog';
+import {
+    type CompanySpec,
+    OKVED_OPTIONS,
+    SPEC_DEFAULTS,
+    buildCompany,
+    checkCompanySpec,
+} from './engine/company-builder';
 import { todayUtc } from './engine/dates';
 import { type PolicyDecision, eligibilityIssues, newDecision, note, offerFigures, paymentLabel } from './engine/policy';
 import { NOTE_STATEMENT_NONE } from './engine/proactive';
@@ -1165,6 +1184,83 @@ function auditLog(ctx: Ctx) {
     return auditOut(getState());
 }
 
+// ---------------------------------------------------------------- конструктор тестовой компании
+
+function companyOptions(ctx: Ctx) {
+    bankStaff(ctx);
+    return { okved: OKVED_OPTIONS };
+}
+
+function createCompany(ctx: Ctx) {
+    const user = adminOnly(ctx);
+    // Типы полей — как Pydantic; незаполненные берут значения по умолчанию, как CompanyBuilderIn
+    const v = new Validator(ctx.body);
+    const D = SPEC_DEFAULTS;
+    const raw: CompanySpec = {
+        name: (v.string('name', { required: true }) ?? '') as string,
+        legal_form: (v.choice('legal_form', ['OOO', 'IP'] as const) ?? D.legal_form) as CompanySpec['legal_form'],
+        registered_months_ago: (v.number('registered_months_ago', { int: true }) ?? D.registered_months_ago) as number,
+        okved: (v.string('okved') ?? D.okved) as string,
+        revenue: (v.number('revenue', { int: true }) ?? D.revenue) as number,
+        revenue_growth: (v.number('revenue_growth') ?? D.revenue_growth) as number,
+        margin: (v.number('margin') ?? D.margin) as number,
+        existing_monthly_payments: (v.number('existing_monthly_payments', { int: true }) ??
+            D.existing_monthly_payments) as number,
+        max_overdue_days_24m: (v.number('max_overdue_days_24m', { int: true }) ?? D.max_overdue_days_24m) as number,
+        current_overdue_days: (v.number('current_overdue_days', { int: true }) ?? D.current_overdue_days) as number,
+        tax_debt: (v.number('tax_debt', { int: true }) ?? D.tax_debt) as number,
+        mass_address: v.boolean('mass_address') ?? D.mass_address,
+        director_disqualified: v.boolean('director_disqualified') ?? D.director_disqualified,
+        company_status: (v.choice('company_status', ['ACTIVE', 'LIQUIDATING'] as const) ??
+            D.company_status) as CompanySpec['company_status'],
+        is_bank_client: v.boolean('is_bank_client') ?? D.is_bank_client,
+        account_months: (v.number('account_months', { int: true }) ?? D.account_months) as number,
+        avg_monthly_inflow: (v.number('avg_monthly_inflow', { int: true }) ?? D.avg_monthly_inflow) as number,
+    };
+    v.done();
+    const { spec, issues } = checkCompanySpec(raw);
+    if (issues.length) {
+        throw new HttpError(
+            422,
+            issues.map((issue) => ({
+                type: 'value_error',
+                loc: ['body', ...issue.loc],
+                msg: issue.msg,
+                input: issue.loc.length ? ctx.body[issue.loc[0]] : ctx.body,
+            })),
+        );
+    }
+    const response = transact((state) => {
+        state.custom_companies ??= [];
+        const custom = state.custom_companies;
+        const record = buildCompany(spec, {
+            capturedOn: FIXTURES_CAPTURED_ON,
+            now: ctx.now,
+            serial: custom.length + 1,
+            takenLogins: new Set([...USERS.map((u) => u.login), ...custom.map((c) => c.user.login)]),
+            usedInns: new Set([...companyInns(), ...custom.map((c) => c.company.inn)]),
+        });
+        custom.push(record);
+        state.synced_at[record.company.id] = iso(ctx.now);
+        registerCustomCompanies([record]);
+        audit(state, ctx.now, {
+            actor: 'ADMIN',
+            user,
+            action: 'COMPANY_CREATED',
+            entity_type: 'company',
+            entity_id: record.company.id,
+            details: { inn: record.company.inn, name: record.company.name, login: record.user.login },
+        });
+        return {
+            login: record.user.login,
+            password: DEMO_PASSWORD,
+            company: companyOut(state, record.company.id, ctx.now),
+            inn: record.company.inn,
+        };
+    });
+    return json(response, 201);
+}
+
 // ---------------------------------------------------------------- ИИ
 
 function aiStatus(ctx: Ctx) {
@@ -1241,6 +1337,8 @@ export const ROUTES: Route[] = [
     route('PUT', '/api/admin/simulator/faults/{source}', setFault),
     route('POST', '/api/admin/simulator/faults/reset', resetFaults),
     route('GET', '/api/admin/audit', auditLog),
+    route('GET', '/api/admin/companies/options', companyOptions),
+    route('POST', '/api/admin/companies', createCompany),
     route('GET', '/api/ai/status', aiStatus),
     route('POST', '/api/ai/parse-need', parseNeed),
     route('GET', '/api/health', () => ({ status: 'ok' })),

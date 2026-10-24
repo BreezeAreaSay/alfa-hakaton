@@ -1,6 +1,6 @@
 // Хранилище имитации: все демо-данные лежат в localStorage под одним ключом и общие для всех
 // демо-пользователей этого браузера. Загруженные клиентом файлы — только в памяти вкладки.
-import { FIXTURES_VERSION } from './data';
+import { FIXTURES_VERSION, registerCustomCompanies } from './data';
 import type { DemoState } from './model';
 import { STATE_VERSION, initialState } from './seed';
 
@@ -31,6 +31,12 @@ function parse(raw: string | null): DemoState | null {
     }
 }
 
+/** Данные стали текущими: компании из конструктора снова известны поиску пользователей и источников. */
+function adopt(next: DemoState | null): DemoState | null {
+    if (next) registerCustomCompanies(next.custom_companies ?? []);
+    return next;
+}
+
 function persist(next: DemoState): void {
     saved = JSON.stringify(next);
     try {
@@ -48,7 +54,7 @@ export function getState(): DemoState {
     } catch {
         raw = null;
     }
-    state = parse(raw);
+    state = adopt(parse(raw));
     if (state) saved = raw;
     else {
         state = initialState(Date.now());
@@ -68,7 +74,7 @@ export function reload(): void {
         return;
     }
     if (raw === null || raw === saved) return;
-    const next = parse(raw);
+    const next = adopt(parse(raw));
     if (!next) return;
     state = next;
     saved = raw;
@@ -92,7 +98,7 @@ export function transact<T>(fn: (current: DemoState) => T): T {
 
 /** Полная замена данных (сброс демо-стенда). */
 export function replaceState(next: DemoState): void {
-    state = next;
+    state = adopt(next);
     files.clear();
     persist(next);
     notify();
@@ -107,7 +113,7 @@ export function subscribe(listener: () => void): () => void {
 if (typeof window !== 'undefined') {
     window.addEventListener('storage', (event) => {
         if (event.key !== null && event.key !== STORAGE_KEY) return;
-        const next = parse(event.newValue);
+        const next = adopt(parse(event.newValue));
         state = next;
         saved = next ? event.newValue : null;
         notify();

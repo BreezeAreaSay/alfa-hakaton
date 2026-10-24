@@ -1,6 +1,7 @@
 // Данные имитации сервера: те же сущности, что в базе настоящего бэкенда (backend/app/models.py).
 // Суммы хранятся числами в рублях, время — строками ISO 8601 в UTC.
 import type { AppStatus, Fault, InfoItem, Purpose, Role, StatementSummary, Step } from '../api/types';
+import type { CustomCompanyRecord } from './engine/company-builder';
 import type { Factor } from './engine/scoring';
 import type { Json } from './engine/features';
 import type { TraceRow } from './engine/policy';
@@ -267,6 +268,8 @@ export interface DemoState {
     audit: AuditEntry[];
     jobs: JobRow[];
     idempotency: string[];
+    /** Компании из конструктора администратора: профиль, снимки источников и пользователь — рядом с остальными. */
+    custom_companies: CustomCompanyRecord[];
 }
 
 export const iso = (ms: number): string => new Date(ms).toISOString();

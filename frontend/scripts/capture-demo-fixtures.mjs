@@ -40,6 +40,40 @@ const CLIENTS = [
 const STAFF = ['analyst', 'analyst2', 'admin'];
 const EXTERNAL = ['EGRUL', 'FNS', 'GIRBO', 'BKI', 'BANK'];
 const PROCESSING = new Set(['SUBMITTED', 'IN_PROCESSING', 'ACCEPTED', 'SIGNED']);
+// Профиль компании из конструктора без полей, которые зависят от стенда и дня запуска (ИНН, ОГРН, даты, id)
+const COMPANY_STABLE_FIELDS = [
+    'name',
+    'legal_form',
+    'okved',
+    'okved_name',
+    'address',
+    'status',
+    'status_label',
+    'director_name',
+    'is_bank_client',
+    'business_months',
+    'account_months',
+];
+// Своя тестовая компания (docs/test-scenarios.md, С15): значения по умолчанию формы администратора
+const CUSTOM_COMPANY = {
+    name: 'Белые ночи',
+    legal_form: 'OOO',
+    registered_months_ago: 72,
+    okved: '46.39',
+    revenue: 60_000_000,
+    revenue_growth: 0.12,
+    margin: 0.1,
+    existing_monthly_payments: 0,
+    max_overdue_days_24m: 0,
+    current_overdue_days: 0,
+    tax_debt: 0,
+    mass_address: false,
+    director_disqualified: false,
+    company_status: 'ACTIVE',
+    is_bank_client: true,
+    account_months: 36,
+    avg_monthly_inflow: 5_000_000,
+};
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const log = (...args) => console.log('·', ...args);
@@ -885,6 +919,37 @@ async function main() {
         dossier: compactDossier(await analyst.get(`/api/bank/applications/${outage.id}/dossier`)),
     };
     log('altair: ожидание БКИ и восстановление');
+
+    // С15. Своя компания: администратор создаёт устойчивую компанию, под её логином подают заявку
+    const customRequest = { product_code: 'GROWTH', purpose: 'EXPANSION', amount: 2_000_000, term_months: 24 };
+    examples.company_options = await admin.get('/api/admin/companies/options');
+    errors.company_builder_analyst = await analyst.error('POST', '/api/admin/companies', CUSTOM_COMPANY);
+    errors.company_builder_empty_name = await admin.error('POST', '/api/admin/companies', {
+        ...CUSTOM_COMPANY,
+        name: '   ',
+    });
+    errors.company_builder_overdue = await admin.error('POST', '/api/admin/companies', {
+        ...CUSTOM_COMPANY,
+        current_overdue_days: 40,
+    });
+    const created = await admin.post('/api/admin/companies', CUSTOM_COMPANY, { expect: 201 });
+    examples.company_created = created;
+    const custom = await session(created.login);
+    const customApp = await apply(custom, customRequest);
+    scenarios['custom-company'] = {
+        spec: CUSTOM_COMPANY,
+        request: customRequest,
+        // На стенде логин мог получить номер, а ИНН — следующий свободный: компания с таким названием уже создавалась
+        created: {
+            login_base: created.login.replace(/\d+$/, ''),
+            password: created.password,
+            company: pick(created.company, COMPANY_STABLE_FIELDS),
+        },
+        user: pick(custom.user, ['full_name', 'position', 'role', 'can_sign']),
+        application: { ...compactApp(customApp), company: null },
+        dossier: compactDossier(await analyst.get(`/api/bank/applications/${customApp.id}/dossier`)),
+    };
+    log(`своя компания ${created.login}: ${customApp.status}`);
 
     // Права доступа и ошибки
     errors.login_wrong_password = await (async () => {

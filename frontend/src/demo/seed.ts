@@ -117,6 +117,8 @@ function emptyState(now: number, previous: DemoState | null): DemoState {
         audit: [],
         jobs: [],
         idempotency: [],
+        // Компании из конструктора администратора сброс не удаляет — как и учётные записи на стенде
+        custom_companies: previous?.custom_companies ?? [],
     };
 }
 

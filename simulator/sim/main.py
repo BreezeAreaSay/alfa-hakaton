@@ -2,6 +2,7 @@
 
 Данные синтетические (sim/data/companies.json). Контракты упрощены, смысл интеграций сохранён.
 Через /admin/faults можно включить сбой любого источника, чтобы проверить устойчивость конвейера.
+Через POST /companies администратор стенда добавляет свою компанию: её данные появляются во всех источниках.
 """
 
 import asyncio
@@ -15,7 +16,13 @@ from typing import Any, Literal
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
-DATA = json.loads((Path(__file__).parent / "data" / "companies.json").read_text(encoding="utf-8"))["companies"]
+from sim.companies import CompanySpec, CompanyStore, custom_file
+
+STORE = CompanyStore(
+    json.loads((Path(__file__).parent / "data" / "companies.json").read_text(encoding="utf-8"))["companies"],
+    custom_file(),
+)
+DATA = STORE.data
 SOURCES = ("egrul", "fns", "girbo", "bki", "bank", "core")
 
 app = FastAPI(title="Симулятор внешних систем", version="1.0.0")
@@ -62,9 +69,7 @@ def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
-@app.get("/egrul/{inn}")
-async def egrul(inn: str) -> dict[str, Any]:
-    await gate("egrul")
+def egrul_view(inn: str) -> dict[str, Any]:
     e = company(inn)["egrul"]
     return {
         "inn": inn,
@@ -81,6 +86,12 @@ async def egrul(inn: str) -> dict[str, Any]:
             "since": months_ago(e["director"]["since_months_ago"]).isoformat(),
         },
     }
+
+
+@app.get("/egrul/{inn}")
+async def egrul(inn: str) -> dict[str, Any]:
+    await gate("egrul")
+    return egrul_view(inn)
 
 
 @app.get("/fns/{inn}")
@@ -140,9 +151,7 @@ async def bki(request: BkiRequest) -> dict[str, Any]:
     }
 
 
-@app.get("/bank/clients/{inn}")
-async def bank_client(inn: str) -> dict[str, Any]:
-    await gate("bank")
+def bank_view(inn: str) -> dict[str, Any]:
     b = company(inn)["bank"]
     if not b.get("is_client"):
         return {"inn": inn, "is_client": False, "months": []}
@@ -158,6 +167,12 @@ async def bank_client(inn: str) -> dict[str, Any]:
         "account_opened_at": months_ago(b["account_opened_months_ago"], today).isoformat(),
         "months": months,
     }
+
+
+@app.get("/bank/clients/{inn}")
+async def bank_client(inn: str) -> dict[str, Any]:
+    await gate("bank")
+    return bank_view(inn)
 
 
 class DisbursementRequest(BaseModel):
@@ -203,3 +218,16 @@ def reset_faults() -> dict[str, Fault]:
 @app.get("/admin/companies")
 def companies() -> list[dict[str, str]]:
     return [{"inn": inn, "name": c["egrul"]["name"], "persona": c["persona"]} for inn, c in DATA.items()]
+
+
+@app.post("/companies", status_code=201)
+def create_company(spec: CompanySpec) -> dict[str, Any]:
+    """Регистрирует свою компанию во всех внешних системах. Сбои и задержки источников на регистрацию не действуют."""
+    inn = STORE.register(spec)
+    return {"inn": inn, "egrul": egrul_view(inn), "bank": bank_view(inn)}
+
+
+@app.get("/companies/{inn}")
+def get_company(inn: str) -> dict[str, Any]:
+    """Персона целиком, как в companies.json: и встроенные, и созданные компании."""
+    return {"inn": inn, **company(inn)}
