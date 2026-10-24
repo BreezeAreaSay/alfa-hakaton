@@ -1,0 +1,14 @@
+# Готовые образы из GitHub Container Registry вместо сборки на сервере (docs/deploy.md). Их публикует
+# workflow «Образы» (.github/workflows/images.yml) на каждый коммит в main и на теги v*.
+#   docker compose -f docker-compose.yml -f deploy/docker-compose.images.yml pull
+#   docker compose -f docker-compose.yml -f deploy/docker-compose.images.yml up -d --no-build --wait
+# IMAGES_OWNER — владелец репозитория на GitHub строчными буквами, IMAGES_TAG — latest, v1.0.0 или sha-<коммит>.
+services:
+  simulator:
+    image: ghcr.io/${IMAGES_OWNER:-stonebridgeway}/alfa-hakaton-simulator:${IMAGES_TAG:-latest}
+  api:
+    image: ghcr.io/${IMAGES_OWNER:-stonebridgeway}/alfa-hakaton-api:${IMAGES_TAG:-latest}
+  worker:
+    image: ghcr.io/${IMAGES_OWNER:-stonebridgeway}/alfa-hakaton-api:${IMAGES_TAG:-latest}
+  frontend:
+    image: ghcr.io/${IMAGES_OWNER:-stonebridgeway}/alfa-hakaton-frontend:${IMAGES_TAG:-latest}

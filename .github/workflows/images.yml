@@ -1,0 +1,61 @@
+# Готовые образы для сервера: собираются на каждый коммит в main и на теги v*, публикуются в GitHub Container
+# Registry как ghcr.io/<владелец>/alfa-hakaton-{api,simulator,frontend}. На сервере их скачивает
+# deploy/install.sh (или docker compose -f docker-compose.yml -f deploy/docker-compose.images.yml pull),
+# поэтому собирать образы на слабой машине не нужно. Подробности — docs/deploy.md.
+name: Образы
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: images-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: ${{ matrix.name }} — собрать и опубликовать
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: api
+            context: backend
+          - name: simulator
+            context: simulator
+          - name: frontend
+            context: frontend
+    steps:
+      - uses: actions/checkout@v5
+      - name: Имя образа (владелец строчными буквами — требование реестра)
+        id: image
+        run: echo "name=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/alfa-hakaton-${{ matrix.name }}" >> "$GITHUB_OUTPUT"
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/metadata-action@v5
+        id: meta
+        with:
+          images: ${{ steps.image.outputs.name }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=ref,event=tag
+            type=sha
+      - uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=${{ matrix.name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.name }}
