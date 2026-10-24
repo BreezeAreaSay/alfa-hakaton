@@ -1015,7 +1015,7 @@ table.simple td.num {
 
 .footer__grid {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--gap-40) var(--gap-32);
     padding-bottom: var(--gap-40);
     border-bottom: 1px solid rgba(255, 255, 255, 0.16);
@@ -1048,20 +1048,6 @@ table.simple td.num {
     list-style: none;
 }
 
-.footer__contacts {
-    margin: 0;
-}
-
-.footer__contacts dt {
-    font-size: 12px;
-    line-height: 16px;
-    color: rgba(255, 255, 255, 0.48);
-}
-
-.footer__contacts dd {
-    margin: 0 0 var(--gap-12);
-}
-
 .footer__row {
     display: flex;
     flex-wrap: wrap;
@@ -1077,31 +1063,6 @@ table.simple td.num {
 
 .footer__city {
     font-weight: 700;
-}
-
-.footer__app-icon {
-    display: grid;
-    place-items: center;
-    width: 24px;
-    height: 24px;
-    border-radius: 6px;
-    background: linear-gradient(180deg, #6b6c72, #3c3d42);
-}
-
-.footer__social {
-    display: grid;
-    place-items: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 10px;
-}
-
-.footer__social--telegram {
-    background: #2aabee;
-}
-
-.footer__social--vk {
-    background: #07f;
 }
 
 .footer__legal {
