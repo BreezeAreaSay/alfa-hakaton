@@ -279,6 +279,21 @@ table.simple tr.clickable:focus-visible td {
     }
 }
 
+/* Ноутбуки 1280–1399 px: продукт и срок переезжают под компанию и сумму, чтобы таблица помещалась без прокрутки */
+.bank-queue .bank-queue__inline {
+    display: none;
+}
+
+@media (max-width: 1399px) {
+    .bank-queue .bank-queue__wide {
+        display: none;
+    }
+
+    .bank-queue .bank-queue__inline {
+        display: block;
+    }
+}
+
 .bank-status-cell {
     display: flex;
     flex-direction: column;

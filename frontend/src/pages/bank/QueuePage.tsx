@@ -243,9 +243,9 @@ export function QueuePage() {
                                     <tr>
                                         <th>№ заявки</th>
                                         <th>Компания</th>
-                                        <th>Продукт</th>
+                                        <th className='bank-queue__wide'>Продукт</th>
                                         <th className='num'>Сумма</th>
-                                        <th>Срок</th>
+                                        <th className='bank-queue__wide'>Срок</th>
                                         <th>Статус</th>
                                         <th className='col-detail'>Приоритет</th>
                                         <th>Риск</th>
@@ -270,10 +270,17 @@ export function QueuePage() {
                                             <td>
                                                 <div className='bank-strong'>{row.company_name}</div>
                                                 <div className='bank-sub'>ИНН {row.inn}</div>
+                                                {/* на экранах уже 1400 px продукт и срок — второй строкой, без своих колонок */}
+                                                <div className='bank-sub bank-queue__inline'>{row.product_name}</div>
                                             </td>
-                                            <td className='bank-product-cell'>{row.product_name}</td>
-                                            <td className='num'>{rub(row.amount)}</td>
-                                            <td className='bank-nowrap'>{months(row.term_months)}</td>
+                                            <td className='bank-product-cell bank-queue__wide'>{row.product_name}</td>
+                                            <td className='num'>
+                                                {rub(row.amount)}
+                                                <div className='bank-sub bank-queue__inline'>
+                                                    {months(row.term_months)}
+                                                </div>
+                                            </td>
+                                            <td className='bank-nowrap bank-queue__wide'>{months(row.term_months)}</td>
                                             <td>
                                                 <div className='bank-status-cell'>
                                                     <StatusBadge
