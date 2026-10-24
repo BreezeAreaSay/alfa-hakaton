@@ -146,7 +146,7 @@ export function LoginPage({
             </header>
 
             {page === 'products' ? (
-                <ProductsPage onCalculate={(path) => (user ? navigate(path) : enter(path))} />
+                <ProductsPage />
             ) : (
                 <>
                     <section className='login__brand'>
