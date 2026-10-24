@@ -369,6 +369,51 @@
     bottom: -16px;
 }
 
+/* ---------------------------------------------------------------- кому подойдёт кабинет */
+
+.landing-audience__card {
+    align-content: start;
+    gap: var(--gap-16);
+}
+
+.landing-audience__quote {
+    font-size: 16px;
+    line-height: 22px;
+    font-style: italic;
+}
+
+.landing-audience__points,
+.landing-audience__terms {
+    display: grid;
+    gap: var(--gap-8);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 14px;
+    line-height: 20px;
+}
+
+.landing-audience__points li,
+.landing-audience__terms li {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--gap-8);
+}
+
+.landing-audience__points svg,
+.landing-audience__terms svg {
+    flex: none;
+    color: var(--color-light-accent-primary, #ef3124);
+}
+
+.landing-audience__terms {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--gap-8) var(--gap-24);
+    font-size: 16px;
+    font-weight: 500;
+}
+
 /* ---------------------------------------------------------------- ответы на вопросы */
 
 .landing-faq {

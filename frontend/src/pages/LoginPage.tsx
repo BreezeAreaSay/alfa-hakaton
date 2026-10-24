@@ -11,7 +11,7 @@ import { Logo } from '../components/AppHeader';
 import { ErrorPlate } from '../components/ui';
 import { HOW_IT_WORKS } from './client/DashboardPage';
 import { AuthModal, AuthSwitch } from './landing/AuthModal';
-import { HeroArt, ProductsBanner, PromoBanners } from './landing/Banners';
+import { AudienceSection, HeroArt, ProductsBanner, PromoBanners } from './landing/Banners';
 import { Faq } from './landing/Faq';
 import { RegisterWidget } from './landing/RegisterWidget';
 
@@ -135,6 +135,7 @@ export function LoginPage({ guestOnly = false }: { guestOnly?: boolean }) {
 
             <section className='login__sheet'>
                 <div className='login__inner landing-sections'>
+                    <AudienceSection />
                     <ProductsBanner onStart={start} />
                     <PromoBanners onStart={start} />
 
