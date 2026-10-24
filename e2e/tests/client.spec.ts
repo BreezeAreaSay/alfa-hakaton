@@ -11,13 +11,14 @@ test.beforeEach(async ({ request, page }) => {
     await resetDemo({ request, page });
 });
 
-/** Шаг «Подбор»: описание задачи → распознанные параметры → выбор продукта. */
+/** Шаг «Подбор»: описание задачи своими словами → «Я понял так» → выбор продукта. */
 async function chooseProduct(page: Page, need: string, product: string): Promise<void> {
     await page.getByRole('button', { name: 'Подобрать кредит' }).first().click();
     await expect(page).toHaveURL(/\/client\/new/);
+    await page.getByRole('button', { name: 'Или опишите задачу своими словами' }).click();
     await page.locator('textarea').first().fill(need);
     await page.getByRole('button', { name: 'Подобрать по описанию' }).click();
-    await expect(page.getByText(/^Распознали:/)).toBeVisible();
+    await expect(page.getByText('Я понял так', { exact: true })).toBeVisible();
     const card = page.locator('article').filter({ has: page.getByRole('heading', { name: product, exact: true }) });
     await card.getByRole('button', { name: 'Оформить заявку' }).click();
 }
