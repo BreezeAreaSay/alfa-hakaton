@@ -1,7 +1,4 @@
 import { LocatorLineMIcon } from '@alfalab/icons-glyph/LocatorLineMIcon';
-import { AlfaBankLIcon } from '@alfalab/icons-logotype/AlfaBankLIcon';
-import { TelegramMIcon } from '@alfalab/icons-logotype/TelegramMIcon';
-import { VkMIcon } from '@alfalab/icons-logotype/VkMIcon';
 import type { ReactNode } from 'react';
 
 interface FooterLink {
@@ -39,7 +36,6 @@ const COLUMNS: { title: string; links: FooterLink[] }[] = [
     {
         title: 'Поддержка',
         links: [
-            { label: 'Обращение в банк', href: 'https://alfabank.ru/feedback/support/' },
             { label: 'Справочный центр', href: 'https://alfabank.ru/help/t/corp/' },
             { label: 'Блог', href: 'https://alfabank.ru/help/articles/sme/' },
             { label: 'Безопасность', href: 'https://alfabank.ru/everyday/online/alfaclick/security/' },
@@ -50,33 +46,15 @@ const COLUMNS: { title: string; links: FooterLink[] }[] = [
     },
 ];
 
-// Звонок частному клиенту из браузера — через вход Альфа-Банка, как на alfabank.ru
-const BROWSER_CALL =
-    'https://private.auth.alfabank.ru/passport/cerberus-mini/dashboard/username?response_type=code&client_id=newclick-web&scope=openid%20newclick-web&acr_values=username&non_authorized_user=true&sidepanelid=voip';
-
-/** Подвал как на alfabank.ru для бизнеса: все ссылки ведут на сайты Альфа-Банка и открываются в новой вкладке. */
+/**
+ * Подвал как на alfabank.ru для бизнеса: ссылки ведут на сайты Альфа-Банка и открываются в новой вкладке.
+ * Без телефонов, мессенджеров и мобильного приложения: по ТЗ (стр. 11) сценарий проходит только внутри продукта.
+ */
 export function AppFooter() {
     return (
         <footer className='footer'>
             <div className='footer__inner'>
                 <div className='footer__grid'>
-                    <section>
-                        <h2 className='footer__title'>Связь с банком</h2>
-                        <dl className='footer__contacts'>
-                            <dt>Бизнесу</dt>
-                            <dd>
-                                <a href='tel:88001007733'>8 800 100 77 33</a>
-                            </dd>
-                            <dt>Частным лицам</dt>
-                            <dd>
-                                <ExternalLink href={BROWSER_CALL}>Звонок в банк</ExternalLink>
-                            </dd>
-                            <dt>Звонок из-за границы</dt>
-                            <dd>
-                                <a href='tel:+74957888878'>+7 495 788 88 78</a>
-                            </dd>
-                        </dl>
-                    </section>
                     {COLUMNS.map((column) => (
                         <section key={column.title}>
                             <h2 className='footer__title'>{column.title}</h2>
@@ -97,15 +75,6 @@ export function AppFooter() {
                         </span>
                     </section>
                     <section>
-                        <h2 className='footer__title'>Скачать приложение</h2>
-                        <ExternalLink href='https://alfabank.ru/sme/rko/abm/' className='footer__item'>
-                            <span className='footer__app-icon'>
-                                <AlfaBankLIcon width={11} height={17} aria-hidden={true} />
-                            </span>
-                            Альфа-Бизнес
-                        </ExternalLink>
-                    </section>
-                    <section>
                         <h2 className='footer__title'>Для иностранных клиентов</h2>
                         <div className='footer__row'>
                             <ExternalLink href='https://alfabank.ru/corporate/china/' className='footer__item'>
@@ -115,25 +84,6 @@ export function AppFooter() {
                             <ExternalLink href='https://alfabank.ru/en/' className='footer__item'>
                                 <UkFlag />
                                 Eng
-                            </ExternalLink>
-                        </div>
-                    </section>
-                    <section>
-                        <h2 className='footer__title'>Наши соцсети</h2>
-                        <div className='footer__row'>
-                            <ExternalLink
-                                href='https://t.me/AlfaBank'
-                                label='Telegram'
-                                className='footer__social footer__social--telegram'
-                            >
-                                <TelegramMIcon aria-hidden={true} />
-                            </ExternalLink>
-                            <ExternalLink
-                                href='https://vk.com/alfabank'
-                                label='ВКонтакте'
-                                className='footer__social footer__social--vk'
-                            >
-                                <VkMIcon aria-hidden={true} />
                             </ExternalLink>
                         </div>
                     </section>
