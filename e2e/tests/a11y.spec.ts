@@ -67,10 +67,18 @@ const describeViolation = (violation: Violation): string => {
 
 /**
  * Проверяет текущее состояние страницы правилами WCAG A/AA. Перед проверкой дожидается, пока исчезнут
- * индикаторы загрузки, чтобы не оценивать промежуточное состояние.
+ * индикаторы загрузки и закончатся плавные появления, чтобы не оценивать промежуточное состояние.
  */
 async function checkA11y(page: Page, screen: string, testInfo: TestInfo): Promise<void> {
     await expect(page.getByText(/^(Загружаем|Подбираем продукты)/)).toHaveCount(0);
+    // Окна проявляются плавно. Посреди перехода текст полупрозрачный, и axe считает контраст по смешанным цветам:
+    // на медленном раннере CI так не проходил серый текст окна входа. Ждём конца CSS-переходов; бесконечные
+    // анимации и служебная анимация полей ввода дизайн-системы длиной в несколько суток — не переходы и не мешают.
+    await page.waitForFunction(
+        () =>
+            !document.querySelector('[class*="-enter-active"], [class*="-appear-active"]') &&
+            !document.getAnimations().some((item) => 'transitionProperty' in item && item.playState === 'running'),
+    );
 
     const builder = new AxeBuilder({ page }).withTags(WCAG_TAGS);
     for (const selector of DESIGN_SYSTEM_EXCLUDES) builder.exclude(selector);
