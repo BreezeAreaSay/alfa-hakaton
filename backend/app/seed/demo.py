@@ -2,13 +2,16 @@
 
 import logging
 import shutil
+import time
 from decimal import Decimal
 from pathlib import Path
 
 from sqlalchemy import select, text
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session
 
 from app.config import get_settings
+from app.db import is_deadlock
 from app.domain.catalog import PRODUCTS
 from app.domain.enums import Actor, AppStatus, ConsentType, Purpose, Role
 from app.domain.review import pick_analyst
@@ -180,7 +183,32 @@ def preseed(db: Session) -> int:
 DEMO_DATA_TABLES = "applications, support_messages"
 
 
+RESET_ATTEMPTS = 3
+RESET_PAUSE_SECONDS = 0.2
+
+
 def reset_demo(db: Session) -> int:
+    """Сбросить демо-данные; при взаимной блокировке с обработчиком заявок — повторить.
+
+    TRUNCATE берёт исключительные блокировки таблиц по одной: сначала заявки, затем каскадом задания конвейера.
+    Обработчик, выбирая задание, блокирует задания и читает заявки — в обратном порядке, и Postgres прерывает одну
+    из транзакций. Сброс идёт в точке сохранения: при откате она снимает свои
+    блокировки, обработчик дописывает свою транзакцию, и повтор проходит. Работа, сделанная в той же транзакции
+    до сброса (справочники при запуске seed), не теряется.
+    """
+    for attempt in range(1, RESET_ATTEMPTS + 1):
+        try:
+            with db.begin_nested():
+                return _reset_once(db)
+        except OperationalError as exc:
+            if attempt == RESET_ATTEMPTS or not is_deadlock(exc):
+                raise
+            log.warning("Сброс демо-данных: взаимная блокировка с обработчиком заявок, повтор %s", attempt + 1)
+            time.sleep(RESET_PAUSE_SECONDS * attempt)
+    raise AssertionError("недостижимо: последняя попытка либо возвращает результат, либо поднимает ошибку")
+
+
+def _reset_once(db: Session) -> int:
     # Идентификаторы не начинаются заново: открытые вкладки продолжают поток событий с последнего Last-Event-ID
     db.execute(text(f"TRUNCATE {DEMO_DATA_TABLES}, audit_log, idempotency_keys CASCADE"))
     db.execute(text("ALTER SEQUENCE application_number_seq RESTART WITH 1"))

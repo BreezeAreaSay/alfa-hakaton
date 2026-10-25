@@ -20,3 +20,12 @@ def get_db() -> Iterator[Session]:
         yield db
     finally:
         db.close()
+
+
+# SQLSTATE «deadlock detected»: Postgres прервал одну из двух транзакций, ждавших блокировки друг друга
+DEADLOCK_DETECTED = "40P01"
+
+
+def is_deadlock(error: BaseException) -> bool:
+    """Ошибка базы — взаимная блокировка: транзакцию можно просто повторить."""
+    return getattr(getattr(error, "orig", None), "sqlstate", None) == DEADLOCK_DETECTED

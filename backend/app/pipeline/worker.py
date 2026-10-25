@@ -14,11 +14,12 @@ import time
 from datetime import UTC, datetime, timedelta
 
 from prometheus_client import start_http_server
-from sqlalchemy import func, select
+from sqlalchemy import Connection, event, func, select, text
 from sqlalchemy.orm import Session
+from sqlalchemy.orm.exc import StaleDataError
 
 from app.config import get_settings
-from app.db import SessionLocal
+from app.db import SessionLocal, is_deadlock
 from app.domain.enums import Actor, AppStatus, Audience, InfoStatus, JobStatus, OfferStatus
 from app.logging_setup import setup_logging
 from app.models import Application, InfoRequest, Job, Offer
@@ -74,9 +75,13 @@ class Worker:
         with SessionLocal() as db:
             try:
                 job = queue.claim(db, worker_id)
-            except Exception:
-                log.exception("Не удалось взять задание")
+            except Exception as error:
                 db.rollback()
+                if is_deadlock(error):
+                    # сброс демо-данных очищает таблицы, пока задание выбирается, — возьмём его в следующем цикле
+                    log.warning("Задание не взято: взаимная блокировка со сбросом демо-данных — возьмём позже")
+                else:
+                    log.exception("Не удалось взять задание")
                 return False
             if job is None:
                 return False
@@ -96,6 +101,10 @@ class Worker:
                         "duration_ms": round((time.monotonic() - started) * 1000),
                     },
                 )
+            except StaleDataError:
+                # Пока шёл шаг, сброс демо-данных удалил заявку вместе с заданием — продолжать нечего
+                db.rollback()
+                log.warning("Задание %s удалено сбросом демо-данных во время шага", job_id)
             except Exception as error:
                 db.rollback()
                 JOBS.labels(kind=kind, result="error").inc()
@@ -179,8 +188,21 @@ def expire_info_requests(db: Session) -> None:
             transition(db, application, AppStatus.EXPIRED, actor=Actor.SYSTEM, reason="Истёк срок ответа на запрос")
 
 
+def lock_applications_first(session: Session, transaction: object, connection: Connection) -> None:
+    """Каждая транзакция обработчика сначала берёт разделяемую блокировку таблицы заявок.
+
+    Сброс демо-данных (TRUNCATE ... CASCADE) блокирует сначала заявки, затем каскадом задания, запросы информации
+    и другие зависимые таблицы. Обработчик начинал с заданий или запросов и потом читал заявку — в обратном
+    порядке, и транзакции ждали друг друга, пока Postgres не прерывал одну из них. С этой блокировкой порядок
+    общий: пока идёт сброс, обработчик ждёт, ничего не держа. Обычной работе она не мешает: ACCESS SHARE
+    конфликтует только с TRUNCATE, ALTER и DROP.
+    """
+    connection.execute(text("LOCK TABLE applications IN ACCESS SHARE MODE"))
+
+
 def main() -> None:
     setup_logging()
+    event.listen(SessionLocal, "after_begin", lock_applications_first)
     Worker().run()
 
 
