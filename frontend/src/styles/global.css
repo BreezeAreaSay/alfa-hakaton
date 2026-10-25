@@ -172,9 +172,9 @@ a {
     position: relative;
 }
 
-/* колокольчик дизайн-системы нарисован с наклоном 45°; в шапке — 60° от вертикали низом влево (+15° к рисунку) */
+/* колокольчик дизайн-системы нарисован с наклоном 45°; в шапке — 30° от вертикали низом влево (−15° к рисунку) */
 .bell > button svg {
-    transform: rotate(15deg);
+    transform: rotate(-15deg);
 }
 
 /* без новых уведомлений — серый, с новыми — красный, с «волнами звона» по бокам и коротким покачиванием */
@@ -218,22 +218,22 @@ a {
     0%,
     30%,
     100% {
-        transform: rotate(15deg);
+        transform: rotate(-15deg);
     }
     5% {
-        transform: rotate(30deg);
-    }
-    10% {
         transform: rotate(0deg);
     }
+    10% {
+        transform: rotate(-30deg);
+    }
     15% {
-        transform: rotate(26deg);
+        transform: rotate(-4deg);
     }
     20% {
-        transform: rotate(5deg);
+        transform: rotate(-25deg);
     }
     25% {
-        transform: rotate(18deg);
+        transform: rotate(-12deg);
     }
 }
 
